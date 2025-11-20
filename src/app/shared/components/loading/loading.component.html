@@ -1,0 +1,27 @@
+<div [class]="loadingClasses">
+    <div class="loading-content">
+        <!-- Spinner -->
+        @if (type === 'spinner') {
+            <div class="spinner"></div>
+        }
+
+        <!-- Dots -->
+        @if (type === 'dots') {
+            <div class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        }
+
+        <!-- Pulse -->
+        @if (type === 'pulse') {
+            <div class="pulse"></div>
+        }
+
+        <!-- Message -->
+        @if (message) {
+            <p class="loading-message">{{ message }}</p>
+        }
+    </div>
+</div>

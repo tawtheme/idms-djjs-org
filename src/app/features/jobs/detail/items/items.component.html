@@ -1,0 +1,64 @@
+<div class="items-container" *ngIf="hasItems()">
+    <div class="item-card">
+        <div class="item-card-title" *ngIf="showTitle">{{ title }}</div>
+        <div class="form-grid">
+            <div class="item-editor" *ngFor="let item of items; let i = index">
+                <div class="item-editor-header" 
+                     [class.clickable]="hasMultipleItems()"
+                     (click)="hasMultipleItems() && togglePrintingSpecs(i)">
+                    <div class="item-title">
+                        <span class="item-book-title">{{ item.title || jobTitle }}</span>
+                    </div>
+                    <div class="item-header-right">
+                        <span class="expand-icon" 
+                              *ngIf="hasMultipleItems() && i === 0"
+                              [class.expanded]="isPrintingSpecsExpanded(i)">
+                            <span class="material-icons">expand_more</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="item-editor-body" *ngIf="isPrintingSpecsExpanded(i)">
+                    <div class="form-grid cols-3">
+                        <div class="info-item">
+                            <span class="label">Quantity:</span>
+                            <span class="value">{{ item.quantity | number }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.size">
+                            <span class="label">Size:</span>
+                            <span class="value">{{ item.size }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.paper_type">
+                            <span class="label">Paper Type:</span>
+                            <span class="value">{{ item.paper_type }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.color_mode">
+                            <span class="label">Color Mode:</span>
+                            <span class="value">{{ item.color_mode }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.print_side">
+                            <span class="label">Print Side:</span>
+                            <span class="value">{{ item.print_side }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.binding_type">
+                            <span class="label">Binding Type:</span>
+                            <span class="value">{{ item.binding_type }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.folding_type">
+                            <span class="label">Folding Type:</span>
+                            <span class="value">{{ item.folding_type }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.paper_gsm">
+                            <span class="label">Paper GSM:</span>
+                            <span class="value">{{ item.paper_gsm }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="item.finishing_options && item.finishing_options.length > 0">
+                            <span class="label">Finishing Options:</span>
+                            <span class="value">{{ item.finishing_options.join(', ') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

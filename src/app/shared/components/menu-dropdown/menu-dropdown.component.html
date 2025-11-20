@@ -1,0 +1,28 @@
+<div class="menu-dropdown">
+    <!-- Menu Trigger -->
+    <button 
+        class="menu-trigger" 
+        (click)="toggleDropdown($event)"
+        [disabled]="disabled"
+        [class.open]="isOpen"
+        [attr.aria-expanded]="isOpen"
+        [attr.aria-haspopup]="true"
+        type="button">
+        <span class="menu-dots material-icons">{{ triggerText }}</span>
+    </button>
+
+    <!-- Menu List (hidden, will be cloned and appended to body) -->
+    <div #menuList class="menu-list" role="menu" [style.display]="'none'">
+        <button 
+            class="menu-item" 
+            *ngFor="let option of options; trackBy: trackById"
+            [class.disabled]="option.disabled"
+            [class.danger]="option.danger"
+            [disabled]="option.disabled"
+            role="menuitem"
+            (click)="selectOption(option)">
+            <span class="menu-icon material-icons" *ngIf="!!option.icon">{{ option.icon }}</span>
+            <span class="menu-label">{{ option.label }}</span>
+        </button>
+    </div>
+</div>

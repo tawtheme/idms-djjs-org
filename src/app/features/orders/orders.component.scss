@@ -1,0 +1,70 @@
+@use '../../../assets/scss/pages' as listing;
+@import '../../../assets/scss/variable';
+@import '../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.orders');
+
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.orders-search {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr 100px;
+    gap: 24px;
+    justify-content: center;
+    margin: 24px 0;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+// listing status badge
+.status {
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+
+        // "In progress" sequence
+        &.status-new {
+            background: $color-gray-200;
+            color: $color-gray-700;
+        }
+        &.status-pending_production {
+            background: $color-yellow-100;
+            color: $color-yellow-800;
+        }
+        &.status-in_production {
+            background: $color-primary-100;
+            color: $color-primary-800;
+        }
+        &.status-ready_to_ship {
+            background: $color-purple-200;
+            color: $color-purple-900;
+        }
+
+        // Terminal states
+        &.status-shipped {
+            background: $color-teal-100;
+            color: $color-teal-900;
+        }
+        &.status-completed {
+            background: $color-green-100;
+            color: $color-green-900;
+        }
+        &.status-cancelled {
+            background: $color-red-100;
+            color: $color-red-800;
+        }
+    }
+}

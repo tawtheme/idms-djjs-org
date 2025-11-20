@@ -1,0 +1,315 @@
+@import '../../../../assets/scss/variable';
+
+.date-range-picker-wrapper {
+    position: relative;
+    display: inline-block;
+    width: auto;
+
+    .date-range-picker-input-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: auto;
+        border: 1px solid $color-gray-300;
+        border-radius: 6px;
+        background: $color-white;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+
+        &:focus-within {
+            border-color: $color-primary-500;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .date-range-picker-input {
+            padding: 10px 16px 10px 12px; // Right padding: 16px gap before icon
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-gray-900;
+            background: transparent;
+            cursor: pointer;
+            transition: border-color 150ms ease, box-shadow 150ms ease, width 200ms ease;
+            box-sizing: border-box;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:disabled {
+                background: transparent;
+                color: $color-gray-300;
+                cursor: not-allowed;
+            }
+
+            &::placeholder {
+                color: $color-gray-500;
+            }
+        }
+
+        .date-range-picker-measure {
+            position: absolute;
+            visibility: hidden;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit; // Match input font family
+            padding: 0;
+            margin: 0;
+            border: 0;
+            height: auto;
+            width: auto;
+            display: inline-block;
+        }
+
+        .date-range-picker-trigger {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: $color-gray-500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 150ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            &:hover {
+                background: $color-gray-100;
+                color: $color-gray-700;
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .material-icons {
+                font-size: 20px;
+            }
+        }
+    }
+
+    .date-range-picker-calendar {
+        padding: 0;
+        min-width: 700px;
+        display: flex;
+        flex-direction: column;
+
+        .calendar-container {
+            display: flex;
+            min-height: 400px;
+        }
+
+        // Left Sidebar - Presets
+        .calendar-presets {
+            width: 180px;
+            background: $color-gray-50;
+            border-radius: 4px;
+            overflow: scroll;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .preset-item {
+                padding: 10px;
+                font-size: 14px;
+                color: $color-gray-700;
+                cursor: pointer;
+                transition: all 150ms ease;
+                border-left: 3px solid transparent;
+
+                &:hover {
+                    background: $color-gray-100;
+                    color: $color-gray-900;
+                }
+
+                &.active {
+                    background: rgba(59, 130, 246, 0.1);
+                    color: $color-primary-600;
+                    border-left-color: $color-primary-600;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        // Right Side - Calendar Content
+        .calendar-content {
+            flex: 1;
+            display: flex;
+            gap: 24px;
+            padding: 20px;
+        }
+
+        // Individual Calendar Month
+        .calendar-month {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+
+            .calendar-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+
+                .calendar-nav-btn {
+                    background: none;
+                    border: none;
+                    font-size: 20px;
+                    color: $color-gray-700;
+                    cursor: pointer;
+                    padding: 6px 8px;
+                    border-radius: 4px;
+                    transition: all 150ms ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:hover {
+                        background: $color-gray-100;
+                        color: $color-primary-600;
+                    }
+
+                    &:active {
+                        background: $color-gray-200;
+                    }
+
+                    .material-icons {
+                        font-size: 20px;
+                    }
+                }
+
+                .calendar-title {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+
+                    .month-name {
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: $color-gray-900;
+                        line-height: 1.2;
+                    }
+
+                    .year {
+                        font-size: 13px;
+                        color: $color-gray-500;
+                        line-height: 1.2;
+                    }
+                }
+            }
+
+            .calendar-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+
+                .calendar-day-headers {
+                    display: grid;
+                    grid-template-columns: repeat(7, 1fr);
+                    gap: 4px;
+                    margin-bottom: 8px;
+
+                    .calendar-day-header {
+                        text-align: center;
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: $color-gray-500;
+                        padding: 8px 4px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                }
+
+                .calendar-days {
+                    display: grid;
+                    grid-template-columns: repeat(7, 1fr);
+                    gap: 4px;
+
+                    .calendar-day {
+                        background: none;
+                        border: none;
+                        padding: 8px 4px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        color: $color-gray-900;
+                        cursor: pointer;
+                        transition: all 150ms ease;
+                        min-height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+
+                        &:hover:not(.selected-start):not(.selected-end) {
+                            background: $color-gray-100;
+                        }
+
+                        &.selected-start,
+                        &.selected-end {
+                            background: $color-primary-600;
+                            color: $color-white;
+                            font-weight: 600;
+                            z-index: 2;
+                            border-radius: 6px;
+
+                            &:hover {
+                                background: $color-primary-700;
+                            }
+                        }
+
+                        &.in-range {
+                            background: rgba(59, 130, 246, 0.1);
+                            color: $color-primary-700;
+                            border-radius: 0;
+                        }
+
+                        &.today:not(.selected-start):not(.selected-end) {
+                            font-weight: 600;
+                            color: $color-primary-600;
+                            border: 1px solid $color-primary-600;
+                        }
+
+                        &.other-month {
+                            color: $color-gray-400;
+                            opacity: 0.5;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .footer-actions{
+        display: flex;
+        gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .date-range-picker-calendar {
+            min-width: 100%;
+            padding: 12px;
+
+            .calendar-container {
+                flex-direction: column;
+            }
+
+            .calendar-presets {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid $color-gray-200;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 12px;
+            }
+
+            .calendar-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    }
+}

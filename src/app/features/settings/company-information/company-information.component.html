@@ -1,0 +1,44 @@
+<section class="company-information-card">
+    <div class="company-information-header">
+        <div class="company-information-title">Company Information</div>
+        <div class="company-information-help">Update your company details and contact information.</div>
+    </div>
+    
+    <div class="company-information-view">        
+        <div class="company-information-field">
+            <div class="field-label">Name</div>
+            <div class="field-value">{{ companyData.contactName || '—' }}</div>
+        </div>
+
+        <div class="company-information-field">
+            <div class="field-label">Company Name</div>
+            <div class="field-value">{{ companyData.name || '—' }}</div>
+        </div>
+        
+        <div class="company-information-field">
+            <div class="field-label">Email</div>
+            <div class="field-value">{{ companyData.email || '—' }}</div>
+        </div>
+        
+        <div class="company-information-field">
+            <div class="field-label">Phone</div>
+            <div class="field-value">{{ companyData.phone || '—' }}</div>
+        </div>
+        
+        <div class="company-information-field">
+            <div class="field-label">Website</div>
+            <div class="field-value">{{ companyData.website || '—' }}</div>
+        </div>
+        
+        <div class="company-information-field">
+            <div class="field-label">Tax ID</div>
+            <div class="field-value">{{ companyData.taxId || '—' }}</div>
+        </div>
+        
+        <div class="company-information-field">
+            <div class="field-label">Business Address <span class="required">*</span></div>
+            <div class="field-value">{{ getFormattedAddress() }}</div>
+        </div>
+    </div>
+</section>
+

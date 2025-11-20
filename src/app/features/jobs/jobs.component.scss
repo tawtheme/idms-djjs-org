@@ -1,0 +1,161 @@
+@use '../../../assets/scss/pages' as listing;
+@import '../../../assets/scss/variable';
+@import '../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.jobs');
+
+.jobs-search {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 100px;
+    gap: 24px;
+    justify-content: center;
+    margin: 24px 0;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+// Column layout specific to Jobs
+.status {
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+
+        &.status-pending {
+            background: $color-yellow-100;
+            color: $color-yellow-800;
+        }
+
+        &.status-inprogress {
+            background: $color-primary-100;
+            color: $color-primary-800;
+        }
+
+        &.status-completed {
+            background: $color-green-100;
+            color: $color-green-900;
+        }
+
+        &.status-cancel {
+            background: $color-red-100;
+            color: $color-red-800;
+        }
+    }
+}
+
+// Job Workflow Stage Display
+.job-stage {
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.job-workflow-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .current-stage-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        .current-stage-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: $color-gray-900;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .stage-progress {
+            font-size: 12px;
+            font-weight: 600;
+            color: $color-primary-600;
+            flex-shrink: 0;
+        }
+    }
+
+    .workflow-progress-bar {
+        display: flex;
+        gap: 4px;
+        height: 6px;
+        border-radius: 4px;
+        overflow: hidden;
+
+        .progress-segment {
+            flex: 1;
+            height: 100%;
+            transition: background-color 0.2s;
+
+            &.completed {
+                background: $color-green-500;
+            }
+
+            &.current {
+                background: $color-primary-500;
+                box-shadow: 0 0 4px rgba($color-primary-500, 0.5);
+            }
+
+            &.pending {
+                background: $color-gray-300;
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+    .job-stage {
+        min-width: 250px;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .job-stage {
+        min-width: auto;
+        max-width: none;
+    }
+
+    .job-workflow-compact {
+        .current-stage-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+
+            .current-stage-label {
+                font-size: 12px;
+            }
+
+            .stage-progress {
+                font-size: 11px;
+            }
+        }
+
+        .workflow-progress-bar {
+            height: 4px;
+        }
+    }
+}
+
+// Ensure menu dropdown works in table cells
+.text-right {
+    position: relative;
+    z-index: 1;
+
+    app-menu-dropdown {
+        display: inline-block;
+        position: relative;
+        z-index: 10;
+    }
+}

@@ -1,0 +1,47 @@
+<div class="settings-container">
+    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+    <!-- Tab Content -->
+    <div class="settings-content">
+        <!-- Horizontal Tab Navigation -->
+        <nav class="settings-tabs-horizontal">
+            <button 
+                *ngFor="let tab of tabs"
+                type="button"
+                class="tab-item"
+                [class.active]="isActiveTab(tab.id)"
+                (click)="setActiveTab(tab.id)">
+                {{ tab.label }}
+            </button>
+        </nav>
+        <!-- Tab: Company Information -->
+        <div class="tab-panel" *ngIf="isActiveTab('company')">
+            <app-company-information
+                [companyData]="settings.company"
+                [submitting]="submitting"
+                (dataChange)="onCompanyChange($event)"
+                (cancel)="cancel()">
+            </app-company-information>
+        </div>
+
+        <!-- Tab: Preferences -->
+        <div class="tab-panel" *ngIf="isActiveTab('preferences')">
+            <app-preferences
+                [preferencesData]="settings.preferences"
+                [submitting]="submitting"
+                (dataChange)="onPreferencesChange($event)"
+                (cancel)="cancel()">
+            </app-preferences>
+        </div>
+
+        <!-- Tab: Notifications -->
+        <div class="tab-panel" *ngIf="isActiveTab('notifications')">
+            <app-notifications
+                [notificationsData]="settings.notifications"
+                [submitting]="submitting"
+                (dataChange)="onNotificationsChange($event)"
+                (cancel)="cancel()">
+            </app-notifications>
+        </div>
+    </div>
+</div>

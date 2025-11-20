@@ -1,0 +1,142 @@
+<div class="items-container">
+    <div class="items-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary btn--sm" (click)="openAddItemPanel()">New Item</button>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="items-stats">
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <span class="material-icons">inventory_2</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Total Items</div>
+                <div class="stat-card-value">{{ allItems.length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <span class="material-icons">filter_list</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Filtered Results</div>
+                <div class="stat-card-value">{{ items.length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <span class="material-icons">attach_money</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Average Price</div>
+                <div class="stat-card-value">{{ getAveragePrice() }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <span class="material-icons">link</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Items with Links</div>
+                <div class="stat-card-value">{{ getItemsWithLinks() }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Item Name, ID, or Description"
+                [(ngModel)]="itemName"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+    </div>
+
+    <!-- Items table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Description</th>
+                    <th>Unit of Measure</th>
+                    <th>Unit Price</th>
+                    <th>Tax %</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of pagedItems; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td data-label="Item ID">
+                        {{ item.item_id }}
+                    </td>
+                    <td data-label="Item Name" class="name">
+                        {{ item.item_name }}
+                    </td>
+                    <td data-label="Description">
+                        {{ item.description || '-' }}
+                    </td>
+                    <td data-label="Unit of Measure">
+                        {{ item.unit_of_measure }}
+                    </td>
+                    <td data-label="Unit Price" class="price">
+                        ${{ item.unit_price | number:'1.2-2' }}
+                    </td>
+                    <td data-label="Tax %">
+                        {{ item.tax_percent }}%
+                    </td>
+                    <td data-label="Actions" class="text-right" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(item)"
+                            (selectionChange)="onAction(item, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                </tr>
+                <!-- Empty state -->
+                <tr *ngIf="items.length === 0">
+                    <td colspan="7">
+                        <app-empty-state
+                            title="No Items Found"
+                            description="There are no items to display at the moment."
+                            icon="inventory_2"
+                            [showButton]="false">
+                        </app-empty-state>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Add/Edit Item Modal -->
+    <app-modal
+        [isOpen]="modalOpen"
+        [title]="editingItem ? 'Edit Item' : 'Add Item'"
+        size="large"
+        [closable]="true"
+        [showHeader]="true"
+        (close)="closeItemModal()">
+        <app-add-edit-item
+            [item]="editingItem"
+            [isInModal]="true"
+            (saved)="onItemSaved()"
+            (cancelled)="onItemCancelled()">
+        </app-add-edit-item>
+    </app-modal>
+</div>
+

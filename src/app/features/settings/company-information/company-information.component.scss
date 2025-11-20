@@ -1,0 +1,61 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+@import '../../../../assets/scss/grid';
+
+.company-information-card {
+    background: $color-white;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+
+    .company-information-header {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .company-information-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: $color-gray-900;
+        }
+    
+        .company-information-help {
+            font-size: 14px;
+            color: $color-gray-600;
+            line-height: 1.5;
+        }
+    }
+
+    .company-information-view {
+        display: flex;
+        flex-direction: column;
+        padding: 24px 0;
+
+        .company-information-field {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 0;
+            border-bottom: 1px solid $color-gray-100;
+
+            &:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+    
+            .field-label {
+                font-size: 13px;
+                font-weight: 500;
+                color: $color-gray-700;
+            }
+    
+            .field-value {
+                font-size: 15px;
+                font-weight: 500;
+                color: $color-gray-900;
+            }
+        }
+    }
+}

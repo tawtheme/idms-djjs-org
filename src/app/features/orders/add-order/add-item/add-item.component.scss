@@ -1,0 +1,104 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/form';
+
+.items-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .items-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            .icon {
+                font-size: 18px;
+            }
+        }
+    }
+}
+
+// Items List
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .item-wrapper {
+        border-radius: 8px;
+        border: 1px solid $color-gray-200;
+        padding: 16px;
+    }
+
+    .item-row {
+        display: grid;
+        grid-template-columns: 2fr 100px 120px 100px 120px auto;
+        gap: 24px;
+        align-items: flex-start;
+        font-size: 14px;
+        margin-bottom: 24px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
+
+            .item-field-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: $color-gray-700;
+                margin: 0;
+                display: block;
+            }
+
+            app-dropdown {
+                width: 100%;
+            }
+
+            button {
+                margin-top: auto;
+            }
+
+            .remove-button {
+                background: $color-red-50;
+                color: $color-red-600;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background 0.3s ease;
+                width: 60px;
+                height: 40px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                    background: $color-red-700;
+                    color: $color-white;
+                }
+
+                &:focus {
+                    outline: none;
+                    box-shadow: 0 0 0 2px rgba($color-red-600, 0.3);
+                }
+
+                &:active {
+                    background: $color-red-800;
+                }
+            }
+        }
+    }
+}

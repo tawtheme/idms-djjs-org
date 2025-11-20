@@ -1,0 +1,18 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/form';
+@import '../../../../../assets/scss/grid';
+
+.add-edit-item-container {
+    .side-panel-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .panel-card {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+}
+

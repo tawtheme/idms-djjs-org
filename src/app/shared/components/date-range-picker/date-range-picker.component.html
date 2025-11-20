@@ -1,0 +1,181 @@
+<div class="date-range-picker-wrapper">
+    <div class="date-range-picker-input-container">
+        <span #measureSpan class="date-range-picker-measure" aria-hidden="true">{{displayValue || placeholder}}</span>
+        <input type="text" 
+            [value]="displayValue || ''" 
+            [class.date-range-picker-input-disabled]="disabled"
+            [class.date-range-picker-input-single]="isSingleDate"
+            [class.date-range-picker-input-range]="!isSingleDate && displayValue"
+            [placeholder]="placeholder" 
+            [disabled]="disabled"
+            [readonly]="true"
+            (click)="toggleCalendar($event)" 
+            class="date-range-picker-input"
+            [style.width.px]="inputWidth"
+        />
+        <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" 
+            class="date-range-picker-trigger"
+            aria-label="Open calendar">
+            <span class="material-icons" aria-hidden="true">event</span>
+        </button>
+    </div>
+
+    <!-- Date Range Picker Modal -->
+    <app-modal
+        [isOpen]="isOpen"
+        title="Select Date Range"
+        size="large"
+        [closable]="true"
+        [showHeader]="true"
+        [showFooter]="true"
+        (close)="cancelSelection()">
+        <div class="date-range-picker-calendar">
+            <div class="calendar-container">
+                <!-- Left Sidebar - Presets -->
+                <div class="calendar-presets">
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'today'"
+                         (click)="selectPreset('today')">
+                        Today
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'yesterday'"
+                         (click)="selectPreset('yesterday')">
+                        Yesterday
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'this7days'"
+                         (click)="selectPreset('this7days')">
+                        This 7 Days
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'last30days'"
+                         (click)="selectPreset('last30days')">
+                        Last 30 Days
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'last3months'"
+                         (click)="selectPreset('last3months')">
+                        Last 3 Months
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'thisyear'"
+                         (click)="selectPreset('thisyear')">
+                        This Year
+                    </div>
+                    <div class="preset-item" 
+                         [class.active]="selectedPreset === 'lastyear'"
+                         (click)="selectPreset('lastyear')">
+                        Last Year
+                    </div>
+                </div>
+
+                <!-- Right Side - Two Calendars -->
+                <div class="calendar-content">
+                    <!-- First Calendar -->
+                    <div class="calendar-month">
+                        <div class="calendar-header">
+                            <button type="button" (click)="navigateMonth(-1, 0)" class="calendar-nav-btn" aria-label="Previous month">
+                                <span class="material-icons" aria-hidden="true">chevron_left</span>
+                            </button>
+
+                            <div class="calendar-title">
+                                <span class="month-name">{{ currentMonthName }}</span>
+                                <span class="year">{{ currentYear }}</span>
+                            </div>
+
+                            <button type="button" (click)="navigateMonth(1, 0)" class="calendar-nav-btn" aria-label="Next month">
+                                <span class="material-icons" aria-hidden="true">chevron_right</span>
+                            </button>
+                        </div>
+
+                        <div class="calendar-grid">
+                            <div class="calendar-day-headers">
+                                @for (day of dayNames; track day) {
+                                    <div class="calendar-day-header">
+                                        {{ day }}
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="calendar-days">
+                                @for (date of calendarDays; track date.getTime()) {
+                                    <button 
+                                        type="button" 
+                                        (click)="selectDate(date)" 
+                                        [class.selected-start]="isDateStart(date)" 
+                                        [class.selected-end]="isDateEnd(date)"
+                                        [class.in-range]="isDateInRange(date) && !isDateStart(date) && !isDateEnd(date)"
+                                        [class.today]="isToday(date)"
+                                        [class.other-month]="!isCurrentMonth(date, currentMonth)" 
+                                        class="calendar-day">
+                                        {{ date.getDate() }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Second Calendar -->
+                    <div class="calendar-month">
+                        <div class="calendar-header">
+                            <button type="button" (click)="navigateMonth(-1, 1)" class="calendar-nav-btn" aria-label="Previous month">
+                                <span class="material-icons" aria-hidden="true">chevron_left</span>
+                            </button>
+
+                            <div class="calendar-title">
+                                <span class="month-name">{{ secondMonthName }}</span>
+                                <span class="year">{{ secondYear }}</span>
+                            </div>
+
+                            <button type="button" (click)="navigateMonth(1, 1)" class="calendar-nav-btn" aria-label="Next month">
+                                <span class="material-icons" aria-hidden="true">chevron_right</span>
+                            </button>
+                        </div>
+
+                        <div class="calendar-grid">
+                            <div class="calendar-day-headers">
+                                @for (day of dayNames; track day) {
+                                    <div class="calendar-day-header">
+                                        {{ day }}
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="calendar-days">
+                                @for (date of secondCalendarDays; track date.getTime()) {
+                                    <button 
+                                        type="button" 
+                                        (click)="selectDate(date)" 
+                                        [class.selected-start]="isDateStart(date)" 
+                                        [class.selected-end]="isDateEnd(date)"
+                                        [class.in-range]="isDateInRange(date) && !isDateStart(date) && !isDateEnd(date)"
+                                        [class.today]="isToday(date)"
+                                        [class.other-month]="!isCurrentMonth(date, secondMonth)" 
+                                        class="calendar-day">
+                                        {{ date.getDate() }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <div class="modal-footer footer-space-between">
+                <button type="button" (click)="selectToday()" class="btn btn--secondary btn--sm">
+                    Today
+                </button>
+                <div class="footer-actions">
+                    <button type="button" (click)="cancelSelection()" class="btn btn--secondary btn--sm">
+                        Cancel
+                    </button>
+                    <button type="button" (click)="applyRange()" class="btn btn--primary btn--sm" [disabled]="!tempFromDate">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+    </app-modal>
+</div>

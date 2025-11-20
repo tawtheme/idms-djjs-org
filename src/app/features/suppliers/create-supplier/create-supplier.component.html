@@ -1,0 +1,137 @@
+<div class="create-supplier-container">
+    <form (ngSubmit)="save()" #f="ngForm" class="side-panel-form">
+        <!-- Section: Basic Information -->
+        <div class="panel-card">
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Supplier ID <span class="required">*</span></span>
+                    <input name="supplier_id" [(ngModel)]="supplier.supplier_id" required class="form-control" placeholder="Auto-generated" [disabled]="true" />
+                </label>
+                <label>
+                    <span>Supplier Type <span class="required">*</span></span>
+                    <app-dropdown
+                        [options]="supplierTypeOptions"
+                        [selectedValues]="getSelectedValues(supplier.supplier_type)"
+                        (selectionChange)="onDropdownChange('supplier_type', $event)"
+                        placeholder="Select supplier type"
+                        [closeOnSelect]="true"
+                        required>
+                    </app-dropdown>
+                </label>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Supplier Name <span class="required">*</span></span>
+                    <input name="supplier_name" [(ngModel)]="supplier.supplier_name" required class="form-control" placeholder="Enter supplier name" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Contact Information -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Contact Information
+                    <span class="description">Enter the contact information for the supplier.</span>
+                </span>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>First Name</span>
+                    <input name="first_name" [(ngModel)]="supplier.first_name" class="form-control" placeholder="Enter first name" />
+                </label>
+                <label>
+                    <span>Last Name</span>
+                    <input name="last_name" [(ngModel)]="supplier.last_name" class="form-control" placeholder="Enter last name" />
+                </label>
+                <label>
+                    <span>Email Address<span class="required">*</span></span>
+                    <input type="email" name="email" [(ngModel)]="supplier.email" required class="form-control" placeholder="Enter email address" />
+                </label>
+                <label>
+                    <span>Phone Number</span>
+                    <input type="tel" name="phone" [(ngModel)]="supplier.phone" class="form-control" placeholder="Enter phone number" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Billing Address -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Billing Address
+                    <span class="description">Enter the billing address for the customer.</span>
+                </span>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Address Line 1</span>
+                    <input name="billing_address_line1" [(ngModel)]="supplier.billing_address.address_line1" class="form-control" placeholder="Enter address line 1" />
+                </label>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Address Line 2</span>
+                    <input name="billing_address_line2" [(ngModel)]="supplier.billing_address.address_line2" class="form-control" placeholder="Enter address line 2" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>City</span>
+                    <input name="billing_city" [(ngModel)]="supplier.billing_address.city" class="form-control" placeholder="Enter city" />
+                </label>
+                <label>
+                    <span>State</span>
+                    <input name="billing_state" [(ngModel)]="supplier.billing_address.state" class="form-control" placeholder="Enter state" />
+                </label>
+                <label>
+                    <span>Postal Code</span>
+                    <input name="billing_postal_code" [(ngModel)]="supplier.billing_address.postal_code" class="form-control" placeholder="Enter postal code" />
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input name="billing_country" [(ngModel)]="supplier.billing_address.country" class="form-control" placeholder="Enter country" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Additional Information -->
+        <div class="panel-card">
+            <div class="panel-card-body">
+                <div class="form-grid cols-1">
+                    <label>
+                        <span>Notes</span>
+                        <textarea name="notes" [(ngModel)]="supplier.notes" class="form-control" rows="4" placeholder="Enter any additional notes or remarks"></textarea>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-grid cols-2">
+            <label>
+                <span>Status <span class="required">*</span></span>
+                <app-dropdown
+                    [options]="statusOptions"
+                    [selectedValues]="getSelectedValues(supplier.status)"
+                    (selectionChange)="onDropdownChange('status', $event)"
+                    placeholder="Select status"
+                    [closeOnSelect]="true"
+                    required>
+                </app-dropdown>
+            </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--md" [disabled]="!isFormValid()">
+                <span *ngIf="!submitting">Create Supplier</span>
+                <span *ngIf="submitting">Creating...</span>
+            </button>
+            <button type="button" class="btn btn--secondary btn--md" (click)="cancel()">Cancel</button>
+        </div>
+    </form>
+    
+    <!-- Snackbar for error messages -->
+    <app-snackbar *ngIf="snackbarConfig" [config]="snackbarConfig"></app-snackbar>
+</div>
+

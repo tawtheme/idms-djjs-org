@@ -1,0 +1,172 @@
+@import 'variable';
+
+$modal-backdrop-color: rgba(15, 23, 42, 0.55); // slate-900 with blue tint
+$modal-z-index: 1050;
+$modal-transition-duration: 200ms;
+$modal-max-width: 640px; // default for medium
+$modal-border-radius: 12px;
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: $modal-backdrop-color;
+    backdrop-filter: blur(2px) saturate(1.1);
+    -webkit-backdrop-filter: blur(2px) saturate(1.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity $modal-transition-duration ease, visibility 0s linear $modal-transition-duration;
+    z-index: $modal-z-index;
+
+    &.is-open {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity $modal-transition-duration ease;
+    }
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    pointer-events: none;
+    z-index: $modal-z-index + 1;
+
+    &.is-open {
+        pointer-events: auto;
+    }
+
+    &__dialog {
+        width: 100%;
+        max-width: $modal-max-width;
+        background: $color-white;
+        color: $color-gray-900;
+        border-radius: $modal-border-radius;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+        transform: translateY(16px);
+        opacity: 0;
+        transition: transform $modal-transition-duration ease, opacity $modal-transition-duration ease;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+
+        .is-open & {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border-bottom: 1px solid $color-gray-200;
+        flex-shrink: 0;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: $color-gray-900;
+        flex: 1;
+    }
+
+    &__close {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        color: $color-gray-500;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            color: $color-gray-900;
+            background: $color-gray-100;
+        }
+
+        &:active {
+            background: $color-gray-200;
+        }
+    }
+
+    &__body {
+        padding: 16px 20px;
+        overflow: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 16px 20px;
+        border-top: 1px solid $color-gray-200;
+        flex-shrink: 0;
+    }
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 16px 20px;
+    border-top: 1px solid $color-gray-200;
+
+    &.footer-left {
+        justify-content: flex-start;
+    }
+
+    &.footer-center {
+        justify-content: center;
+    }
+
+    &.footer-right {
+        justify-content: flex-end;
+    }
+
+    &.footer-space-between {
+        justify-content: space-between;
+    }
+}
+
+// Utility: lock scroll on body when modal open
+.u-lock-scroll {
+    overflow: hidden !important;
+}
+
+// Size modifiers (wired from ModalComponent `size` input)
+.modal-small {
+    max-width: 480px;
+}
+
+.modal-medium {
+    max-width: 640px;
+}
+
+.modal-large {
+    max-width: 960px;
+}
+
+.modal-extraLarge {
+    max-width: 1120px;
+}
+
+.modal-full {
+    max-width: 100vw;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+}

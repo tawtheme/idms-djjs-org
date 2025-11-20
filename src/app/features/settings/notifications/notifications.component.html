@@ -1,0 +1,79 @@
+<section class="notifications-card">
+    <div class="notifications-header">
+        <div class="notifications-title">Notifications</div>
+        <div class="notifications-help">Manage email notification preferences for different events.</div>
+    </div>
+    
+    <div class="notifications-view">
+        <div class="notifications-field">
+            <div class="field-header">
+                <div class="label">Email Notifications</div>
+                <div class="description">Receive updates and important information to your email address.</div>
+            </div>
+            <span class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    [checked]="notificationsData.emailNotifications"
+                    (change)="onToggleChange('emailNotifications', $any($event.target).checked)" />
+                <span class="toggle-slider"></span>
+            </span>
+        </div>
+        
+        <div class="notifications-field">
+            <div class="field-header">
+                <div class="label">Order Notifications</div>
+                <div class="description">Receive updates and important information to your email address.</div>
+            </div>
+            <span class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    [checked]="notificationsData.orderNotifications"
+                    (change)="onToggleChange('orderNotifications', $any($event.target).checked)" />
+                <span class="toggle-slider"></span>
+            </span>
+        </div>
+        
+        <div class="notifications-field">
+            <div class="field-header">
+                <div class="label">Job Notifications</div>
+                <div class="description">Receive updates and important information to your email address.</div>
+            </div>
+            <span class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    [checked]="notificationsData.jobNotifications"
+                    (change)="onToggleChange('jobNotifications', $any($event.target).checked)" />
+                <span class="toggle-slider"></span>
+            </span>
+        </div>
+        
+        <div class="notifications-field">
+            <div class="field-header">
+                <div class="label">Shipment Notifications</div>
+                <div class="description">Receive updates and important information to your email address.</div>
+            </div>
+            <span class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    [checked]="notificationsData.shipmentNotifications"
+                    (change)="onToggleChange('shipmentNotifications', $any($event.target).checked)" />
+                <span class="toggle-slider"></span>
+            </span>
+        </div>
+        
+        <div class="notifications-field">
+            <div class="field-header">
+                <div class="label">Invoice Notifications</div>
+                <div class="description">Receive updates and important information to your email address.</div>
+            </div>
+            <span class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    [checked]="notificationsData.invoiceNotifications"
+                    (change)="onToggleChange('invoiceNotifications', $any($event.target).checked)" />
+                <span class="toggle-slider"></span>
+            </span>
+        </div>
+    </div>
+</section>
+

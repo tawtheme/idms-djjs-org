@@ -1,0 +1,114 @@
+@import '../../../../assets/scss/variable';
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+
+    .breadcrumb-list {
+        display: flex;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+
+            &.disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            .breadcrumb-icon {
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .breadcrumb-text {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 200px;
+            }
+
+            .breadcrumb-link {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                font-weight: 500;
+                font-size: 14px;
+                color: $color-gray-600;
+
+                &:hover {
+                    color: $color-primary-700;
+                }
+            }
+
+            .breadcrumb-current {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: $color-primary-600;
+                font-weight: 600;
+            }
+
+            .breadcrumb-separator {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 16px;
+                height: 16px;
+                color: $color-gray-400;
+                font-weight: 400;
+                margin: 0 4px;
+            }
+        }
+    }
+
+    // Responsive design
+    @media (max-width: 768px) {
+        font-size: 13px;
+
+        .breadcrumb-list {
+            .breadcrumb-item {
+
+                .breadcrumb-link,
+                .breadcrumb-current {
+                    padding: 3px 6px;
+                }
+
+                .breadcrumb-link .breadcrumb-text,
+                .breadcrumb-current .breadcrumb-text {
+                    max-width: 120px;
+                }
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .breadcrumb-list {
+            gap: 2px;
+
+            .breadcrumb-item {
+
+                .breadcrumb-link .breadcrumb-text,
+                .breadcrumb-current .breadcrumb-text {
+                    max-width: 80px;
+                }
+
+                .breadcrumb-separator {
+                    margin: 0 2px;
+                }
+            }
+        }
+    }
+}

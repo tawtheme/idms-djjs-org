@@ -1,0 +1,245 @@
+{
+  "items": [
+    {
+      "item_id": "ITM-001",
+      "item_name": "Premium A4 Paper - 80gsm",
+      "description": "High-quality A4 size paper, 80 grams per square meter, white, suitable for printing and copying",
+      "unit_of_measure": "Ream",
+      "unit_price": 18.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-002",
+      "item_name": "Premium A4 Paper - 100gsm",
+      "description": "High-quality A4 size paper, 100 grams per square meter, white, suitable for premium printing",
+      "unit_of_measure": "Ream",
+      "unit_price": 24.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-003",
+      "item_name": "A3 Paper - 80gsm",
+      "description": "A3 size paper, 80 grams per square meter, white",
+      "unit_of_measure": "Ream",
+      "unit_price": 32.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-004",
+      "item_name": "Black Ink Cartridge",
+      "description": "High-capacity black ink cartridge for commercial printers",
+      "unit_of_measure": "Piece",
+      "unit_price": 35.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-005",
+      "item_name": "Cyan Ink Cartridge",
+      "description": "Cyan color ink cartridge for color printing",
+      "unit_of_measure": "Piece",
+      "unit_price": 28.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-006",
+      "item_name": "Magenta Ink Cartridge",
+      "description": "Magenta color ink cartridge for color printing",
+      "unit_of_measure": "Piece",
+      "unit_price": 28.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-007",
+      "item_name": "Yellow Ink Cartridge",
+      "description": "Yellow color ink cartridge for color printing",
+      "unit_of_measure": "Piece",
+      "unit_price": 28.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-008",
+      "item_name": "Binding Glue",
+      "description": "Professional binding glue for book binding and document binding",
+      "unit_of_measure": "Litre",
+      "unit_price": 42.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-009",
+      "item_name": "Lamination Film - A4",
+      "description": "A4 size lamination film, glossy finish, 125 microns",
+      "unit_of_measure": "Box",
+      "unit_price": 55.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-010",
+      "item_name": "Lamination Film - A3",
+      "description": "A3 size lamination film, glossy finish, 125 microns",
+      "unit_of_measure": "Box",
+      "unit_price": 78.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-011",
+      "item_name": "Spiral Binding Coils - 6mm",
+      "description": "Plastic spiral binding coils, 6mm diameter, various colors",
+      "unit_of_measure": "Box",
+      "unit_price": 32.25,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-012",
+      "item_name": "Spiral Binding Coils - 8mm",
+      "description": "Plastic spiral binding coils, 8mm diameter, various colors",
+      "unit_of_measure": "Box",
+      "unit_price": 38.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-013",
+      "item_name": "Cardstock Paper - 200gsm",
+      "description": "Heavy cardstock paper, 200 grams per square meter, white, for business cards and invitations",
+      "unit_of_measure": "Ream",
+      "unit_price": 45.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-014",
+      "item_name": "Photo Paper - Glossy A4",
+      "description": "Premium glossy photo paper, A4 size, suitable for high-quality photo printing",
+      "unit_of_measure": "Ream",
+      "unit_price": 52.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-015",
+      "item_name": "Photo Paper - Matte A4",
+      "description": "Premium matte photo paper, A4 size, suitable for professional photo printing",
+      "unit_of_measure": "Ream",
+      "unit_price": 52.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-016",
+      "item_name": "Toner Cartridge - Black",
+      "description": "High-yield black toner cartridge for laser printers",
+      "unit_of_measure": "Piece",
+      "unit_price": 125.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-017",
+      "item_name": "Toner Cartridge - Color Set",
+      "description": "Complete color toner cartridge set (Cyan, Magenta, Yellow, Black)",
+      "unit_of_measure": "Box",
+      "unit_price": 485.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-018",
+      "item_name": "Envelope - A4 Size",
+      "description": "Standard A4 size envelopes, white, for document mailing",
+      "unit_of_measure": "Box",
+      "unit_price": 18.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-019",
+      "item_name": "Envelope - A5 Size",
+      "description": "Standard A5 size envelopes, white, for smaller documents",
+      "unit_of_measure": "Box",
+      "unit_price": 14.25,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-020",
+      "item_name": "Staples - Standard",
+      "description": "Standard office staples, 26/6 size, 5000 pieces per box",
+      "unit_of_measure": "Box",
+      "unit_price": 8.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-021",
+      "item_name": "Paper Clips - Assorted",
+      "description": "Assorted paper clips, various sizes, 1000 pieces per box",
+      "unit_of_measure": "Box",
+      "unit_price": 12.75,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-022",
+      "item_name": "Corner Rounder",
+      "description": "Professional corner rounding tool for business cards and invitations",
+      "unit_of_measure": "Piece",
+      "unit_price": 85.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-023",
+      "item_name": "Cutting Mat",
+      "description": "Self-healing cutting mat, A3 size, for precision cutting",
+      "unit_of_measure": "Piece",
+      "unit_price": 45.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-024",
+      "item_name": "Paper Trimmer Blades",
+      "description": "Replacement blades for paper trimmer, pack of 5",
+      "unit_of_measure": "Box",
+      "unit_price": 28.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-025",
+      "item_name": "Cleaning Solution - Printer",
+      "description": "Professional printer cleaning solution for print heads and rollers",
+      "unit_of_measure": "Litre",
+      "unit_price": 35.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-026",
+      "item_name": "Foil Stamping Material - Gold",
+      "description": "Gold foil stamping material for premium finishing, 30cm width",
+      "unit_of_measure": "Kilogram",
+      "unit_price": 125.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-027",
+      "item_name": "Foil Stamping Material - Silver",
+      "description": "Silver foil stamping material for premium finishing, 30cm width",
+      "unit_of_measure": "Kilogram",
+      "unit_price": 125.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-028",
+      "item_name": "Embossing Powder",
+      "description": "Fine embossing powder for raised text effects, various colors",
+      "unit_of_measure": "Kilogram",
+      "unit_price": 95.00,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-029",
+      "item_name": "Book Cover Material - Hardcover",
+      "description": "Premium hardcover book binding material, various colors and textures",
+      "unit_of_measure": "Square Meter",
+      "unit_price": 68.50,
+      "tax_percent": 18
+    },
+    {
+      "item_id": "ITM-030",
+      "item_name": "Book Cover Material - Softcover",
+      "description": "Softcover book binding material, matte finish, various colors",
+      "unit_of_measure": "Square Meter",
+      "unit_price": 42.75,
+      "tax_percent": 18
+    }
+  ]
+}
+

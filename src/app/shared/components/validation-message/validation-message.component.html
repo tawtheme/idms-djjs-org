@@ -1,0 +1,29 @@
+@if (hasErrors) {
+    <div [class]="componentClasses">
+        <div class="validation-message-list">
+            @for (error of validationErrors; track error.key; let i = $index) {
+                <div class="validation-message-item"
+                    [class.validation-message-error]="error.type === 'error'"
+                    [class.validation-message-warning]="error.type === 'warning'"
+                    [class.validation-message-info]="error.type === 'info'">
+
+                    @if (showIcon) {
+                        <span class="validation-message-icon">
+                            @if (error.type === 'error') {
+                                <span class="material-icons" aria-label="Error">error</span>
+                            }
+                            @if (error.type === 'warning') {
+                                <span class="material-icons" aria-label="Warning">warning</span>
+                            }
+                            @if (error.type === 'info') {
+                                <span class="material-icons" aria-label="Info">info</span>
+                            }
+                        </span>
+                    }
+
+                    <span class="validation-message-text">{{ error.message }}</span>
+                </div>
+            }
+        </div>
+    </div>
+}

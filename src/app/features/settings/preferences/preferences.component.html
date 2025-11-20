@@ -1,0 +1,34 @@
+<section class="preferences-card">
+    <div class="preferences-header">
+        <div class="preferences-title">Preferences</div>
+        <div class="preferences-help">Configure system preferences including currency, timezone, and display formats.</div>
+    </div>
+    
+    <div class="preferences-view">
+        <div class="preferences-field">
+            <div class="label">Currency</div>
+            <div class="value">{{ getDisplayValue('currency') }}</div>
+        </div>
+        
+        <div class="preferences-field">
+            <div class="label">Timezone</div>
+            <div class="value">{{ getDisplayValue('timezone') }}</div>
+        </div>
+        
+        <div class="preferences-field">
+            <div class="label">Language</div>
+            <div class="value">{{ getDisplayValue('language') }}</div>
+        </div>
+        
+        <div class="preferences-field">
+            <div class="label">Date Format</div>
+            <div class="value">{{ getDisplayValue('dateFormat') }}</div>
+        </div>
+        
+        <div class="preferences-field">
+            <div class="label">Time Format</div>
+            <div class="value">{{ getDisplayValue('timeFormat') }}</div>
+        </div>
+    </div>
+</section>
+

@@ -1,0 +1,83 @@
+<div class="datepicker-wrapper">
+    <div class="datepicker-input-container">
+        <input type="text" 
+            [value]="displayValue || ''" 
+            [class.datepicker-input-disabled]="disabled"
+            [placeholder]="placeholder" 
+            [disabled]="disabled"
+            [readonly]="readonly"
+            (click)="toggleCalendar($event)" 
+            class="datepicker-input"
+        />
+
+        <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" class="datepicker-trigger"
+            aria-label="Open calendar">
+            <span class="material-icons" aria-hidden="true">event</span>
+        </button>
+    </div>
+
+    @if (isOpen) {
+        <div class="datepicker-calendar" (click)="$event.stopPropagation()">
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <button type="button" (click)="navigateMonth(-1)" class="calendar-nav-btn" aria-label="Previous month">
+                    <span class="material-icons" aria-hidden="true">chevron_left</span>
+                </button>
+
+                <div class="calendar-title">
+                    <span class="month-name">{{ currentMonthName }}</span>
+                    <span class="year">{{ currentYear }}</span>
+                </div>
+
+                <button type="button" (click)="navigateMonth(1)" class="calendar-nav-btn" aria-label="Next month">
+                    <span class="material-icons" aria-hidden="true">chevron_right</span>
+                </button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid">
+                <!-- Day Headers -->
+                <div class="calendar-day-headers">
+                    @for (day of dayNames; track day) {
+                        <div class="calendar-day-header">
+                            {{ day }}
+                        </div>
+                    }
+                </div>
+
+                <!-- Calendar Days -->
+                <div class="calendar-days">
+                    @for (date of calendarDays; track date.getTime()) {
+                        <button 
+                            type="button" 
+                            (click)="selectDate(date)" 
+                            [disabled]="isDateDisabled(date)"
+                            [class.selected]="isDateSelected(date)" 
+                            [class.today]="isToday(date)"
+                            [class.other-month]="!isCurrentMonth(date)" 
+                            [class.disabled]="isDateDisabled(date)"
+                            class="calendar-day">
+                            {{ date.getDate() }}
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Calendar Actions -->
+            @if (showToday || showClear) {
+                <div class="calendar-actions">
+                    @if (showToday) {
+                        <button type="button" (click)="selectToday()" class="calendar-action-btn">
+                            <span class="material-icons" aria-hidden="true" style="vertical-align: middle;">today</span> Today
+                        </button>
+                    }
+                    @if (showClear) {
+                        <button type="button" (click)="clearDate()" class="calendar-action-btn">
+                            <span class="material-icons" aria-hidden="true" style="vertical-align: middle;">close</span> Clear
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

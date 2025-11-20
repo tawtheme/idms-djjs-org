@@ -1,0 +1,412 @@
+// Animation keyframes
+
+// Fade animations
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+// Slide animations
+@keyframes slide-up {
+    from {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-left {
+    from {
+        transform: translateX(12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(-12px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+// Scale animations
+@keyframes scale-in {
+    from {
+        transform: scale(0.96);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes scale-out {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.96);
+        opacity: 0;
+    }
+}
+
+@keyframes scale-up {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes scale-down {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(0.95);
+    }
+}
+
+// Rotate animations
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate-in {
+    from {
+        transform: rotate(-180deg);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+}
+
+// Bounce animations
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+// Pulse animation
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes pulse-scale {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+// Shake animation
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-4px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(4px);
+    }
+}
+
+// Zoom animations
+@keyframes zoom-in {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoom-out {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+// Flip animations
+@keyframes flip-x {
+    from {
+        transform: perspective(400px) rotateX(0deg);
+    }
+    to {
+        transform: perspective(400px) rotateX(180deg);
+    }
+}
+
+@keyframes flip-y {
+    from {
+        transform: perspective(400px) rotateY(0deg);
+    }
+    to {
+        transform: perspective(400px) rotateY(180deg);
+    }
+}
+
+// Utility animation classes
+
+// Fade
+.animate-fade-in {
+    animation: fade-in 200ms ease both;
+}
+
+.animate-fade-out {
+    animation: fade-out 200ms ease both;
+}
+
+// Slide
+.animate-slide-up {
+    animation: slide-up 220ms ease both;
+}
+
+.animate-slide-down {
+    animation: slide-down 220ms ease both;
+}
+
+.animate-slide-left {
+    animation: slide-left 220ms ease both;
+}
+
+.animate-slide-right {
+    animation: slide-right 220ms ease both;
+}
+
+// Scale
+.animate-scale-in {
+    animation: scale-in 200ms ease both;
+}
+
+.animate-scale-out {
+    animation: scale-out 200ms ease both;
+}
+
+.animate-scale-up {
+    animation: scale-up 200ms ease both;
+}
+
+.animate-scale-down {
+    animation: scale-down 200ms ease both;
+}
+
+.animate-zoom-in {
+    animation: zoom-in 300ms ease both;
+}
+
+.animate-zoom-out {
+    animation: zoom-out 300ms ease both;
+}
+
+// Rotate
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-rotate-in {
+    animation: rotate-in 300ms ease both;
+}
+
+// Bounce
+.animate-bounce {
+    animation: bounce 1s ease infinite;
+}
+
+.animate-bounce-in {
+    animation: bounce-in 600ms ease both;
+}
+
+// Pulse
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-scale {
+    animation: pulse-scale 2s ease infinite;
+}
+
+// Shake
+.animate-shake {
+    animation: shake 500ms ease both;
+}
+
+// Flip
+.animate-flip-x {
+    animation: flip-x 600ms ease both;
+}
+
+.animate-flip-y {
+    animation: flip-y 600ms ease both;
+}
+
+// Animation timing utilities
+.animate-fast {
+    animation-duration: 150ms;
+}
+
+.animate-normal {
+    animation-duration: 300ms;
+}
+
+.animate-slow {
+    animation-duration: 500ms;
+}
+
+.animate-slower {
+    animation-duration: 1000ms;
+}
+
+// Animation delay utilities
+.animate-delay-100 {
+    animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+    animation-delay: 200ms;
+}
+
+.animate-delay-300 {
+    animation-delay: 300ms;
+}
+
+.animate-delay-500 {
+    animation-delay: 500ms;
+}
+
+// Animation fill mode
+.animate-both {
+    animation-fill-mode: both;
+}
+
+.animate-forwards {
+    animation-fill-mode: forwards;
+}
+
+.animate-backwards {
+    animation-fill-mode: backwards;
+}
+
+// Animation iteration
+.animate-infinite {
+    animation-iteration-count: infinite;
+}
+
+.animate-once {
+    animation-iteration-count: 1;
+}
+
+.animate-twice {
+    animation-iteration-count: 2;
+}
+
+// Animation easing
+.animate-ease {
+    animation-timing-function: ease;
+}
+
+.animate-ease-in {
+    animation-timing-function: ease-in;
+}
+
+.animate-ease-out {
+    animation-timing-function: ease-out;
+}
+
+.animate-ease-in-out {
+    animation-timing-function: ease-in-out;
+}
+
+.animate-linear {
+    animation-timing-function: linear;
+}
+
+// Animation state
+.animate-paused {
+    animation-play-state: paused;
+}
+
+.animate-running {
+    animation-play-state: running;
+}

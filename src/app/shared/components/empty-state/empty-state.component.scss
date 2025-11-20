@@ -1,0 +1,203 @@
+@import '../../../../assets/scss/variable';
+
+// Empty State Component Styles
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 16px;
+    text-align: center;
+    padding: 50px 20px;
+
+    // Icon
+    .empty-state-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-primary-50;
+        border-radius: 50%;
+        padding: 10px;
+
+        .material-icons {
+            font-size: 35px;
+            color: $color-primary-500;
+        }
+    }
+
+    // Content
+    .empty-state-content {
+        max-width: 400px;
+
+        .empty-state-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: $color-gray-700;
+        }
+
+        .empty-state-description {
+            font-size: 13px;
+            color: $color-gray-600;
+        }
+    }
+
+    // Actions
+    .empty-state-actions {
+        .empty-state-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+
+            .material-icons {
+                font-size: 18px;
+            }
+        }
+    }
+
+    // Size Variants
+    &--small {
+        padding: 24px 16px;
+
+        .empty-state-icon {
+            margin-bottom: 16px;
+
+            .material-icons {
+                font-size: 48px;
+            }
+        }
+
+        .empty-state-content {
+            margin-bottom: 20px;
+
+            .empty-state-title {
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .empty-state-description {
+                font-size: 14px;
+            }
+        }
+    }
+
+    &--large {
+        padding: 60px 40px;
+
+        .empty-state-icon {
+            margin-bottom: 32px;
+
+            .material-icons {
+                font-size: 80px;
+            }
+        }
+
+        .empty-state-content {
+            margin-bottom: 40px;
+
+            .empty-state-title {
+                font-size: 28px;
+                margin-bottom: 16px;
+            }
+
+            .empty-state-description {
+                font-size: 18px;
+            }
+        }
+    }
+
+    // Style Variants
+    &--minimal {
+        background: transparent;
+        box-shadow: none;
+        padding: 32px 16px;
+
+        .empty-state-icon {
+            .material-icons {
+                color: $color-gray-400;
+            }
+        }
+
+        .empty-state-content {
+            .empty-state-title {
+                color: $color-gray-600;
+            }
+
+            .empty-state-description {
+                color: $color-gray-500;
+            }
+        }
+    }
+
+    &--illustrated {
+        background: linear-gradient(135deg, $color-primary-50 0%, $color-gray-50 100%);
+        border: 1px solid $color-primary-100;
+
+        .empty-state-icon {
+            .material-icons {
+                color: $color-primary-400;
+            }
+        }
+
+        .empty-state-content {
+            .empty-state-title {
+                color: $color-primary-700;
+            }
+
+            .empty-state-description {
+                color: $color-primary-600;
+            }
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .empty-state {
+        padding: 32px 16px;
+
+        .empty-state-icon {
+            margin-bottom: 20px;
+
+            .material-icons {
+                font-size: 56px;
+            }
+        }
+
+        .empty-state-content {
+            margin-bottom: 24px;
+
+            .empty-state-title {
+                font-size: 20px;
+            }
+
+            .empty-state-description {
+                font-size: 14px;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .empty-state {
+        padding: 24px 12px;
+
+        .empty-state-icon {
+            .material-icons {
+                font-size: 48px;
+            }
+        }
+
+        .empty-state-content {
+            .empty-state-title {
+                font-size: 18px;
+            }
+
+            .empty-state-description {
+                font-size: 13px;
+            }
+        }
+    }
+}

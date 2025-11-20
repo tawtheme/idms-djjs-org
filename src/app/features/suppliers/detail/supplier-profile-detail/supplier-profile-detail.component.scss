@@ -1,0 +1,216 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/table';
+
+.supplier-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+        padding: 12px 16px;
+        border-bottom: 1px solid $color-gray-200;
+        background: $color-gray-50;
+    }
+}
+
+// Header
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 16px 16px 0 16px;
+
+    .header-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: $color-gray-900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-badge {
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+}
+
+// Chips
+.chips {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px;
+
+    .chip {
+        background: $color-gray-50;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-gray-700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        span {
+            color: $color-gray-500;
+        }
+    }
+}
+
+// Info Grid
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.label {
+    font-size: 13px;
+    color: $color-gray-600;
+}
+
+.value {
+    color: $color-gray-900;
+
+    a {
+        color: $color-primary-600;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.address-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid $color-gray-200;
+    grid-column: 1 / -1;
+}
+
+// Products
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+
+    .product-category {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color-gray-900;
+        }
+
+        .category-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+
+            .product-item {
+                background: $color-gray-50;
+                border: 1px solid $color-gray-200;
+                border-radius: 6px;
+                padding: 4px 10px;
+                font-size: 13px;
+                color: $color-gray-700;
+            }
+        }
+    }
+}
+
+// Activity Log
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 16px;
+    
+    .activity-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+
+        .activity-date {
+            color: $color-gray-600;
+            background: $color-gray-200;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .activity-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .activity-action {
+                color: $color-gray-900;
+            }
+
+            .activity-user {
+                color: $color-gray-600;
+            }
+        }
+    }
+}
+
+// Status badge colors
+.status-badge {
+    &.status-active {
+        background: #bbf7d0;
+        color: #065f46;
+    }
+
+    &.status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    &.status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    &.status-default {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+}
+

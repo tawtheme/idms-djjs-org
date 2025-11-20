@@ -1,0 +1,182 @@
+<div class="invoices-container">
+    <div class="invoices-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <div class="invoices-actions">
+            <button class="btn btn--primary btn--sm" (click)="openCreateModal()">New Invoice</button>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="invoices-stats">
+        <div class="stat-card stat-card--total">
+            <div class="stat-card-icon">
+                <span class="material-icons">receipt_long</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Total Invoices</div>
+                <div class="stat-card-value">{{ totalInvoices }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card--value">
+            <div class="stat-card-icon">
+                <span class="material-icons">attach_money</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Total Value</div>
+                <div class="stat-card-value">{{ formatCurrency(totalValue) }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card--paid">
+            <div class="stat-card-icon">
+                <span class="material-icons">check_circle</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Paid</div>
+                <div class="stat-card-value">{{ paidInvoices }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card--overdue">
+            <div class="stat-card-icon">
+                <span class="material-icons">warning</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Overdue</div>
+                <div class="stat-card-value">{{ overdueInvoices }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+        <input
+            type="search"
+            class="form-control"
+            placeholder="Invoice ID or Order ID"
+            [(ngModel)]="invoiceId"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="selectedStatus"
+                placeholder="Status"
+                (selectionChange)="selectedStatus = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-datepicker
+                [value]="fromDate"
+                (dateChange)="fromDate = $event; onSearchChange()"
+                format="yyyy-MM-dd"
+                placeholder="Invoice Date">
+            </app-datepicker>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Invoices table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let inv of pagedInvoices; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td data-label="Invoice ID" class="invoice-id">
+                        {{ inv.id }}
+                    </td>
+                    <td data-label="Order ID" class="order-id">
+                        {{ inv.orderId }}
+                    </td>
+                    <td data-label="Date" class="date">
+                        {{ inv.date | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td data-label="Total" class="total">
+                        {{ inv.total | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                    <td data-label="Status" class="status">
+                        <span class="status-badge" [ngClass]="getStatusClass(inv.status)">{{ inv.status | titlecase }}</span>
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <button class="btn btn--secondary btn--sm" (click)="openDetailPanel(inv.id); $event.stopPropagation()">View details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="invoices.length === 0"
+        title="No Invoices Found"
+        description="There are no invoices to display at the moment."
+        icon="receipt_long"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- Invoice details side panel -->
+    <app-side-panel
+        [isOpen]="sidePanelOpen"
+        title="Invoice Details"
+        [width]="700"
+        position="right"
+        [closable]="true"
+        (close)="closeDetailPanel()">
+        <app-invoice-detail *ngIf="selectedInvoiceId" [invoiceId]="selectedInvoiceId"></app-invoice-detail>
+    </app-side-panel>
+
+    <!-- Create Invoice Modal -->
+    <app-modal
+        [isOpen]="createModalOpen"
+        title="Create Invoice"
+        size="extraLarge"
+        [closable]="true"
+        [showHeader]="true"
+        [showFooter]="true"
+        (close)="closeCreateModal()">
+        <app-create-invoice
+            #createInvoice
+            [isInModal]="true"
+            (saved)="onInvoiceSaved()"
+            (cancelled)="closeCreateModal()">
+        </app-create-invoice>
+        <div slot="footer">
+            <div class="modal-footer footer-right">
+                <button 
+                    type="button" 
+                    class="btn btn--secondary btn--md" 
+                    (click)="closeCreateModal()">
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn--primary btn--md" 
+                    [disabled]="!createInvoice.isFormValid()"
+                    (click)="createInvoice.submitForm()">
+                    Submit Invoice
+                </button>
+            </div>
+        </div>
+    </app-modal>
+</div>

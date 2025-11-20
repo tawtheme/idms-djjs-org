@@ -1,0 +1,48 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+.create-shipment-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .form-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+        padding: 24px;
+        border: 1px solid $color-gray-200;
+        border-radius: 12px;
+        background: $color-white;
+    }
+
+    .card {
+        padding: 0;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: $color-gray-700;
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: $color-primary-500;
+        }
+
+        span {
+            user-select: none;
+        }
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: $color-gray-500;
+        font-style: italic;
+    }
+}

@@ -1,0 +1,75 @@
+<div *ngIf="job && !loading" class="job-detail">
+    <div class="header">
+        <div class="header-title">
+            <span class="status-badge" [ngClass]="getStatusClass(job.status)">
+                {{ formatStatus(job.status) }}
+            </span>
+            #{{ job.job_id }} {{ job.job_title }}
+        </div>
+        <div class="chips">
+            <div class="chip">
+                <span>Created On:</span> {{ formatDate(job.created_at) }}
+            </div>
+            <div class="chip" *ngIf="job.due_date">
+                <span>Due Date:</span> {{ formatDate(job.due_date) }}
+            </div>
+            <div class="chip" *ngIf="job.order_source">
+                <span class="label">Order Source:</span>
+                <span class="value">{{ job.order_source }}</span>
+            </div>
+            <div class="chip" *ngIf="job.priority">
+                <span>Priority:</span> {{ job.priority }}
+            </div>
+            <div class="chip"> 
+                <span class="label">Order Number:</span>
+                <span class="value">{{ job.order_number }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printing Specifications -->
+    <app-items 
+        [items]="cachedJobItems"
+        [jobTitle]="job.job_title"
+        [title]="'Printing Specifications'"
+        [showTitle]="true">
+    </app-items>
+
+    <!-- Job Stages & Workflow -->
+    <app-stage 
+        *ngIf="job.stage_activities"
+        [stageActivities]="job.stage_activities"
+        [title]="'Job Stages & Workflow'"
+        [showTitle]="true"
+        [viewMode]="'accordion'"
+        (cancel)="onStageCancel()">
+    </app-stage>
+
+    <!-- Notes & Remarks -->
+    <div class="card" *ngIf="job.internal_remarks">
+        <div class="card-title">Notes & Remarks</div>
+        <div class="info-grid">
+            <div class="info-item" *ngIf="job.internal_remarks">
+                <span class="label">Internal Remarks:</span>
+                <span class="value">{{ job.internal_remarks }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card" *ngIf="job.activity_log && job.activity_log.length > 0">
+        <app-activity 
+            [activities]="job.activity_log"
+            [title]="'Activity Log'"
+            [showTitle]="true">
+        </app-activity>
+    </div>
+</div>
+
+<div *ngIf="loading" class="loading">
+    Loading job details...
+</div>
+
+<div *ngIf="!job && !loading" class="no-data">
+    Job not found
+</div>

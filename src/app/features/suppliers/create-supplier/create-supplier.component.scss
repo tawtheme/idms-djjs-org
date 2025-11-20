@@ -1,0 +1,46 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+
+.create-supplier-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+}
+
+.form-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+    overflow-y: auto;
+
+    .invoice-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .invoice-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: $color-gray-900;
+            margin-bottom: 8px;
+        }
+
+        .invoice-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid $color-gray-200;
+    margin-top: auto;
+}
+

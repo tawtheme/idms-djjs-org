@@ -1,0 +1,383 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+.card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+}
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+// Header
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    .header-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: $color-gray-900;
+    }
+
+    .status-badge {
+        background: $color-primary-100;
+        color: $color-primary-800;
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+// Chips
+.chips {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+
+    .chip {
+        background: $color-gray-50;
+        border: 1px solid $color-gray-200;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: $color-gray-700;
+    }
+}
+
+// Info items
+.info-items {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 16px;
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: $color-gray-700;
+        }
+
+        .value {
+            font-size: 14px;
+        }
+    }
+}
+
+// Addresses
+.addresses {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+
+    .addresses-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: $color-gray-700;
+        }
+
+        .value {
+            font-size: 14px;
+        }
+    }
+}
+
+.items {
+    padding: 0;
+    overflow: visible;
+
+    .table {
+        border: none;
+        border-radius: 0;
+
+        tfoot {
+            tr.total td {
+                font-size: 15px;
+                color: $color-gray-900;
+            }
+        }
+    }
+}
+
+// Card title
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $color-gray-900;
+    margin: 0 0 16px 0;
+}
+
+// Info grid
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+
+        .label {
+            font-size: 13px;
+            color: $color-gray-600;
+        }
+
+        .value {
+            color: $color-gray-900;
+        }
+    }
+}
+
+// Job Stages & Workflow
+.job-stages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.stage-item {
+    position: relative;
+    padding: 16px 0;
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+}
+
+.stage-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.stage-indicator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid $color-gray-300;
+    background: $color-white;
+    position: relative;
+
+    .stage-number {
+        font-size: 14px;
+        font-weight: 600;
+        color: $color-gray-600;
+    }
+
+    .stage-icon {
+        position: absolute;
+        font-size: 20px;
+        color: $color-white;
+    }
+
+    &.completed {
+        background: $color-green-600;
+        border-color: $color-green-600;
+
+        .stage-number {
+            display: none;
+        }
+
+        .stage-icon {
+            display: block;
+        }
+    }
+
+    &.in-progress {
+        background: $color-primary-600;
+        border-color: $color-primary-600;
+
+        .stage-number {
+            display: none;
+        }
+
+        .stage-icon {
+            display: block;
+        }
+    }
+
+    &.pending {
+        background: $color-white;
+        border-color: $color-gray-300;
+
+        .stage-number {
+            display: block;
+        }
+
+        .stage-icon {
+            display: none;
+        }
+    }
+}
+
+.stage-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.stage-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: $color-gray-900;
+}
+
+.stage-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+
+    &.status-completed {
+        background: $color-green-100;
+        color: $color-green-800;
+    }
+
+    &.status-in_progress {
+        background: $color-primary-100;
+        color: $color-primary-800;
+    }
+
+    &.status-pending {
+        background: $color-gray-100;
+        color: $color-gray-600;
+    }
+}
+
+.stage-details {
+    margin-left: 56px;
+    margin-top: 12px;
+    padding: 12px;
+    background: $color-gray-50;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stage-detail-item {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+
+    .detail-label {
+        font-weight: 600;
+        color: $color-gray-600;
+        min-width: 100px;
+    }
+
+    .detail-value {
+        color: $color-gray-900;
+    }
+}
+
+.stage-connector {
+    position: absolute;
+    left: 19px;
+    top: 56px;
+    width: 2px;
+    height: calc(100% - 40px);
+    background: $color-gray-200;
+    z-index: 0;
+
+    &.completed {
+        background: $color-green-600;
+    }
+}
+
+// Activity Log
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: $color-gray-50;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.activity-date {
+    color: $color-gray-600;
+    min-width: 150px;
+    font-size: 13px;
+}
+
+.activity-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.activity-action {
+    color: $color-gray-900;
+    font-weight: 500;
+}
+
+.activity-user {
+    color: $color-gray-600;
+    font-size: 13px;
+}
+
+.activity-meta {
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.activity-source {
+    font-size: 12px;
+    color: $color-gray-500;
+    text-transform: capitalize;
+}
+
+.activity-stage {
+    margin-top: 4px;
+}
+
+.stage-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: $color-primary-100;
+    color: $color-primary-800;
+    font-size: 11px;
+    font-weight: 600;
+}

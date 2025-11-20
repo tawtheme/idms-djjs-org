@@ -1,0 +1,119 @@
+<div class="create-user-container">
+    <form (ngSubmit)="save()" #f="ngForm" class="side-panel-form">
+        <!-- Section: Basic Information -->
+        <div class="panel-card">
+            <div class="form-grid cols-2">
+                <label>
+                    <span>User ID</span>
+                    <input name="id" [(ngModel)]="user.id" required class="form-control" placeholder="Enter user ID (e.g., U9)" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>First Name</span>
+                    <input name="first_name" [(ngModel)]="user.first_name" required class="form-control" placeholder="Enter first name" />
+                </label>
+                <label>
+                    <span>Last Name</span>
+                    <input name="last_name" [(ngModel)]="user.last_name" required class="form-control" placeholder="Enter last name" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Email</span>
+                    <input type="email" name="email" [(ngModel)]="user.email" required class="form-control" placeholder="Enter email address" />
+                </label>
+                <label>
+                    <span>Phone</span>
+                    <input type="tel" name="phone" [(ngModel)]="user.phone" class="form-control" placeholder="Enter phone number" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Address -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Address
+                    <span class="description">Enter the address for the user.</span>
+                </span>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Address Line 1</span>
+                    <input name="addressLine1" [(ngModel)]="user.address.addressLine1" class="form-control" placeholder="Enter address line 1" />
+                </label>
+                <label>
+                    <span>Address Line 2</span>
+                    <input name="addressLine2" [(ngModel)]="user.address.addressLine2" class="form-control" placeholder="Enter address line 2" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>City</span>
+                    <input name="city" [(ngModel)]="user.address.city" class="form-control" placeholder="Enter city" />
+                </label>
+                <label>
+                    <span>State</span>
+                    <input name="state" [(ngModel)]="user.address.state" class="form-control" placeholder="Enter state" />
+                </label>
+                <label>
+                    <span>Postal Code</span>
+                    <input name="postalCode" [(ngModel)]="user.address.postalCode" class="form-control" placeholder="Enter postal code" />
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input name="country" [(ngModel)]="user.address.country" class="form-control" placeholder="Enter country" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Role & Department -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Role & Department
+                    <span class="description">Assign role and department for access control.</span>
+                </span>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Department</span>
+                    <app-dropdown
+                        [options]="departmentOptions"
+                        [selectedValues]="getSelectedValues(user.department)"
+                        (selectionChange)="onDropdownChange('department', $event)"
+                        placeholder="Select department">
+                    </app-dropdown>
+                </label>
+                <label>
+                    <span>Role</span>
+                    <app-dropdown
+                        [options]="roleOptions"
+                        [selectedValues]="getSelectedValues(user.role)"
+                        (selectionChange)="onDropdownChange('role', $event)"
+                        placeholder="Select role">
+                    </app-dropdown>
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Account Status</span>
+                    <app-dropdown
+                        [options]="statusOptions"
+                        [selectedValues]="getSelectedValues(user.status)"
+                        (selectionChange)="onDropdownChange('status', $event)"
+                        placeholder="Select status">
+                    </app-dropdown>
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--md" [disabled]="submitting || f.invalid">Save User</button>
+            <button type="button" class="btn btn--secondary btn--md" (click)="cancel()">Cancel</button>
+        </div>
+    </form>
+</div>
+

@@ -1,0 +1,101 @@
+<div class="user-detail-container">
+    <div *ngIf="user && userDetail" class="user-overview">
+        <!-- User Profile Section -->
+        <div class="info-cards">
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <span class="avatar-text">{{ user.name.charAt(0) }}</span>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-info">
+                        <div class="profile-joined">Joined: {{ formatDateOnly(user.created_at) }}</div>
+                        <div class="profile-name">{{ user.name }}</div>
+                    </div>
+                    <div class="profile-contact-info">
+                        <div class="detail-item">
+                            <span class="detail-label">User ID</span>
+                            <span class="detail-value">{{ user.id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Roles</span>
+                            <span class="detail-value">{{ user.role | titlecase }} - {{ user.department }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">{{ user.email }}</span>
+                            <button class="btn-icon" type="button" (click)="copyToClipboard(user.email)">
+                                <span class="material-icons">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value">{{ user.phone }}</span>
+                            <button class="btn-icon" type="button" (click)="copyToClipboard(user.phone)">
+                                <span class="material-icons">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">
+                                <span [class]="'status-badge ' + getStatusClass(user.status)">
+                                    {{ user.status | titlecase }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Login</span>
+                            <span class="detail-value">{{ formatDate(user.last_login) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Activity Section -->
+        <div class="login-activity-section">
+            <div class="section-title">Login Activity</div>
+            <div class="activity-cards-container">
+                <div *ngIf="loginActivity.length === 0" class="empty-activity">
+                    <p>No login activity found</p>
+                </div>
+                <div *ngFor="let activity of loginActivity; trackBy: trackByActivityId" class="activity-card">
+                    <div class="activity-header">
+                        <div class="activity-status">
+                            <span [ngClass]="'status-badge ' + getStatusClass(activity.status)">
+                                {{ activity.status | titlecase }}
+                            </span>
+                        </div>
+                        <div class="activity-duration" *ngIf="activity.sessionDuration">
+                            <span class="material-icons">schedule</span>
+                            <span>{{ activity.sessionDuration }}</span>
+                        </div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-row">
+                            <div class="activity-item">
+                                <span class="activity-label">Login Time</span>
+                                <span class="activity-value">{{ formatDate(activity.loginTime) }}</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-label">Logout Time</span>
+                                <span class="activity-value">{{ formatDate(activity.logoutTime) }}</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-label">IP Address</span>
+                                <span class="activity-value">{{ activity.ipAddress }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!user" class="empty-state">
+        <p>User not found</p>
+    </div>
+
+    <!-- Snackbar for copy feedback -->
+    <app-snackbar *ngIf="snackbarConfig" [config]="snackbarConfig"></app-snackbar>
+</div>
+

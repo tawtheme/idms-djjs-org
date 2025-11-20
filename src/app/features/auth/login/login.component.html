@@ -1,0 +1,78 @@
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Left Side - Promotional Section -->
+        <div class="login-visual">
+            <div class="visual-content">
+                <div class="welcome-heading">Welcome to idms-djjs.org</div>
+                <div class="welcome-description">
+                    Skip repetitive and manual printing tasks. Get highly productive through automation and save tons of time!
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 idms-djjs.org. All rights reserved.
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-form-section">
+            <div class="login-card">
+                <div class="welcome-back">Login to your account</div>
+                <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="login-form">
+                    <div class="form-group">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            [(ngModel)]="email" 
+                            required 
+                            email 
+                            #emailField="ngModel"
+                            class="form-control" 
+                            placeholder="Email"
+                            [class.error]="emailField.invalid && emailField.touched" />
+                        <div class="error-message" *ngIf="emailField.invalid && emailField.touched">
+                            <span *ngIf="emailField.errors?.['required']">Email is required</span>
+                            <span *ngIf="emailField.errors?.['email']">Please enter a valid email</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="password-input-wrapper">
+                            <input 
+                                [type]="showPassword ? 'text' : 'password'"
+                                id="password" 
+                                name="password" 
+                                [(ngModel)]="password" 
+                                required 
+                                minlength="6"
+                                #passwordField="ngModel" 
+                                class="form-control"
+                                placeholder="Password"
+                                [class.error]="passwordField.invalid && passwordField.touched" />
+                            <button 
+                                type="button" 
+                                class="password-toggle"
+                                (click)="togglePasswordVisibility()"
+                                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                                <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                            </button>
+                        </div>
+                        <div class="error-message" *ngIf="passwordField.invalid && passwordField.touched">
+                            <span *ngIf="passwordField.errors?.['required']">Password is required</span>
+                            <span *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login" [disabled]="loginForm.invalid">
+                        Login Now
+                    </button>
+
+                    <div class="forgot-password">
+                        <span>Forget password</span>
+                        <a routerLink="/forgot-password" class="forgot-link">Click here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

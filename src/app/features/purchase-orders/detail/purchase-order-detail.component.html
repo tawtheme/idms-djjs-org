@@ -1,0 +1,132 @@
+<div *ngIf="purchaseOrder && !loading" class="purchase-order-detail">
+    <div class="header">
+        <div class="header-title">
+            Purchase Order # {{ purchaseOrder.purchase_order_id }}
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(purchaseOrder.status)">
+            {{ formatStatus(purchaseOrder.status) }}
+        </span>
+    </div>
+
+    <div class="chips">
+        <div class="chip" *ngIf="purchaseOrder.supplier_name">
+            <span>Supplier:</span> {{ purchaseOrder.supplier_name }}
+        </div>
+        <div class="chip" *ngIf="purchaseOrder.purchase_order_date">
+            <span>PO Date:</span> {{ formatDate(purchaseOrder.purchase_order_date) }}
+        </div>
+        <div class="chip" *ngIf="purchaseOrder.expected_delivery_date">
+            <span>Expected Delivery:</span> {{ formatDate(purchaseOrder.expected_delivery_date) }}
+        </div>
+        <div class="chip" *ngIf="purchaseOrder.created_by">
+            <span>Created By:</span> {{ purchaseOrder.created_by }}
+        </div>
+        <div class="chip" *ngIf="purchaseOrder.approved_by">
+            <span>Approved By:</span> {{ purchaseOrder.approved_by }}
+        </div>
+    </div>
+
+    <!-- Financial Summary -->
+    <div class="card">
+        <div class="card-title">Financial Summary</div>
+        <div class="costs">
+            <div class="cost-item">
+                <span class="label">Subtotal</span>
+                <span class="value">{{ purchaseOrder.financial_summary.subtotal | currency:'USD':'symbol' }}</span>
+            </div>
+            <div class="cost-item">
+                <span class="label">Tax Amount</span>
+                <span class="value">{{ purchaseOrder.financial_summary.tax_amount | currency:'USD':'symbol' }}</span>
+            </div>
+            <div class="cost-item total">
+                <span class="label">Total Amount</span>
+                <span class="value">{{ purchaseOrder.financial_summary.total_amount | currency:'USD':'symbol' }}</span>
+            </div>
+            <div class="cost-item">
+                <span class="label">Amount Paid</span>
+                <span class="value" [ngClass]="{'paid': purchaseOrder.financial_summary.amount_paid > 0}">
+                    {{ purchaseOrder.financial_summary.amount_paid | currency:'USD':'symbol' }}
+                </span>
+            </div>
+            <div class="cost-item">
+                <span class="label">Balance Due</span>
+                <span class="value" [ngClass]="{'due': purchaseOrder.financial_summary.balance_due > 0}">
+                    {{ purchaseOrder.financial_summary.balance_due | currency:'USD':'symbol' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card">
+        <div class="card-title">Items</div>
+        <div class="line-items">
+            <div class="line-item" *ngFor="let item of purchaseOrder.items">
+                <div class="line-item-header">
+                    <div class="line-item-name">
+                        <span class="item-status-badge" [ngClass]="getStatusClass(item.status)">
+                            {{ formatStatus(item.status) }}
+                        </span>
+                        {{ item.item_name }}
+                    </div>
+                    <div class="line-item-total">{{ item.total | currency:'USD':'symbol' }}</div>
+                </div>
+                <div class="line-item-details">
+                    <div class="detail-item">
+                        <span>Ordered Qty:</span> {{ item.ordered_qty }}
+                    </div>
+                    <div class="detail-item">
+                        <span>Received Qty:</span> {{ item.received_qty }}
+                    </div>
+                    <div class="detail-item">
+                        <span>Pending Qty:</span> {{ item.pending_qty }}
+                    </div>
+                    <div class="detail-item">
+                        <span>Unit Price:</span> {{ item.unit_price | currency:'USD':'symbol' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attachments -->
+    <div class="card" *ngIf="purchaseOrder.attachments && purchaseOrder.attachments.length > 0">
+        <div class="card-title">Attachments</div>
+        <div class="attachments">
+            <div class="attachment-item" *ngFor="let attachment of purchaseOrder.attachments">
+                <a [href]="attachment.file_url" target="_blank" class="attachment-link">
+                    <span class="material-icons">description</span>
+                    {{ attachment.file_name }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card" *ngIf="purchaseOrder.activity_log && purchaseOrder.activity_log.length > 0">
+        <div class="card-title">Activity Log</div>
+        <div class="activity-log">
+            <div class="activity-item" *ngFor="let activity of purchaseOrder.activity_log">
+                <div class="activity-time">{{ formatDate(activity.timestamp) }}</div>
+                <div class="activity-action">{{ activity.action }}</div>
+                <div class="activity-user">{{ activity.by }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remarks -->
+    <div class="card" *ngIf="purchaseOrder.remarks">
+        <div class="card-title">Remarks</div>
+        <div class="remarks">
+            {{ purchaseOrder.remarks }}
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading" class="loading">
+    Loading purchase order details...
+</div>
+
+<div *ngIf="!purchaseOrder && !loading" class="empty">
+    Purchase order not found
+</div>

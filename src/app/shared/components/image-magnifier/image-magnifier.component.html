@@ -1,0 +1,20 @@
+<div class="magnifier-wrapper">
+    <div class="magnifier-container" [class.enabled]="enabled">
+        @if (showControls) {
+            <div class="magnifier-controls">
+                <button type="button" class="control-btn primary" (click)="toggleEnabled()" title="Toggle glass">
+                    <span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">
+                        {{ enabled ? 'zoom_out_map' : 'zoom_in_map' }}
+                    </span>
+                    {{ enabled ? 'Hide Glass' : 'Get Glass' }}
+                </button>
+            </div>
+        }
+        @if (src) {
+            <img class="magnifier-image" [src]="src!" alt="preview" (mousemove)="onImageMove($event)" />
+            @if (enabled && showLens) {
+                <div class="magnifier-lens" [ngStyle]="lensStyle"></div>
+            }
+        }
+    </div>
+</div>

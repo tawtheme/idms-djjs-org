@@ -1,0 +1,58 @@
+<app-modal
+    [isOpen]="isOpen"
+    title="Customer Addresses"
+    size="medium"
+    [closable]="true"
+    [showHeader]="true"
+    (close)="onClose()">
+    <div class="address-modal-content">
+        <!-- Billing Address -->
+        <div class="address-section">
+            <div class="address-details" *ngIf="addresses?.billing; else noBillingAddress">
+                <div class="address-section-title">
+                    Billing Address
+                </div>
+                <div class="address-line">
+                    <span *ngIf="addresses?.billing?.addressLine1">{{ addresses?.billing?.addressLine1 }}</span>
+                    <span *ngIf="addresses?.billing?.addressLine1 && addresses?.billing?.addressLine2">, </span>
+                    <span *ngIf="addresses?.billing?.addressLine2">{{ addresses?.billing?.addressLine2 }}</span>
+                    <span *ngIf="(addresses?.billing?.addressLine1 || addresses?.billing?.addressLine2) && addresses?.billing?.city">, </span>
+                    <span *ngIf="addresses?.billing?.city">{{ addresses?.billing?.city }}</span>
+                    <span *ngIf="addresses?.billing?.city && addresses?.billing?.state">, </span>
+                    <span *ngIf="addresses?.billing?.state">{{ addresses?.billing?.state }}</span>
+                    <span *ngIf="addresses?.billing?.postalCode"> {{ addresses?.billing?.postalCode }}</span>
+                    <span *ngIf="addresses?.billing?.country && (addresses?.billing?.city || addresses?.billing?.state || addresses?.billing?.postalCode)">, </span>
+                    <span *ngIf="addresses?.billing?.country">{{ addresses?.billing?.country }}</span>
+                </div>
+            </div>
+            <ng-template #noBillingAddress>
+                <div class="address-details no-address">N/A</div>
+            </ng-template>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="address-section">
+            <div class="address-details" *ngIf="addresses?.shipping; else noShippingAddress">
+                <div class="address-section-title">
+                    Delivery Address
+                </div>
+                <div class="address-line">
+                    <span *ngIf="addresses?.shipping?.addressLine1">{{ addresses?.shipping?.addressLine1 }}</span>
+                    <span *ngIf="addresses?.shipping?.addressLine1 && addresses?.shipping?.addressLine2">, </span>
+                    <span *ngIf="addresses?.shipping?.addressLine2">{{ addresses?.shipping?.addressLine2 }}</span>
+                    <span *ngIf="(addresses?.shipping?.addressLine1 || addresses?.shipping?.addressLine2) && addresses?.shipping?.city">, </span>
+                    <span *ngIf="addresses?.shipping?.city">{{ addresses?.shipping?.city }}</span>
+                    <span *ngIf="addresses?.shipping?.city && addresses?.shipping?.state">, </span>
+                    <span *ngIf="addresses?.shipping?.state">{{ addresses?.shipping?.state }}</span>
+                    <span *ngIf="addresses?.shipping?.postalCode"> {{ addresses?.shipping?.postalCode }}</span>
+                    <span *ngIf="addresses?.shipping?.country && (addresses?.shipping?.city || addresses?.shipping?.state || addresses?.shipping?.postalCode)">, </span>
+                    <span *ngIf="addresses?.shipping?.country">{{ addresses?.shipping?.country }}</span>
+                </div>
+            </div>
+            <ng-template #noShippingAddress>
+                <div class="address-details no-address">N/A</div>
+            </ng-template>
+        </div>
+    </div>
+</app-modal>
+

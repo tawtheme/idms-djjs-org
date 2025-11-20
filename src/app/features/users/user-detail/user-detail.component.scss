@@ -1,0 +1,256 @@
+@import '../../../../assets/scss/variable';
+
+.user-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0;
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: $color-gray-600;
+    }
+
+    .user-overview {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: $color-gray-900;
+            background: $color-primary-50;
+            border-radius: 100px;
+            padding: 8px 16px;
+            width: fit-content;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-items: start;
+            gap: 12px;
+
+            .profile-section {
+                display: flex;
+                gap: 16px;
+                background: $color-white;
+                border: 1px solid $color-gray-200;
+                border-radius: 12px;
+                padding: 20px;
+                width: 100%;
+
+                .profile-avatar {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background: $color-primary-100;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+
+                    .avatar-text {
+                        font-size: 24px;
+                        font-weight: 600;
+                        color: $color-primary-700;
+                    }
+                }
+
+                .profile-details {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+
+                    .profile-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+
+                        .profile-joined {
+                            font-size: 12px;
+                            color: $color-gray-500;
+                        }
+
+                        .profile-name {
+                            font-size: 20px;
+                            font-weight: 600;
+                            color: $color-gray-900;
+                        }
+                    }
+
+                    .profile-contact-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+
+                        .detail-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+
+                            .detail-label {
+                                font-size: 14px;
+                                font-weight: 500;
+                                color: $color-gray-700;
+                                min-width: 100px;
+                            }
+
+                            .detail-value {
+                                font-size: 14px;
+                                color: $color-gray-900;
+                                flex: 1;
+                            }
+
+                            .btn-icon {
+                                background: none;
+                                border: none;
+                                cursor: pointer;
+                                padding: 4px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: $color-gray-500;
+                                transition: color 0.2s;
+
+                                &:hover {
+                                    color: $color-primary-600;
+                                }
+
+                                .material-icons {
+                                    font-size: 18px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .login-activity-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .activity-cards-container {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+
+                .empty-activity {
+                    text-align: center;
+                    padding: 40px;
+                    color: $color-gray-500;
+                    background: $color-white;
+                    border: 1px solid $color-gray-200;
+                    border-radius: 12px;
+                }
+
+                .activity-card {
+                    background: $color-white;
+                    border: 1px solid $color-gray-200;
+                    border-radius: 12px;
+                    padding: 16px;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        box-shadow: 0 2px 8px rgba($color-gray-900, 0.08);
+                        border-color: $color-gray-300;
+                    }
+
+                    .activity-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 16px;
+                        padding-bottom: 12px;
+                        border-bottom: 1px solid $color-gray-100;
+
+                        .activity-status {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+
+                        .activity-duration {
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            font-size: 13px;
+                            color: $color-gray-600;
+                            font-weight: 500;
+
+                            .material-icons {
+                                font-size: 16px;
+                            }
+                        }
+                    }
+
+                    .activity-body {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+
+                        .activity-row {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr;
+                            gap: 16px;
+
+                            @media (max-width: 600px) {
+                                grid-template-columns: 1fr;
+                            }
+                        }
+
+                        .activity-item {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 6px;
+
+                            .activity-label {
+                                font-size: 12px;
+                                font-weight: 500;
+                                color: $color-gray-600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+
+                            .activity-value {
+                                font-size: 14px;
+                                color: $color-gray-900;
+                                font-weight: 500;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.status-success,
+        &.status-active {
+            background: $color-green-100;
+            color: $color-green-700;
+        }
+
+        &.status-failed {
+            background: $color-red-100;
+            color: $color-red-700;
+        }
+
+        &.status-inactive {
+            background: $color-yellow-100;
+            color: $color-yellow-700;
+        }
+    }
+}
+

@@ -1,0 +1,154 @@
+<aside [ngClass]="sidenavClasses">
+    <!-- Header - Fixed -->
+    <div class="sidenav-header">
+        <div class="brand">
+            <div class="brand-icon">dashboard</div>
+            <div class="brand-text" *ngIf="!isCollapsed">idms-djjs.org</div>
+        </div>
+    </div>
+    
+    <!-- Navigation - Scrollable -->
+    <div class="sidenav-content">
+        <nav>
+            <div class="group">
+                <div class="group-title" *ngIf="!isCollapsed">Operations</div>
+                <ul>
+                    <li>
+                        <a routerLink="/orders" 
+                        routerLinkActive="active"
+                        (click)="onNavClick()">
+                            <span class="icon material-icons">receipt_long</span>
+                            <span class="text" *ngIf="!isCollapsed">Orders</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/jobs" 
+                        routerLinkActive="active"
+                        (click)="onNavClick()">
+                            <span class="icon material-icons">work</span>
+                            <span class="text" *ngIf="!isCollapsed">Jobs</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a routerLink="/shipments" 
+                        routerLinkActive="active"
+                        (click)="onNavClick()">
+                            <span class="icon material-icons">local_shipping</span>
+                            <span class="text" *ngIf="!isCollapsed">Shipments</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="group">
+                <div class="group-title" *ngIf="!isCollapsed">Catalog</div>
+                <ul>
+                    <!-- <li>
+                        <a routerLink="/books" 
+                           routerLinkActive="active">
+                            <span class="icon material-icons">menu_book</span>
+                            <span class="text" *ngIf="!isCollapsed">Books</span>
+                        </a>
+                    </li> -->
+                    
+                    <li>
+                        <a routerLink="/customers" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">people</span>
+                            <span class="text" *ngIf="!isCollapsed">Customers</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/suppliers" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">business</span>
+                            <span class="text" *ngIf="!isCollapsed">Suppliers</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/catalog/items" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">inventory_2</span>
+                            <span class="text" *ngIf="!isCollapsed">Items</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="group">
+                <div class="group-title" *ngIf="!isCollapsed">Sales</div>
+                <ul>
+                    <li>
+                        <a routerLink="/quotes" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">request_quote</span>
+                            <span class="text" *ngIf="!isCollapsed">Quotes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/invoices" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">receipt</span>
+                            <span class="text" *ngIf="!isCollapsed">Invoices</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/purchase-orders" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">shopping_cart</span>
+                            <span class="text" *ngIf="!isCollapsed">Purchase Orders</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/reports" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">analytics</span>
+                            <span class="text" *ngIf="!isCollapsed">Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            
+
+            <div class="group">
+                <div class="group-title" *ngIf="!isCollapsed">Admin</div>
+                <ul>
+                    <li>
+                        <a routerLink="/users-roles" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">admin_panel_settings</span>
+                            <span class="text" *ngIf="!isCollapsed">Users & Roles</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/settings" 
+                           routerLinkActive="active"
+                           (click)="onNavClick()">
+                            <span class="icon material-icons">settings</span>
+                            <span class="text" *ngIf="!isCollapsed">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Footer - Fixed -->
+    <div class="sidenav-footer">
+        <button class="logout-btn" 
+                (click)="logout()">
+            <span class="icon material-icons">logout</span>
+            <span class="text" *ngIf="!isCollapsed">Logout</span>
+        </button>
+    </div>
+</aside>

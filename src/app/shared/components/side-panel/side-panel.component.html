@@ -1,0 +1,18 @@
+<ng-template #panelTemplate>
+    <div class="side-panel" [class.side-panel-left]="position === 'left'" [class.side-panel-right]="position === 'right'">
+        <div class="side-panel__header" *ngIf="title || closable">
+            <div class="side-panel__title" *ngIf="title">{{ title }}</div>
+            <button 
+                *ngIf="closable"
+                class="side-panel__close" 
+                (click)="onCloseClick()"
+                aria-label="Close panel">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="side-panel__body">
+            <ng-content></ng-content>
+        </div>
+    </div>
+</ng-template>
+

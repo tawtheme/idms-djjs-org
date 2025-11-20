@@ -1,0 +1,26 @@
+<div class="empty-state" [class]="'empty-state--' + size + ' empty-state--' + variant">
+    <!-- Icon -->
+    <div class="empty-state-icon">
+        <span class="material-icons">{{ icon }}</span>
+    </div>
+
+    <!-- Content -->
+    <div class="empty-state-content">
+        <div class="empty-state-title">{{ title }}</div>
+        <div class="empty-state-description">{{ description }}</div>
+    </div>
+
+    <!-- Action Button -->
+    @if (showButton && buttonText) {
+        <div class="empty-state-actions">
+            <button 
+                (click)="onButtonClick()" 
+                class="btn btn-primary empty-state-button">
+                @if (buttonIcon) {
+                    <span class="material-icons">{{ buttonIcon }}</span>
+                }
+                {{ buttonText }}
+            </button>
+        </div>
+    }
+</div>

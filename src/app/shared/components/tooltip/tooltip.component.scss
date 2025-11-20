@@ -1,0 +1,70 @@
+@import '../../../../assets/scss/variable';
+
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    position: fixed;
+    z-index: 10000;
+    padding: 6px 12px;
+    background: $color-gray-900;
+    color: $color-white;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    &.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    // Arrow styles
+    &::before {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+    }
+
+    &.top::before {
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px 6px 0 6px;
+        border-color: $color-gray-900 transparent transparent transparent;
+    }
+
+    &.bottom::before {
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0 6px 6px 6px;
+        border-color: transparent transparent $color-gray-900 transparent;
+    }
+
+    &.left::before {
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-width: 6px 0 6px 6px;
+        border-color: transparent transparent transparent $color-gray-900;
+    }
+
+    &.right::before {
+        left: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-width: 6px 6px 6px 0;
+        border-color: transparent $color-gray-900 transparent transparent;
+    }
+}
+

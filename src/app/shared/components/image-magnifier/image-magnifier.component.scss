@@ -1,0 +1,76 @@
+.magnifier-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    .magnifier-container {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        border-radius: 8px;
+        background: var(--white);
+        cursor: zoom-in;
+
+        .magnifier-controls {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 999px;
+            padding: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            z-index: 10;
+            pointer-events: auto;
+
+            .control-btn {
+                appearance: none;
+                border: 0;
+                border-radius: 999px;
+                padding: 6px 10px;
+                font-weight: 600;
+                font-size: 12px;
+                line-height: 1;
+                cursor: pointer;
+                color: var(--white);
+                background: var(--primary-500);
+                transition: background 120ms ease, transform 120ms ease;
+
+                &:hover { 
+                    background: var(--primary-600); 
+                }
+            }
+        }
+
+        .magnifier-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .magnifier-lens {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.18), inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            background-repeat: no-repeat;
+            background-color: rgba(255, 255, 255, 0.06);
+            transition: opacity 120ms ease, transform 120ms ease;
+            z-index: 5;
+            will-change: transform, background-position;
+            backface-visibility: hidden;
+        }
+
+        &.enabled {
+            cursor: crosshair;
+        }
+    }
+}

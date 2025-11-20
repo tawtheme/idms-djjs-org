@@ -1,0 +1,316 @@
+{
+  "suppliers": [
+    {
+      "id": "S1",
+      "name": "Premium Paper Mills",
+      "company": "Premium Paper Mills Inc.",
+      "email": "sales@premiumpapermills.com",
+      "phone": "+1-800-555-1001",
+      "contactPerson": "Robert Chen",
+      "first_name": "Robert",
+      "last_name": "Chen",
+      "contactEmail": "robert.chen@premiumpapermills.com",
+      "contactPhone": "+1-800-555-1001",
+      "supplierType": "Paper & Materials",
+      "status": "active",
+      "createdAt": "2020-05-15T09:00:00Z",
+      
+      "address": {
+        "addressLine1": "1200 Industrial Blvd",
+        "addressLine2": "Building 5",
+        "city": "Memphis",
+        "state": "TN",
+        "postalCode": "38118",
+        "country": "United States"
+      },
+      
+      "businessInfo": {
+        "taxId": "TAX-123456789",
+        "registrationNumber": "REG-TN-2020-001",
+        "website": "https://www.premiumpapermills.com",
+        "yearsInBusiness": 15,
+        "employeeCount": 250
+      },
+      
+      "products": [
+        {
+          "category": "Paper",
+          "items": [
+            "Coated Paper - 80lb",
+            "Cardstock - 100lb",
+            "Bond Paper - 24lb",
+            "Text Paper - 60lb"
+          ]
+        },
+        {
+          "category": "Materials",
+          "items": [
+            "Lamination Film",
+            "Binding Materials"
+          ]
+        }
+      ],
+      
+      "pricing": {
+        "paymentTerms": "Net 30",
+        "minimumOrder": 500.00,
+        "discountTiers": [
+          {
+            "minOrder": 5000.00,
+            "discountPercent": 5
+          },
+          {
+            "minOrder": 10000.00,
+            "discountPercent": 10
+          }
+        ]
+      },
+      
+      "orderHistory": {
+        "totalOrders": 45,
+        "totalValue": 125000.00,
+        "lastOrderDate": "2024-10-23",
+        "lastOrderId": "PO-2024-001",
+        "averageOrderValue": 2777.78,
+        "onTimeDeliveryRate": 98.5
+      },
+      
+      "performance": {
+        "rating": 4.8,
+        "responseTime": "24 hours",
+        "qualityScore": 4.9,
+        "reliabilityScore": 4.7
+      },
+      
+      "notes": {
+        "internalNotes": "Preferred supplier for premium paper products",
+        "supplierNotes": "Excellent quality and reliable delivery"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2020-05-15T09:00:00Z",
+          "action": "Supplier added to system",
+          "user": "John Anderson"
+        },
+        {
+          "date": "2024-10-15T10:00:00Z",
+          "action": "Purchase order placed",
+          "user": "Sarah Martinez"
+        },
+        {
+          "date": "2024-10-23T11:00:00Z",
+          "action": "Order received and verified",
+          "user": "Michael Chen"
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "Global Ink Solutions",
+      "company": "Global Ink Solutions LLC",
+      "email": "orders@globalinksolutions.com",
+      "phone": "+1-312-555-2002",
+      "contactPerson": "Maria Rodriguez",
+      "first_name": "Maria",
+      "last_name": "Rodriguez",
+      "contactEmail": "maria.rodriguez@globalinksolutions.com",
+      "contactPhone": "+1-312-555-2002",
+      "supplierType": "Ink & Chemicals",
+      "status": "active",
+      "createdAt": "2021-03-22T10:30:00Z",
+      
+      "address": {
+        "addressLine1": "4500 Manufacturing Drive",
+        "addressLine2": "Suite 200",
+        "city": "Chicago",
+        "state": "IL",
+        "postalCode": "60601",
+        "country": "United States"
+      },
+      
+      "businessInfo": {
+        "taxId": "TAX-987654321",
+        "registrationNumber": "REG-IL-2021-045",
+        "website": "https://www.globalinksolutions.com",
+        "yearsInBusiness": 12,
+        "employeeCount": 180
+      },
+      
+      "products": [
+        {
+          "category": "Ink",
+          "items": [
+            "CMYK Ink Cartridges",
+            "UV Curing Ink",
+            "Offset Printing Ink",
+            "Digital Toner"
+          ]
+        },
+        {
+          "category": "Chemicals",
+          "items": [
+            "Cleaning Solutions",
+            "Coating Materials"
+          ]
+        }
+      ],
+      
+      "pricing": {
+        "paymentTerms": "Net 30",
+        "minimumOrder": 1000.00,
+        "discountTiers": [
+          {
+            "minOrder": 5000.00,
+            "discountPercent": 7
+          },
+          {
+            "minOrder": 15000.00,
+            "discountPercent": 12
+          }
+        ]
+      },
+      
+      "orderHistory": {
+        "totalOrders": 38,
+        "totalValue": 185000.00,
+        "lastOrderDate": "2024-10-26",
+        "lastOrderId": "PO-2024-002",
+        "averageOrderValue": 4868.42,
+        "onTimeDeliveryRate": 97.2
+      },
+      
+      "performance": {
+        "rating": 4.7,
+        "responseTime": "18 hours",
+        "qualityScore": 4.8,
+        "reliabilityScore": 4.6
+      },
+      
+      "notes": {
+        "internalNotes": "Primary supplier for all ink and chemical needs",
+        "supplierNotes": "High-quality products, competitive pricing"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2021-03-22T10:30:00Z",
+          "action": "Supplier added to system",
+          "user": "John Anderson"
+        },
+        {
+          "date": "2024-10-18T08:00:00Z",
+          "action": "Purchase order placed",
+          "user": "Sarah Martinez"
+        },
+        {
+          "date": "2024-10-26T13:30:00Z",
+          "action": "Order received and verified",
+          "user": "David Rodriguez"
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "PrintTech Equipment",
+      "company": "PrintTech Equipment Co.",
+      "email": "support@printtech.com",
+      "phone": "+1-714-555-3003",
+      "contactPerson": "David Kim",
+      "first_name": "David",
+      "last_name": "Kim",
+      "contactEmail": "david.kim@printtech.com",
+      "contactPhone": "+1-714-555-3003",
+      "supplierType": "Equipment & Machinery",
+      "status": "active",
+      "createdAt": "2019-11-08T14:15:00Z",
+      
+      "address": {
+        "addressLine1": "789 Technology Park",
+        "addressLine2": "Building 3",
+        "city": "Irvine",
+        "state": "CA",
+        "postalCode": "92618",
+        "country": "United States"
+      },
+      
+      "businessInfo": {
+        "taxId": "TAX-456789123",
+        "registrationNumber": "REG-CA-2019-089",
+        "website": "https://www.printtech.com",
+        "yearsInBusiness": 20,
+        "employeeCount": 320
+      },
+      
+      "products": [
+        {
+          "category": "Equipment",
+          "items": [
+            "Printing Presses",
+            "Binding Machines",
+            "Cutting Equipment",
+            "Folding Machines"
+          ]
+        },
+        {
+          "category": "Parts & Maintenance",
+          "items": [
+            "Replacement Parts",
+            "Maintenance Kits",
+            "Cleaning Supplies"
+          ]
+        }
+      ],
+      
+      "pricing": {
+        "paymentTerms": "Net 45",
+        "minimumOrder": 2000.00,
+        "discountTiers": [
+          {
+            "minOrder": 10000.00,
+            "discountPercent": 10
+          },
+          {
+            "minOrder": 25000.00,
+            "discountPercent": 15
+          }
+        ]
+      },
+      
+      "orderHistory": {
+        "totalOrders": 22,
+        "totalValue": 285000.00,
+        "lastOrderDate": "2024-10-22",
+        "lastOrderId": "PO-2024-003",
+        "averageOrderValue": 12954.55,
+        "onTimeDeliveryRate": 95.5
+      },
+      
+      "performance": {
+        "rating": 4.6,
+        "responseTime": "48 hours",
+        "qualityScore": 4.7,
+        "reliabilityScore": 4.5
+      },
+      
+      "notes": {
+        "internalNotes": "Specialized equipment supplier, longer lead times",
+        "supplierNotes": "Equipment parts require custom manufacturing"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2019-11-08T14:15:00Z",
+          "action": "Supplier added to system",
+          "user": "John Anderson"
+        },
+        {
+          "date": "2024-10-22T11:00:00Z",
+          "action": "Purchase order placed",
+          "user": "Sarah Martinez"
+        }
+      ]
+    }
+  ]
+}
+

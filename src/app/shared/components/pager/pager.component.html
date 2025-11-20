@@ -1,0 +1,23 @@
+<div class="pager" *ngIf="total > 0">
+    <div class="pager-group">
+        <button class="nav prev" type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+            <span class="material-icons">chevron_left</span>
+            <span class="label">Previous</span>
+        </button>
+
+        <ul class="pager-pages" aria-label="Pagination">
+            <li *ngFor="let p of pages" [class.ellipsis]="p === '…'">
+                <button type="button" [disabled]="p === '…'" [class.active]="p === currentPage" (click)="goToPage(+p)">
+                    {{ p}}
+                </button>
+            </li>
+        </ul>
+
+        <button class="nav next" type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <span class="label">Next</span>
+            <span class="material-icons">chevron_right</span>
+        </button>
+    </div>
+
+    <div class="pager-summary">Showing {{startIndex}}–{{endIndex}} of {{total}} results</div>
+</div>

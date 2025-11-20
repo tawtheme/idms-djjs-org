@@ -1,0 +1,430 @@
+{
+  "quotes": [
+    {
+      "id": "Q-2024-001",
+      "customerId": "C1",
+      "date": "2024-10-10",
+      "lines": [
+        {
+          "id": "QL1",
+          "description": "Hardcover Book Printing - 1000 copies",
+          "quantity": 1000,
+          "unitPrice": 9.50
+        },
+        {
+          "id": "QL2",
+          "description": "Dust Jacket Printing - Full Color",
+          "quantity": 1000,
+          "unitPrice": 2.75
+        }
+      ],
+      "total": 12250.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-002",
+      "customerId": "C2",
+      "date": "2024-10-12",
+      "lines": [
+        {
+          "id": "QL3",
+          "description": "Paperback Book Printing - 2000 copies",
+          "quantity": 2000,
+          "unitPrice": 5.25
+        },
+        {
+          "id": "QL4",
+          "description": "Cover Lamination - Glossy Finish",
+          "quantity": 2000,
+          "unitPrice": 0.95
+        }
+      ],
+      "total": 12400.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-003",
+      "customerId": "C3",
+      "date": "2024-10-15",
+      "lines": [
+        {
+          "id": "QL5",
+          "description": "Catalog Printing - 64 pages",
+          "quantity": 1500,
+          "unitPrice": 7.50
+        },
+        {
+          "id": "QL6",
+          "description": "Perfect Binding",
+          "quantity": 1500,
+          "unitPrice": 1.85
+        }
+      ],
+      "total": 14025.00,
+      "status": "draft"
+    },
+    {
+      "id": "Q-2024-004",
+      "customerId": "C4",
+      "date": "2024-10-18",
+      "lines": [
+        {
+          "id": "QL7",
+          "description": "Business Cards - Premium Cardstock",
+          "quantity": 1000,
+          "unitPrice": 0.18
+        },
+        {
+          "id": "QL8",
+          "description": "UV Coating - Both Sides",
+          "quantity": 1000,
+          "unitPrice": 0.10
+        }
+      ],
+      "total": 280.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-005",
+      "customerId": "C5",
+      "date": "2024-10-20",
+      "lines": [
+        {
+          "id": "QL9",
+          "description": "Brochure Printing - Tri-fold",
+          "quantity": 5000,
+          "unitPrice": 0.42
+        },
+        {
+          "id": "QL10",
+          "description": "Full Color Printing - Double-sided",
+          "quantity": 5000,
+          "unitPrice": 0.15
+        }
+      ],
+      "total": 2850.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-006",
+      "customerId": "C6",
+      "date": "2024-10-22",
+      "lines": [
+        {
+          "id": "QL11",
+          "description": "Poster Printing - 24x36 inches",
+          "quantity": 200,
+          "unitPrice": 19.50
+        },
+        {
+          "id": "QL12",
+          "description": "Lamination - Heavy Duty",
+          "quantity": 200,
+          "unitPrice": 5.25
+        }
+      ],
+      "total": 4950.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-007",
+      "customerId": "C7",
+      "date": "2024-10-25",
+      "lines": [
+        {
+          "id": "QL13",
+          "description": "Book Printing - Hardcover - 750 copies",
+          "quantity": 750,
+          "unitPrice": 11.75
+        },
+        {
+          "id": "QL14",
+          "description": "Foil Stamping - Gold",
+          "quantity": 750,
+          "unitPrice": 3.15
+        }
+      ],
+      "total": 11175.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-008",
+      "customerId": "C8",
+      "date": "2024-10-28",
+      "lines": [
+        {
+          "id": "QL15",
+          "description": "Flyer Printing - 8.5x11",
+          "quantity": 10000,
+          "unitPrice": 0.09
+        },
+        {
+          "id": "QL16",
+          "description": "Double-sided Printing",
+          "quantity": 10000,
+          "unitPrice": 0.06
+        }
+      ],
+      "total": 1500.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-009",
+      "customerId": "C9",
+      "date": "2024-11-01",
+      "lines": [
+        {
+          "id": "QL17",
+          "description": "Magazine Printing - 48 pages",
+          "quantity": 3000,
+          "unitPrice": 6.25
+        },
+        {
+          "id": "QL18",
+          "description": "Saddle Stitch Binding",
+          "quantity": 3000,
+          "unitPrice": 1.25
+        }
+      ],
+      "total": 22500.00,
+      "status": "draft"
+    },
+    {
+      "id": "Q-2024-010",
+      "customerId": "C10",
+      "date": "2024-11-03",
+      "lines": [
+        {
+          "id": "QL19",
+          "description": "Letterhead Printing - Premium Paper",
+          "quantity": 2000,
+          "unitPrice": 0.28
+        },
+        {
+          "id": "QL20",
+          "description": "Envelope Printing - Matching",
+          "quantity": 2000,
+          "unitPrice": 0.20
+        }
+      ],
+      "total": 960.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-011",
+      "customerId": "C11",
+      "date": "2024-11-05",
+      "lines": [
+        {
+          "id": "QL21",
+          "description": "Book Printing - Paperback - 1500 copies",
+          "quantity": 1500,
+          "unitPrice": 6.50
+        },
+        {
+          "id": "QL22",
+          "description": "Cover Printing - Premium Finish",
+          "quantity": 1500,
+          "unitPrice": 2.15
+        }
+      ],
+      "total": 12975.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-012",
+      "customerId": "C12",
+      "date": "2024-11-08",
+      "lines": [
+        {
+          "id": "QL23",
+          "description": "Banner Printing - 3x6 feet",
+          "quantity": 50,
+          "unitPrice": 48.00
+        },
+        {
+          "id": "QL24",
+          "description": "Grommet Installation",
+          "quantity": 50,
+          "unitPrice": 4.50
+        }
+      ],
+      "total": 2625.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-013",
+      "customerId": "C13",
+      "date": "2024-11-10",
+      "lines": [
+        {
+          "id": "QL25",
+          "description": "Calendar Printing - 12 months",
+          "quantity": 800,
+          "unitPrice": 9.25
+        },
+        {
+          "id": "QL26",
+          "description": "Wire-O Binding",
+          "quantity": 800,
+          "unitPrice": 2.50
+        }
+      ],
+      "total": 9400.00,
+      "status": "draft"
+    },
+    {
+      "id": "Q-2024-014",
+      "customerId": "C14",
+      "date": "2024-11-12",
+      "lines": [
+        {
+          "id": "QL27",
+          "description": "Postcard Printing - 4x6",
+          "quantity": 5000,
+          "unitPrice": 0.11
+        },
+        {
+          "id": "QL28",
+          "description": "UV Coating",
+          "quantity": 5000,
+          "unitPrice": 0.07
+        }
+      ],
+      "total": 900.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-015",
+      "customerId": "C15",
+      "date": "2024-11-15",
+      "lines": [
+        {
+          "id": "QL29",
+          "description": "Manual Printing - Spiral Bound",
+          "quantity": 1000,
+          "unitPrice": 10.25
+        },
+        {
+          "id": "QL30",
+          "description": "Tab Dividers - Custom",
+          "quantity": 1000,
+          "unitPrice": 1.75
+        }
+      ],
+      "total": 12000.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-016",
+      "customerId": "C16",
+      "date": "2024-11-18",
+      "lines": [
+        {
+          "id": "QL31",
+          "description": "Book Printing - Hardcover - 500 copies",
+          "quantity": 500,
+          "unitPrice": 13.50
+        },
+        {
+          "id": "QL32",
+          "description": "Dust Jacket - Premium Paper",
+          "quantity": 500,
+          "unitPrice": 3.50
+        },
+        {
+          "id": "QL33",
+          "description": "Ribbon Bookmark - Custom Color",
+          "quantity": 500,
+          "unitPrice": 1.25
+        }
+      ],
+      "total": 9125.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-017",
+      "customerId": "C17",
+      "date": "2024-11-20",
+      "lines": [
+        {
+          "id": "QL34",
+          "description": "Menu Printing - 8 pages",
+          "quantity": 1500,
+          "unitPrice": 3.75
+        },
+        {
+          "id": "QL35",
+          "description": "Lamination - Both Sides",
+          "quantity": 1500,
+          "unitPrice": 1.45
+        }
+      ],
+      "total": 7800.00,
+      "status": "draft"
+    },
+    {
+      "id": "Q-2024-018",
+      "customerId": "C18",
+      "date": "2024-11-22",
+      "lines": [
+        {
+          "id": "QL36",
+          "description": "Sticker Printing - Vinyl",
+          "quantity": 3000,
+          "unitPrice": 0.38
+        },
+        {
+          "id": "QL37",
+          "description": "Die-cutting - Custom Shape",
+          "quantity": 3000,
+          "unitPrice": 0.22
+        }
+      ],
+      "total": 1800.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-019",
+      "customerId": "C19",
+      "date": "2024-11-25",
+      "lines": [
+        {
+          "id": "QL38",
+          "description": "Presentation Folder - Custom",
+          "quantity": 500,
+          "unitPrice": 13.25
+        },
+        {
+          "id": "QL39",
+          "description": "Embossed Logo",
+          "quantity": 500,
+          "unitPrice": 2.25
+        }
+      ],
+      "total": 7750.00,
+      "status": "sent"
+    },
+    {
+      "id": "Q-2024-020",
+      "customerId": "C20",
+      "date": "2024-11-28",
+      "lines": [
+        {
+          "id": "QL40",
+          "description": "Book Printing - Paperback - 2500 copies",
+          "quantity": 2500,
+          "unitPrice": 5.75
+        },
+        {
+          "id": "QL41",
+          "description": "Cover Lamination - Matte",
+          "quantity": 2500,
+          "unitPrice": 0.85
+        }
+      ],
+      "total": 16500.00,
+      "status": "sent"
+    }
+  ]
+}

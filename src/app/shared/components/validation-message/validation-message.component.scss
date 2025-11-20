@@ -1,0 +1,80 @@
+// Validation Message Component Styles
+.validation-message {
+    margin-top: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+
+    &.validation-message-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .validation-message-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .validation-message-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            font-size: 13px;
+            line-height: 1.25;
+
+            .validation-message-icon {
+                flex-shrink: 0;
+                margin-top: 1px;
+
+                .material-icons {
+                    font-size: 14px;
+                }
+            }
+
+            .validation-message-text {
+                flex: 1;
+                word-wrap: break-word;
+            }
+
+            &.validation-message-error {
+                color: #dc2626;
+            }
+
+            &.validation-message-warning {
+                color: #d97706;
+            }
+
+            &.validation-message-info {
+                color: #2563eb;
+            }
+        }
+    }
+
+    // Position Styles
+    &.validation-message-below {
+        margin-top: 8px;
+    }
+
+    &.validation-message-above {
+        margin-bottom: 8px;
+        order: -1;
+    }
+
+    &.validation-message-inline {
+        display: inline-block;
+        margin-left: 8px;
+    }
+
+    // Responsive Design
+    @media (max-width: 768px) {
+        .validation-message-list {
+            .validation-message-item {
+                font-size: 12.8px;
+
+                .validation-message-icon {
+                    font-size: 12.8px;
+                }
+            }
+        }
+    }
+}

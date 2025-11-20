@@ -1,0 +1,128 @@
+<div class="suppliers-container">
+    <div class="suppliers-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary" (click)="openCreatePanel()">New Supplier</button>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="suppliers-stats">
+        <div class="stat-card stat-card--total">
+            <div class="stat-card-value">{{ getTotalCount() }}</div>
+            <div class="stat-card-label">Total Suppliers</div>
+        </div>
+        <div class="stat-card stat-card--active">
+            <div class="stat-card-value">{{ getActiveCount() }}</div>
+            <div class="stat-card-label">Active Suppliers</div>
+        </div>
+        <div class="stat-card stat-card--inactive">
+            <div class="stat-card-value">{{ getInactiveCount() }}</div>
+            <div class="stat-card-label">Inactive Suppliers</div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Supplier Name, Email, or ID"
+                [(ngModel)]="supplierName"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-datepicker
+                [value]="fromDate"
+                (dateChange)="fromDate = $event; onSearchChange()"
+                format="yyyy-MM-dd"
+                placeholder="Created Date">
+            </app-datepicker>
+            <app-dropdown
+                [options]="supplierTypeOptions"
+                [selectedValues]="selectedSupplierType"
+                placeholder="Supplier Type"
+                (selectionChange)="selectedSupplierType = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()" style="margin-left:8px;">Reset</button>
+        </div>
+    </div>
+
+    <!-- Suppliers table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Company</th>
+                    <th>Supplier Type</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Created Date</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let s of pagedSuppliers; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td data-label="Supplier ID">
+                        {{ s.id }}
+                    </td>
+                    <td data-label="Company">
+                        {{ s.company || '-' }}
+                    </td>
+                    <td data-label="Supplier Type">
+                        {{ s.supplier_type || '-' }}
+                    </td>
+                    <td data-label="Email">
+                        {{ s.email }}
+                    </td>
+                    <td data-label="Phone">
+                        {{ s.phone }}
+                    </td>
+                    <td data-label="Created Date" class="date">
+                        {{ s.created_at | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <button type="button" class="btn btn--secondary btn--sm" (click)="viewSupplierDetails(s.id); $event.stopPropagation()">View details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="suppliers.length === 0"
+        title="No Suppliers Found"
+        description="There are no suppliers to display at the moment."
+        icon="business"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- Side Panel for Create Supplier -->
+    <app-side-panel
+        [isOpen]="sidePanelOpen"
+        title="Create New Supplier"
+        [width]="600"
+        [closable]="true"
+        (close)="closeCreatePanel()">
+        <ng-container *ngIf="sidePanelOpen">
+            <app-create-supplier
+                [isInModal]="true"
+                (saved)="onSupplierSaved()"
+                (cancelled)="closeCreatePanel()">
+            </app-create-supplier>
+        </ng-container>
+    </app-side-panel>
+</div>

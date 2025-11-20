@@ -1,0 +1,117 @@
+<div class="customer-detail-container">
+    <div class="page-header" *ngIf="!loading && !isModalMode">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <div *ngIf="customer && !loading" class="customer-overview">
+        <div class="info-cards">
+            <div class="section-title">Overview</div>
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <span class="avatar-text">{{ customer.name.charAt(0) }}</span>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-info">
+                        <div class="profile-joined">Joined since: {{ formatJoinedDate(customer.createdAt) }}</div>
+                        <div class="profile-name">{{ customer.name }}</div>
+                    </div>
+                    <div class="profile-contact-info">
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value">{{ customer.phone }}</span>
+                            <button class="btn-icon" type="button" (click)="copyToClipboard(customer.phone)">
+                                <span class="material-icons">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email Address</span>
+                            <span class="detail-value">{{ customer.email }}</span>
+                            <button class="btn-icon" type="button" (click)="copyToClipboard(customer.email)">
+                                <span class="material-icons">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Address</span>
+                            <span class="detail-value" [title]="getFullAddress(customer.addresses ? customer.addresses.billing : null)">
+                                {{ getShortAddress(customer.addresses ? customer.addresses.billing : null) }}
+                            </span>
+                            <button class="btn-icon" type="button" (click)="openAddressModal()" title="View all addresses">
+                                <span class="material-icons">more_horiz</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer History Section -->
+        <div class="customer-history-section" *ngIf="customer.orderHistory">
+            <div class="history-cards">
+                <div class="history-card">
+                    <div class="history-card-icon">
+                        <span class="material-icons">shopping_cart</span>
+                    </div>
+                    <div class="history-card-content">
+                        <div class="history-card-label">Total Orders</div>
+                        <div class="history-card-value">{{ customer.orderHistory.totalOrders }}</div>
+                    </div>
+                </div>
+                <div class="history-card">
+                    <div class="history-card-icon">
+                        <span class="material-icons">attach_money</span>
+                    </div>
+                    <div class="history-card-content">
+                        <div class="history-card-label">Total Value</div>
+                        <div class="history-card-value">{{ customer.orderHistory.totalValue | currency:'USD':'symbol':'1.2-2' }}</div>
+                    </div>
+                </div>
+                <div class="history-card">
+                    <div class="history-card-icon">
+                        <span class="material-icons">trending_up</span>
+                    </div>
+                    <div class="history-card-content">
+                        <div class="history-card-label">Average Order Value</div>
+                        <div class="history-card-value">{{ customer.orderHistory.averageOrderValue | currency:'USD':'symbol':'1.2-2' }}</div>
+                    </div>
+                </div>
+                <div class="history-card" *ngIf="customer.orderHistory.lastOrderId">
+                    <div class="history-card-icon">
+                        <span class="material-icons">receipt</span>
+                    </div>
+                    <div class="history-card-content">
+                        <div class="history-card-label">
+                            Last Order
+                            <span class="history-card-date" *ngIf="customer.orderHistory.lastOrderDate">
+                                ({{ formatDate(customer.orderHistory.lastOrderDate) }})
+                            </span>
+                        </div>
+                        <div class="history-card-value">{{ customer.orderHistory.lastOrderId }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History Section -->
+        <app-customer-orders
+            [customerId]="customerId"
+            [customerName]="customer ? customer.name : null"
+            [customerCompany]="customer ? customer.company : null">
+        </app-customer-orders>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        Loading customer details...
+    </div>
+
+    <div *ngIf="!customer && !loading" class="no-data">
+        Customer not found
+    </div>
+
+    <!-- Address Modal -->
+    <app-customer-address-modal
+        [isOpen]="addressModalOpen"
+        [addresses]="customer?.addresses || null"
+        (close)="closeAddressModal()">
+    </app-customer-address-modal>
+</div>
+

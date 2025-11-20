@@ -1,0 +1,26 @@
+<div class="layout" [class.collapsed]="isCollapsed()" *ngIf="isAuthenticated; else authLayout">
+    <!-- Backdrop for mobile sidebar -->
+    <div class="sidebar-backdrop" 
+         *ngIf="isMobile() && !isCollapsed()"
+         (click)="onToggleCollapse()"></div>
+    
+    <app-sidenav 
+        [isCollapsed]="isCollapsed()"
+        (closeSidebar)="onToggleCollapse()"></app-sidenav>
+    <main class="content">        
+        <app-header 
+            [isCollapsed]="isCollapsed()" 
+            [title]="title()"
+            (toggleCollapse)="onToggleCollapse()"
+            #headerComponent>
+        </app-header>
+        <div class="content-wrapper" 
+            #contentWrapper>
+            <router-outlet />
+        </div>
+    </main>
+</div>
+
+<ng-template #authLayout>
+    <router-outlet />
+</ng-template>

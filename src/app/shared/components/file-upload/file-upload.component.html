@@ -1,0 +1,61 @@
+<div class="file-upload" [class.disabled]="disabled">
+    <div class="drop-zone" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <div class="drop-zone-inner" (click)="openFileDialog(fileInput, $event)">
+            <div class="drop-zone-content">
+                <span class="material-icons">cloud_upload</span>
+                <div class="drop-text">
+                    {{ config.dropText }}
+                    @if (config.accept || config.maxSizeMb) {
+                        <div class="help">
+                            @if (config.accept) {
+                                Accepted: {{ config.accept }}
+                            }
+                            @if (config.accept && config.maxSizeMb) {
+                                • 
+                            }
+                            @if (config.maxSizeMb) {
+                                Max size: {{ config.maxSizeMb }} MB
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <label class="btn btn--primary btn--sm" (click)="onBrowseClick($event)">
+                {{ config.buttonText }}
+                <input type="file" 
+                    [attr.accept]="config.accept || null" 
+                    [attr.multiple]="config.multiple ? '' : null"
+                    #fileInput
+                    [disabled]="disabled || !allowBrowse" (change)="onBrowseInputChange($event)" 
+                    hidden
+                />
+            </label>
+        </div>
+    </div>
+
+    @if (selectedFiles.length) {
+        @if (config.showFileListHeader !== false) {
+            <div class="file-list-header">
+                <span class="material-icons">check_circle</span>
+                <span class="file-count">{{ getFileListHeaderText() }}</span>
+            </div>
+        }
+        <ul class="file-list">
+            @for (file of selectedFiles; track file.name) {
+                <li class="file-item">
+                    <div class="file-icon-container">
+                        <span class="material-icons file-icon">insert_drive_file</span>
+                        <div class="file-meta">
+                            <div class="file-name">{{ file.name }}</div>
+                            <div class="file-size">{{ formatFileSize(file.size) }}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-btn" (click)="removeFile(file)" title="Remove file">
+                        <span class="material-icons">close</span>
+                    </button>
+                </li>
+            }
+        </ul>
+    }
+</div>

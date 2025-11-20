@@ -1,0 +1,48 @@
+@import '../../../../../assets/scss/variable';
+
+// Address Modal Styles
+.address-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.address-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid $color-gray-200;
+    border-radius: 12px;
+    padding: 16px 12px;
+
+    .address-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+
+        .address-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: $color-primary-900;
+            background-color: $color-primary-50;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .address-line {
+            font-size: 14px;
+            color: $color-gray-700;
+            font-weight: 500;
+        }
+
+        &.no-address {
+            color: $color-gray-500;
+            font-style: italic;
+        }
+    }
+}
+

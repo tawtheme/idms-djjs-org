@@ -1,0 +1,228 @@
+@import 'variable';
+
+// Form Grid - For form field layouts
+.form-grid {
+    display: grid;
+    gap: 16px;
+
+    // Column span utilities
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    // Column variations
+    &.cols-1 {
+        grid-template-columns: 1fr;
+    }
+
+    &.cols-2 {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+    }
+
+    &.cols-3 {
+        grid-template-columns: repeat(3, minmax(200px, 1fr));
+    }
+
+    &.cols-4 {
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+    }
+
+    &.cols-5 {
+        grid-template-columns: repeat(5, minmax(180px, 1fr));
+    }
+
+    &.cols-6 {
+        grid-template-columns: repeat(6, minmax(180px, 1fr));
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+// Section Layout - For section with aside and body
+.section-layout {
+    display: grid;
+    gap: 50px;
+    grid-template-columns: 350px 1fr;
+
+    &.aside-left {
+        grid-template-columns: 260px 1fr;
+    }
+
+    &.aside-right {
+        grid-template-columns: 1fr 260px;
+    }
+
+    &.no-aside {
+        grid-template-columns: 1fr;
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+// Section Aside - Sidebar for section titles and help text
+.section-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .section-title {
+        font-size: 15x;
+        font-weight: 600;
+        color: $color-gray-700;
+    }
+
+    .section-help {
+        margin: 0;
+        color: $color-gray-500;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        border-bottom: 1px solid $color-gray-300;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+    }
+}
+
+// Section Body - Main content area
+.section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+// General Grid Utilities
+.grid {
+    display: grid;
+    gap: 16px;
+
+    // Column variations
+    &.cols-1 {
+        grid-template-columns: 1fr;
+    }
+
+    &.cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &.cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    &.cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    &.cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    &.cols-6 {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    // Gap variations
+    &.gap-xs {
+        gap: 8px;
+    }
+
+    &.gap-sm {
+        gap: 12px;
+    }
+
+    &.gap-md {
+        gap: 16px;
+    }
+
+    &.gap-lg {
+        gap: 24px;
+    }
+
+    &.gap-xl {
+        gap: 32px;
+    }
+
+    // Auto-fit columns (responsive by default)
+    &.auto-fit {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    &.auto-fill {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    // Responsive breakpoints
+    @media (max-width: 1024px) {
+        &.cols-4,
+        &.cols-5,
+        &.cols-6 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr !important;
+    }
+
+    @media (max-width: 640px) {
+        &.cols-2,
+        &.cols-3 {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}
+
+// Grid Item Utilities
+.grid-item {
+    // Span utilities
+    &.span-2 {
+        grid-column: span 2;
+    }
+
+    &.span-3 {
+        grid-column: span 3;
+    }
+
+    &.span-full {
+        grid-column: 1 / -1;
+    }
+
+    // Start/End utilities
+    &.start-1 {
+        grid-column-start: 1;
+    }
+
+    &.start-2 {
+        grid-column-start: 2;
+    }
+
+    &.start-3 {
+        grid-column-start: 3;
+    }
+
+    &.end-1 {
+        grid-column-end: 1;
+    }
+
+    &.end-2 {
+        grid-column-end: 2;
+    }
+
+    &.end-3 {
+        grid-column-end: 3;
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        grid-column: 1 / -1 !important;
+    }
+}
+

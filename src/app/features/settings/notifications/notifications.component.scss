@@ -1,0 +1,124 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+@import '../../../../assets/scss/grid';
+
+.notifications-card {
+    background: $color-white;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+
+    .notifications-header {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .notifications-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: $color-gray-900;
+        }
+    
+        .notifications-help {
+            font-size: 14px;
+            color: $color-gray-600;
+            line-height: 1.5;
+        }
+    }
+
+    .notifications-view {
+        display: flex;
+        flex-direction: column;
+        padding: 24px 0;
+        
+        .notifications-field {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 0;
+            border-bottom: 1px solid $color-gray-100;
+
+            &:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+    
+            .field-header {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+    
+                .label {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: $color-gray-900;
+                }
+    
+                .description {
+                    font-size: 12px;
+                    color: $color-gray-600;
+                    line-height: 1.5;
+                }
+            }
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+    
+            input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+    
+                &:checked + .toggle-slider {
+                    background-color: $color-primary-600;
+    
+                    &:before {
+                        transform: translateX(20px);
+                    }
+                }
+    
+                &:focus + .toggle-slider {
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+                }
+            }
+    
+            .toggle-slider {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: $color-gray-300;
+                transition: 0.3s;
+                border-radius: 24px;
+    
+                &:before {
+                    position: absolute;
+                    content: "";
+                    height: 18px;
+                    width: 18px;
+                    left: 3px;
+                    bottom: 3px;
+                    background-color: $color-white;
+                    transition: 0.3s;
+                    border-radius: 50%;
+                }
+            }
+    
+            &:hover .toggle-slider {
+                background-color: $color-gray-400;
+            }
+    
+            input:checked + .toggle-slider:hover {
+                background-color: $color-primary-700;
+            }
+        }
+    }
+}

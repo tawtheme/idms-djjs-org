@@ -1,0 +1,19 @@
+<div class="activity-container" *ngIf="hasActivities()">
+    <div class="activity-title" *ngIf="showTitle">{{ title }}</div>
+    <div class="activity-log">
+        <div class="activity-item" *ngFor="let activity of displayedActivities">
+            <div class="activity-date">{{ formatDate(activity.date) }}</div>
+            <div class="activity-content">
+                <div class="activity-action">{{ activity.action }}</div>
+                <div class="activity-user">by {{ activity.user }}</div>
+                <div class="activity-stage" *ngIf="activity.stage">
+                    <span class="stage-badge">{{ getStageLabel(activity.stage) }}</span>
+                </div>
+            </div>
+        </div>
+        <button class="load-more-btn" (click)="loadMore()" *ngIf="hasMoreActivities">
+            Load More
+        </button>
+    </div>
+</div>
+

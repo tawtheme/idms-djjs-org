@@ -1,0 +1,168 @@
+<div class="items-section">
+    <div class="items-section-header">
+        <div class="panel-card-row-title">
+            Items
+            <span class="description">Add items to this order.</span>
+        </div>
+        <button 
+            *ngIf="items.length > 0"
+            type="button" 
+            class="btn btn--primary btn--sm" 
+            (click)="addItem()">
+            <span class="icon material-icons">add</span>
+            Add New Item
+        </button>
+    </div>
+
+    <div class="items-list">
+        <!-- Item Sections - All items are editable -->
+        <div class="item-wrapper" *ngFor="let item of items; let i = index">
+            <div class="item-row">
+                <div class="item-col">
+                    <label class="item-field-label">Item Name <span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="itemOptions"
+                        [selectedValues]="getSelectedItemValues(item.item_id)"
+                        (selectionChange)="onItemChangeForExisting($event.length > 0 ? $event[0] : '', i)"
+                        placeholder="Select item"
+                        [searchable]="true"
+                        [closeOnSelect]="true">
+                    </app-dropdown>
+                </div>
+                <div class="item-col">
+                    <label class="item-field-label">Quantity <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="item.quantity" 
+                        [ngModelOptions]="{standalone: true}" 
+                        (input)="calculateItemTotal(item)" 
+                        class="form-control form-control--sm" 
+                        placeholder="Qty" 
+                        min="0" 
+                        step="1" />
+                </div>
+                <div class="item-col">
+                    <label class="item-field-label">Unit Price <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="item.unit_price" 
+                        [ngModelOptions]="{standalone: true}" 
+                        (input)="calculateItemTotal(item)" 
+                        class="form-control form-control--sm" 
+                        placeholder="Price" 
+                        min="0" 
+                        step="0.01" />
+                </div>
+                <div class="item-col">
+                    <label class="item-field-label">Tax %</label>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="item.tax_percent" 
+                        [ngModelOptions]="{standalone: true}" 
+                        (input)="calculateItemTotal(item)" 
+                        class="form-control form-control--sm" 
+                        placeholder="Tax %" 
+                        min="0" 
+                        step="0.01" />
+                </div>
+                <div class="item-col">
+                    <label class="item-field-label">Total</label>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="item.total_amount" 
+                        [ngModelOptions]="{standalone: true}" 
+                        class="form-control form-control--sm" 
+                        placeholder="Total" 
+                        min="0" 
+                        step="0.01" 
+                        readonly />
+                </div>
+                <div class="item-col">
+                    <label class="item-field-label">&nbsp;</label>
+                    <button 
+                        type="button" 
+                        class="remove-button" 
+                        (click)="removeItem(i)">
+                        <span class="icon material-icons">delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add New Item Section - Show only when no items exist -->
+        <div class="item-wrapper item-section--add" *ngIf="items.length === 0">
+            <div class="item-section-body">
+                <div class="item-row item-row--add">
+                    <div class="item-col">
+                        <label class="item-field-label">Item Name <span class="required">*</span></label>
+                        <app-dropdown
+                            [options]="itemOptions"
+                            [selectedValues]="getSelectedItemValues(newItem.item_id)"
+                            (selectionChange)="onItemChange($event.length > 0 ? $event[0] : '')"
+                            placeholder="Select item"
+                            [searchable]="true"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="item-col">
+                        <label class="item-field-label">Quantity <span class="required">*</span></label>
+                        <input 
+                            type="number" 
+                            [(ngModel)]="newItem.quantity" 
+                            [ngModelOptions]="{standalone: true}" 
+                            (input)="calculateItemTotal(newItem)" 
+                            class="form-control form-control--sm" 
+                            placeholder="Qty" 
+                            min="0" 
+                            step="1" />
+                    </div>
+                    <div class="item-col">
+                        <label class="item-field-label">Unit Price <span class="required">*</span></label>
+                        <input 
+                            type="number" 
+                            [(ngModel)]="newItem.unit_price" 
+                            [ngModelOptions]="{standalone: true}" 
+                            (input)="calculateItemTotal(newItem)" 
+                            class="form-control form-control--sm" 
+                            placeholder="Price" 
+                            min="0" 
+                            step="0.01" />
+                    </div>
+                    <div class="item-col">
+                        <label class="item-field-label">Tax %</label>
+                        <input 
+                            type="number" 
+                            [(ngModel)]="newItem.tax_percent" 
+                            [ngModelOptions]="{standalone: true}" 
+                            (input)="calculateItemTotal(newItem)" 
+                            class="form-control form-control--sm" 
+                            placeholder="Tax %" 
+                            min="0" 
+                            step="0.01" />
+                    </div>
+                    <div class="item-col">
+                        <label class="item-field-label">Total</label>
+                        <input 
+                            type="number" 
+                            [(ngModel)]="newItem.total_amount" 
+                            [ngModelOptions]="{standalone: true}" 
+                            class="form-control form-control--sm" 
+                            placeholder="Total" 
+                            min="0" 
+                            step="0.01" 
+                            readonly />
+                    </div>
+                    <div class="item-col">
+                        <label class="item-field-label">&nbsp;</label>
+                        <button 
+                            type="button" 
+                            class="btn btn--primary" 
+                            (click)="addItem()">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

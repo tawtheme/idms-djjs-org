@@ -1,0 +1,173 @@
+<div class="quotes-container">
+    <div class="quotes-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <div class="quotes-actions">
+            <button class="btn btn--primary btn--sm" (click)="openCreateModal()">New Quote</button>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="quotes-stats">
+        <div class="stat-card stat-card--total">
+            <div class="stat-card-icon">
+                <span class="material-icons">request_quote</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Total Quotes</div>
+                <div class="stat-card-value">{{ totalQuotes }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card--sent">
+            <div class="stat-card-icon">
+                <span class="material-icons">send</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Sent</div>
+                <div class="stat-card-value">{{ sentQuotes }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card--draft">
+            <div class="stat-card-icon">
+                <span class="material-icons">edit</span>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Draft</div>
+                <div class="stat-card-value">{{ draftQuotes }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Quote ID or Customer ID"
+                [(ngModel)]="quoteId"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="selectedStatus"
+                placeholder="Status"
+                (selectionChange)="selectedStatus = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-datepicker
+                [value]="fromDate"
+                (dateChange)="fromDate = $event; onSearchChange()"
+                format="yyyy-MM-dd"
+                placeholder="Quote Date">
+            </app-datepicker>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Quotes table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Quote ID</th>
+                    <th>Customer ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let q of pagedQuotes; trackBy: trackById">
+                    <td data-label="Quote ID" class="quote-id">
+                        {{ q.id }}
+                    </td>
+                    <td data-label="Customer ID" class="customer-id">
+                        {{ q.customerId }}
+                    </td>
+                    <td data-label="Date" class="date">
+                        {{ q.date | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td data-label="Total" class="total">
+                        {{ q.total | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                    <td data-label="Status" class="status">
+                        <span class="status-badge" [ngClass]="getStatusClass(q.status)">{{ q.status | titlecase }}</span>
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <button type="button" class="btn btn--secondary btn--sm" (click)="openDetailPanel(q.id); $event.stopPropagation()">View details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="quotes.length === 0"
+        title="No Quotes Found"
+        description="There are no quotes to display at the moment."
+        icon="request_quote"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- Quote details side panel -->
+    <app-side-panel
+        [isOpen]="sidePanelOpen"
+        title="Quote Details"
+        [width]="700"
+        position="right"
+        [closable]="true"
+        (close)="closeDetailPanel()">
+        <app-quote-detail *ngIf="selectedQuoteId" [quoteId]="selectedQuoteId"></app-quote-detail>
+    </app-side-panel>
+
+    <!-- Create Quote Modal -->
+    <app-modal
+        [isOpen]="createModalOpen"
+        title="Create Quote"
+        size="extraLarge"
+        [closable]="true"
+        [showHeader]="true"
+        [showFooter]="true"
+        (close)="closeCreateModal()">
+        <app-create-quote
+            #createQuote
+            [isInModal]="true"
+            (saved)="onQuoteSaved()"
+            (cancelled)="closeCreateModal()">
+        </app-create-quote>
+        <div slot="footer">
+            <div class="modal-footer footer-right">
+                <button 
+                    type="button" 
+                    class="btn btn--secondary btn--md" 
+                    (click)="closeCreateModal()">
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn--primary btn--md" 
+                    [disabled]="!createQuote.isFormValid()"
+                    (click)="createQuote.submitForm()">
+                    Submit Quote
+                </button>
+            </div>
+        </div>
+    </app-modal>
+</div>

@@ -1,0 +1,82 @@
+@import 'variable';
+
+// Ensure form controls use the app font
+input, select, textarea, button, label {
+    font-family: 'Outfit', sans-serif;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: $color-black-600;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.required {
+    color: $color-red-600;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+// Common class to apply input styles to any custom control
+.form-control {
+    width: 100%;
+    background: $color-white;
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-gray-900;
+    border: 1px solid $color-gray-300;
+    border-radius: 6px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+
+    &::placeholder {
+        color: $color-gray-500;
+    }
+
+    &:hover {
+        border-color: $color-primary-600;
+    }
+
+    &:focus {
+        border-color: $color-primary-500;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    &:disabled {
+        background: $color-gray-50;
+        color: $color-gray-500;
+        cursor: not-allowed;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-help {
+    font-size: 14px;
+    color: $color-gray-500;
+}
+
+.form-error {
+    font-size: 14px;
+    color: $color-red-600;
+}
+
+.checkbox,
+.radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    input {
+        width: 16px;
+        height: 16px;
+    }
+}

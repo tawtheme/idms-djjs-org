@@ -1,0 +1,129 @@
+<div class="users-container">
+    <div class="users-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <div class="users-actions">
+            <button class="btn btn--primary btn--sm" (click)="openCreateUserPanel()">New User</button>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="User Name, Email, or ID"
+                [(ngModel)]="userName"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"
+            />
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="roleOptions"
+                [selectedValues]="selectedRole"
+                placeholder="Role"
+                (selectionChange)="selectedRole = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="departmentOptions"
+                [selectedValues]="selectedDepartment"
+                placeholder="Department"
+                (selectionChange)="selectedDepartment = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Users table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Last Login</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of pagedUsers; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td data-label="User ID">
+                        {{ u.id }}
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ u.name }}
+                    </td>
+                    <td data-label="Email">
+                        {{ u.email }}
+                    </td>
+                    <td data-label="Role">
+                        <span class="role-badge">{{ u.role | titlecase }}</span>
+                    </td>
+                    <td data-label="Department">
+                        {{ u.department || '-' }}
+                    </td>
+                    <td data-label="Last Login" class="date">
+                        {{ u.last_login | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <button class="btn btn--secondary btn--sm" (click)="openUserDetailPanel(u.id)">View details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="users.length === 0"
+        title="No Users Found"
+        description="There are no users to display at the moment."
+        icon="people"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- Create User Side Panel -->
+    <app-side-panel
+        [isOpen]="sidePanelOpen"
+        title="Create User"
+        [width]="700"
+        position="right"
+        [closable]="true"
+        (close)="closeCreateUserPanel()">
+        <app-create-user
+            [isInModal]="true"
+            (saved)="onUserSaved()"
+            (cancelled)="onUserCancelled()">
+        </app-create-user>
+    </app-side-panel>
+
+    <!-- User Details Side Panel -->
+    <app-side-panel
+        [isOpen]="detailPanelOpen"
+        title="User Details"
+        [width]="800"
+        position="right"
+        [closable]="true"
+        (close)="closeUserDetailPanel()">
+        <app-user-detail *ngIf="selectedUserId" [userId]="selectedUserId"></app-user-detail>
+    </app-side-panel>
+</div>

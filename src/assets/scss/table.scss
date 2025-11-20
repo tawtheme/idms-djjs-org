@@ -1,0 +1,259 @@
+@import 'variable';
+
+// Simple table base styles
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    position: relative;
+
+    // Table header
+    thead {
+        background: $color-gray-50;
+        border-bottom: 1px solid $color-gray-200;
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: $color-gray-700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: $color-gray-50;
+        }
+    }
+
+    // Table body
+    tbody {
+        tr {
+            border-top: 1px solid $color-gray-100;
+            transition: background-color 0.15s ease;
+            position: relative;
+            background: $color-white;
+
+            &:hover {
+                background: $color-gray-50;
+
+                &::after {
+                    content: '';
+                    display: block;
+                    width: 3px;
+                    height: 100%;
+                    background: $color-primary-600;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    border-radius: 0 4px 4px 0;
+                }
+            }
+
+            &:first-child {
+                border-top: none;
+            }
+        }
+
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-gray-900;
+            text-transform: capitalize;
+        }
+    }
+
+    // Table footer
+    tfoot {
+        border-top: 1px solid $color-gray-200;
+        background: $color-gray-50;
+
+        tr {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 12px;
+            font-weight: 600;
+        }
+    }
+
+    // Utility classes for alignment
+    .text-left {
+        text-align: left !important;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+}
+
+// Sticky header - wraps table in scrollable container
+.table-container {
+    overflow-y: auto;
+    max-height: 100vh;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+
+    .table {
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: $color-gray-50;
+        }
+    }
+}
+
+// Sticky column - first column stays fixed when scrolling horizontally
+.table-sticky-col {
+    overflow-x: auto;
+
+    .table {
+        thead th:first-child,
+        tbody td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: $color-white;
+            box-shadow: 1px 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        thead th:first-child {
+            z-index: 15;
+            background: $color-gray-50;
+        }
+    }
+}
+
+// Combined: sticky header + sticky column
+.table-sticky {
+    overflow: auto;
+    max-height: 100vh;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+
+    .table {
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: $color-gray-50;
+        }
+
+        thead th:first-child,
+        tbody td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: $color-white;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        thead th:first-child {
+            z-index: 15;
+            background: $color-gray-50;
+        }
+    }
+}
+
+// Responsive table with data-label attribute
+@media (max-width: 1024px) {
+    .table {
+        thead {
+            display: none;
+        }
+
+        tbody {
+            tr {
+                display: block;
+                border: 1px solid $color-gray-200;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                padding: 12px;
+                background: $color-white;
+
+                &:hover {
+                    background: $color-white;
+
+                    &::after {
+                        content: '';
+                        display: none;
+                    }
+                }
+
+                &:first-child {
+                    border-top: 1px solid $color-gray-200;
+                }
+            }
+
+            td {
+                display: block;
+                padding: 8px 0;
+                border-bottom: 1px solid $color-gray-100;
+                text-align: left !important;
+                position: static !important; // Reset sticky on mobile
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &[data-label]::before {
+                    content: attr(data-label);
+                    display: block;
+                    font-weight: 600;
+                    font-size: 12px;
+                    color: $color-gray-700;
+                    text-transform: uppercase;
+                    margin-bottom: 4px;
+                }
+            }
+        }
+
+        tfoot {
+            display: block;
+            border-top: none;
+            background: transparent;
+
+            tr {
+                display: block;
+                border: 1px solid $color-gray-200;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                padding: 12px;
+                background: $color-white;
+            }
+
+            td {
+                display: block;
+                padding: 8px 0;
+                text-align: left !important;
+                position: static !important; // Reset sticky on mobile
+
+                &[data-label]::before {
+                    content: attr(data-label);
+                    display: block;
+                    font-weight: 600;
+                    font-size: 12px;
+                    color: $color-gray-700;
+                    margin-bottom: 4px;
+                }
+            }
+        }
+    }
+
+    // Disable sticky on mobile
+    .table-container,
+    .table-sticky-col,
+    .table-sticky {
+        overflow: visible;
+        max-height: none;
+        border: none;
+    }
+}

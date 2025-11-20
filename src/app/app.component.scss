@@ -1,0 +1,57 @@
+// Layout Grid
+.layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: 100vh;
+    transition: grid-template-columns 0.3s ease;
+    position: relative;
+
+    &.collapsed {
+        grid-template-columns: 64px 1fr;
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        
+        &.collapsed {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+// Sidebar backdrop for mobile
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+// Main Content Area
+.content {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+// Content Wrapper
+.content-wrapper {
+    width: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 30px;
+}

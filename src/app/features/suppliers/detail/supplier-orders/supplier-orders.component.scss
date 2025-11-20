@@ -1,0 +1,128 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/table';
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $color-gray-900;
+    margin-bottom: 20px;
+}
+
+// Order History Stats
+.order-history-stats {
+    margin-bottom: 24px;
+
+    .history-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .history-card {
+        background: $color-white;
+        border: 1px solid $color-gray-200;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: box-shadow 0.2s;
+
+        &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: $color-primary-100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            .material-icons {
+                font-size: 24px;
+                color: $color-primary-700;
+            }
+        }
+
+        .history-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+
+            .history-card-label {
+                font-size: 13px;
+                color: $color-gray-600;
+                font-weight: 500;
+            }
+
+            .history-card-value {
+                font-size: 16px;
+                font-weight: 600;
+                color: $color-gray-900;
+            }
+
+            .history-card-date {
+                font-size: 12px;
+                font-style: italic;
+                color: $color-gray-500;
+            }
+        }
+    }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+
+    &.status-draft {
+        background: $color-gray-100;
+        color: $color-gray-700;
+    }
+
+    &.status-sent {
+        background: $color-primary-100;
+        color: $color-primary-700;
+    }
+
+    &.status-received {
+        background: $color-green-100;
+        color: $color-green-700;
+    }
+
+    &.status-cancelled {
+        background: $color-red-100;
+        color: $color-red-700;
+    }
+}
+
+.btn-link {
+    color: $color-primary-600;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover {
+        color: $color-primary-700;
+        text-decoration: underline;
+    }
+}

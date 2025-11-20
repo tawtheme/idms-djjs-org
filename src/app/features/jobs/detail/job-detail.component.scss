@@ -1,0 +1,188 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+.job-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 16px;
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+        margin: 0 0 16px 0;
+    }
+}
+
+// Header
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+
+    .header-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: $color-gray-900;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .status-badge {
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+}
+
+// Status badge colors (defined at root level for proper scoping)
+.status-badge {
+    &.status-pending {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+
+    &.status-inprogress,
+    &.status-in_progress {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+
+    &.status-completed {
+        background: $color-green-100;
+        color: $color-green-800;
+    }
+
+    &.status-on_hold,
+    &.status-onhold {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+
+    &.status-cancelled,
+    &.status-cancel {
+        background: $color-red-100;
+        color: $color-red-800;
+    }
+
+    &.status-high {
+        background: $color-red-100;
+        color: $color-red-800;
+    }
+
+    &.status-normal,
+    &.status-medium {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+
+    &.status-low {
+        background: $color-gray-100;
+        color: $color-gray-800;
+    }
+
+    &.status-rush {
+        background: $color-red-100;
+        color: $color-red-800;
+    }
+
+    &.status-paid {
+        background: $color-green-100;
+        color: $color-green-800;
+    }
+
+    &.status-partially_paid,
+    &.status-partiallypaid {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+
+    &.status-overdue {
+        background: $color-red-100;
+        color: $color-red-800;
+    }
+
+    // Default status style
+    &:not([class*="status-"]) {
+        background: $color-gray-100;
+        color: $color-gray-800;
+    }
+}
+
+// Chips
+.chips {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .chip {
+        background: $color-gray-50;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-gray-700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        span {
+            color: $color-gray-500;
+        }
+    }
+}
+
+// Info Grid
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+    
+        .label {
+            font-size: 13px;
+            color: $color-gray-600;
+        }
+        
+        .value {
+            color: $color-gray-900;
+        }
+    }
+}
+
+// Loading and No Data States
+.loading,
+.no-data {
+    padding: 40px;
+    text-align: center;
+    color: $color-gray-600;
+    font-size: 14px;
+}
+
+.loading {
+    color: $color-gray-500;
+}
+
+.no-data {
+    color: $color-gray-400;
+}

@@ -1,0 +1,58 @@
+/* Material Icons */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+/* Ensure CDK overlay container exists and is visible (used by side-panel component) */
+.cdk-overlay-container {
+    z-index: 10000;
+    position: fixed;
+    pointer-events: auto;
+}
+
+/* Ensure CDK overlay pane can be positioned by CDK (used by side-panel component) */
+.cdk-overlay-pane {
+    pointer-events: auto;
+    display: block;
+    visibility: visible;
+    position: absolute; /* ensure CDK can place it relative to origin */
+}
+
+/* Shared SCSS utilities */
+@import 'assets/scss/variable';
+@import 'assets/scss/form';
+@import 'assets/scss/grid';
+@import 'assets/scss/button';
+@import 'assets/scss/modal';
+@import 'assets/scss/animation';
+@import 'assets/scss/pages';
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Outfit';
+    background: #f7f9fc;
+    color: $color-gray-900;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// Page header
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .page-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: $color-gray-800;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: $color-gray-500;
+    }
+}

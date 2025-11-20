@@ -1,0 +1,790 @@
+{
+  "quotes": [
+    {
+      "id": "Q-2024-001",
+      "orderId": "AMZ-ORD-112-1234567-1234567",
+      "date": "2024-10-10",
+      "validUntil": "2024-11-10",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C1",
+        "name": "Amazon Distribution Center",
+        "company": "Amazon",
+        "email": "dist-amz@amazon.com",
+        "phone": "+1-425-123-4567",
+        "billingAddress": {
+          "addressLine1": "410 Terry Ave N",
+          "city": "Seattle",
+          "state": "WA",
+          "postalCode": "98109",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "2500 West Sahara Ave",
+          "addressLine2": "Suite 100",
+          "city": "Las Vegas",
+          "state": "NV",
+          "postalCode": "89102",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL1",
+          "description": "Hardcover Book Printing - 1000 copies",
+          "quantity": 1000,
+          "unitPrice": 9.50,
+          "total": 9500.00,
+          "tax": 760.00
+        },
+        {
+          "id": "QL2",
+          "description": "Dust Jacket Printing - Full Color",
+          "quantity": 1000,
+          "unitPrice": 2.75,
+          "total": 2750.00,
+          "tax": 220.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 12250.00,
+        "tax": 980.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 13230.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-10",
+        "notes": "Please ensure color accuracy matches Amazon brand guidelines"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-10T09:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-10T10:30:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-12T14:20:00Z",
+          "action": "Quote accepted by customer",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-002",
+      "orderId": "AMZ-ORD-112-1234568-1234568",
+      "date": "2024-10-12",
+      "validUntil": "2024-11-12",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C2",
+        "name": "Sarah Thompson",
+        "company": "Thompson Publishing",
+        "email": "sarah.thompson82@example.com",
+        "phone": "+1-213-555-0193",
+        "billingAddress": {
+          "addressLine1": "1234 Publishing Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postalCode": "90001",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "1234 Publishing Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postalCode": "90001",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL3",
+          "description": "Paperback Book Printing - 2000 copies",
+          "quantity": 2000,
+          "unitPrice": 5.25,
+          "total": 10500.00,
+          "tax": 840.00
+        },
+        {
+          "id": "QL4",
+          "description": "Cover Lamination - Glossy Finish",
+          "quantity": 2000,
+          "unitPrice": 0.95,
+          "total": 1900.00,
+          "tax": 152.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 12400.00,
+        "tax": 942.40,
+        "taxPercent": 8,
+        "discount": 620.00,
+        "total": 12722.40,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 15",
+        "validUntil": "2024-11-12",
+        "notes": "Rush order needed for book launch event"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-12T08:30:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-12T09:45:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-14T11:00:00Z",
+          "action": "Quote accepted by customer",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-003",
+      "orderId": "AMZ-ORD-112-1234569-1234569",
+      "date": "2024-10-15",
+      "validUntil": "2024-11-15",
+      "status": "draft",
+      
+      "customerDetails": {
+        "id": "C3",
+        "name": "Penguin Random House",
+        "company": "Penguin Random House",
+        "email": "orders@penguinrandomhouse.com",
+        "phone": "+1-212-555-4220",
+        "billingAddress": {
+          "addressLine1": "1745 Broadway",
+          "city": "New York",
+          "state": "NY",
+          "postalCode": "10019",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "1745 Broadway",
+          "city": "New York",
+          "state": "NY",
+          "postalCode": "10019",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL5",
+          "description": "Catalog Printing - 64 pages",
+          "quantity": 1500,
+          "unitPrice": 7.50,
+          "total": 11250.00,
+          "tax": 900.00
+        },
+        {
+          "id": "QL6",
+          "description": "Perfect Binding",
+          "quantity": 1500,
+          "unitPrice": 1.85,
+          "total": 2775.00,
+          "tax": 222.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 14025.00,
+        "tax": 1122.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 15147.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-15",
+        "notes": "Awaiting final approval from marketing team"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-15T10:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-004",
+      "orderId": "AMZ-ORD-112-1234570-1234570",
+      "date": "2024-10-18",
+      "validUntil": "2024-11-18",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C4",
+        "name": "John Smith",
+        "company": "Smith Publishing",
+        "email": "john.smith99@gmail.com",
+        "phone": "+1-555-0123",
+        "billingAddress": {
+          "addressLine1": "567 Main Street",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60601",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "567 Main Street",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60601",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL7",
+          "description": "Business Cards - Premium Cardstock",
+          "quantity": 1000,
+          "unitPrice": 0.18,
+          "total": 180.00,
+          "tax": 14.40
+        },
+        {
+          "id": "QL8",
+          "description": "UV Coating - Both Sides",
+          "quantity": 1000,
+          "unitPrice": 0.10,
+          "total": 100.00,
+          "tax": 8.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 280.00,
+        "tax": 22.40,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 302.40,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-18",
+        "notes": "Standard business card order"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-18T09:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-18T10:15:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-005",
+      "orderId": "AMZ-ORD-112-1234571-1234571",
+      "date": "2024-10-20",
+      "validUntil": "2024-11-20",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C5",
+        "name": "Michael Brown",
+        "company": "Brown Printing Services",
+        "email": "michael.brown@example.com",
+        "phone": "+1-312-555-5678",
+        "billingAddress": {
+          "addressLine1": "890 Oak Avenue",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60611",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "890 Oak Avenue",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60611",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL9",
+          "description": "Brochure Printing - Tri-fold",
+          "quantity": 5000,
+          "unitPrice": 0.42,
+          "total": 2100.00,
+          "tax": 168.00
+        },
+        {
+          "id": "QL10",
+          "description": "Full Color Printing - Double-sided",
+          "quantity": 5000,
+          "unitPrice": 0.15,
+          "total": 750.00,
+          "tax": 60.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 2850.00,
+        "tax": 228.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 3078.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-20",
+        "notes": "Customer found better pricing elsewhere"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-20T11:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-20T12:00:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-22T15:30:00Z",
+          "action": "Quote rejected by customer",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-006",
+      "orderId": "AMZ-ORD-112-1234572-1234572",
+      "date": "2024-10-22",
+      "validUntil": "2024-11-22",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C6",
+        "name": "David Wilson",
+        "company": "Wilson Media Group",
+        "email": "david.wilson@wilsongroup.com",
+        "phone": "+1-415-555-9012",
+        "billingAddress": {
+          "addressLine1": "123 Market Street",
+          "city": "San Francisco",
+          "state": "CA",
+          "postalCode": "94102",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "123 Market Street",
+          "city": "San Francisco",
+          "state": "CA",
+          "postalCode": "94102",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL11",
+          "description": "Poster Printing - 24x36 inches",
+          "quantity": 200,
+          "unitPrice": 19.50,
+          "total": 3900.00,
+          "tax": 312.00
+        },
+        {
+          "id": "QL12",
+          "description": "Lamination - Heavy Duty",
+          "quantity": 200,
+          "unitPrice": 5.25,
+          "total": 1050.00,
+          "tax": 84.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 4950.00,
+        "tax": 396.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 5346.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-22",
+        "notes": "High-quality poster printing for trade show"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-22T08:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-22T09:30:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-24T13:00:00Z",
+          "action": "Quote accepted by customer",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-007",
+      "orderId": "AMZ-ORD-112-1234573-1234573",
+      "date": "2024-10-25",
+      "validUntil": "2024-11-25",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C7",
+        "name": "Jennifer Martinez",
+        "company": "Martinez Publishing",
+        "email": "jennifer.martinez@example.com",
+        "phone": "+1-305-555-3456",
+        "billingAddress": {
+          "addressLine1": "456 Ocean Drive",
+          "city": "Miami",
+          "state": "FL",
+          "postalCode": "33139",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "456 Ocean Drive",
+          "city": "Miami",
+          "state": "FL",
+          "postalCode": "33139",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL13",
+          "description": "Book Printing - Hardcover - 750 copies",
+          "quantity": 750,
+          "unitPrice": 11.75,
+          "total": 8812.50,
+          "tax": 705.00
+        },
+        {
+          "id": "QL14",
+          "description": "Foil Stamping - Gold",
+          "quantity": 750,
+          "unitPrice": 3.15,
+          "total": 2362.50,
+          "tax": 189.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 11175.00,
+        "tax": 894.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 12069.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-25",
+        "notes": "Quote expired - customer did not respond"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-25T10:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-25T11:00:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-11-26T09:00:00Z",
+          "action": "Quote expired",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-008",
+      "orderId": "AMZ-ORD-112-1234574-1234574",
+      "date": "2024-10-28",
+      "validUntil": "2024-11-28",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C8",
+        "name": "Robert Taylor",
+        "company": "Taylor Marketing Solutions",
+        "email": "robert.taylor@taylormarketing.com",
+        "phone": "+1-214-555-7890",
+        "billingAddress": {
+          "addressLine1": "789 Commerce Street",
+          "city": "Dallas",
+          "state": "TX",
+          "postalCode": "75201",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "789 Commerce Street",
+          "city": "Dallas",
+          "state": "TX",
+          "postalCode": "75201",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL15",
+          "description": "Flyer Printing - 8.5x11",
+          "quantity": 10000,
+          "unitPrice": 0.09,
+          "total": 900.00,
+          "tax": 72.00
+        },
+        {
+          "id": "QL16",
+          "description": "Double-sided Printing",
+          "quantity": 10000,
+          "unitPrice": 0.06,
+          "total": 600.00,
+          "tax": 48.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 1500.00,
+        "tax": 120.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 1620.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-11-28",
+        "notes": "Bulk flyer printing for marketing campaign"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-28T09:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-28T10:00:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-10-30T14:00:00Z",
+          "action": "Quote accepted by customer",
+          "user": "System"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-009",
+      "orderId": "AMZ-ORD-112-1234575-1234575",
+      "date": "2024-11-01",
+      "validUntil": "2024-12-01",
+      "status": "draft",
+      
+      "customerDetails": {
+        "id": "C9",
+        "name": "Lisa Anderson",
+        "company": "Anderson Creative",
+        "email": "lisa.anderson@andersoncreative.com",
+        "phone": "+1-503-555-2345",
+        "billingAddress": {
+          "addressLine1": "321 Pine Street",
+          "city": "Portland",
+          "state": "OR",
+          "postalCode": "97204",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "321 Pine Street",
+          "city": "Portland",
+          "state": "OR",
+          "postalCode": "97204",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL17",
+          "description": "Magazine Printing - 48 pages",
+          "quantity": 3000,
+          "unitPrice": 6.25,
+          "total": 18750.00,
+          "tax": 1500.00
+        },
+        {
+          "id": "QL18",
+          "description": "Saddle Stitch Binding",
+          "quantity": 3000,
+          "unitPrice": 1.25,
+          "total": 3750.00,
+          "tax": 300.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 22500.00,
+        "tax": 1800.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 24300.00,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-12-01",
+        "notes": "Draft quote - pending final review"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-11-01T08:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        }
+      ]
+    },
+    {
+      "id": "Q-2024-010",
+      "orderId": "AMZ-ORD-112-1234576-1234576",
+      "date": "2024-11-03",
+      "validUntil": "2024-12-03",
+      "status": "sent",
+      
+      "customerDetails": {
+        "id": "C10",
+        "name": "William Davis",
+        "company": "Davis Communications",
+        "email": "william.davis@daviscomm.com",
+        "phone": "+1-617-555-6789",
+        "billingAddress": {
+          "addressLine1": "654 Beacon Street",
+          "city": "Boston",
+          "state": "MA",
+          "postalCode": "02115",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "654 Beacon Street",
+          "city": "Boston",
+          "state": "MA",
+          "postalCode": "02115",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "QL19",
+          "description": "Letterhead Printing - Premium Paper",
+          "quantity": 2000,
+          "unitPrice": 0.28,
+          "total": 560.00,
+          "tax": 44.80
+        },
+        {
+          "id": "QL20",
+          "description": "Envelope Printing - Matching",
+          "quantity": 2000,
+          "unitPrice": 0.20,
+          "total": 400.00,
+          "tax": 32.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 960.00,
+        "tax": 76.80,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 1036.80,
+        "currency": "USD"
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "validUntil": "2024-12-03",
+        "notes": "Corporate letterhead and envelope set"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-11-03T09:00:00Z",
+          "action": "Quote created",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-11-03T10:00:00Z",
+          "action": "Quote sent to customer",
+          "user": "Emily Johnson"
+        },
+        {
+          "date": "2024-11-05T11:00:00Z",
+          "action": "Quote accepted by customer",
+          "user": "System"
+        }
+      ]
+    }
+  ]
+}

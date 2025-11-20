@@ -1,0 +1,38 @@
+@if (isOpen) {
+    <div class="modal-backdrop" [class.is-open]="isOpen" (click)="onBackdropClick($event)" (keydown)="onEscapeKey($event)" tabindex="0"></div>
+    <div class="modal" [class.is-open]="isOpen">
+        <div [class]="modalClasses">
+            @if (showHeader) {
+                <div class="modal__header">
+                    <div class="modal__title">{{ title }}</div>
+                    @if (closable) {
+                        <button (click)="onCloseClick()" class="modal__close" aria-label="Close modal">
+                            <span class="material-icons">close</span>
+                        </button>
+                    }
+                </div>
+            }
+
+            <div class="modal__body" #modalBody>
+                <ng-content></ng-content>
+            </div>
+
+            @if (showFooter || footerButtons.length > 0) {
+                <ng-content select="[slot=footer]">
+                    <div class="modal-footer" [class]="'footer-' + footerAlign">
+                        @if (footerButtons.length > 0) {
+                            @for (button of footerButtons; track button.text) {
+                                <button 
+                                    (click)="onFooterButtonClick(button)"
+                                    [disabled]="button.disabled"
+                                    [class]="'btn btn-' + button.type">
+                                    {{ button.text }}
+                                </button>
+                            }
+                        }
+                    </div>
+                </ng-content>
+            }
+        </div>
+    </div>
+}

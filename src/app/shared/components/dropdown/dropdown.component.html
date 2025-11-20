@@ -1,0 +1,127 @@
+<div [class]="dropdownClasses">
+    <!-- Dropdown Trigger -->
+    <div class="dropdown-trigger" (click)="toggleDropdown()">
+        <div class="dropdown-selection">
+            @if (loading) {
+                <span class="dropdown-loading-spinner material-icons">refresh</span>
+            } 
+            @else {
+                <span class="dropdown-text" [class.placeholder]="selectedOptions.length === 0">{{ getDisplayText() }}</span>
+            }
+        </div>
+        
+        <div class="dropdown-actions">
+            <span class="dropdown-arrow material-icons" [class.rotated]="isOpen">keyboard_arrow_down</span>
+        </div>
+    </div>
+
+    <!-- Selected Values (Multi-select) -->
+    @if (showSelectedItems && multiSelect && selectedOptions.length > 0) {
+        <div class="dropdown-selected" [class]="'dropdown-selected-' + selectedItemsPosition + ' dropdown-selected-' + selectedItemsStyle">
+            @for (option of getVisibleSelectedItems(); track option.id) {
+                <span class="selected-item" [class]="'selected-item-' + selectedItemsStyle">
+                    {{ option.label }}
+                    <button type="button" class="selected-remove"
+                        (click)="removeSelectedValue(option.value); $event.stopPropagation()"
+                        [attr.aria-label]="'Remove ' + option.label">
+                        <span class="material-icons">close</span>
+                    </button>
+                </span>
+            }
+            @if (hasMoreSelectedItems()) {
+                <span class="selected-more">
+                    +{{ getHiddenItemsCount() }} more
+                </span>
+            }
+        </div>
+    }
+
+    <!-- Dropdown List -->
+    @if (isOpen) {
+        <div [class]="dropdownListClasses" 
+             [style.max-height.px]="isPortaled ? null : maxHeight"
+             [style.top]="isPortaled ? null : dropdownPosition.top"
+             [style.left]="isPortaled ? null : dropdownPosition.left"
+             [style.right]="isPortaled ? null : dropdownPosition.right"
+             [style.bottom]="isPortaled ? null : dropdownPosition.bottom"
+             #dropdownList>
+            <!-- Search Input -->
+            @if (searchable) {
+                <div class="dropdown-search">
+                    <input #searchInput type="text" [(ngModel)]="searchQuery" [ngModelOptions]="{standalone: true}" (input)="onSearchChange($event)"
+                        placeholder="Search options..." class="dropdown-search-input" autocomplete="off">
+                </div>
+            }
+
+            <!-- Select All (Multi-select) -->
+            @if (multiSelect && showSelectAll && filteredOptions.length > 0) {
+                <div class="dropdown-select-all">
+                    <label class="dropdown-select-all-label">
+                        <input type="checkbox" [checked]="allSelected" [indeterminate]="partialSelected" (change)="selectAll()"
+                            class="form-checkbox">
+                        <span class="dropdown-select-all-text">
+                            {{ allSelected ? 'Deselect All' : 'Select All' }}
+                        </span>
+                    </label>
+                </div>
+            }
+
+            <!-- Options List -->
+            <div class="dropdown-options">
+                @if (filteredOptions.length === 0) {
+                    <div class="dropdown-no-results">
+                        {{ noResultsText }}
+                    </div>
+                }
+                @else {
+                    @for (option of filteredOptions; track option.id) {
+                        <div class="dropdown-option" [class.selected]="isSelected(option)" [class.disabled]="option.disabled"
+                            (click)="selectOption(option, $event)">
+                            @if (multiSelect) {
+                                <label 
+                                    class="dropdown-option-label"
+                                    (mousedown)="$event.stopPropagation()"
+                                    (click)="onLabelClick($event, option)">
+                                    <input 
+                                        type="checkbox" 
+                                        [checked]="isSelected(option)" 
+                                        [disabled]="option.disabled"
+                                        class="form-checkbox" 
+                                        (mousedown)="$event.stopPropagation(); onCheckboxMouseDown()"
+                                        (click)="$event.stopPropagation()"
+                                        (change)="onCheckboxToggle($event, option)">
+
+                                    @if (option.icon) {
+                                        <span class="dropdown-option-icon material-icons">{{ option.icon }}</span>
+                                    }
+
+                                    <div class="dropdown-option-content">
+                                        <span class="dropdown-option-label-text">{{ option.label }}</span>
+                                        @if (option.description) {
+                                            <span class="dropdown-option-description">{{ option.description }}</span>
+                                        }
+                                    </div>
+                                </label>
+                            } 
+                            @else {
+                                <div class="dropdown-option-content">
+                                    @if (option.icon) {
+                                        <span class="dropdown-option-icon material-icons">{{ option.icon }}</span>
+                                    }
+
+                                    <div class="dropdown-option-text">
+                                        <span class="dropdown-option-label-text">{{ option.label }}</span>
+                                        @if (option.description) {
+                                            <span class="dropdown-option-description">{{ option.description }}</span>
+                                        }
+                                    </div>
+
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>

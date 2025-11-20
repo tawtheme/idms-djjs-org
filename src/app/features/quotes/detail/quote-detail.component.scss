@@ -1,0 +1,280 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+.quote-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 16px;
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+        margin: 0 0 16px 0;
+    }
+}
+
+// Header
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .header-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: $color-gray-900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-badge {
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+}
+
+// Chips
+.chips {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    .chip {
+        background: $color-gray-50;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-gray-700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        span {
+            color: $color-gray-500;
+        }
+    }
+}
+
+// Info Grid
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.label {
+    font-size: 13px;
+    color: $color-gray-600;
+}
+
+.value {
+    color: $color-gray-900;
+}
+
+.address-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid $color-gray-200;
+}
+
+// Line Items
+.line-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .line-item {
+        padding: 12px;
+        background: $color-gray-100;
+        border-radius: 8px;
+
+        .line-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            .line-item-name {
+                font-weight: 600;
+                color: $color-gray-900;
+                font-size: 14px;
+            }
+
+            .line-item-total {
+                font-weight: 600;
+                color: $color-primary-600;
+                font-size: 14px;
+            }
+        }
+
+        .line-item-details {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+
+            .detail-item {
+                font-size: 13px;
+                font-weight: 500;
+                color: $color-gray-600;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+
+                span {
+                    color: $color-gray-500;
+                }
+            }
+        }
+    }
+}
+
+// Costs
+.costs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &.total {
+            padding-top: 12px;
+            border-top: 1px solid $color-gray-200;
+            margin-top: 4px;
+
+            .label {
+                font-weight: 600;
+                font-size: 15px;
+            }
+
+            .value {
+                font-weight: 600;
+                font-size: 15px;
+            }
+        }
+
+        .label {
+            font-size: 14px;
+            color: $color-gray-700;
+        }
+
+        .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color-gray-900;
+        }
+    }
+}
+
+// Activity Log
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .activity-item {
+        display: flex;
+        gap: 16px;
+        padding: 12px;
+        background: $color-gray-50;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+
+        .activity-date {
+            color: $color-gray-600;
+            min-width: 150px;
+        }
+
+        .activity-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .activity-action {
+                color: $color-gray-900;
+            }
+
+            .activity-user {
+                color: $color-gray-600;
+            }
+        }
+    }
+}
+
+// Loading & Empty States
+.loading,
+.no-data {
+    padding: 40px;
+    text-align: center;
+    color: $color-gray-600;
+}
+
+// Status badge colors
+.status-badge {
+    &.status-sent {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    &.status-accepted {
+        background: #bbf7d0;
+        color: #065f46;
+    }
+
+    &.status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    &.status-expired {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    &.status-draft {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    &.status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    &.status-default {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+}
+

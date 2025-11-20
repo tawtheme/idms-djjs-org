@@ -1,0 +1,396 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-width: 120px;
+
+    &-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        padding: 10px 12px;
+        border: 1px solid $color-gray-300;
+        border-radius: 6px;
+        background: $color-white;
+        cursor: pointer;
+        min-height: 40px;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+        text-transform: capitalize;
+
+        &:hover {
+            border-color: $color-primary-600;
+        }
+
+        &:focus-within {
+            outline: none;
+            border-color: $color-primary-600;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    &-selection {
+        flex: 1 1 auto;
+        min-width: 0; // allow text ellipsis
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &-text {
+        font-size: 14px;
+        font-weight: 500;
+        color: $color-gray-900;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        
+        &.placeholder {
+            color: $color-gray-500;
+            opacity: 1;
+        }
+    }
+
+    &-loading-spinner {
+        animation: spin 1s linear infinite;
+        color: $color-gray-600;
+    }
+
+    &-actions {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 8px;
+    }
+
+    &-clear {
+        background: none;
+        border: none;
+        color: $color-gray-600;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: $color-gray-50;
+            color: $color-gray-700;
+        }
+    }
+
+    &-arrow {
+        color: $color-gray-600;
+        font-size: 18px;
+        transition: transform 0.2s ease;
+
+        &.rotated {
+            transform: rotate(180deg);
+        }
+    }
+
+    // Selected Values (Multi-select)
+    &-selected {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+
+        .selected-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: $color-primary-50;
+            color: $color-primary-700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            border: 1px solid $color-primary-200;
+
+            .selected-remove {
+                background: none;
+                border: none;
+                color: $color-primary-600;
+                cursor: pointer;
+                padding: 2px;
+                font-size: 12px;
+                border-radius: 2px;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 16px;
+                height: 16px;
+
+                .material-icons {
+                    font-size: 12px;
+                }
+
+                &:hover {
+                    color: $color-red-600;
+                    background: $color-red-100;
+                }
+            }
+        }
+    }
+
+    // Dropdown List
+    &-list {
+        position: absolute;
+        z-index: 2000;
+        background: $color-white;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+        box-shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: slideInDown 0.2s ease-out;
+        min-width: 200px;
+        width: 100%;
+        text-transform: capitalize;
+        
+        // Default positioning (will be overridden by dynamic styles)
+        top: 100%;
+        left: 0;
+        right: auto;
+        bottom: auto;
+        margin-top: 4px;
+
+        // Upward positioning
+        &.dropdown-upward {
+            animation: slideInUp 0.2s ease-out;
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+        
+        &.dropdown-portal {
+            position: fixed !important; // when moved to body
+            margin: 0;
+            min-width: 0;
+            z-index: 10000; // Ensure it appears above modals and other content
+            pointer-events: auto; // Ensure it's clickable
+            width: auto !important; // override base width:100%
+            box-sizing: border-box;
+        }
+    }
+
+    &-search {
+        border-bottom: 1px solid $color-gray-300;
+
+        &-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            font-size: 14px;
+            transition: border-color 150ms ease, box-shadow 150ms ease;
+
+            &::placeholder {
+                color: $color-gray-500;
+            }
+
+            &:focus {
+                outline: none;
+                border-color: $color-primary-500;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+        }
+    }
+
+    &-select-all {
+        padding: 8px 12px;
+        border-bottom: 1px solid $color-gray-300;
+        background: $color-gray-50;
+
+        &-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: $color-gray-700;
+        }
+
+        &-text {
+            font-size: 14px;
+        }
+    }
+
+
+    &-options {
+        max-height: 200px;
+        overflow-y: auto;
+
+        .dropdown-option {
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid $color-gray-200;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover:not(.disabled) {
+                background: $color-primary-50;
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            }
+
+            &.selected {
+                color: $color-primary-700;
+                font-weight: 600;
+            }
+
+            &.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                color: $color-gray-500;
+                background: $color-gray-50;
+            }
+
+            &-label {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                width: 100%;
+            }
+
+            &-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            &-text {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                flex: 1;
+            }
+
+            &-label-text {
+                font-size: 13px;
+                font-weight: 500;
+                color: $color-gray-700;
+            }
+
+            &-description {
+                font-size: 12px;
+                color: $color-gray-600;
+                line-height: 1.4;
+            }
+
+            &-icon {
+                font-size: 16px;
+                margin-right: 8px;
+            }
+
+            &-check {
+                color: $color-primary-500;
+                font-weight: 600;
+                margin-left: 8px;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                background: $color-primary-100;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    &-no-results {
+        padding: 16px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-red-600;
+        background: $color-red-100;
+    }
+
+    // States
+    &-open {
+        .dropdown-trigger {
+            border-color: $color-primary-600;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    &-disabled {
+        .dropdown-trigger {
+            background: $color-gray-50;
+            color: $color-gray-400;
+            cursor: not-allowed;
+        }
+    }
+
+    &-loading {
+        .dropdown-trigger {
+            cursor: wait;
+        }
+    }
+}
+
+// Animations
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .dropdown {
+        min-width: 150px;
+
+        &-trigger {
+            padding: 10px 12px;
+            min-height: 40px;
+        }
+
+        &-text {
+            font-size: 14px;
+        }
+
+        &-options {
+            .dropdown-option {
+                padding: 10px;
+
+                &-label-text {
+                    font-size: 14px;
+                }
+
+                &-description {
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}

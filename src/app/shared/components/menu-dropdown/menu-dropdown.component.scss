@@ -1,0 +1,183 @@
+@import '../../../../assets/scss/variable';
+
+.menu-dropdown {
+    position: relative;
+    display: inline-block;
+
+    .menu-trigger {
+        background: $color-white;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        min-width: 32px;
+        height: 32px;
+
+        &:hover {
+            background: $color-primary-50;
+            border-color: $color-primary-200;
+        }
+
+        &:focus {
+            outline: none;
+            background: $color-primary-50;
+            border-color: $color-primary-500;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .menu-dots {
+            font-size: 16px;
+            color: $color-gray-600;
+
+            &:hover {
+                color: $color-primary-600;
+            }
+
+            &:focus {
+                outline: none;
+                border-color: $color-primary-500;
+            }
+        }
+    }
+
+    .menu-list {
+        position: absolute;
+        z-index: 2000;
+        background: $color-white;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 180px;
+        overflow: hidden;
+        animation: slideInDown 0.2s ease-out;
+
+        .menu-item {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: $color-gray-700;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid $color-gray-50;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover:not(.disabled) {
+                background: $color-gray-50;
+            }
+
+            &.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            &.danger {
+                color: $color-red-600;
+
+                &:hover:not(.disabled) {
+                    background: $color-red-50;
+                }
+            }
+
+            .menu-icon {
+                font-size: 14px;
+                width: 16px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .menu-label {
+                flex: 1;
+            }
+        }
+    }
+}
+
+// Styles for dropdown when appended to body
+.menu-dropdown-overlay {
+    position: fixed;
+    z-index: 2000;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 150px;
+    overflow: hidden;
+    animation: slideInDown 0.2s ease-out;
+
+    .menu-item {
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: $color-gray-700;
+        transition: background-color 0.2s ease;
+        border-bottom: 1px solid $color-gray-50;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover:not(.disabled) {
+            background: $color-gray-100;
+        }
+
+        &.disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        &.danger {
+            color: $color-red-600;
+        }
+
+        &.danger:hover:not(.disabled) {
+            background: $color-red-50;
+        }
+
+        .menu-icon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .menu-label {
+            flex: 1;
+        }
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

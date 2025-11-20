@@ -1,0 +1,273 @@
+@import '../../../assets/scss/variable';
+
+// Material Icons mixin
+@mixin material-icon {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+}
+
+.sidenav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    height: 100vh;
+    background: $color-white;
+    color: $color-gray-700;
+    border-right: 1px solid $color-gray-200;
+    transition: width 0.3s ease;
+
+    // Collapsed state
+    &.collapsed {
+        width: 64px;
+
+        .sidenav-header {
+            padding: 24px 12px 16px;
+            flex-direction: column;
+            gap: 8px;
+
+            .brand {
+                justify-content: center;
+            }
+        }
+
+        .sidenav-content {
+            padding: 16px 8px;
+
+            nav {
+                gap: 8px;
+
+                .group {
+                    .group-title {
+                        display: none;
+                    }
+
+                    ul {
+                        gap: 4px;
+                    }
+
+                    a {
+                        padding: 8px;
+                        margin: 0 4px;
+                        justify-content: center;
+
+                        .icon {
+                            margin: 0;
+                        }
+
+                        .text {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .sidenav-footer {
+            padding: 16px 8px 24px;
+
+            .logout-btn {
+                justify-content: center;
+                padding: 8px;
+
+                .text {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    // Mobile styles
+    @media (max-width: 768px) {
+        width: 280px;
+        z-index: 1000;
+        box-shadow: 2px 0 8px rgba($color-black, 0.15);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+
+        &:not(.collapsed) {
+            transform: translateX(0);
+        }
+    }
+
+    // Header
+    .sidenav-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        flex-shrink: 0;
+        padding: 20px 16px;
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            font-weight: 600;
+            font-size: 18px;
+            color: $color-gray-900;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+
+            .brand-icon {
+                font-size: 22px;
+                @include material-icon;
+            }
+
+            .brand-text {
+                flex: 1;
+                transition: opacity 0.3s ease;
+            }
+        }
+    }
+
+    // Content
+    .sidenav-content {
+        flex: 1;
+        padding: 8px 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: relative;
+        z-index: 1;
+        min-height: 0;
+
+        // Scrollbar styling
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: rgba($color-gray-100, 0.5);
+            border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba($color-gray-300, 0.6);
+            border-radius: 3px;
+
+            &:hover {
+                background: rgba($color-gray-400, 0.8);
+            }
+        }
+
+        scrollbar-width: thin;
+        scrollbar-color: rgba($color-gray-300, 0.6) rgba($color-gray-100, 0.5);
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+
+            .group {
+                .group-title {
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    color: $color-gray-500;
+                    letter-spacing: 0.9px;
+                    margin-bottom: 8px;
+                    padding: 0 16px;
+                    font-weight: 600;
+                }
+
+                ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                a {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    position: relative;
+                    margin: 0 12px;
+                    padding: 10px 8px;
+                    border-radius: 8px;
+                    color: $color-gray-700;
+                    text-decoration: none;
+                    font-weight: 500;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+
+                    .icon {
+                        font-size: 20px;
+                        width: 24px;
+                        text-align: center;
+                        @include material-icon;
+                    }
+
+                    .text {
+                        flex: 1;
+                    }
+
+                    &:hover:not(.active) {
+                        background: $color-gray-100;
+                        color: $color-gray-900;
+                    }
+
+                    &.active {
+                        background: rgba($color-primary-500, 0.1);
+                        color: $color-primary-600;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+
+    // Footer
+    .sidenav-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        flex-shrink: 0;
+        padding: 16px 16px 20px;
+        background: transparent;
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: $color-red-50;
+            color: $color-red-700;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            .icon {
+                font-size: 20px;
+                width: 24px;
+                text-align: center;
+                @include material-icon;
+            }
+
+            .text {
+                flex: 1;
+            }
+
+            &:hover {
+                background: $color-red-700;
+                color: $color-white;
+            }
+        }
+    }
+}

@@ -1,0 +1,55 @@
+<div class="address-autocomplete" [class.disabled]="disabled">
+    <div class="input-container">
+        <input #inputElement type="text" class="address-input" [placeholder]="placeholder" [disabled]="disabled"
+            [value]="value" (input)="onInputChange($event)" (keydown)="onKeyDown($event)" (blur)="onBlur()"
+            (focus)="onFocus()" autocomplete="off" role="combobox" [attr.aria-expanded]="showSuggestions"
+            [attr.aria-activedescendant]="selectedIndex >= 0 ? 'suggestion-' + selectedIndex : null"
+            aria-autocomplete="list" aria-haspopup="listbox">
+
+        <div class="input-actions">
+            @if (value && !disabled) {
+                <button type="button" class="clear-button" (click)="clearAddress()"
+                    aria-label="Clear address">
+                    <span class="material-icons">close</span>
+                </button>
+            }
+
+            @if (isLoading) {
+                <div class="loading-spinner">
+                    <span class="material-icons">refresh</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (showSuggestions && suggestions.length > 0) {
+        <div class="suggestions-dropdown" role="listbox" [attr.aria-label]="'Address suggestions'">
+            @for (suggestion of suggestions; track $index; let i = $index) {
+                <div [id]="'suggestion-' + i" class="suggestion-item"
+                    [class.selected]="i === selectedIndex" [class.highlighted]="i === selectedIndex"
+                    (click)="selectSuggestion(suggestion)" (mouseenter)="selectedIndex = i" role="option"
+                    [attr.aria-selected]="i === selectedIndex">
+
+                    <div class="suggestion-content">
+                        <div class="suggestion-main">
+                            <span class="material-icons suggestion-icon">
+                                {{ mode === 'state' ? 'location_on' : 'place' }}
+                            </span>
+                            <span class="suggestion-text">{{ suggestion.structured_formatting.main_text }}</span>
+                        </div>
+                        <div class="suggestion-secondary">
+                            {{ suggestion.structured_formatting.secondary_text }}
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (showSuggestions && suggestions.length === 0 && value.length >= 2 && !isLoading) {
+        <div class="no-suggestions">
+            <span class="material-icons">search_off</span>
+            <span>No addresses found</span>
+        </div>
+    }
+</div>

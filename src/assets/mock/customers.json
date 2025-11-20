@@ -1,0 +1,148 @@
+{
+    "customers": [
+        {
+            "id": "C1",
+            "name": "Amazon Distribution Center",
+            "email": "dist-amz@amazon.com",
+            "created_at": "2024-01-13T10:00:00Z",
+            "company": "Amazon",
+            "phone": "+1-425-123-4567"
+        },
+        {
+            "id": "C2",
+            "name": "Sarah Thompson",
+            "email": "sarah.thompson82@example.com",
+            "created_at": "2023-11-19T16:23:00Z",
+            "company": "Thompson Publishing",
+            "phone": "+1-213-555-0193"
+        },
+        {
+            "id": "C3",
+            "name": "Penguin Random House",
+            "email": "orders@penguinrandomhouse.com",
+            "created_at": "2022-09-13T08:30:00Z",
+            "company": "Penguin Random House",
+            "phone": "+1-212-555-4220"
+        },
+        {
+            "id": "C4",
+            "name": "John Smith",
+            "email": "john.smith99@gmail.com",
+            "created_at": "2024-06-07T19:42:00Z",
+            "company": "",
+            "phone": "+1-718-555-0134"
+        },
+        {
+            "id": "C5",
+            "name": "Barnes & Noble",
+            "email": "b2b@barnesandnoble.com",
+            "created_at": "2022-12-22T15:10:00Z",
+            "company": "Barnes & Noble",
+            "phone": "+1-646-555-2266"
+        },
+        {
+            "id": "C6",
+            "name": "Books-A-Million",
+            "email": "orders@booksamillion.com",
+            "created_at": "2023-03-18T09:55:00Z",
+            "company": "Books-A-Million",
+            "phone": "+1-850-555-5521"
+        },
+        {
+            "id": "C7",
+            "name": "Emily Chen",
+            "email": "echen@literaturematters.org",
+            "created_at": "2024-02-15T20:14:00Z",
+            "company": "Literature Matters",
+            "phone": "+1-510-555-8888"
+        },
+        {
+            "id": "C8",
+            "name": "IndieBound Cooperative",
+            "email": "support@indiebound.com",
+            "created_at": "2021-04-04T12:00:00Z",
+            "company": "IndieBound",
+            "phone": "+1-800-555-1616"
+        },
+        {
+            "id": "C9",
+            "name": "Global Books Europe",
+            "email": "europe@globalbooks.com",
+            "created_at": "2022-08-29T09:38:00Z",
+            "company": "Global Books",
+            "phone": "+44-20-7123-9000"
+        },
+        {
+            "id": "C10",
+            "name": "Mary Harper",
+            "email": "mary.harper@harpercreative.com",
+            "created_at": "2024-04-27T14:45:00Z",
+            "company": "Harper Creative",
+            "phone": "+1-602-555-2972"
+        },
+        {
+            "id": "C11",
+            "name": "Orbit Books",
+            "email": "contact@orbitbooks.com",
+            "created_at": "2023-07-03T17:20:00Z",
+            "company": "Hachette Book Group",
+            "phone": "+1-617-555-4455"
+        },
+        {
+            "id": "C12",
+            "name": "Michelle Lee",
+            "email": "michelle.lee@gmail.com",
+            "created_at": "2023-10-15T13:05:00Z",
+            "company": "",
+            "phone": "+1-408-555-8172"
+        },
+        {
+            "id": "C13",
+            "name": "New Leaf Distributors",
+            "email": "jlane@newleafdist.com",
+            "created_at": "2021-11-29T08:10:00Z",
+            "company": "New Leaf Distribution",
+            "phone": "+1-770-555-4004"
+        },
+        {
+            "id": "C14",
+            "name": "William Johnson",
+            "email": "william.j59@yahoo.com",
+            "created_at": "2022-06-22T21:08:00Z",
+            "company": "",
+            "phone": "+1-303-555-7312"
+        },
+        {
+            "id": "C15",
+            "name": "Apple Books",
+            "email": "publisher-support@apple.com",
+            "created_at": "2020-03-01T10:45:00Z",
+            "company": "Apple Inc.",
+            "phone": "+1-408-555-1022"
+        },
+        {
+            "id": "C16",
+            "name": "Ingram Wholesale",
+            "email": "distribution@ingramcontent.com",
+            "created_at": "2022-10-12T07:29:00Z",
+            "company": "Ingram Content Group",
+            "phone": "+1-615-555-9000"
+        },
+        {
+            "id": "C17",
+            "name": "Lisa Brown",
+            "email": "lisa.brown@bluehorizon.com",
+            "created_at": "2023-12-04T10:32:00Z",
+            "company": "Blue Horizon Press",
+            "phone": "+1-646-555-3456"
+        },
+        {
+            "id": "C18",
+            "name": "Walmart Marketplace",
+            "email": "supplier@walmart.com",
+            "created_at": "2024-05-12T17:16:00Z",
+            "company": "Walmart Inc.",
+            "phone": "+1-479-555-9005"
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+<!-- Order History Section -->
+<div class="order-history-section">
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+        <div class="controls-left">
+            <div class="search-box">
+                <input
+                    type="search"
+                    class="form-control"
+                    placeholder="Search orders"
+                    [(ngModel)]="searchText"
+                    (input)="onSearchChange()"
+                    [ngModelOptions]="{ standalone: true }" />
+            </div>
+        </div>
+        <div class="controls-right">
+            <app-datepicker
+                [value]="selectedDate"
+                (dateChange)="selectedDate = $event; onDateFilterChange()"
+                format="yyyy-MM-dd"
+                placeholder="Select Date">
+            </app-datepicker>
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="selectedStatus"
+                placeholder="All Status"
+                (selectionChange)="selectedStatus = $event; onStatusFilterChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="sourceOptions"
+                [selectedValues]="selectedSource"
+                placeholder="All Source"
+                (selectionChange)="selectedSource = $event; onSourceFilterChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--reset btn--md" (click)="resetFilters()" type="button">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Source</th>
+                    <th>Price</th>
+                    <th>Ordered Date</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let order of customerOrders; trackBy: trackByOrderId">
+                    <td data-label="Order ID">
+                        {{ order.order_id }}
+                    </td>
+                    <td data-label="Source">
+                        {{ formatSource(order.order_source) }}
+                    </td>
+                    <td data-label="Price">
+                        {{ order.total_amount | currency:'USD':'symbol':'1.2-2' }}
+                    </td>
+                    <td data-label="Ordered Date">
+                        {{ formatOrderDate(order.order_date) }}
+                    </td>
+                    <td data-label="Status">
+                        <div class="status">
+                            <span class="status-badge" [ngClass]="getStatusClass(order.order_status)">{{ order.order_status }}</span>
+                        </div>
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <button class="btn btn--secondary btn--sm" type="button">View Details</button>
+                    </td>
+                </tr>
+                <!-- Empty State -->
+                <tr *ngIf="customerOrders.length === 0" class="empty-orders">
+                    <td colspan="6">No orders found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

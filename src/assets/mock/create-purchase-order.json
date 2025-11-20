@@ -1,0 +1,42 @@
+{
+  "purchase_order_id": "PO-2025-001",
+  "purchase_order_date": "2025-11-07",
+  "supplier": {
+    "supplier_id": "SUP-1001",
+    "supplier_name": "ABC Paper Co.",
+    "contact_person": "Ravi Kumar",
+    "phone": "+91 98765 43210",
+    "email": "ravi@abcpaper.com"
+  },
+  "purchase_type": "Raw Material",
+  "expected_delivery_date": "2025-11-15",
+  "status": "Draft",
+  "items": [
+    {
+      "item_id": "ITEM-001",
+      "item_name": "A4 Size Paper 120 GSM",
+      "description": "High-quality white paper for book printing",
+      "unit_of_measure": "Ream",
+      "quantity": 100,
+      "unit_price": 350,
+      "tax_percent": 18,
+      "total_amount": 35000
+    },
+    {
+      "item_id": "ITEM-002",
+      "item_name": "Black Printing Ink (1L)",
+      "description": "Premium offset printing ink",
+      "unit_of_measure": "Litre",
+      "quantity": 10,
+      "unit_price": 500,
+      "tax_percent": 18,
+      "total_amount": 5000
+    }
+  ],
+  "payment_terms": "50% advance, 50% on delivery",
+  "mode_of_payment": "Bank Transfer",
+  "notes": "Urgent requirement for printing project #BOOK2025",
+  "created_by": "John Smith",
+  "approved_by": null
+}
+

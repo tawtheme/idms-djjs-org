@@ -1,0 +1,144 @@
+<div class="add-customer-container">
+    <form (ngSubmit)="save()" #f="ngForm" class="side-panel-form">
+        <!-- Section: Basic Information -->
+        <div class="panel-card">
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Customer ID</span>
+                    <input name="id" [(ngModel)]="customer.id" required class="form-control" placeholder="Auto-generated" [disabled]="true" />
+                </label>
+                <label>
+                    <span>Source</span>
+                    <app-dropdown
+                        [options]="sourceOptions"
+                        [selectedValues]="getSelectedValues(customer.source)"
+                        (selectionChange)="onDropdownChange('source', $event)"
+                        placeholder="Select source"
+                        [closeOnSelect]="true">
+                    </app-dropdown>
+                </label>
+                <label>
+                    <span>Customer Name <span class="required">*</span></span>
+                    <input name="name" [(ngModel)]="customer.name" required class="form-control" placeholder="Enter customer name" />
+                </label>
+                <label>
+                    <span>Company</span>
+                    <input name="company" [(ngModel)]="customer.company" class="form-control" placeholder="Enter company name" />
+                </label>
+                <label>
+                    <span>Email <span class="required">*</span></span>
+                    <input type="email" name="email" [(ngModel)]="customer.email" required class="form-control" placeholder="Enter email address" />
+                </label>
+                <label>
+                    <span>Phone <span class="required">*</span></span>
+                    <input type="tel" name="phone" [(ngModel)]="customer.phone" required class="form-control" placeholder="Enter phone number" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Billing Address -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Billing Address
+                    <span class="description">Enter the billing address for the customer.</span>
+                </span>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Address Line 1</span>
+                    <input name="billing_addressLine1" [(ngModel)]="customer.addresses.billing.addressLine1" class="form-control" placeholder="Enter address line 1" />
+                </label>
+                <label>
+                    <span>Address Line 2</span>
+                    <input name="billing_addressLine2" [(ngModel)]="customer.addresses.billing.addressLine2" class="form-control" placeholder="Enter address line 2" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>City</span>
+                    <input name="billing_city" [(ngModel)]="customer.addresses.billing.city" class="form-control" placeholder="Enter city" />
+                </label>
+                <label>
+                    <span>State</span>
+                    <input name="billing_state" [(ngModel)]="customer.addresses.billing.state" class="form-control" placeholder="Enter state" />
+                </label>
+                <label>
+                    <span>Postal Code</span>
+                    <input name="billing_postalCode" [(ngModel)]="customer.addresses.billing.postalCode" class="form-control" placeholder="Enter postal code" />
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input name="billing_country" [(ngModel)]="customer.addresses.billing.country" class="form-control" placeholder="Enter country" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Section: Shipping Address -->
+        <div class="panel-card">
+            <div class="panel-card-row">
+                <span class="panel-card-row-title">
+                    Delivery Address
+                    <span class="description">Enter the delivery address for the customer.</span>
+                </span>
+                <button type="button" class="btn-link" (click)="copyBillingToShipping()">Copy from Billing</button>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Address Line 1</span>
+                    <input name="shipping_addressLine1" [(ngModel)]="customer.addresses.shipping.addressLine1" class="form-control" placeholder="Enter address line 1" />
+                </label>
+                <label>
+                    <span>Address Line 2</span>
+                    <input name="shipping_addressLine2" [(ngModel)]="customer.addresses.shipping.addressLine2" class="form-control" placeholder="Enter address line 2" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>City</span>
+                    <input name="shipping_city" [(ngModel)]="customer.addresses.shipping.city" class="form-control" placeholder="Enter city" />
+                </label>
+                <label>
+                    <span>State</span>
+                    <input name="shipping_state" [(ngModel)]="customer.addresses.shipping.state" class="form-control" placeholder="Enter state" />
+                </label>
+                <label>
+                    <span>Postal Code</span>
+                    <input name="shipping_postalCode" [(ngModel)]="customer.addresses.shipping.postalCode" class="form-control" placeholder="Enter postal code" />
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input name="shipping_country" [(ngModel)]="customer.addresses.shipping.country" class="form-control" placeholder="Enter country" />
+                </label>
+            </div>
+        </div>
+
+        <div class="form-grid cols-2">
+            <label>
+                <span>Status <span class="required">*</span></span>
+                <app-dropdown
+                    [options]="statusOptions"
+                    [selectedValues]="getSelectedValues(customer.status)"
+                    (selectionChange)="onDropdownChange('status', $event)"
+                    placeholder="Select status"
+                    [closeOnSelect]="true"
+                    required>
+                </app-dropdown>
+            </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--md" [disabled]="!isFormValid()">
+                <span *ngIf="!submitting">Create Customer</span>
+                <span *ngIf="submitting">Creating...</span>
+            </button>
+            <button type="button" class="btn btn--secondary btn--md" (click)="cancel()">Cancel</button>
+        </div>
+    </form>
+
+    
+    <!-- Snackbar for error messages -->
+    <app-snackbar *ngIf="snackbarConfig" [config]="snackbarConfig"></app-snackbar>
+</div>
+

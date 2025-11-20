@@ -1,0 +1,289 @@
+{
+  "invoices": [
+    {
+      "id": "INV-2024-001",
+      "orderId": "AMZ-ORD-112-1234567-1234567",
+      "date": "2024-10-15",
+      "dueDate": "2024-11-14",
+      "status": "paid",
+      "paidDate": "2024-10-20",
+      
+      "customerDetails": {
+        "id": "C1",
+        "name": "Amazon Distribution Center",
+        "company": "Amazon",
+        "email": "dist-amz@amazon.com",
+        "phone": "+1-425-123-4567",
+        "billingAddress": {
+          "addressLine1": "410 Terry Ave N",
+          "city": "Seattle",
+          "state": "WA",
+          "postalCode": "98109",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "2500 West Sahara Ave",
+          "addressLine2": "Suite 100",
+          "city": "Las Vegas",
+          "state": "NV",
+          "postalCode": "89102",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "IL1",
+          "description": "Hardcover Book Printing - 500 copies",
+          "quantity": 500,
+          "unitPrice": 8.50,
+          "total": 4250.00,
+          "tax": 340.00
+        },
+        {
+          "id": "IL2",
+          "description": "Book Binding - Perfect Bound",
+          "quantity": 500,
+          "unitPrice": 2.25,
+          "total": 1125.00,
+          "tax": 90.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 5375.00,
+        "tax": 430.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 5805.00,
+        "currency": "USD"
+      },
+      
+      "paymentInfo": {
+        "paymentStatus": "paid",
+        "paymentMethod": "Bank Transfer",
+        "paymentDate": "2024-10-20",
+        "transactionId": "TXN-INV-2024-001",
+        "paymentReference": "AMZ-PAY-2024-0892",
+        "amountPaid": 5805.00,
+        "balanceDue": 0.00
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "dueDate": "2024-11-14",
+        "lateFeePercent": 1.5,
+        "notes": "Payment received on time"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-15T09:00:00Z",
+          "action": "Invoice created",
+          "user": "Lisa Thompson"
+        },
+        {
+          "date": "2024-10-15T10:30:00Z",
+          "action": "Invoice sent to customer",
+          "user": "Lisa Thompson"
+        },
+        {
+          "date": "2024-10-20T14:00:00Z",
+          "action": "Payment received",
+          "user": "System"
+        },
+        {
+          "date": "2024-10-20T14:05:00Z",
+          "action": "Invoice marked as paid",
+          "user": "Lisa Thompson"
+        }
+      ]
+    },
+    {
+      "id": "INV-2024-002",
+      "orderId": "AMZ-ORD-112-1234568-1234568",
+      "date": "2024-10-18",
+      "dueDate": "2024-11-17",
+      "status": "paid",
+      "paidDate": "2024-10-22",
+      
+      "customerDetails": {
+        "id": "C2",
+        "name": "Sarah Thompson",
+        "company": "Thompson Publishing",
+        "email": "sarah.thompson82@example.com",
+        "phone": "+1-213-555-0193",
+        "billingAddress": {
+          "addressLine1": "1234 Publishing Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postalCode": "90001",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "1234 Publishing Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postalCode": "90001",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "IL3",
+          "description": "Paperback Book Printing - 1000 copies",
+          "quantity": 1000,
+          "unitPrice": 4.75,
+          "total": 4750.00,
+          "tax": 380.00
+        },
+        {
+          "id": "IL4",
+          "description": "Cover Lamination - Glossy",
+          "quantity": 1000,
+          "unitPrice": 0.85,
+          "total": 850.00,
+          "tax": 68.00
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 5600.00,
+        "tax": 448.00,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 6048.00,
+        "currency": "USD"
+      },
+      
+      "paymentInfo": {
+        "paymentStatus": "paid",
+        "paymentMethod": "Credit Card",
+        "paymentDate": "2024-10-22",
+        "transactionId": "TXN-INV-2024-002",
+        "paymentReference": "CC-****1234",
+        "amountPaid": 6048.00,
+        "balanceDue": 0.00
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 15",
+        "dueDate": "2024-11-17",
+        "lateFeePercent": 1.5,
+        "notes": "Early payment received"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-18T08:00:00Z",
+          "action": "Invoice created",
+          "user": "Lisa Thompson"
+        },
+        {
+          "date": "2024-10-18T09:15:00Z",
+          "action": "Invoice sent to customer",
+          "user": "Lisa Thompson"
+        },
+        {
+          "date": "2024-10-22T11:30:00Z",
+          "action": "Payment received",
+          "user": "System"
+        },
+        {
+          "date": "2024-10-22T11:35:00Z",
+          "action": "Invoice marked as paid",
+          "user": "Lisa Thompson"
+        }
+      ]
+    },
+    {
+      "id": "INV-2024-003",
+      "orderId": "AMZ-ORD-112-1234569-1234569",
+      "date": "2024-10-22",
+      "dueDate": "2024-11-21",
+      "status": "issued",
+      
+      "customerDetails": {
+        "id": "C4",
+        "name": "John Smith",
+        "company": "Smith Publishing",
+        "email": "john.smith99@gmail.com",
+        "phone": "+1-555-0123",
+        "billingAddress": {
+          "addressLine1": "567 Main Street",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60601",
+          "country": "United States"
+        },
+        "shippingAddress": {
+          "addressLine1": "567 Main Street",
+          "city": "Chicago",
+          "state": "IL",
+          "postalCode": "60601",
+          "country": "United States"
+        }
+      },
+      
+      "lines": [
+        {
+          "id": "IL5",
+          "description": "Business Cards - Premium Cardstock",
+          "quantity": 500,
+          "unitPrice": 0.15,
+          "total": 75.00,
+          "tax": 6.00
+        },
+        {
+          "id": "IL6",
+          "description": "UV Coating - Both Sides",
+          "quantity": 500,
+          "unitPrice": 0.08,
+          "total": 40.00,
+          "tax": 3.20
+        }
+      ],
+      
+      "totals": {
+        "subtotal": 115.00,
+        "tax": 9.20,
+        "taxPercent": 8,
+        "discount": 0.00,
+        "total": 124.20,
+        "currency": "USD"
+      },
+      
+      "paymentInfo": {
+        "paymentStatus": "pending",
+        "paymentMethod": null,
+        "paymentDate": null,
+        "transactionId": null,
+        "paymentReference": null,
+        "amountPaid": 0.00,
+        "balanceDue": 124.20
+      },
+      
+      "terms": {
+        "paymentTerms": "Net 30",
+        "dueDate": "2024-11-21",
+        "lateFeePercent": 1.5,
+        "notes": "Awaiting payment"
+      },
+      
+      "activityLog": [
+        {
+          "date": "2024-10-22T10:00:00Z",
+          "action": "Invoice created",
+          "user": "Lisa Thompson"
+        },
+        {
+          "date": "2024-10-22T11:00:00Z",
+          "action": "Invoice sent to customer",
+          "user": "Lisa Thompson"
+        }
+      ]
+    }
+  ]
+}
+

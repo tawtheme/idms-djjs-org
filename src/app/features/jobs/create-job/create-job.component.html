@@ -1,0 +1,227 @@
+<div class="create-job-container">
+    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+    <form (ngSubmit)="save()" #f="ngForm" class="form-sections">
+        <!-- Section: Basic Information -->
+        <section class="card">
+            <div class="section-layout">
+                <aside class="section-aside">
+                    <div class="section-title">Basic Information</div>
+                    <div class="section-help">Provide core job identification details.</div>
+                </aside>
+                <div class="section-body">
+                    <div class="form-grid cols-3">
+                        <label>
+                            <span>Job ID</span>
+                            <input name="job_id" [(ngModel)]="job.basic_info.job_id" required class="form-control" placeholder="Enter job ID" />
+                        </label>
+                        <label>
+                            <span>Job Type</span>
+                            <app-dropdown
+                                [options]="jobTypeOptions"
+                                [selectedValues]="getSelectedValues(job.basic_info.job_type)"
+                                (selectionChange)="onDropdownChange(['basic_info', 'job_type'], $event)"
+                                placeholder="Select job type">
+                            </app-dropdown>
+                        </label>
+                        <label>
+                            <span>Priority</span>
+                            <app-dropdown
+                                [options]="priorityOptions"
+                                [selectedValues]="getSelectedValues(job.basic_info.priority)"
+                                (selectionChange)="onDropdownChange(['basic_info', 'priority'], $event)"
+                                placeholder="Select priority">
+                            </app-dropdown>
+                        </label>
+                    </div>
+                    <label class="full-width">
+                        <span>Job Title</span>
+                        <input name="job_title" [(ngModel)]="job.basic_info.job_title" required class="form-control" placeholder="Enter job title" />
+                    </label>
+                    <label class="full-width">
+                        <span>Job Description</span>
+                        <textarea name="job_description" [(ngModel)]="job.basic_info.job_description" rows="3" class="form-control" placeholder="Enter job description"></textarea>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Order Details -->
+        <section class="card">
+            <div class="section-layout">
+                <aside class="section-aside">
+                    <div class="section-title">Order Details</div>
+                    <div class="section-help">Select an Amazon order to convert to a job, along with order source and assignment information.</div>
+                </aside>
+                <div class="section-body">
+                    <div class="form-grid cols-3">
+                        <label>
+                            <span>Order Date</span>
+                            <app-datepicker 
+                                [value]="getDateValue(job.order_details.order_date)"
+                                (dateChange)="onOrderDateChange($event)"
+                                format="yyyy-MM-dd"
+                                placeholder="YYYY-MM-DD">
+                            </app-datepicker>
+                        </label>
+                    </div>
+                    <div class="form-grid cols-3">
+                        <label>
+                            <span>Order Source</span>
+                            <app-dropdown
+                                [options]="orderSourceOptions"
+                                [selectedValues]="getSelectedValues(job.order_details.order_source)"
+                                (selectionChange)="onDropdownChange(['order_details', 'order_source'], $event)"
+                                placeholder="Select order source">
+                            </app-dropdown>
+                        </label>
+                        <label>
+                            <span>Order Number</span>
+                            <app-dropdown
+                                [options]="orderNumberOptions"
+                                [selectedValues]="getSelectedValues(job.order_details.order_number)"
+                                (selectionChange)="onOrderNumberChange($event)"
+                                placeholder="Select order number"
+                                [loading]="loadingOrders"
+                                [searchable]="true">
+                            </app-dropdown>
+                        </label>
+                        <label>
+                            <span>Due Date</span>
+                            <app-datepicker 
+                                [value]="getDateValue(job.order_details.due_date)"
+                                (dateChange)="onDueDateChange($event)"
+                                format="yyyy-MM-dd"
+                                placeholder="YYYY-MM-DD">
+                            </app-datepicker>
+                        </label>
+                    </div>
+                    <div class="form-grid" *ngIf="selectedOrderItems && selectedOrderItems.length > 0">
+                        <div class="item-editor" *ngFor="let item of selectedOrderItems; let i = index">
+                            <div class="item-editor-header">
+                                <div class="item-title">
+                                    <span class="item-sku">SKU: {{ item.sku || item.asin }}</span>
+                                    {{ item.title || 'Item ' + (i + 1) }}
+                                </div>
+                                <div class="item-quantity">Qty: {{ item.quantity_ordered | number }}</div>
+                            </div>
+                            <div class="item-editor-body">
+                                <div class="form-grid cols-3">
+                                    <label>
+                                        <span>Size</span>
+                                        <app-dropdown
+                                            [options]="sizeOptions"
+                                            [selectedValues]="getItemSelectedValues(item.size)"
+                                            (selectionChange)="onItemDropdownChange(i, 'size', $event)"
+                                            placeholder="Select size">
+                                        </app-dropdown>
+                                    </label>
+                                    <label>
+                                        <span>Paper Type</span>
+                                        <app-dropdown
+                                            [options]="paperTypeOptions"
+                                            [selectedValues]="getItemSelectedValues(item.paper_type)"
+                                            (selectionChange)="onItemDropdownChange(i, 'paper_type', $event)"
+                                            placeholder="Select paper type">
+                                        </app-dropdown>
+                                    </label>
+                                    <label>
+                                        <span>Color Mode</span>
+                                        <app-dropdown
+                                            [options]="colorModeOptions"
+                                            [selectedValues]="getItemSelectedValues(item.color_mode)"
+                                            (selectionChange)="onItemDropdownChange(i, 'color_mode', $event)"
+                                            placeholder="Select color mode">
+                                        </app-dropdown>
+                                    </label>
+                                    <label>
+                                        <span>Print Side</span>
+                                        <app-dropdown
+                                            [options]="printSideOptions"
+                                            [selectedValues]="getItemSelectedValues(item.print_side)"
+                                            (selectionChange)="onItemDropdownChange(i, 'print_side', $event)"
+                                            placeholder="Select print side">
+                                        </app-dropdown>
+                                    </label>
+                                    <label>
+                                        <span>Binding Type</span>
+                                        <app-dropdown
+                                            [options]="bindingTypeOptions"
+                                            [selectedValues]="getItemSelectedValues(item.binding)"
+                                            (selectionChange)="onItemDropdownChange(i, 'binding', $event)"
+                                            placeholder="Select binding">
+                                        </app-dropdown>
+                                    </label>
+                                    <label>
+                                        <span>Folding Type</span>
+                                        <app-dropdown
+                                            [options]="foldingTypeOptions"
+                                            [selectedValues]="getItemSelectedValues(item.folding_type)"
+                                            (selectionChange)="onItemDropdownChange(i, 'folding_type', $event)"
+                                            placeholder="Select folding type">
+                                        </app-dropdown>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Artwork -->
+        <section class="card">
+            <div class="section-layout">
+                <aside class="section-aside">
+                    <div class="section-title">Artwork</div>
+                    <div class="section-help">Artwork files, proof, and design information.</div>
+                </aside>
+                <div class="section-body">
+                    <div class="form-grid">
+                        <label>
+                            <span>Notes</span>
+                            <textarea name="design_notes" [(ngModel)]="job.artwork.design_notes" rows="3" class="form-control" placeholder="Enter design notes"></textarea>
+                        </label>
+                        <label>
+                            <span>Artwork Files (URLs)</span>
+                            <input name="artwork_files" [(ngModel)]="job.artwork.artwork_files" required class="form-control" placeholder="Enter artwork file URLs (comma or newline separated)" />
+                        </label>
+                        <label>
+                            <span>Upload Files</span>
+                            <app-file-upload
+                                [config]="fileUploadConfig"
+                                (filesSelected)="onFilesSelected($event)"
+                                (removed)="onFileRemoved($event)"
+                                (fileRejected)="onFileRejected($event)">
+                            </app-file-upload>
+                        </label>
+                    </div>
+                    <div class="form-grid cols-3">
+                        <label>
+                            <span>Operator</span>
+                            <app-dropdown
+                                [options]="assignedToOptions"
+                                [selectedValues]="getSelectedValues(job.production.operator)"
+                                (selectionChange)="onDropdownChange(['production', 'operator'], $event)"
+                                placeholder="Select operator">
+                            </app-dropdown>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: actions -->
+        <section class="card">
+            <div class="section-layout">
+                <aside class="section-aside"></aside>
+                <div class="section-body">
+                    <div class="form-grid cols-4">
+                        <button type="submit" class="btn btn--primary btn--md" [disabled]="submitting || f.invalid">Save Job</button>
+                        <button type="button" class="btn btn--secondary btn--md" (click)="cancel()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+</div>

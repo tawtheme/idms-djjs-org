@@ -1,0 +1,708 @@
+{
+  "purchaseOrders": [
+    {
+      "id": "PO-2024-001",
+      "supplierId": "S1",
+      "date": "2024-10-15",
+      "lines": [
+        {
+          "id": "POL1",
+          "itemId": "PAPER-80LB-COATED",
+          "description": "Premium Coated Paper - 80lb, 500 sheets/ream",
+          "quantity": 200,
+          "unitPrice": 12.50
+        },
+        {
+          "id": "POL2",
+          "itemId": "PAPER-100LB-CARDSTOCK",
+          "description": "Heavy Cardstock - 100lb, 250 sheets/ream",
+          "quantity": 150,
+          "unitPrice": 18.75
+        }
+      ],
+      "total": 5312.50,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-021",
+      "supplierId": "S1",
+      "date": "2024-09-10",
+      "lines": [
+        {
+          "id": "POL43",
+          "itemId": "PAPER-80LB-COATED",
+          "description": "Premium Coated Paper - 80lb, 500 sheets/ream",
+          "quantity": 300,
+          "unitPrice": 12.50
+        },
+        {
+          "id": "POL44",
+          "itemId": "PAPER-24LB-BOND",
+          "description": "Bond Paper - 24lb, White, 500 sheets/ream",
+          "quantity": 400,
+          "unitPrice": 8.50
+        }
+      ],
+      "total": 6550.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-022",
+      "supplierId": "S1",
+      "date": "2024-08-20",
+      "lines": [
+        {
+          "id": "POL45",
+          "itemId": "PAPER-100LB-CARDSTOCK",
+          "description": "Heavy Cardstock - 100lb, 250 sheets/ream",
+          "quantity": 200,
+          "unitPrice": 18.75
+        },
+        {
+          "id": "POL46",
+          "itemId": "PAPER-60LB-TEXT",
+          "description": "Text Paper - 60lb, Cream, 500 sheets/ream",
+          "quantity": 350,
+          "unitPrice": 11.25
+        }
+      ],
+      "total": 7687.50,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-023",
+      "supplierId": "S1",
+      "date": "2024-07-15",
+      "lines": [
+        {
+          "id": "POL47",
+          "itemId": "PAPER-80LB-COATED",
+          "description": "Premium Coated Paper - 80lb, 500 sheets/ream",
+          "quantity": 250,
+          "unitPrice": 12.50
+        },
+        {
+          "id": "POL48",
+          "itemId": "PAPER-70LB-COVER",
+          "description": "Cover Paper - 70lb, White, 250 sheets/ream",
+          "quantity": 180,
+          "unitPrice": 15.50
+        }
+      ],
+      "total": 6095.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-024",
+      "supplierId": "S1",
+      "date": "2024-11-05",
+      "lines": [
+        {
+          "id": "POL49",
+          "itemId": "PAPER-24LB-BOND",
+          "description": "Bond Paper - 24lb, White, 500 sheets/ream",
+          "quantity": 600,
+          "unitPrice": 8.50
+        },
+        {
+          "id": "POL50",
+          "itemId": "PAPER-28LB-BOND",
+          "description": "Bond Paper - 28lb, White, 500 sheets/ream",
+          "quantity": 400,
+          "unitPrice": 10.25
+        }
+      ],
+      "total": 8900.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-025",
+      "supplierId": "S1",
+      "date": "2024-06-22",
+      "lines": [
+        {
+          "id": "POL51",
+          "itemId": "PAPER-100LB-CARDSTOCK",
+          "description": "Heavy Cardstock - 100lb, 250 sheets/ream",
+          "quantity": 175,
+          "unitPrice": 18.75
+        },
+        {
+          "id": "POL52",
+          "itemId": "PAPER-80LB-COATED",
+          "description": "Premium Coated Paper - 80lb, 500 sheets/ream",
+          "quantity": 220,
+          "unitPrice": 12.50
+        }
+      ],
+      "total": 5562.50,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-026",
+      "supplierId": "S1",
+      "date": "2024-11-20",
+      "lines": [
+        {
+          "id": "POL53",
+          "itemId": "PAPER-ECOFRIENDLY-RECYCLED",
+          "description": "Recycled Paper - 20lb, 500 sheets/ream",
+          "quantity": 500,
+          "unitPrice": 9.75
+        },
+        {
+          "id": "POL54",
+          "itemId": "PAPER-ECOFRIENDLY-FSC",
+          "description": "FSC Certified Paper - 24lb, 500 sheets/ream",
+          "quantity": 350,
+          "unitPrice": 11.50
+        }
+      ],
+      "total": 8300.00,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-027",
+      "supplierId": "S1",
+      "date": "2024-05-18",
+      "lines": [
+        {
+          "id": "POL55",
+          "itemId": "PAPER-60LB-TEXT",
+          "description": "Text Paper - 60lb, Cream, 500 sheets/ream",
+          "quantity": 450,
+          "unitPrice": 11.25
+        },
+        {
+          "id": "POL56",
+          "itemId": "PAPER-100LB-CARDSTOCK",
+          "description": "Heavy Cardstock - 100lb, 250 sheets/ream",
+          "quantity": 160,
+          "unitPrice": 18.75
+        }
+      ],
+      "total": 7762.50,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-028",
+      "supplierId": "S1",
+      "date": "2024-12-01",
+      "lines": [
+        {
+          "id": "POL57",
+          "itemId": "PAPER-80LB-COATED",
+          "description": "Premium Coated Paper - 80lb, 500 sheets/ream",
+          "quantity": 280,
+          "unitPrice": 12.50
+        },
+        {
+          "id": "POL58",
+          "itemId": "PAPER-70LB-COVER",
+          "description": "Cover Paper - 70lb, White, 250 sheets/ream",
+          "quantity": 200,
+          "unitPrice": 15.50
+        }
+      ],
+      "total": 6900.00,
+      "status": "draft"
+    },
+    {
+      "id": "PO-2024-029",
+      "supplierId": "S1",
+      "date": "2024-04-12",
+      "lines": [
+        {
+          "id": "POL59",
+          "itemId": "PAPER-24LB-BOND",
+          "description": "Bond Paper - 24lb, White, 500 sheets/ream",
+          "quantity": 550,
+          "unitPrice": 8.50
+        },
+        {
+          "id": "POL60",
+          "itemId": "PAPER-28LB-BOND",
+          "description": "Bond Paper - 28lb, White, 500 sheets/ream",
+          "quantity": 380,
+          "unitPrice": 10.25
+        }
+      ],
+      "total": 8495.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-030",
+      "supplierId": "S1",
+      "date": "2024-03-25",
+      "lines": [
+        {
+          "id": "POL61",
+          "itemId": "PAPER-100LB-CARDSTOCK",
+          "description": "Heavy Cardstock - 100lb, 250 sheets/ream",
+          "quantity": 190,
+          "unitPrice": 18.75
+        },
+        {
+          "id": "POL62",
+          "itemId": "PAPER-60LB-TEXT",
+          "description": "Text Paper - 60lb, Cream, 500 sheets/ream",
+          "quantity": 320,
+          "unitPrice": 11.25
+        }
+      ],
+      "total": 7012.50,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-002",
+      "supplierId": "S2",
+      "date": "2024-10-18",
+      "lines": [
+        {
+          "id": "POL3",
+          "itemId": "INK-CYAN-CARTRIDGE",
+          "description": "Cyan Ink Cartridge - High Volume",
+          "quantity": 50,
+          "unitPrice": 85.00
+    },
+    {
+          "id": "POL4",
+          "itemId": "INK-MAGENTA-CARTRIDGE",
+          "description": "Magenta Ink Cartridge - High Volume",
+          "quantity": 50,
+          "unitPrice": 85.00
+        },
+        {
+          "id": "POL5",
+          "itemId": "INK-YELLOW-CARTRIDGE",
+          "description": "Yellow Ink Cartridge - High Volume",
+          "quantity": 50,
+          "unitPrice": 85.00
+    },
+    {
+          "id": "POL6",
+          "itemId": "INK-BLACK-CARTRIDGE",
+          "description": "Black Ink Cartridge - High Volume",
+          "quantity": 75,
+          "unitPrice": 95.00
+        }
+      ],
+      "total": 20125.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-003",
+      "supplierId": "S3",
+      "date": "2024-10-22",
+      "lines": [
+        {
+          "id": "POL7",
+          "itemId": "EQUIP-BINDING-MACHINE-PARTS",
+          "description": "Perfect Binding Machine Replacement Parts Kit",
+          "quantity": 2,
+          "unitPrice": 1250.00
+    },
+    {
+          "id": "POL8",
+          "itemId": "EQUIP-CUTTER-BLADES",
+          "description": "Paper Cutter Blades - Premium Grade",
+          "quantity": 10,
+          "unitPrice": 185.00
+        }
+      ],
+      "total": 4350.00,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-004",
+      "supplierId": "S4",
+      "date": "2024-10-25",
+      "lines": [
+        {
+          "id": "POL9",
+          "itemId": "BINDING-SPIRAL-WIRE",
+          "description": "Spiral Binding Wire - 11mm, Black",
+          "quantity": 500,
+          "unitPrice": 2.25
+        },
+        {
+          "id": "POL10",
+          "itemId": "BINDING-SPIRAL-WIRE-COLOR",
+          "description": "Spiral Binding Wire - 11mm, Assorted Colors",
+          "quantity": 300,
+          "unitPrice": 2.75
+        }
+      ],
+      "total": 2025.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-005",
+      "supplierId": "S5",
+      "date": "2024-10-28",
+      "lines": [
+        {
+          "id": "POL11",
+          "itemId": "DIGITAL-TONER-BLACK",
+          "description": "Digital Printer Toner - Black, High Yield",
+          "quantity": 100,
+          "unitPrice": 125.00
+        },
+        {
+          "id": "POL12",
+          "itemId": "DIGITAL-TONER-COLOR",
+          "description": "Digital Printer Toner - Color Set (CMYK)",
+          "quantity": 25,
+          "unitPrice": 450.00
+        }
+      ],
+      "total": 23750.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-006",
+      "supplierId": "S6",
+      "date": "2024-11-02",
+      "lines": [
+        {
+          "id": "POL13",
+          "itemId": "PAPER-24LB-BOND",
+          "description": "Bond Paper - 24lb, White, 500 sheets/ream",
+          "quantity": 500,
+          "unitPrice": 8.50
+    },
+    {
+          "id": "POL14",
+          "itemId": "PAPER-28LB-BOND",
+          "description": "Bond Paper - 28lb, White, 500 sheets/ream",
+          "quantity": 300,
+          "unitPrice": 10.25
+        }
+      ],
+      "total": 7075.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-007",
+      "supplierId": "S7",
+      "date": "2024-11-05",
+      "lines": [
+        {
+          "id": "POL15",
+          "itemId": "LAMINATION-FILM-3MIL",
+          "description": "Lamination Film - 3mil, Glossy, 12\" x 500ft",
+          "quantity": 20,
+          "unitPrice": 95.00
+        },
+        {
+          "id": "POL16",
+          "itemId": "LAMINATION-FILM-5MIL",
+          "description": "Lamination Film - 5mil, Matte, 12\" x 500ft",
+          "quantity": 15,
+          "unitPrice": 125.00
+        }
+      ],
+      "total": 3775.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-008",
+      "supplierId": "S8",
+      "date": "2024-11-08",
+      "lines": [
+        {
+          "id": "POL17",
+          "itemId": "FOIL-STAMPING-GOLD",
+          "description": "Foil Stamping Material - Gold, 12\" x 1000ft",
+          "quantity": 10,
+          "unitPrice": 185.00
+    },
+    {
+          "id": "POL18",
+          "itemId": "FOIL-STAMPING-SILVER",
+          "description": "Foil Stamping Material - Silver, 12\" x 1000ft",
+          "quantity": 8,
+          "unitPrice": 185.00
+        }
+      ],
+      "total": 3330.00,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-009",
+      "supplierId": "S9",
+      "date": "2024-11-12",
+      "lines": [
+        {
+          "id": "POL19",
+          "itemId": "EQUIP-FOLDING-MACHINE-BELTS",
+          "description": "Folding Machine Belts - Replacement Set",
+          "quantity": 5,
+          "unitPrice": 325.00
+        },
+        {
+          "id": "POL20",
+          "itemId": "EQUIP-ROLLERS",
+          "description": "Printing Press Rollers - Standard Size",
+          "quantity": 8,
+          "unitPrice": 450.00
+        }
+      ],
+      "total": 5225.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-010",
+      "supplierId": "S10",
+      "date": "2024-11-15",
+      "lines": [
+        {
+          "id": "POL21",
+          "itemId": "INK-UV-CURING",
+          "description": "UV Curing Ink - Cyan, 1 gallon",
+          "quantity": 12,
+          "unitPrice": 275.00
+    },
+    {
+          "id": "POL22",
+          "itemId": "INK-UV-CURING-SET",
+          "description": "UV Curing Ink - Full CMYK Set, 1 gallon each",
+          "quantity": 3,
+          "unitPrice": 1100.00
+        }
+      ],
+      "total": 6600.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-011",
+      "supplierId": "S11",
+      "date": "2024-11-18",
+      "lines": [
+        {
+          "id": "POL23",
+          "itemId": "LOGISTICS-SHIPPING-SUPPLIES",
+          "description": "Shipping Boxes - 12x9x6 inches, 25 pack",
+          "quantity": 40,
+          "unitPrice": 45.00
+        },
+        {
+          "id": "POL24",
+          "itemId": "LOGISTICS-BUBBLE-WRAP",
+          "description": "Bubble Wrap - 12\" x 200ft roll",
+          "quantity": 30,
+          "unitPrice": 28.00
+        }
+      ],
+      "total": 2640.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-012",
+      "supplierId": "S12",
+      "date": "2024-11-20",
+      "lines": [
+        {
+          "id": "POL25",
+          "itemId": "BINDING-PERFECT-GLUE",
+          "description": "Perfect Binding Glue - Hot Melt, 5 gallon",
+          "quantity": 8,
+          "unitPrice": 185.00
+        },
+        {
+          "id": "POL26",
+          "itemId": "BINDING-SADDLE-STAPLES",
+          "description": "Saddle Stitch Staples - Heavy Duty, 10,000 count",
+          "quantity": 25,
+          "unitPrice": 12.50
+        }
+      ],
+      "total": 1712.50,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-013",
+      "supplierId": "S13",
+      "date": "2024-11-22",
+      "lines": [
+        {
+          "id": "POL27",
+          "itemId": "COATING-UV-VARNISH",
+          "description": "UV Varnish Coating - Glossy, 5 gallon",
+          "quantity": 6,
+          "unitPrice": 325.00
+        },
+        {
+          "id": "POL28",
+          "itemId": "COATING-AQUEOUS",
+          "description": "Aqueous Coating - Matte, 5 gallon",
+          "quantity": 4,
+          "unitPrice": 285.00
+        }
+      ],
+      "total": 3030.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-014",
+      "supplierId": "S14",
+      "date": "2024-11-25",
+      "lines": [
+        {
+          "id": "POL29",
+          "itemId": "INK-OFFSET-BLACK",
+          "description": "Offset Printing Ink - Black, 5 gallon",
+          "quantity": 15,
+          "unitPrice": 195.00
+        },
+        {
+          "id": "POL30",
+          "itemId": "INK-OFFSET-COLOR",
+          "description": "Offset Printing Ink - Process Color Set (CMYK), 1 gallon each",
+          "quantity": 5,
+          "unitPrice": 750.00
+        }
+      ],
+      "total": 6675.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-015",
+      "supplierId": "S15",
+      "date": "2024-11-28",
+      "lines": [
+        {
+          "id": "POL31",
+          "itemId": "BINDING-STAPLES-HEAVY",
+          "description": "Heavy Duty Staples - 1/2 inch, 5,000 count",
+          "quantity": 50,
+          "unitPrice": 8.75
+        },
+        {
+          "id": "POL32",
+          "itemId": "BINDING-STAPLES-STANDARD",
+          "description": "Standard Staples - 1/4 inch, 5,000 count",
+          "quantity": 75,
+          "unitPrice": 6.50
+        }
+      ],
+      "total": 925.00,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-016",
+      "supplierId": "S16",
+      "date": "2024-12-02",
+      "lines": [
+        {
+          "id": "POL33",
+          "itemId": "PAPER-60LB-TEXT",
+          "description": "Text Paper - 60lb, Cream, 500 sheets/ream",
+          "quantity": 400,
+          "unitPrice": 11.25
+    },
+    {
+          "id": "POL34",
+          "itemId": "PAPER-70LB-COVER",
+          "description": "Cover Paper - 70lb, White, 250 sheets/ream",
+          "quantity": 250,
+          "unitPrice": 15.50
+        }
+      ],
+      "total": 7625.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-017",
+      "supplierId": "S17",
+      "date": "2024-12-05",
+      "lines": [
+        {
+          "id": "POL35",
+          "itemId": "EQUIP-MAINTENANCE-KIT",
+          "description": "Printing Press Maintenance Kit - Complete",
+          "quantity": 3,
+          "unitPrice": 850.00
+    },
+    {
+          "id": "POL36",
+          "itemId": "EQUIP-CLEANING-SOLUTION",
+          "description": "Press Cleaning Solution - Industrial Grade, 1 gallon",
+          "quantity": 20,
+          "unitPrice": 45.00
+        }
+      ],
+      "total": 3750.00,
+      "status": "sent"
+    },
+    {
+      "id": "PO-2024-018",
+      "supplierId": "S18",
+      "date": "2024-12-08",
+      "lines": [
+        {
+          "id": "POL37",
+          "itemId": "COATING-EMBOSSING-POWDER",
+          "description": "Embossing Powder - Clear, 5lb container",
+          "quantity": 12,
+          "unitPrice": 125.00
+    },
+    {
+          "id": "POL38",
+          "itemId": "COATING-FOIL-ASSORTED",
+          "description": "Foil Sheets - Assorted Colors, 12\" x 12\", 100 sheets",
+          "quantity": 15,
+          "unitPrice": 95.00
+        }
+      ],
+      "total": 2925.00,
+      "status": "pending"
+    },
+    {
+      "id": "PO-2024-019",
+      "supplierId": "S19",
+      "date": "2024-12-10",
+      "lines": [
+        {
+          "id": "POL39",
+          "itemId": "PAPER-ECOFRIENDLY-RECYCLED",
+          "description": "Recycled Paper - 20lb, 500 sheets/ream",
+          "quantity": 600,
+          "unitPrice": 9.75
+    },
+    {
+          "id": "POL40",
+          "itemId": "PAPER-ECOFRIENDLY-FSC",
+          "description": "FSC Certified Paper - 24lb, 500 sheets/ream",
+          "quantity": 400,
+          "unitPrice": 11.50
+        }
+      ],
+      "total": 9850.00,
+      "status": "received"
+    },
+    {
+      "id": "PO-2024-020",
+      "supplierId": "S20",
+      "date": "2024-12-12",
+      "lines": [
+        {
+          "id": "POL41",
+          "itemId": "EQUIP-PRECISION-CUTTER",
+          "description": "Precision Paper Cutter - Replacement Blade Set",
+          "quantity": 6,
+          "unitPrice": 275.00
+    },
+    {
+          "id": "POL42",
+          "itemId": "EQUIP-DIE-CUTTING-DIES",
+          "description": "Custom Die Cutting Dies - Standard Size",
+          "quantity": 4,
+          "unitPrice": 450.00
+        }
+      ],
+      "total": 3450.00,
+      "status": "sent"
+    }
+  ]
+}

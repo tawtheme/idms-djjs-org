@@ -1,0 +1,92 @@
+// Card Component Styles
+.card {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+// Card Sizes
+.card-small {
+    max-width: 300px;
+}
+
+.card-medium {
+    max-width: 500px;
+}
+
+.card-large {
+    max-width: 800px;
+}
+
+// Card Variants
+.card-default {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-elevated {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-outlined {
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
+}
+
+// Card States
+.card-clickable {
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+}
+
+// Card Sections
+.card-header {
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.card-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.card-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.card-footer {
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 1rem;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+
+    .card-small,
+    .card-medium,
+    .card-large {
+        max-width: 100%;
+    }
+
+    .card-header,
+    .card-body,
+    .card-footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

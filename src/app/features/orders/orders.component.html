@@ -1,0 +1,137 @@
+<div class="orders-container">
+    <div class="orders-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary btn--sm" (click)="onCreateOrderClick()">New Order</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+            type="search"
+            class="form-control"
+            placeholder="Order number (e.g., AMZ-ORD-100245)"
+            [(ngModel)]="orderNumber"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="sourceOptions"
+                [selectedValues]="selectedSource"
+                placeholder="Order Source"
+                (selectionChange)="selectedSource = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>  
+            <app-datepicker
+                [value]="fromDate"
+                (dateChange)="fromDate = $event; onSearchChange()"
+                format="yyyy-MM-dd"
+                placeholder="Select Date">
+            </app-datepicker>
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="selectedStatus"
+                placeholder="Status"
+                (selectionChange)="selectedStatus = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Order Source</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let o of pagedOrders; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td data-label="Order ID">
+                        {{ o.id }}
+                    </td>
+                    <td data-label="Customer" class="customer-id">
+                        {{ o.customerId }}
+                    </td>
+                    <td data-label="Order Source">
+                        {{ o.source }}
+                    </td>
+                    <td data-label="Order Date" class="date">
+                        {{ o.orderDate | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td data-label="Status" class="status">
+                        <span class="status-badge" [ngClass]="getStatusClass(o.status)">{{ o.status }}</span>
+                    </td>
+                    <td data-label="Actions" class="text-right" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(o)"
+                            (selectionChange)="onAction(o, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="orders.length === 0"
+        title="No Orders Found"
+        description="There are no orders to display at the moment."
+        icon="inventory_2"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- Add Order Modal -->
+    <app-modal
+        [isOpen]="addOrderModalOpen"
+        title="Add Order"
+        size="extraLarge"
+        [closable]="true"
+        [showHeader]="true"
+        (close)="closeAddOrderModal()">
+        <app-add-order
+            [isInModal]="true"
+            (saved)="onOrderSaved()"
+            (cancelled)="onOrderCancelled()">
+        </app-add-order>
+    </app-modal>
+
+    <!-- Order details modal -->
+    <app-modal
+        *ngIf="detailModalOpen"
+        [isOpen]="detailModalOpen"
+        title="Order details"
+        size="large"
+        [showFooter]="true"
+        (close)="closeDetailModal()">
+        <app-order-detail [orderId]="selectedOrderId"></app-order-detail>
+        <div slot="footer">
+            <div class="modal-footer footer-right">
+                <button class="btn btn--secondary btn--sm">More</button>
+                <button class="btn btn--primary btn--sm">Convert to Job Order</button>
+            </div>
+        </div>
+    </app-modal>
+</div>

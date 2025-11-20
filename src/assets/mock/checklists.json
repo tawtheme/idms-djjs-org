@@ -1,0 +1,41 @@
+{
+  "checklists": [
+    {
+      "id": "1",
+      "label": "Pre-Press Checklist",
+      "value": "pre_press_checklist",
+      "description": "Design and layout verification checklist"
+    },
+    {
+      "id": "2",
+      "label": "Press Checklist",
+      "value": "press_checklist",
+      "description": "Printing quality and setup checklist"
+    },
+    {
+      "id": "3",
+      "label": "Post-Press Checklist",
+      "value": "post_press_checklist",
+      "description": "Finishing and binding checklist"
+    },
+    {
+      "id": "4",
+      "label": "QA Checklist",
+      "value": "qa_checklist",
+      "description": "Quality assurance verification checklist"
+    },
+    {
+      "id": "5",
+      "label": "Packaging Checklist",
+      "value": "packaging_checklist",
+      "description": "Final packaging and shipping checklist"
+    },
+    {
+      "id": "6",
+      "label": "General Production Checklist",
+      "value": "general_checklist",
+      "description": "General production workflow checklist"
+    }
+  ]
+}
+
