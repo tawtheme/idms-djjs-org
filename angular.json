@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "idms-djjs.org": {
+    "idms-djjs-org": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -21,7 +21,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/idms-djjs.org",
+            "outputPath": "dist/idms-djjs-org",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -73,10 +73,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "idms-djjs.org:build:production"
+              "buildTarget": "idms-djjs-org:build:production"
             },
             "development": {
-              "buildTarget": "idms-djjs.org:build:development"
+              "buildTarget": "idms-djjs-org:build:development"
             }
           },
           "defaultConfiguration": "development"

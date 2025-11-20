@@ -1,4 +1,4 @@
-# idms-djjs.org
+# idms-djjs-org
 
 A mock Angular application for a printing company ERP/CRM: manage books, print jobs, orders, inventory, CRM, purchasing, invoicing, shipments, production schedule, reports, settings, and Amazon integration. Uses standalone components and mock JSON assets.
 

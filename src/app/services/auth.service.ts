@@ -7,7 +7,7 @@ export interface AuthUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly storageKey = 'idms-djjs.org.auth';
+  private readonly storageKey = 'idms-djjs-org.auth';
   private isHydrated = false;
 
   readonly isAuthenticated = signal<boolean>(false);

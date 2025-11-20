@@ -1,6 +1,6 @@
 # Project Structure
 
-Complete folder structure and flow of the idms-djjs.org application.
+Complete folder structure and flow of the idms-djjs-org application.
 
 ```
 amazon-print/
@@ -266,7 +266,7 @@ Renders template
 After `npm run build:prod`:
 
 ```
-dist/idms-djjs.org/
+dist/idms-djjs-org/
 ├── index.html
 ├── main.[hash].js
 ├── polyfills.[hash].js

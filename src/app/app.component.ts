@@ -16,7 +16,7 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
-  title = signal('idms-djjs.org');
+  title = signal('idms-djjs-org');
   isCollapsed = signal(false);
   contentWrapperHeight = signal('calc(100vh - 64px)');
   isMobile = signal(false);
@@ -142,8 +142,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     // Get the base path (remove query params and fragments)
     const basePath = url.split('?')[0].split('#')[0];
     
-    // Set title based on route, fallback to 'idms-djjs.org'
-    const pageTitle = routeMap[basePath] || 'idms-djjs.org';
+    // Set title based on route, fallback to 'idms-djjs-org'
+    const pageTitle = routeMap[basePath] || 'idms-djjs-org';
     this.title.set(pageTitle);
   }
 
