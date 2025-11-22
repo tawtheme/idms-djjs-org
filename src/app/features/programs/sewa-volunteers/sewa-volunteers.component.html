@@ -1,0 +1,149 @@
+<div class="sewa-volunteers-container">
+    <div class="sewa-volunteers-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <div class="sewa-volunteers-content">
+        <!-- Left Section: UnAllocated Volunteers -->
+        <div class="section unallocated-section">
+            <div class="section-header">
+                <h2 class="section-title">UnAllocated</h2>
+            </div>
+
+            <div class="section-controls">
+                <div class="search-control">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="unallocatedSearchTerm"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="applyUnallocatedFilter()"
+                        placeholder="Search...">
+                </div>
+                <button class="btn btn--primary btn--sm" type="button" (click)="allocateVolunteers()">
+                    Allocate
+                </button>
+            </div>
+
+            <!-- Card Listing View -->
+            <div class="cards-container">
+                <div class="cards-grid">
+                    <div *ngFor="let volunteer of pagedUnallocated; trackBy: trackById" 
+                         class="volunteer-card"
+                         [class.selected]="selectedUnallocated.has(volunteer.id)"
+                         (click)="toggleSelectUnallocated(volunteer.id, $event)">
+                        <div class="card-checkbox">
+                            <input
+                                type="checkbox"
+                                [checked]="selectedUnallocated.has(volunteer.id)"
+                                (change)="toggleSelectUnallocated(volunteer.id, $event)"
+                                (click)="$event.stopPropagation()">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-image">
+                                <div class="volunteer-image">
+                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
+                                         [alt]="volunteer.name"
+                                         onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-id">ID: {{ volunteer.id }}</div>
+                                <div class="card-name">{{ volunteer.name }}</div>
+                                <div class="card-phone" *ngIf="volunteer.phone">
+                                    <span class="material-icons">phone</span>
+                                    {{ volunteer.phone }}
+                                </div>
+                                <div class="card-phone" *ngIf="!volunteer.phone">
+                                    <span class="material-icons">phone</span>
+                                    -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="no-data" *ngIf="pagedUnallocated.length === 0">
+                    No data available
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Allocated Volunteers -->
+        <div class="section allocated-section">
+            <div class="section-header">
+                <h2 class="section-title">Allocated</h2>
+            </div>
+
+            <div class="section-controls">
+                <div class="search-control">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="allocatedSearchTerm"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="applyAllocatedFilter()"
+                        placeholder="Search...">
+                </div>
+                <button class="btn btn--secondary btn--sm" type="button" (click)="unassignVolunteers()">
+                    Unassign
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-column">
+                                <input
+                                    type="checkbox"
+                                    [checked]="isAllAllocatedSelected()"
+                                    [indeterminate]="isAllocatedIndeterminate()"
+                                    (change)="toggleSelectAllAllocated($event)"
+                                    (click)="$event.stopPropagation()">
+                            </th>
+                            <th>Head</th>
+                            <th>Sub Head</th>
+                            <th>Is Regular</th>
+                            <th>Id</th>
+                            <th>Badge No</th>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Sewa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let volunteer of pagedAllocated; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedAllocated.has(volunteer.id)"
+                                    (change)="toggleSelectAllocated(volunteer.id, $event)">
+                            </td>
+                            <td data-label="Head">{{ volunteer.head || '-' }}</td>
+                            <td data-label="Sub Head">{{ volunteer.subHead || '-' }}</td>
+                            <td data-label="Is Regular">
+                                <span class="regular-badge" [class.regular]="volunteer.isRegular">
+                                    {{ volunteer.isRegular ? 'Yes' : 'No' }}
+                                </span>
+                            </td>
+                            <td data-label="Id">{{ volunteer.id }}</td>
+                            <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
+                            <td data-label="Name" class="name">{{ volunteer.name }}</td>
+                            <td data-label="Image" class="image-column">
+                                <div class="volunteer-image">
+                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
+                                         [alt]="volunteer.name"
+                                         onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </td>
+                            <td data-label="Sewa">{{ volunteer.sewa || '-' }}</td>
+                        </tr>
+                        <tr *ngIf="pagedAllocated.length === 0">
+                            <td [attr.colspan]="9" class="no-data">No data available in table</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

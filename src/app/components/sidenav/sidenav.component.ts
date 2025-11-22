@@ -80,9 +80,8 @@ export class SidenavComponent implements OnInit, OnDestroy {
           label: 'Manage Programs',
           icon: 'event',
           children: [
-            { label: 'All Programs', icon: 'list', route: '/programs' },
-            { label: 'Add Program', icon: 'add', route: '/programs/add' },
-            { label: 'Program Schedule', icon: 'calendar_today', route: '/programs/schedule' }
+            { label: 'Programs List', icon: 'list', route: '/programs/programs-list' },
+            { label: 'Sewa Volunteers', icon: 'people', route: '/programs/sewa-volunteers' }
           ]
         },
         { label: 'Attendances', icon: 'checklist', route: '/attendances' }

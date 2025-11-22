@@ -133,6 +133,22 @@ export const routes: Routes = [
         (m) => m.AllocateSewaComponent
       ),
   },
+  {
+    path: 'programs/programs-list',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/programs-list/programs-list.component').then(
+        (m) => m.ProgramsListComponent
+      ),
+  },
+  {
+    path: 'programs/sewa-volunteers',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/sewa-volunteers/sewa-volunteers.component').then(
+        (m) => m.SewaVolunteersComponent
+      ),
+  },
   
   { path: '**', redirectTo: 'dashboard' },
 ];
