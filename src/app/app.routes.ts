@@ -109,63 +109,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'users-roles',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/users/users-roles.component').then(
-        (m) => m.UsersRolesComponent
-      ),
-  },
-  {
-    path: 'users/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/users/create-user/create-user.component').then(
-        (m) => m.CreateUserComponent
-      ),
-  },
-  {
-    path: 'invoices',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/invoices/invoices.component').then(
-        (m) => m.InvoicesComponent
-      ),
-  },
-  {
-    path: 'invoices/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/invoices/create-invoice/create-invoice.component').then(
-        (m) => m.CreateInvoiceComponent
-      ),
-  },
-  {
-    path: 'purchase-orders',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/purchase-orders/purchase-orders.component').then(
-        (m) => m.PurchaseOrdersComponent
-      ),
-  },
-  {
-    path: 'purchase-orders/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/purchase-orders/create-purchase-order/create-purchase-order.component').then(
-        (m) => m.CreatePurchaseOrderComponent
-      ),
-  },
-  
-  {
-    path: 'reports',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/reports/reports.component').then(
-        (m) => m.ReportsComponent
-      ),
-  },
-  {
     path: 'settings',
     canMatch: [authOnly],
     loadComponent: () =>

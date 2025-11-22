@@ -109,21 +109,6 @@ export class SidenavComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      title: 'Reports & Analytics',
-      items: [
-        {
-          label: 'Reports',
-          icon: 'assessment',
-          children: [
-            { label: 'Attendance Reports', icon: 'bar_chart', route: '/reports/attendance' },
-            { label: 'Volunteer Reports', icon: 'people', route: '/reports/volunteers' },
-            { label: 'Program Reports', icon: 'event', route: '/reports/programs' },
-            { label: 'Financial Reports', icon: 'account_balance', route: '/reports/financial' }
-          ]
-        }
-      ]
-    },
-    {
       title: 'Administration',
       items: [
         { label: 'Roles', icon: 'admin_panel_settings', route: '/roles' },
