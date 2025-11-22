@@ -101,9 +101,9 @@
                     </td>
                     <td data-label="Image" class="image-column">
                         <div class="visitor-image">
-                            <img [src]="visitor.image || 'https://via.placeholder.com/40'" 
+                            <img [src]="visitor.image || '/assets/img/placeholder.svg'" 
                                  [alt]="visitor.name"
-                                 onerror="this.src='https://via.placeholder.com/40'">
+                                 onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                     </td>
                     <td data-label="Name" class="name">

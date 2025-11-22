@@ -82,13 +82,10 @@
                         {{ preacher.id }}
                     </td>
                     <td data-label="Image" class="image-column">
-                        <div class="preacher-image" *ngIf="preacher.image">
-                            <img [src]="preacher.image" 
+                        <div class="preacher-image">
+                            <img [src]="preacher.image || '/assets/img/placeholder.svg'" 
                                  [alt]="preacher.name"
-                                 onerror="this.src='https://via.placeholder.com/40'">
-                        </div>
-                        <div class="preacher-image-placeholder" *ngIf="!preacher.image">
-                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                                 onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                     </td>
                     <td data-label="Name" class="name">

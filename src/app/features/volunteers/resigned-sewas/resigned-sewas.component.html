@@ -92,13 +92,10 @@
                         {{ resignedSewa.id }}
                     </td>
                     <td data-label="Image" class="image-column">
-                        <div class="resigned-sewa-image" *ngIf="resignedSewa.image">
-                            <img [src]="resignedSewa.image" 
+                        <div class="resigned-sewa-image">
+                            <img [src]="resignedSewa.image || '/assets/img/placeholder.svg'" 
                                  [alt]="resignedSewa.userName"
-                                 onerror="this.src='https://via.placeholder.com/40'">
-                        </div>
-                        <div class="resigned-sewa-image-placeholder" *ngIf="!resignedSewa.image">
-                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                                 onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                     </td>
                     <td data-label="User Name" class="name">

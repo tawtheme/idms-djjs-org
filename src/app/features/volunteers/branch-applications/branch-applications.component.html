@@ -89,13 +89,10 @@
                         {{ application.id }}
                     </td>
                     <td data-label="Image" class="image-column">
-                        <div class="application-image" *ngIf="application.image">
-                            <img [src]="application.image" 
+                        <div class="application-image">
+                            <img [src]="application.image || '/assets/img/placeholder.svg'" 
                                  [alt]="application.name"
-                                 onerror="this.src='https://via.placeholder.com/40'">
-                        </div>
-                        <div class="application-image-placeholder" *ngIf="!application.image">
-                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                                 onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                     </td>
                     <td data-label="Name" class="name">

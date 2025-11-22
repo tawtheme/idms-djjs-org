@@ -7,7 +7,7 @@
         <!-- Left Section: UnAllocated Volunteers -->
         <div class="section unallocated-section">
             <div class="section-header">
-                <h2 class="section-title">UnAllocated Volunteers</h2>
+                <h2 class="section-title">UnAllocated</h2>
             </div>
 
             <div class="section-controls">
@@ -66,16 +66,12 @@
                     No data available
                 </div>
             </div>
-
-            <div class="table-info">
-                Showing {{ (unallocatedCurrentPage - 1) * unallocatedPageSize }} to {{ Math.min(unallocatedCurrentPage * unallocatedPageSize, unallocatedTotalItems) }} of {{ unallocatedTotalItems }} entries
-            </div>
         </div>
 
         <!-- Right Section: Allocated Volunteers -->
         <div class="section allocated-section">
             <div class="section-header">
-                <h2 class="section-title">Allocated Volunteers</h2>
+                <h2 class="section-title">Allocated</h2>
             </div>
 
             <div class="section-controls">
@@ -148,20 +144,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="table-info">
-                Showing {{ (allocatedCurrentPage - 1) * allocatedPageSize }} to {{ Math.min(allocatedCurrentPage * allocatedPageSize, allocatedTotalItems) }} of {{ allocatedTotalItems }} entries
-            </div>
-
-            <!-- Pagination for allocated section -->
-            <app-pager
-                [total]="allocatedTotalItems"
-                [pageSize]="allocatedPageSize"
-                [currentPage]="allocatedCurrentPage"
-                [pageSizeOptions]="pageSizeOptions"
-                (pageChange)="onAllocatedPageChange($event)"
-                (pageSizeChange)="onAllocatedPageSizeChange($event)">
-            </app-pager>
         </div>
     </div>
 </div>
