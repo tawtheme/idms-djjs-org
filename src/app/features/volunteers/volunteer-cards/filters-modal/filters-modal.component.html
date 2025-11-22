@@ -1,0 +1,62 @@
+<app-modal
+    [isOpen]="isOpen"
+    title="More Filters"
+    size="medium"
+    [closable]="true"
+    [showHeader]="true"
+    [showFooter]="true"
+    (close)="onClose()">
+    
+    <div class="filters-grid">
+        <div class="filter-field">
+            <label>Task Branch</label>
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="taskBranch"
+                placeholder="Select Branch"
+                (selectionChange)="taskBranch = $event"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+
+        <div class="filter-field">
+            <label>Corresponding Branch</label>
+            <app-dropdown
+                [options]="correspondingBranchOptions"
+                [selectedValues]="correspondingBranch"
+                placeholder="Select Branch"
+                (selectionChange)="correspondingBranch = $event"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+
+        <div class="filter-field">
+            <label>Branch Search Type</label>
+            <app-dropdown
+                [options]="branchSearchTypeOptions"
+                [selectedValues]="branchSearchType"
+                placeholder="Select Type"
+                (selectionChange)="branchSearchType = $event"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+    </div>
+
+    <div slot="footer">
+        <div class="modal-footer footer-right">
+            <button 
+                type="button" 
+                class="btn btn--secondary btn--md" 
+                (click)="onReset(); onApply()">
+                Reset
+            </button>
+            <button 
+                type="button" 
+                class="btn btn--primary btn--md" 
+                (click)="onApply()">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+</app-modal>
+

@@ -1,0 +1,88 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.volunteer-cards');
+
+.volunteer-cards-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+// Checkbox column
+.checkbox-column {
+    width: 40px;
+    text-align: center;
+    padding: 12px 8px !important;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Sortable column headers
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 32px !important;
+
+    &:hover {
+        background-color: $color-gray-100;
+    }
+
+    .sort-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: $color-gray-500;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Image column
+.image-column {
+    width: 80px;
+    padding: 8px 12px !important;
+
+    .volunteer-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-gray-100;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+}
+
+// Name column
+.name {
+    font-weight: 500;
+    color: $color-gray-900;
+}
+
+// No data row
+.no-data {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: $color-gray-500;
+    font-style: italic;
+}
+

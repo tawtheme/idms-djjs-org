@@ -1,0 +1,160 @@
+<div class="volunteer-cards-container">
+    <div class="volunteer-cards-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name, Relation Name, Mobile No., UID"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="sewaOptions"
+                [selectedValues]="selectedSewa"
+                placeholder="Sewa"
+                (selectionChange)="selectedSewa = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-date-range-picker
+                [fromDate]="dateRangeFrom"
+                [toDate]="dateRangeTo"
+                placeholder="Date Range"
+                (dateRangeChange)="onDateRangeChange($event)">
+            </app-date-range-picker>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
+                <span class="material-icons">tune</span>
+                Filter
+            </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Volunteer Cards table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th (click)="sortBy('id')" class="sortable">
+                        Id
+                        <span class="material-icons sort-icon">{{ getSortIcon('id') }}</span>
+                    </th>
+                    <th>Image</th>
+                    <th (click)="sortBy('name')" class="sortable">
+                        Name
+                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                    </th>
+                    <th>Father Name</th>
+                    <th>Phone</th>
+                    <th>Sewa</th>
+                    <th>Gender</th>
+                    <th>Unallocation Reason</th>
+                    <th>Enter By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let card of pagedCards; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedCards.has(card.id)"
+                            (change)="toggleSelectCard(card.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(card)"
+                            (selectionChange)="onAction(card, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Id">
+                        {{ card.id }}
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="volunteer-image">
+                            <img [src]="card.image || '/assets/img/placeholder.svg'" 
+                                 [alt]="card.name"
+                                 onerror="this.src='/assets/img/placeholder.svg'">
+                        </div>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ card.name }}
+                    </td>
+                    <td data-label="Father Name">
+                        {{ card.relationName || card.fatherName || '-' }}
+                    </td>
+                    <td data-label="Phone">
+                        {{ card.phone || '-' }}
+                    </td>
+                    <td data-label="Sewa">
+                        {{ card.sewa || '-' }}
+                    </td>
+                    <td data-label="Gender">
+                        {{ card.gender || '-' }}
+                    </td>
+                    <td data-label="Unallocation Reason">
+                        {{ card.unallocationReason || '-' }}
+                    </td>
+                    <td data-label="Enter By">
+                        {{ card.enterBy || '-' }}
+                    </td>
+                </tr>
+                <tr *ngIf="pagedCards.length === 0">
+                    <td [attr.colspan]="11" class="no-data">No data available in table</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="volunteerCards.length === 0"
+        title="No Volunteer Cards Found"
+        description="There are no volunteer cards to display at the moment."
+        icon="badge"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- More Filters Modal -->
+    <app-volunteer-cards-filters-modal
+        [isOpen]="moreFiltersModalOpen"
+        [filters]="moreFilters"
+        (close)="closeMoreFiltersModal()"
+        (applyFilters)="onMoreFiltersApply($event)">
+    </app-volunteer-cards-filters-modal>
+</div>
+

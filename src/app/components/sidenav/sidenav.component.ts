@@ -100,9 +100,8 @@ export class SidenavComponent implements OnInit, OnDestroy {
           label: 'Manage Pensions',
           icon: 'account_balance_wallet',
           children: [
-            { label: 'All Pensions', icon: 'list', route: '/pensions' },
-            { label: 'Add Pension', icon: 'add', route: '/pensions/add' },
-            { label: 'Pension Reports', icon: 'assessment', route: '/pensions/reports' }
+            { label: 'All Pensions', icon: 'list', route: '/pensions/transactions-list' },
+            { label: 'Add Pension', icon: 'add', route: '/pensions/create-transaction' }
           ]
         }
       ]

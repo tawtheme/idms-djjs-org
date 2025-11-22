@@ -1,0 +1,216 @@
+<div class="pensions-transactions-container">
+    <div class="pensions-transactions-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name, Id, or Note"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="applyFilters()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; applyFilters()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
+                <span class="material-icons">tune</span>
+                Filter
+            </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset Filter
+            </button>
+            <button class="btn btn--primary btn--sm" type="button" (click)="openCreateTransactionModal()">
+                Create Transactions
+            </button>
+        </div>
+    </div>
+
+    <!-- Transactions table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Actions</th>
+                    <th (click)="sortBy('id')" class="sortable">
+                        Id
+                        <span class="material-icons sort-icon">{{ getSortIcon('id') }}</span>
+                    </th>
+                    <th>Image</th>
+                    <th (click)="sortBy('name')" class="sortable">
+                        Name
+                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                    </th>
+                    <th (click)="sortBy('creditAmount')" class="sortable">
+                        Credit Amount
+                        <span class="material-icons sort-icon">{{ getSortIcon('creditAmount') }}</span>
+                    </th>
+                    <th (click)="sortBy('withdrawalAmount')" class="sortable">
+                        Withdrawal Amount
+                        <span class="material-icons sort-icon">{{ getSortIcon('withdrawalAmount') }}</span>
+                    </th>
+                    <th (click)="sortBy('creditDate')" class="sortable">
+                        Credit Date
+                        <span class="material-icons sort-icon">{{ getSortIcon('creditDate') }}</span>
+                    </th>
+                    <th (click)="sortBy('withdrawDate')" class="sortable">
+                        Withdraw Date
+                        <span class="material-icons sort-icon">{{ getSortIcon('withdrawDate') }}</span>
+                    </th>
+                    <th>Note</th>
+                    <th (click)="sortBy('opening')" class="sortable">
+                        Opening
+                        <span class="material-icons sort-icon">{{ getSortIcon('opening') }}</span>
+                    </th>
+                    <th (click)="sortBy('closing')" class="sortable">
+                        Closing
+                        <span class="material-icons sort-icon">{{ getSortIcon('closing') }}</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="pagedTransactions.length === 0">
+                    <td [attr.colspan]="12" class="no-data">
+                        <app-empty-state
+                            title="No Transactions Found"
+                            description="There are no pension transactions to display at the moment."
+                            icon="account_balance_wallet"
+                            [showButton]="false">
+                        </app-empty-state>
+                    </td>
+                </tr>
+
+                <tr *ngFor="let transaction of pagedTransactions; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedTransactions.has(transaction.id)"
+                            (change)="toggleSelectTransaction(transaction.id, $event)">
+                    </td>
+                    <td data-label="Actions" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(transaction)"
+                            (selectionChange)="onAction(transaction, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Id">
+                        {{ transaction.id }}
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="transaction-image">
+                            <img [src]="transaction.image || '/assets/img/placeholder.svg'" 
+                                 [alt]="transaction.name"
+                                 onerror="this.src='/assets/img/placeholder.svg'">
+                        </div>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ transaction.name }}
+                    </td>
+                    <td data-label="Credit Amount" class="amount">
+                        {{ formatCurrency(transaction.creditAmount) }}
+                    </td>
+                    <td data-label="Withdrawal Amount" class="amount">
+                        {{ formatCurrency(transaction.withdrawalAmount) }}
+                    </td>
+                    <td data-label="Credit Date" class="date">
+                        {{ formatDate(transaction.creditDate) }}
+                    </td>
+                    <td data-label="Withdraw Date" class="date">
+                        {{ formatDate(transaction.withdrawDate) }}
+                    </td>
+                    <td data-label="Note">
+                        {{ transaction.note || '-' }}
+                    </td>
+                    <td data-label="Opening" class="amount">
+                        {{ formatCurrency(transaction.opening) }}
+                    </td>
+                    <td data-label="Closing" class="amount">
+                        {{ formatCurrency(transaction.closing) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        *ngIf="pagedTransactions.length > 0"
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Create Transaction Modal -->
+    <app-modal
+        [isOpen]="createTransactionModalOpen"
+        title="Create Transaction"
+        size="large"
+        [closable]="true"
+        [showHeader]="true"
+        [showFooter]="false"
+        (close)="closeCreateTransactionModal()">
+        
+        <app-create-transaction
+            [hideBreadcrumbs]="true"
+            (transactionCreated)="onTransactionCreated()">
+        </app-create-transaction>
+    </app-modal>
+
+    <!-- More Filters Modal -->
+    <app-modal
+        [isOpen]="moreFiltersModalOpen"
+        title="More Filters"
+        size="medium"
+        [closable]="true"
+        [showHeader]="true"
+        [showFooter]="false"
+        (close)="closeMoreFiltersModal()">
+        
+        <div class="filters-grid">
+            <!-- Add more filter fields here as needed -->
+            <div class="filter-field">
+                <label>Additional Filters</label>
+                <p class="filter-placeholder">Add custom filter fields here</p>
+            </div>
+        </div>
+
+        <div slot="footer">
+            <div class="modal-footer footer-right">
+                <button 
+                    type="button" 
+                    class="btn btn--secondary btn--md" 
+                    (click)="moreFilters = {}; closeMoreFiltersModal()">
+                    Reset
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn--primary btn--md" 
+                    (click)="onMoreFiltersApply(moreFilters); closeMoreFiltersModal()">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    </app-modal>
+</div>
+
