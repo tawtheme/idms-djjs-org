@@ -89,23 +89,6 @@ export interface PrintJob {
   notes?: string;
 }
 
-export interface QuoteLine {
-  id: ID;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface Quote {
-  id: ID;
-  customerId: ID;
-  date: string; // ISO
-  validUntil?: string; // ISO
-  lines: QuoteLine[];
-  total: number;
-  status: 'draft' | 'sent';
-}
-
 export interface InvoiceLine {
   id: ID;
   description: string;

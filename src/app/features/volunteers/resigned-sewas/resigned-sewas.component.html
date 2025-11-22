@@ -1,0 +1,160 @@
+<div class="resigned-sewas-container">
+    <div class="resigned-sewas-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by User Name, Badge No., or Reason"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="selectedTaskBranch"
+                placeholder="Task Branch"
+                (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="sewaOptions"
+                [selectedValues]="selectedSewa"
+                placeholder="Sewas"
+                (selectionChange)="selectedSewa = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
+                <span class="material-icons">tune</span>
+                More Filter
+            </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Resigned Sewas table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th>Id</th>
+                    <th>Image</th>
+                    <th>User Name</th>
+                    <th>Task Branch</th>
+                    <th>Corr. Br</th>
+                    <th>Sewa</th>
+                    <th>Badge No</th>
+                    <th>Reason</th>
+                    <th>Resgined Date</th>
+                    <th>Enter By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let resignedSewa of pagedResignedSewas; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedResignedSewas.has(resignedSewa.id)"
+                            (change)="toggleSelectResignedSewa(resignedSewa.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            *ngIf="resignedSewa.id === 20171"
+                            [options]="getActionOptions(resignedSewa)"
+                            (selectionChange)="onAction(resignedSewa, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Id">
+                        {{ resignedSewa.id }}
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="resigned-sewa-image" *ngIf="resignedSewa.image">
+                            <img [src]="resignedSewa.image" 
+                                 [alt]="resignedSewa.userName"
+                                 onerror="this.src='https://via.placeholder.com/40'">
+                        </div>
+                        <div class="resigned-sewa-image-placeholder" *ngIf="!resignedSewa.image">
+                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                        </div>
+                    </td>
+                    <td data-label="User Name" class="name">
+                        {{ resignedSewa.userName }}
+                    </td>
+                    <td data-label="Task Branch">
+                        {{ resignedSewa.taskBranch }}
+                    </td>
+                    <td data-label="Corr. Br">
+                        {{ resignedSewa.correspondingBranch }}
+                    </td>
+                    <td data-label="Sewa">
+                        {{ resignedSewa.sewa }}
+                    </td>
+                    <td data-label="Badge No">
+                        <span class="badge-badge">{{ resignedSewa.badgeNo }}</span>
+                    </td>
+                    <td data-label="Reason">
+                        {{ resignedSewa.reason }}
+                    </td>
+                    <td data-label="Resgined Date" class="date">
+                        {{ resignedSewa.resignedDate }}
+                    </td>
+                    <td data-label="Enter By">
+                        {{ resignedSewa.enterBy || '-' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="resignedSewas.length === 0"
+        title="No Resigned Sewas Found"
+        description="There are no resigned sewas to display at the moment."
+        icon="person_remove"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- More Filters Modal -->
+    <app-more-filters-modal
+        [isOpen]="moreFiltersModalOpen"
+        [filters]="moreFilters"
+        (close)="closeMoreFiltersModal()"
+        (applyFilters)="onMoreFiltersApply($event)">
+    </app-more-filters-modal>
+</div>
+

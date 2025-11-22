@@ -37,6 +37,46 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'dashboard',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        (m) => m.DashboardComponent
+      ),
+  },
+  {
+    path: 'visitors',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/visitors/visitors.component').then(
+        (m) => m.VisitorsComponent
+      ),
+  },
+  {
+    path: 'volunteers',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/all-volunteers/all-volunteers.component').then(
+        (m) => m.AllVolunteersComponent
+      ),
+  },
+  {
+    path: 'volunteers/branch-applications',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/branch-applications/branch-applications.component').then(
+        (m) => m.BranchApplicationsComponent
+      ),
+  },
+  {
+    path: 'volunteers/resigned-sewas',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/resigned-sewas/resigned-sewas.component').then(
+        (m) => m.ResignedSewasComponent
+      ),
+  },
+  {
     path: 'forgot-password',
     canMatch: [guestOnly],
     loadComponent: () =>
@@ -157,22 +197,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/users/create-user/create-user.component').then(
         (m) => m.CreateUserComponent
-      ),
-  },
-  {
-    path: 'quotes',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/quotes/quotes.component').then(
-        (m) => m.QuotesComponent
-      ),
-  },
-  {
-    path: 'quotes/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/quotes/create-quote/create-quote.component').then(
-        (m) => m.CreateQuoteComponent
       ),
   },
   {

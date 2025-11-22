@@ -121,6 +121,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private updatePageTitle(url: string): void {
     // Extract the route path and set appropriate title
     const routeMap: { [key: string]: string } = {
+      '/dashboard': 'Dashboard',
+      '/visitors': 'Visitors',
+      '/volunteers': 'All Volunteers',
+      '/volunteers/branch-applications': 'Branch Applications',
+      '/volunteers/resigned-sewas': 'Resigned Sewas',
       '/invoices': 'Invoices',
       '/customers': 'Customers',
       '/orders': 'Orders',
@@ -129,7 +134,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       '/jobs/create': 'Create Job',
       '/shipments': 'Shipments',
       '/suppliers': 'Suppliers',
-      '/quotes': 'Quotes',
       '/purchase-orders': 'Purchase Orders',
       '/users-roles': 'Users & Roles',
       '/settings': 'Settings',

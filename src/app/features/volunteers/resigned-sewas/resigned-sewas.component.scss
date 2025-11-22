@@ -1,0 +1,90 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.resigned-sewas');
+
+.resigned-sewas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+// Checkbox column
+.checkbox-column {
+    width: 40px;
+    text-align: center;
+    padding: 12px 8px !important;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Image column
+.image-column {
+    width: 80px;
+    padding: 8px 12px !important;
+
+    .resigned-sewa-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-gray-100;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .resigned-sewa-image-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: $color-gray-200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        color: $color-gray-600;
+        text-align: center;
+        padding: 4px;
+        line-height: 1.2;
+    }
+}
+
+// Name column
+.name {
+    font-weight: 500;
+    color: $color-gray-900;
+}
+
+// Badge No badge
+.badge-badge {
+    display: inline-block;
+    background: $color-primary-700;
+    color: $color-white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+// Date column
+.date {
+    white-space: nowrap;
+    font-size: 13px;
+    color: $color-gray-600;
+}
+

@@ -1,0 +1,193 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.branch-applications');
+
+.branch-applications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+// Checkbox column
+.checkbox-column {
+    width: 40px;
+    text-align: center;
+    padding: 12px 8px !important;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Image column
+.image-column {
+    width: 80px;
+    padding: 8px 12px !important;
+
+    .application-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-gray-100;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .application-image-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: $color-gray-200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        color: $color-gray-600;
+        text-align: center;
+        padding: 4px;
+        line-height: 1.2;
+    }
+}
+
+// Name column
+.name {
+    font-weight: 500;
+    color: $color-gray-900;
+}
+
+// Address column
+.address-column {
+    max-width: 300px;
+    
+    .address-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 13px;
+        line-height: 1.4;
+        color: $color-gray-700;
+
+        div {
+            word-wrap: break-word;
+        }
+    }
+}
+
+// Regular Sewa column
+.sewa-column {
+    .sewa-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .sewa-tracking {
+            color: $color-primary-600;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+                color: $color-primary-700;
+            }
+        }
+
+        .sewa-name {
+            font-size: 13px;
+            color: $color-gray-700;
+        }
+
+        .sewa-badge {
+            display: inline-block;
+            background: $color-gray-800;
+            color: $color-white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            width: fit-content;
+        }
+    }
+}
+
+// Toggle switch for Sewa Interest
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:checked + .toggle-slider {
+            background-color: $color-primary-600;
+
+            &:before {
+                transform: translateX(20px);
+            }
+        }
+
+        &:focus + .toggle-slider {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    .toggle-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: $color-gray-300;
+        transition: 0.3s;
+        border-radius: 24px;
+
+        &:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: $color-white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+    }
+
+    &:hover .toggle-slider {
+        background-color: $color-gray-400;
+    }
+
+    input:checked + .toggle-slider:hover {
+        background-color: $color-primary-700;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .address-column {
+        max-width: 200px;
+    }
+}
+

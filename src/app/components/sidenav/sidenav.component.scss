@@ -21,7 +21,7 @@
     bottom: 0;
     display: flex;
     flex-direction: column;
-    width: 220px;
+    width: 250px;
     height: 100vh;
     background: $color-white;
     color: $color-gray-700;
@@ -70,6 +70,27 @@
                             display: none;
                         }
                     }
+
+                    .menu-item-with-children {
+                        .menu-parent {
+                            padding: 8px;
+                            margin: 0 4px;
+                            justify-content: center;
+
+                            .icon {
+                                margin: 0;
+                            }
+
+                            .text,
+                            .arrow {
+                                display: none;
+                            }
+                        }
+
+                        .child-menu {
+                            display: none;
+                        }
+                    }
                 }
             }
         }
@@ -90,7 +111,7 @@
 
     // Mobile styles
     @media (max-width: 768px) {
-        width: 280px;
+        width: 300px;
         z-index: 1000;
         box-shadow: 2px 0 8px rgba($color-black, 0.15);
         transform: translateX(-100%);
@@ -186,9 +207,118 @@
                     padding: 0;
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
                 }
 
+                li {
+                    position: relative;
+                }
+
+                // Menu item with children
+                .menu-item-with-children {
+                    .menu-parent {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        position: relative;
+                        margin: 0 12px;
+                        padding: 10px 8px;
+                        border-radius: 8px;
+                        color: $color-gray-700;
+                        text-decoration: none;
+                        font-weight: 500;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+
+                        .icon {
+                            font-size: 20px;
+                            width: 24px;
+                            text-align: center;
+                            @include material-icon;
+                        }
+
+                        .text {
+                            flex: 1;
+                        }
+
+                        .arrow {
+                            font-size: 18px;
+                            width: 18px;
+                            transition: transform 0.2s ease;
+                            @include material-icon;
+                        }
+
+                        &.expanded {
+                            .arrow {
+                                transform: rotate(90deg);
+                            }
+                        }
+
+                        &:hover:not(.active) {
+                            background: $color-gray-100;
+                            color: $color-gray-900;
+                        }
+
+                        &.active {
+                            background: rgba($color-primary-500, 0.1);
+                            color: $color-primary-600;
+                            font-weight: 600;
+                        }
+                    }
+
+                    // Child menu
+                    .child-menu {
+                        list-style: none;
+                        margin: 4px 0 0 0;
+                        padding: 0;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        overflow: hidden;
+                        animation: slideDown 0.2s ease-out;
+
+                        li {
+                            a {
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                position: relative;
+                                margin: 0 12px 0 36px;
+                                padding: 8px 8px;
+                                border-radius: 6px;
+                                color: $color-gray-600;
+                                text-decoration: none;
+                                font-weight: 400;
+                                font-size: 13px;
+                                transition: all 0.2s ease;
+
+                                .icon {
+                                    font-size: 18px;
+                                    width: 20px;
+                                    text-align: center;
+                                    @include material-icon;
+                                }
+
+                                .text {
+                                    flex: 1;
+                                }
+
+                                &:hover:not(.active) {
+                                    background: $color-gray-50;
+                                    color: $color-gray-900;
+                                }
+
+                                &.active {
+                                    background: rgba($color-primary-500, 0.1);
+                                    color: $color-primary-600;
+                                    font-weight: 500;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Regular menu item (without children)
                 a {
                     display: flex;
                     align-items: center;
@@ -269,5 +399,19 @@
                 color: $color-white;
             }
         }
+    }
+}
+
+// Animation for child menu
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
     }
 }

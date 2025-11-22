@@ -1,0 +1,126 @@
+<app-modal
+    [isOpen]="isOpen"
+    title="Sewa Tracking Details"
+    size="large"
+    [closable]="true"
+    [showHeader]="true"
+    (close)="onClose()">
+    
+    <div class="sewa-tracking-modal">
+        <!-- Branch Info -->
+        <div class="branch-info">
+            Sewas Under Branch: <strong>{{ branchName }}</strong>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button 
+                class="tab-button" 
+                [class.active]="activeTab === 'sewa'"
+                (click)="setActiveTab('sewa')">
+                Sewa Tracking
+            </button>
+            <button 
+                class="tab-button" 
+                [class.active]="activeTab === 'program'"
+                (click)="setActiveTab('program')">
+                Program Journey
+            </button>
+            <button 
+                class="tab-button" 
+                [class.active]="activeTab === 'donation'"
+                (click)="setActiveTab('donation')">
+                Donations
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Sewa Tracking Tab -->
+            <div class="tab-panel" *ngIf="activeTab === 'sewa'">
+                <div class="listing-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sewa Name</th>
+                                <th>Branch</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of sewaTrackingData; trackBy: trackById">
+                                <td>{{ item.sewaName }}</td>
+                                <td>{{ item.branch }}</td>
+                                <td>{{ item.date }}</td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="'status-' + item.status.toLowerCase()">
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="count-badge" *ngIf="item.count">{{ item.count }}</span>
+                                    <span *ngIf="!item.count">-</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Program Journey Tab -->
+            <div class="tab-panel" *ngIf="activeTab === 'program'">
+                <div class="listing-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Program Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Branch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of programJourneyData; trackBy: trackById">
+                                <td>{{ item.programName }}</td>
+                                <td>{{ item.date }}</td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="'status-' + item.status.toLowerCase()">
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                                <td>{{ item.branch }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Donations Tab -->
+            <div class="tab-panel" *ngIf="activeTab === 'donation'">
+                <div class="listing-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Branch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of donationData; trackBy: trackById">
+                                <td>{{ formatCurrency(item.amount) }}</td>
+                                <td>{{ item.date }}</td>
+                                <td>{{ item.type }}</td>
+                                <td>{{ item.branch }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-modal>
+

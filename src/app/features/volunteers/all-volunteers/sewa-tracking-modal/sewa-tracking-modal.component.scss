@@ -1,0 +1,140 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/table';
+
+.sewa-tracking-modal {
+    padding: 0;
+}
+
+.branch-info {
+    padding: 16px 20px;
+    border-bottom: 1px solid $color-gray-200;
+    font-size: 14px;
+    color: $color-gray-700;
+
+    strong {
+        color: $color-gray-900;
+        font-weight: 600;
+    }
+}
+
+// Tabs
+.tabs {
+    display: flex;
+    border-bottom: 1px solid $color-gray-200;
+    padding: 0 20px;
+    gap: 0;
+
+    .tab-button {
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        color: $color-gray-600;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+        position: relative;
+        bottom: -1px;
+
+        &:hover {
+            color: $color-gray-900;
+            background: $color-gray-50;
+        }
+
+        &.active {
+            color: $color-primary-600;
+            border-bottom-color: $color-primary-600;
+            background: transparent;
+        }
+    }
+}
+
+// Tab Content
+.tab-content {
+    padding: 20px;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+
+    .tab-panel {
+        animation: fadeIn 0.2s ease;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Listing Table
+.listing-table {
+    .table {
+        thead {
+            th {
+                font-size: 12px;
+                text-transform: uppercase;
+                font-weight: 600;
+                color: $color-gray-700;
+                padding: 10px 12px;
+            }
+        }
+
+        tbody {
+            tr {
+                &:hover {
+                    background: $color-gray-50;
+                }
+
+                td {
+                    padding: 12px;
+                    font-size: 14px;
+                    color: $color-gray-700;
+                }
+            }
+        }
+    }
+}
+
+// Status Badge
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+
+    &.status-active {
+        background: $color-green-100;
+        color: $color-green-800;
+    }
+
+    &.status-completed {
+        background: $color-primary-100;
+        color: $color-primary-800;
+    }
+
+    &.status-upcoming {
+        background: $color-yellow-100;
+        color: $color-yellow-800;
+    }
+}
+
+// Count Badge
+.count-badge {
+    display: inline-block;
+    background: $color-gray-800;
+    color: $color-white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
