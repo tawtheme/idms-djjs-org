@@ -1,41 +1,105 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AuthUser {
   email: string;
   name?: string;
+  id?: number | string;
+  token?: string;
+  [key: string]: any; // Allow additional properties from API
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success?: boolean;
+  message?: string;
+  data?: {
+    user?: AuthUser;
+    token?: string;
+    access_token?: string;
+    [key: string]: any;
+  };
+  token?: string;
+  user?: AuthUser;
+  [key: string]: any; // Allow flexible API response structure
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly storageKey = 'idms-djjs-org.auth';
+  private readonly tokenKey = 'idms-djjs-org.token';
   private isHydrated = false;
+  private http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
 
   readonly isAuthenticated = signal<boolean>(false);
   readonly user = signal<AuthUser | null>(null);
+  readonly isLoading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     this.hydrateFromStorage();
   }
 
-  login(email: string, _password: string, remember: boolean): boolean {
-    // Mock validation: accept any non-empty credentials
-    const ok = !!email && !!_password;
-    if (!ok) return false;
+  login(email: string, password: string, remember: boolean): Observable<LoginResponse> {
+    this.isLoading.set(true);
+    this.error.set(null);
 
-    const user: AuthUser = { email };
-    this.user.set(user);
-    this.isAuthenticated.set(true);
+    const loginData: LoginRequest = { email, password };
 
-    // Always save to localStorage to persist across reloads
-    // The "remember" flag can be used for other purposes if needed
-    localStorage.setItem(this.storageKey, JSON.stringify({ user, remember }));
-    return true;
+    // API endpoint: /api/v1/login
+    // Base URL: https://idms.djjsglobal.org/idms_api/api
+    // Full URL: https://idms.djjsglobal.org/idms_api/api/v1/login
+    // Note: If your API base URL doesn't include /api, use: ${this.apiUrl}/api/v1/login
+    return this.http.post<LoginResponse>(`${this.apiUrl}/v1/login`, loginData).pipe(
+      tap((response) => {
+        // Handle different response structures
+        const token = response.token || response.data?.token || response.data?.['access_token'] || response['access_token'];
+        const userData = response.user || response.data?.user || { email };
+
+        if (token) {
+          const user: AuthUser = {
+            ...userData,
+            email,
+            token
+          };
+
+          this.user.set(user);
+          this.isAuthenticated.set(true);
+
+          // Store token and user data
+          localStorage.setItem(this.tokenKey, token);
+          localStorage.setItem(this.storageKey, JSON.stringify({ user, remember }));
+        } else {
+          throw new Error('No token received from server');
+        }
+
+        this.isLoading.set(false);
+      }),
+      catchError((error) => {
+        this.isLoading.set(false);
+        const errorMessage = error.error?.message || error.error?.error || error.message || 'Login failed. Please try again.';
+        this.error.set(errorMessage);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
   }
 
   logout(): void {
     this.user.set(null);
     this.isAuthenticated.set(false);
     localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.tokenKey);
   }
 
   private hydrateFromStorage(): void {
@@ -43,12 +107,17 @@ export class AuthService {
     
     try {
       const raw = localStorage.getItem(this.storageKey);
-      if (!raw) {
+      const token = localStorage.getItem(this.tokenKey);
+      
+      if (!raw || !token) {
         this.isHydrated = true;
         return;
       }
+      
       const parsed = JSON.parse(raw) as { user: AuthUser; remember?: boolean };
-      if (parsed?.user) {
+      if (parsed?.user && token) {
+        // Ensure token is included in user object
+        parsed.user.token = token;
         this.user.set(parsed.user);
         this.isAuthenticated.set(true);
       }

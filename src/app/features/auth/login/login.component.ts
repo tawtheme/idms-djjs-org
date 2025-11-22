@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -17,9 +17,22 @@ export class LoginComponent {
   password = '';
   rememberMe = false;
   showPassword = false;
+  errorMessage = '';
 
   private auth = inject(AuthService);
   private router = inject(Router);
+
+  get isLoading() {
+    return this.auth.isLoading();
+  }
+
+  constructor() {
+    // Watch error signal using effect
+    effect(() => {
+      const error = this.auth.error();
+      this.errorMessage = error || '';
+    });
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -32,9 +45,22 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    const ok = this.auth.login(this.email, this.password, this.rememberMe);
-    if (ok) {
-      this.router.navigate(['/orders'], { replaceUrl: true });
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Please enter both email and password';
+      return;
     }
+
+    this.errorMessage = '';
+    
+    this.auth.login(this.email, this.password, this.rememberMe).subscribe({
+      next: (response) => {
+        // Login successful - navigate to dashboard
+        this.router.navigate(['/dashboard'], { replaceUrl: true });
+      },
+      error: (error) => {
+        // Error is already handled in AuthService, but we can add additional handling here if needed
+        console.error('Login error:', error);
+      }
+    });
   }
 }
