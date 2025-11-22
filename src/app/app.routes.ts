@@ -20,7 +20,7 @@ const guestOnly = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (auth.isAuthenticated()) {
-    router.navigateByUrl('/orders');
+    router.navigateByUrl('/dashboard');
     return false;
   }
   return true;
@@ -77,6 +77,22 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'preachers/desiring-devotees',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/preachers/desiring-devotees-list/desiring-devotees-list.component').then(
+        (m) => m.DesiringDevoteesListComponent
+      ),
+  },
+  {
+    path: 'preachers/preachers-list',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/preachers/preachers-list/preachers-list.component').then(
+        (m) => m.PreachersListComponent
+      ),
+  },
+  {
     path: 'forgot-password',
     canMatch: [guestOnly],
     loadComponent: () =>
@@ -90,97 +106,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/reset-password/reset-password.component').then(
         (m) => m.ResetPasswordComponent
-      ),
-  },
-  {
-    path: 'orders',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/orders/orders.component').then(
-        (m) => m.OrdersComponent
-      ),
-  },
-  {
-    path: 'orders/add',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/orders/add-order/add-order.component').then(
-        (m) => m.AddOrderComponent
-      ),
-  },
-  {
-    path: 'orders/:id',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/orders/detail/order-detail.component').then(
-        (m) => m.OrderDetailComponent
-      ),
-  },
-  {
-    path: 'jobs',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/jobs/jobs.component').then((m) => m.JobsComponent),
-  },
-  {
-    path: 'jobs/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/jobs/create-job/create-job.component').then((m) => m.CreateJobComponent),
-  },
-  {
-    path: 'books',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/books/books.component').then((m) => m.BooksComponent),
-  },
-  
-  {
-    path: 'customers',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/customers/customers.component').then(
-        (m) => m.CustomersComponent
-      ),
-  },
-  {
-    path: 'customers/add',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/customers/add-customer/add-customer.component').then(
-        (m) => m.AddCustomerComponent
-      ),
-  },
-  {
-    path: 'customers/:id',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/customers/detail/customer-detail.component').then(
-        (m) => m.CustomerDetailComponent
-      ),
-  },
-  {
-    path: 'suppliers',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/suppliers/suppliers.component').then(
-        (m) => m.SuppliersComponent
-      ),
-  },
-  {
-    path: 'suppliers/:id',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/suppliers/detail/supplier-detail.component').then(
-        (m) => m.SupplierDetailComponent
-      ),
-  },
-  {
-    path: 'catalog/items',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/catalog/items/items.component').then(
-        (m) => m.ItemsComponent
       ),
   },
   {
@@ -231,22 +156,6 @@ export const routes: Routes = [
         (m) => m.CreatePurchaseOrderComponent
       ),
   },
-  {
-    path: 'shipments',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/shipments/shipments.component').then(
-        (m) => m.ShipmentsComponent
-      ),
-  },
-  {
-    path: 'shipments/create',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/shipments/create-shipment/create-shipment.component').then(
-        (m) => m.CreateShipmentComponent
-      ),
-  },
   
   {
     path: 'reports',
@@ -266,13 +175,21 @@ export const routes: Routes = [
   },
   
   {
-    path: 'amazon/status',
+    path: 'sewa/all-sewa',
     canMatch: [authOnly],
     loadComponent: () =>
-      import('./features/amazon/amazon-status.component').then(
-        (m) => m.AmazonStatusComponent
+      import('./features/sewa/all-sewa/all-sewa.component').then(
+        (m) => m.AllSewaComponent
+      ),
+  },
+  {
+    path: 'sewa/allocate-sewa',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/sewa/allocate-sewa/allocate-sewa.component').then(
+        (m) => m.AllocateSewaComponent
       ),
   },
   
-  { path: '**', redirectTo: 'orders' },
+  { path: '**', redirectTo: 'dashboard' },
 ];

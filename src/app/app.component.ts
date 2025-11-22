@@ -127,20 +127,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       '/volunteers/branch-applications': 'Branch Applications',
       '/volunteers/resigned-sewas': 'Resigned Sewas',
       '/invoices': 'Invoices',
-      '/customers': 'Customers',
-      '/orders': 'Orders',
-      '/orders/add': 'Add Order',
-      '/jobs': 'Jobs',
-      '/jobs/create': 'Create Job',
-      '/shipments': 'Shipments',
-      '/suppliers': 'Suppliers',
       '/purchase-orders': 'Purchase Orders',
       '/users-roles': 'Users & Roles',
       '/settings': 'Settings',
-      '/products': 'Products',
-      '/reports': 'Reports',
-      '/profile': 'Profile',
-      '/catalog/items': 'Items'
+      '/reports': 'Reports'
     };
 
     // Get the base path (remove query params and fragments)

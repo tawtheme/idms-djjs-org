@@ -1,0 +1,91 @@
+<div class="allocate-sewa-container">
+    <div class="allocate-sewa-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <form (ngSubmit)="save()" #f="ngForm" class="side-panel-form">
+        <!-- Section: Allocation Details -->
+        <div class="panel-card">
+            <h3 class="panel-title">Allocation Details</h3>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Sewa <span class="required">*</span></span>
+                    <app-dropdown
+                        [options]="sewaOptions"
+                        [selectedValues]="getSelectedValues(formData.sewa)"
+                        (selectionChange)="onDropdownChange('sewa', $event)"
+                        placeholder="Select Sewa"
+                        [closeOnSelect]="true"
+                        required>
+                    </app-dropdown>
+                </label>
+                <label>
+                    <span>Volunteer/Entity <span class="required">*</span></span>
+                    <app-dropdown
+                        [options]="volunteerOptions"
+                        [selectedValues]="getSelectedValues(formData.volunteer)"
+                        (selectionChange)="onDropdownChange('volunteer', $event)"
+                        placeholder="Select Volunteer or Entity"
+                        [closeOnSelect]="true"
+                        required>
+                    </app-dropdown>
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Allocation Date <span class="required">*</span></span>
+                    <input 
+                        type="date" 
+                        name="allocationDate" 
+                        [(ngModel)]="formData.allocationDate" 
+                        required 
+                        class="form-control" />
+                </label>
+                <label>
+                    <span>Allocation Time <span class="required">*</span></span>
+                    <input 
+                        type="time" 
+                        name="allocationTime" 
+                        [(ngModel)]="formData.allocationTime" 
+                        required 
+                        class="form-control" />
+                </label>
+            </div>
+            <div class="form-grid cols-2">
+                <label>
+                    <span>Status <span class="required">*</span></span>
+                    <app-dropdown
+                        [options]="statusOptions"
+                        [selectedValues]="getSelectedValues(formData.status)"
+                        (selectionChange)="onDropdownChange('status', $event)"
+                        placeholder="Select Status"
+                        [closeOnSelect]="true"
+                        required>
+                    </app-dropdown>
+                </label>
+            </div>
+            <div class="form-grid cols-1">
+                <label>
+                    <span>Notes</span>
+                    <textarea 
+                        name="notes" 
+                        [(ngModel)]="formData.notes" 
+                        class="form-control" 
+                        rows="4"
+                        placeholder="Enter any additional notes or comments"></textarea>
+                </label>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn--secondary" (click)="cancel()">
+                Cancel
+            </button>
+            <button type="submit" class="btn btn--primary" [disabled]="!isFormValid()">
+                Allocate Sewa
+            </button>
+        </div>
+    </form>
+</div>
+

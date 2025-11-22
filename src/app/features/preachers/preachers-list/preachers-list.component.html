@@ -1,0 +1,156 @@
+<div class="preachers-container">
+    <div class="preachers-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name, Father Name, or Address"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="selectedTaskBranch"
+                placeholder="Task Branch"
+                (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
+                <span class="material-icons">tune</span>
+                More Filter
+            </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Preachers table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th>Id</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Father Name</th>
+                    <th>Address</th>
+                    <th>Regular Sewa</th>
+                    <th>Gender</th>
+                    <th>Sewa Interest</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let preacher of pagedPreachers; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedPreachers.has(preacher.id)"
+                            (change)="toggleSelectPreacher(preacher.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(preacher)"
+                            (selectionChange)="onAction(preacher, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Id">
+                        {{ preacher.id }}
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="preacher-image" *ngIf="preacher.image">
+                            <img [src]="preacher.image" 
+                                 [alt]="preacher.name"
+                                 onerror="this.src='https://via.placeholder.com/40'">
+                        </div>
+                        <div class="preacher-image-placeholder" *ngIf="!preacher.image">
+                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                        </div>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ preacher.name }}
+                    </td>
+                    <td data-label="Father Name">
+                        {{ preacher.fatherName || '-' }}
+                    </td>
+                    <td data-label="Address" class="address-column">
+                        <div class="address-content">
+                            <div *ngIf="preacher.address.street">{{ preacher.address.street }}</div>
+                            <div *ngIf="preacher.address.city">{{ preacher.address.city }}</div>
+                            <div *ngIf="preacher.address.state">{{ preacher.address.state }}</div>
+                            <div *ngIf="preacher.address.correspondingBranch">{{ preacher.address.correspondingBranch }}</div>
+                            <div *ngIf="preacher.address.taskBranch">{{ preacher.address.taskBranch }}</div>
+                        </div>
+                    </td>
+                    <td data-label="Regular Sewa">
+                        {{ preacher.regularSewa || '-' }}
+                    </td>
+                    <td data-label="Gender">
+                        {{ preacher.gender || '-' }}
+                    </td>
+                    <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                        <span class="toggle-switch">
+                            <input 
+                                type="checkbox" 
+                                [checked]="preacher.sewaInterest"
+                                (change)="toggleSewaInterest(preacher, $event)" />
+                            <span class="toggle-slider"></span>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="preachers.length === 0"
+        title="No Preachers Found"
+        description="There are no preachers to display at the moment."
+        icon="people"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- More Filters Modal -->
+    <app-more-filters-modal
+        [isOpen]="moreFiltersModalOpen"
+        [filters]="moreFilters"
+        (close)="closeMoreFiltersModal()"
+        (applyFilters)="onMoreFiltersApply($event)">
+    </app-more-filters-modal>
+</div>
+

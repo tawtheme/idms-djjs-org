@@ -1,0 +1,96 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.all-sewa');
+
+.all-sewa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+// Checkbox column
+.checkbox-column {
+    width: 40px;
+    text-align: center;
+    padding: 12px 8px !important;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Sortable column headers
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 32px !important;
+
+    &:hover {
+        background-color: $color-gray-50;
+    }
+
+    .sort-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: $color-gray-500;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// Name column
+.name {
+    font-weight: 500;
+    color: $color-gray-900;
+}
+
+// Status badge
+.status {
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: capitalize;
+
+        &.status-active {
+            background: $color-green-500;
+            color: $color-white;
+        }
+
+        &.status-inactive {
+            background: $color-gray-300;
+            color: $color-gray-700;
+        }
+
+        &.status-pending {
+            background: $color-yellow-100;
+            color: $color-yellow-800;
+        }
+
+        &.status-completed {
+            background: $color-primary-100;
+            color: $color-primary-800;
+        }
+    }
+}
+
+// Date column
+.date {
+    white-space: nowrap;
+    font-size: 13px;
+    color: $color-gray-600;
+}
+

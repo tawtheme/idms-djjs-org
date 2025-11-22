@@ -1,0 +1,123 @@
+<div class="all-sewa-container">
+    <div class="all-sewa-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name or Type"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="typeOptions"
+                [selectedValues]="selectedType"
+                placeholder="Type"
+                (selectionChange)="selectedType = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="selectedStatus"
+                placeholder="Status"
+                (selectionChange)="selectedStatus = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Sewa table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th (click)="sortBy('name')" class="sortable">
+                        Name
+                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                    </th>
+                    <th (click)="sortBy('type')" class="sortable">
+                        Type
+                        <span class="material-icons sort-icon">{{ getSortIcon('type') }}</span>
+                    </th>
+                    <th (click)="sortBy('status')" class="sortable">
+                        Status
+                        <span class="material-icons sort-icon">{{ getSortIcon('status') }}</span>
+                    </th>
+                    <th (click)="sortBy('createdAt')" class="sortable">
+                        Created At
+                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let sewa of pagedSewas; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedSewas.has(sewa.id)"
+                            (change)="toggleSelectSewa(sewa.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(sewa)"
+                            (selectionChange)="onAction(sewa, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ sewa.name }}
+                    </td>
+                    <td data-label="Type">
+                        {{ sewa.type }}
+                    </td>
+                    <td data-label="Status" class="status">
+                        <span class="status-badge" [ngClass]="'status-' + (sewa.status | lowercase)">
+                            {{ sewa.status }}
+                        </span>
+                    </td>
+                    <td data-label="Created At" class="date">
+                        {{ sewa.createdAt }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="sewas.length === 0"
+        title="No Sewa Found"
+        description="There are no sewa to display at the moment."
+        icon="work"
+        [showButton]="false">
+    </app-empty-state>
+</div>
+

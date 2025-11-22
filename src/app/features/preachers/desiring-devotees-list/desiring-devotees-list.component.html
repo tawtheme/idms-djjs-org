@@ -1,0 +1,155 @@
+<div class="desiring-devotees-container">
+    <div class="desiring-devotees-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name, Father Name, or Address"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="onSearchChange()"/>
+        </div>
+        <div class="listing-search-item">
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="selectedTaskBranch"
+                placeholder="Task Branch"
+                (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
+                <span class="material-icons">tune</span>
+                More Filter
+            </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
+                <span class="material-icons">refresh</span>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Desiring Devotees table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th>Id</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Father Name</th>
+                    <th>Address</th>
+                    <th>Regular Sewa</th>
+                    <th>Gender</th>
+                    <th>Sewa Interest</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let devotee of pagedDevotees; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedDevotees.has(devotee.id)"
+                            (change)="toggleSelectDevotee(devotee.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(devotee)"
+                            (selectionChange)="onAction(devotee, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Id">
+                        {{ devotee.id }}
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="devotee-image" *ngIf="devotee.image">
+                            <img [src]="devotee.image" 
+                                 [alt]="devotee.name"
+                                 onerror="this.src='https://via.placeholder.com/40'">
+                        </div>
+                        <div class="devotee-image-placeholder" *ngIf="!devotee.image">
+                            <span>Sorry IMAGE NOT AVAILABLE</span>
+                        </div>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ devotee.name }}
+                    </td>
+                    <td data-label="Father Name">
+                        {{ devotee.fatherName || '-' }}
+                    </td>
+                    <td data-label="Address" class="address-column">
+                        <div class="address-content">
+                            <div *ngIf="devotee.address.street">{{ devotee.address.street }}</div>
+                            <div *ngIf="devotee.address.city">{{ devotee.address.city }}</div>
+                            <div *ngIf="devotee.address.state">{{ devotee.address.state }}</div>
+                            <div *ngIf="devotee.address.correspondingBranch">{{ devotee.address.correspondingBranch }}</div>
+                            <div *ngIf="devotee.address.taskBranch">{{ devotee.address.taskBranch }}</div>
+                        </div>
+                    </td>
+                    <td data-label="Regular Sewa">
+                        {{ devotee.regularSewa || '-' }}
+                    </td>
+                    <td data-label="Gender">
+                        {{ devotee.gender || '-' }}
+                    </td>
+                    <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                        <span class="toggle-switch">
+                            <input 
+                                type="checkbox" 
+                                [checked]="devotee.sewaInterest"
+                                (change)="toggleSewaInterest(devotee, $event)" />
+                            <span class="toggle-slider"></span>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="devotees.length === 0"
+        title="No Desiring Devotees Found"
+        description="There are no desiring devotees to display at the moment."
+        icon="people"
+        [showButton]="false">
+    </app-empty-state>
+
+    <!-- More Filters Modal -->
+    <app-more-filters-modal
+        [isOpen]="moreFiltersModalOpen"
+        [filters]="moreFilters"
+        (close)="closeMoreFiltersModal()"
+        (applyFilters)="onMoreFiltersApply($event)">
+    </app-more-filters-modal>
+</div>

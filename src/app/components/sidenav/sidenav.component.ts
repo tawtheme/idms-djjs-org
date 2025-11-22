@@ -59,9 +59,8 @@ export class SidenavComponent implements OnInit, OnDestroy {
           label: 'Manage Preachers',
           icon: 'record_voice_over',
           children: [
-            { label: 'All Preachers', icon: 'list', route: '/preachers' },
-            { label: 'Add Preacher', icon: 'person_add', route: '/preachers/add' },
-            { label: 'Preacher Schedule', icon: 'schedule', route: '/preachers/schedule' }
+            { label: 'Desiring Devotees List', icon: 'people', route: '/preachers/desiring-devotees' },
+            { label: 'Preachers List', icon: 'list', route: '/preachers/preachers-list' }
           ]
         }
       ]
@@ -73,9 +72,8 @@ export class SidenavComponent implements OnInit, OnDestroy {
           label: 'Manage Sewa',
           icon: 'favorite',
           children: [
-            { label: 'All Sewa', icon: 'list', route: '/sewa' },
-            { label: 'Add Sewa', icon: 'add', route: '/sewa/add' },
-            { label: 'Sewa Categories', icon: 'category', route: '/sewa/categories' }
+            { label: 'All Sewa', icon: 'list', route: '/sewa/all-sewa' },
+            { label: 'Allocate Sewa', icon: 'assignment', route: '/sewa/allocate-sewa' }
           ]
         },
         {
