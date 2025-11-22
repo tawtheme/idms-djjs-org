@@ -36,8 +36,8 @@
               },
               {
                 "glob": "**/*",
-                "input": "src/assets/mock",
-                "output": "/assets/mock/"
+                "input": "src/assets",
+                "output": "/assets/"
               }
             ],
             "styles": [
