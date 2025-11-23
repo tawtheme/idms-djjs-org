@@ -39,11 +39,7 @@
     <!-- Dropdown List -->
     @if (isOpen) {
         <div [class]="dropdownListClasses" 
-             [style.max-height.px]="isPortaled ? null : maxHeight"
-             [style.top]="isPortaled ? null : dropdownPosition.top"
-             [style.left]="isPortaled ? null : dropdownPosition.left"
-             [style.right]="isPortaled ? null : dropdownPosition.right"
-             [style.bottom]="isPortaled ? null : dropdownPosition.bottom"
+             [style.max-height.px]="maxHeight"
              #dropdownList>
             <!-- Search Input -->
             @if (searchable) {

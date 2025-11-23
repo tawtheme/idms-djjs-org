@@ -74,19 +74,9 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   partialSelected: boolean = false;
 
   // Positioning properties
-  dropdownPosition: { top: string; left: string; right: string; bottom: string } = {
-    top: '100%',
-    left: '0',
-    right: 'auto',
-    bottom: 'auto'
-  };
   openUpward: boolean = false;
-  private portalReturnParent: HTMLElement | null = null;
   private scrollListener?: () => void;
-  private resizeListener?: () => void;
   private ignoreNextClick: boolean = false;
-  private nearestScrollParent: HTMLElement | Window | null = null;
-  isPortaled: boolean = false;
 
   private defaultConfig: DropdownConfig = {
     searchable: false,
@@ -207,24 +197,63 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   @HostListener('window:resize')
   onWindowResize(): void {
     if (this.isOpen) {
-      setTimeout(() => {
-        this.updateDropdownPosition();
-      }, 0);
+      this.checkAvailableSpace();
     }
   }
 
-  private addScrollListeners(): void {
-    if (this.scrollListener) return;
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isOpen) {
+      this.checkAvailableSpace();
+    }
+  }
 
-    this.scrollListener = () => {
-      if (this.isOpen) {
-        this.updateDropdownPosition();
-      }
-    };
+  private checkAvailableSpace(): void {
+    if (!this.dropdownList?.nativeElement) {
+      return;
+    }
 
-    // Listen to scroll on window and all scrollable parents
-    window.addEventListener('scroll', this.scrollListener, true);
-    document.addEventListener('scroll', this.scrollListener, true);
+    const trigger = this.elementRef.nativeElement.querySelector('.dropdown-trigger') as HTMLElement;
+    if (!trigger) return;
+
+    const dropdown = this.dropdownList.nativeElement;
+    this.calculatePosition(dropdown, trigger);
+  }
+
+  private calculatePosition(dropdown: HTMLElement, trigger: HTMLElement): void {
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Get dropdown height or use maxHeight as estimate
+    const dropdownRect = dropdown.getBoundingClientRect();
+    let dropdownHeight = dropdownRect.height;
+    
+    // If dropdown not fully rendered, use maxHeight as estimate
+    if (dropdownHeight < 10) {
+      dropdownHeight = Math.min(this.maxHeight, 300);
+    }
+    
+    const margin = 8;
+    const requiredSpace = dropdownHeight + margin;
+    
+    // Calculate available space below and above
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    
+    // Honor explicit openDirection overrides
+    if (this.openDirection === 'up') {
+      this.openUpward = true;
+    } else if (this.openDirection === 'down') {
+      this.openUpward = false;
+    } else {
+      // Auto: Open upward if there's not enough space below
+      const threshold = 200; // If less than 200px below, prefer opening upward
+      
+      // Open upward if:
+      // 1. Not enough space below for the dropdown, OR
+      // 2. Space below is less than threshold AND there's enough space above
+      this.openUpward = spaceBelow < requiredSpace || (spaceBelow < threshold && spaceAbove >= requiredSpace);
+    }
   }
 
   private removeScrollListeners(): void {
@@ -323,28 +352,15 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     this.updateSelectionState();
     this.open.emit();
 
-    // Calculate position after dropdown is rendered
-    // Use multiple requestAnimationFrame calls to ensure DOM is ready
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          this.moveListToBody();
-          this.updateDropdownPosition();
-          this.addScrollListeners();
-
-          // Recalculate position again after content is fully rendered
-          // This ensures accurate height calculation
-          setTimeout(() => {
-            this.updateDropdownPosition();
-          }, 50);
-
-          // Focus search input if searchable
-          if (this.searchable && this.searchInput) {
-            this.searchInput.nativeElement.focus();
-          }
-        }, 0);
-      });
-    });
+    // Check available space after a short delay to ensure dropdown is rendered
+    setTimeout(() => {
+      this.checkAvailableSpace();
+      
+      // Focus search input if searchable
+      if (this.searchable && this.searchInput) {
+        this.searchInput.nativeElement.focus();
+      }
+    }, 0);
   }
 
   closeDropdown(): void {
@@ -353,247 +369,6 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     this.filteredOptions = [...this.options];
     this.removeScrollListeners();
     this.close.emit();
-    // Return list to original container if it was portaled
-    const list = this.dropdownList?.nativeElement;
-    if (list && this.portalReturnParent && this.portalReturnParent !== document.body) {
-      this.portalReturnParent.appendChild(list);
-      list.classList.remove('dropdown-portal');
-      // Clean up all inline styles
-      list.style.position = '';
-      list.style.top = '';
-      list.style.left = '';
-      list.style.right = '';
-      list.style.bottom = '';
-      list.style.width = '';
-      list.style.minWidth = '';
-      list.style.maxWidth = '';
-      this.portalReturnParent = null;
-      this.isPortaled = false;
-    }
-  }
-
-  // Find the nearest scrollable ancestor to determine available space within containers (e.g., modals)
-  private getNearestScrollableParent(element: HTMLElement | null): HTMLElement | Window {
-    if (!element) return window;
-    let parent: HTMLElement | null = element.parentElement;
-    while (parent && parent !== document.body) {
-      const style = getComputedStyle(parent);
-      const overflowY = style.overflowY;
-      const overflow = style.overflow;
-      const isScrollable = /(auto|scroll|overlay)/.test(overflowY) || /(auto|scroll|overlay)/.test(overflow);
-      if (isScrollable && parent.scrollHeight > parent.clientHeight) {
-        return parent;
-      }
-      parent = parent.parentElement;
-    }
-    return window;
-  }
-
-  private moveListToBody(): void {
-    const list = this.dropdownList?.nativeElement;
-    if (!list) return;
-    if (list.parentElement !== document.body) {
-      this.portalReturnParent = list.parentElement as HTMLElement;
-      document.body.appendChild(list);
-      list.classList.add('dropdown-portal');
-      list.style.position = 'fixed';
-      this.isPortaled = true;
-    }
-  }
-
-  updateDropdownPosition(): void {
-    if (!this.dropdownList) return;
-
-    const trigger = this.elementRef.nativeElement.querySelector('.dropdown-trigger');
-    if (!trigger) return;
-
-    // Determine nearest scrollable parent for space calculations
-    this.nearestScrollParent = this.getNearestScrollableParent(this.elementRef.nativeElement as HTMLElement);
-
-    const dropdown = this.dropdownList.nativeElement;
-    const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight
-    };
-
-    const triggerRect = trigger.getBoundingClientRect();
-
-    // Get dropdown height
-    const dropdownRect = dropdown.getBoundingClientRect();
-    let dropdownHeight = dropdownRect.height;
-
-    // Calculate available space in viewport
-    const viewportSpaceBelow = viewport.height - triggerRect.bottom;
-    const viewportSpaceAbove = triggerRect.top;
-
-    // Calculate available space within the nearest scrollable container (if any)
-    let containerSpaceBelow = viewportSpaceBelow;
-    let containerSpaceAbove = viewportSpaceAbove;
-    if (this.nearestScrollParent && this.nearestScrollParent !== window) {
-      const containerRect = (this.nearestScrollParent as HTMLElement).getBoundingClientRect();
-      containerSpaceBelow = Math.max(0, containerRect.bottom - triggerRect.bottom);
-      containerSpaceAbove = Math.max(0, triggerRect.top - containerRect.top);
-    }
-
-    // Use the more restrictive space (container vs viewport)
-    const spaceBelow = Math.min(viewportSpaceBelow, containerSpaceBelow);
-    const spaceAbove = Math.min(viewportSpaceAbove, containerSpaceAbove);
-
-    // If height is 0 or very small (dropdown not fully rendered), use maxHeight as estimate
-    // But also consider available space
-    if (dropdownHeight < 10) {
-      dropdownHeight = Math.min(this.maxHeight, spaceBelow, spaceAbove, viewport.height - 16);
-    }
-
-    // Add margin for spacing
-    const margin = 8;
-    const requiredSpace = dropdownHeight + margin;
-    
-    // More aggressive threshold: if less than 250px below, check if we should open upward
-    // Also consider if we're in the bottom half of the viewport
-    const isInBottomHalf = triggerRect.bottom > viewport.height / 2;
-    const upwardThreshold = 250;
-
-    // compute direction and positioning
-
-    // Reset to default (open downward)
-    this.openUpward = false;
-    this.dropdownPosition = {
-      top: '100%',
-      left: '0',
-      right: 'auto',
-      bottom: 'auto'
-    };
-
-    // Check if we need to open upward
-    // Open upward if:
-    // 1. Not enough space below for the dropdown AND more space above, OR
-    // 2. Space below is less than threshold AND space above is greater, OR
-    // 3. We're in bottom half of viewport AND space above is significantly more than space below
-    const condition1 = spaceBelow < requiredSpace && spaceAbove > spaceBelow;
-    const condition2 = spaceBelow < upwardThreshold && spaceAbove > spaceBelow;
-    const condition3 = isInBottomHalf && spaceAbove > spaceBelow + 50;
-    
-    // Honor explicit openDirection overrides
-    let shouldOpenUpward = condition1 || condition2 || condition3;
-    if (this.openDirection === 'up') {
-      shouldOpenUpward = true;
-    } else if (this.openDirection === 'down') {
-      shouldOpenUpward = false;
-    }
-
-    if (shouldOpenUpward) {
-      this.openUpward = true;
-      this.dropdownPosition = {
-        top: 'auto',
-        left: '0',
-        right: 'auto',
-        bottom: '100%'
-      };
-    }
-
-    // Check horizontal space and adjust if needed
-    const spaceRight = viewport.width - triggerRect.left;
-    const spaceLeft = triggerRect.left;
-    const dropdownWidth = dropdown.getBoundingClientRect().width || triggerRect.width;
-
-    if (spaceRight < dropdownWidth && spaceLeft > spaceRight) {
-      // Open to the left if more space on the left
-      this.dropdownPosition = {
-        ...this.dropdownPosition,
-        left: 'auto',
-        right: '0'
-      };
-    } else if (spaceRight < dropdownWidth) {
-      // If not enough space on right, try to fit it
-      this.dropdownPosition = {
-        ...this.dropdownPosition,
-        left: 'auto',
-        right: '0'
-      };
-    }
-
-    // Apply computed fixed coordinates when portaled to body
-    if (dropdown.parentElement === document.body) {
-      // Prefer min-width equal to trigger, allow content to define width up to viewport
-      const minWidth = Math.min(triggerRect.width, viewport.width - 16);
-      const maxWidth = viewport.width - 16; // Leave 8px margin on each side
-      dropdown.style.removeProperty('width'); // let content define intrinsic width
-      dropdown.style.minWidth = `${Math.max(200, minWidth)}px`;
-      dropdown.style.maxWidth = `${maxWidth}px`;
-
-      // Vertical positioning
-      if (this.openUpward) {
-        // Explicitly set top to auto to override CSS default of top: 100%
-        dropdown.style.setProperty('top', 'auto', 'important');
-        dropdown.style.setProperty('bottom', `${viewport.height - triggerRect.top + 4}px`, 'important');
-      } else {
-        dropdown.style.setProperty('bottom', 'auto', 'important');
-        dropdown.style.setProperty('top', `${triggerRect.bottom + 4}px`, 'important');
-      }
-
-      // Constrain height to available space (above or below)
-      // Use the restrictive space between viewport and container
-      const availableUpViewport = triggerRect.top - margin;
-      const availableDownViewport = viewport.height - triggerRect.bottom - margin;
-      let availableUp = availableUpViewport;
-      let availableDown = availableDownViewport;
-      if (this.nearestScrollParent && this.nearestScrollParent !== window) {
-        const containerRect = (this.nearestScrollParent as HTMLElement).getBoundingClientRect();
-        availableUp = Math.max(0, Math.min(availableUpViewport, triggerRect.top - containerRect.top - margin));
-        availableDown = Math.max(0, Math.min(availableDownViewport, containerRect.bottom - triggerRect.bottom - margin));
-      }
-      const available = this.openUpward ? availableUp : availableDown;
-      const constrainedMax = Math.max(120, Math.min(this.maxHeight, available)); // keep a sensible minimum
-      dropdown.style.maxHeight = `${constrainedMax}px`;
-
-      // Horizontal positioning - ensure dropdown stays within viewport
-      let leftPos: number | '' = triggerRect.left;
-      let rightPos = '';
-
-      // Check if dropdown would overflow on the right
-      const predictedWidth = Math.min(Math.max(dropdownRect.width, minWidth), maxWidth);
-      if ((leftPos as number) + predictedWidth > viewport.width - 8) {
-        // Try to align to right edge of trigger
-        const rightEdge = triggerRect.right;
-        if (rightEdge - predictedWidth >= 8) {
-          // Can fit by aligning to right edge
-          leftPos = '';
-          rightPos = `${viewport.width - rightEdge}px`;
-        } else {
-          // Not enough space, align to viewport edge with margin
-          leftPos = '';
-          rightPos = '8px';
-        }
-      } else if ((leftPos as number) < 8) {
-        // Too close to left edge
-        leftPos = 8 as number;
-        rightPos = '';
-      }
-
-      if (rightPos) {
-        dropdown.style.left = '';
-        dropdown.style.right = rightPos;
-      } else {
-        dropdown.style.right = '';
-        dropdown.style.left = `${leftPos as number}px`;
-      }
-
-      // Ensure dropdown doesn't overflow vertically
-      const dropdownTop = this.openUpward
-        ? viewport.height - parseFloat(dropdown.style.bottom || '0')
-        : parseFloat(dropdown.style.top || '0');
-
-      if (dropdownTop + dropdownHeight > viewport.height - 8) {
-        // Adjust to fit in viewport
-        const maxTop = viewport.height - dropdownHeight - 8;
-        if (this.openUpward) {
-          dropdown.style.setProperty('bottom', `${viewport.height - maxTop}px`, 'important');
-        } else {
-          dropdown.style.setProperty('top', `${Math.max(8, maxTop)}px`, 'important');
-        }
-      }
-    }
   }
 
   onSearchChange(event: Event): void {
@@ -611,7 +386,7 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     // Recalculate position when content changes
     if (this.isOpen) {
       setTimeout(() => {
-        this.updateDropdownPosition();
+        this.checkAvailableSpace();
       }, 0);
     }
   }
@@ -708,7 +483,6 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   clearSelection(): void {
     // Don't clear if it would go below minimum selections
     if (this.minSelections > 0) {
-      console.log(`Cannot clear all selections. Minimum ${this.minSelections} selections required.`);
       return;
     }
 
@@ -724,7 +498,6 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
 
     // Prevent removing if it would go below minimum selections
     if (this.selectedValues.length - 1 < this.minSelections) {
-      console.log(`Cannot remove selection. Minimum ${this.minSelections} selections required.`);
       return;
     }
 

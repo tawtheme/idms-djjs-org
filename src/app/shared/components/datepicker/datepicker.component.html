@@ -17,7 +17,10 @@
     </div>
 
     @if (isOpen) {
-        <div class="datepicker-calendar" (click)="$event.stopPropagation()">
+        <div class="datepicker-calendar" 
+             [class.calendar-upward]="openUpward"
+             (click)="$event.stopPropagation()"
+             #calendarElement>
             <!-- Calendar Header -->
             <div class="calendar-header">
                 <button type="button" (click)="navigateMonth(-1)" class="calendar-nav-btn" aria-label="Previous month">

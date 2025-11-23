@@ -152,28 +152,17 @@
         width: 100%;
         text-transform: capitalize;
         
-        // Default positioning (will be overridden by dynamic styles)
-        top: 100%;
+        // Default positioning (opens downward)
+        top: calc(100% + 4px);
         left: 0;
-        right: auto;
+        right: 0;
         bottom: auto;
-        margin-top: 4px;
 
         // Upward positioning
         &.dropdown-upward {
             animation: slideInUp 0.2s ease-out;
-            margin-top: 0;
-            margin-bottom: 4px;
-        }
-        
-        &.dropdown-portal {
-            position: fixed !important; // when moved to body
-            margin: 0;
-            min-width: 0;
-            z-index: 10000; // Ensure it appears above modals and other content
-            pointer-events: auto; // Ensure it's clickable
-            width: auto !important; // override base width:100%
-            box-sizing: border-box;
+            top: auto;
+            bottom: calc(100% + 4px);
         }
     }
 

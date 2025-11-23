@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -20,7 +20,11 @@ export interface DatePickerConfig {
   templateUrl: './datepicker.component.html',
   styleUrls: ['./datepicker.component.scss']
 })
-export class DatepickerComponent implements OnInit, OnChanges {
+export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
+  @ViewChild('calendarElement') calendarElement!: ElementRef<HTMLDivElement>;
+  
+  constructor(private elementRef: ElementRef) {}
+  
   @Input() value: Date | null = null;
   @Input() placeholder: string = 'Select date';
   @Input() format: string = 'MM/dd/yyyy';
@@ -35,6 +39,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   @Output() dateSelect = new EventEmitter<Date>();
 
   isOpen: boolean = false;
+  openUpward: boolean = false;
   currentMonth: Date = new Date();
   selectedDate: Date | null = null;
   displayValue: string = '';
@@ -43,6 +48,10 @@ export class DatepickerComponent implements OnInit, OnChanges {
     this.selectedDate = this.value;
     this.updateDisplayValue();
     this.currentMonth = this.value ? new Date(this.value) : new Date();
+  }
+
+  ngAfterViewInit(): void {
+    // View initialized
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,7 +68,76 @@ export class DatepickerComponent implements OnInit, OnChanges {
     // Allow opening even when input is readonly; readonly only blocks typing
     if (!this.disabled) {
       this.isOpen = !this.isOpen;
+      if (this.isOpen) {
+        // Check available space after a short delay to ensure calendar is rendered
+        setTimeout(() => {
+          this.checkAvailableSpace();
+        }, 0);
+      }
     }
+  }
+
+  private checkAvailableSpace(): void {
+    let calendar: HTMLElement | null = null;
+    let trigger: HTMLElement | null = null;
+
+    if (this.calendarElement?.nativeElement) {
+      calendar = this.calendarElement.nativeElement;
+      const wrapper = calendar.closest('.datepicker-wrapper');
+      if (wrapper) {
+        trigger = wrapper.querySelector('.datepicker-input-container') as HTMLElement;
+      }
+    } else {
+      // Fallback: query DOM directly
+      const wrapper = this.elementRef?.nativeElement?.closest('.datepicker-wrapper') || 
+                      document.querySelector('.datepicker-wrapper');
+      if (!wrapper) return;
+      
+      calendar = wrapper.querySelector('.datepicker-calendar') as HTMLElement;
+      trigger = wrapper.querySelector('.datepicker-input-container') as HTMLElement;
+    }
+
+    if (!calendar || !trigger) {
+      // Retry after a short delay if elements not found yet
+      setTimeout(() => {
+        if (this.isOpen) {
+          this.checkAvailableSpace();
+        }
+      }, 50);
+      return;
+    }
+    
+    this.calculatePosition(calendar, trigger);
+  }
+
+  private calculatePosition(calendar: HTMLElement, trigger: HTMLElement): void {
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Get actual calendar height if available, otherwise use estimate
+    const calendarRect = calendar.getBoundingClientRect();
+    let calendarHeight = calendarRect.height;
+    
+    // If calendar not fully rendered yet, use a more accurate estimate
+    if (calendarHeight < 10) {
+      // Standard calendar with header, grid, and actions is approximately 360px
+      calendarHeight = 360;
+    }
+    
+    const margin = 8;
+    const requiredSpace = calendarHeight + margin;
+    
+    // Calculate available space below and above
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    
+    // Open upward if there's not enough space below
+    const threshold = 200; // If less than 200px below, prefer opening upward
+    
+    // Open upward if:
+    // 1. Not enough space below for the calendar, OR
+    // 2. Space below is less than threshold AND there's enough space above
+    this.openUpward = spaceBelow < requiredSpace || (spaceBelow < threshold && spaceAbove >= requiredSpace);
   }
 
   closeCalendar(): void {
@@ -105,8 +183,6 @@ export class DatepickerComponent implements OnInit, OnChanges {
     } else {
       this.displayValue = '';
     }
-    // Ensure placeholder shows when value is empty
-    // The empty string value allows the placeholder to display
   }
 
   private formatDate(date: Date): string {
@@ -205,5 +281,21 @@ export class DatepickerComponent implements OnInit, OnChanges {
     const target = event.target as HTMLElement;
     const inside = !!target.closest('.datepicker-wrapper');
     if (!inside) this.closeCalendar();
+  }
+
+  // Recalculate position on window resize
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(): void {
+    if (this.isOpen) {
+      this.checkAvailableSpace();
+    }
+  }
+
+  // Recalculate position on scroll
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isOpen) {
+      this.checkAvailableSpace();
+    }
   }
 }
