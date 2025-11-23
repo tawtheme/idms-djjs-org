@@ -1,16 +1,20 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { MoreFiltersModalComponent } from '../all-volunteers/more-filters-modal/more-filters-modal.component';
+import { DataService } from '../../../data.service';
 
 export interface ResignedSewa {
   id: number;
+  uuid?: string; // UUID for API calls
   image?: string;
   userName: string;
   taskBranch: string;
@@ -39,11 +43,17 @@ export interface ResignedSewa {
   templateUrl: './resigned-sewas.component.html',
   styleUrls: ['./resigned-sewas.component.scss']
 })
-export class ResignedSewasComponent {
+export class ResignedSewasComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  private dataService = inject(DataService);
 
   resignedSewas: ResignedSewa[] = [];
   allResignedSewas: ResignedSewa[] = [];
+
+  // Loading and error states
+  isLoading = false;
+  error: string | null = null;
 
   // Selection
   selectedResignedSewas = new Set<number>();
@@ -80,83 +90,134 @@ export class ResignedSewasComponent {
   ];
 
   constructor() {
-    // Sample data based on the image
-    this.allResignedSewas = [
-      {
-        id: 20171,
-        image: 'https://via.placeholder.com/40',
-        userName: 'Abhay Arora',
-        taskBranch: 'Nurmahal',
-        correspondingBranch: 'Amritsar',
-        sewa: 'Control Room Br',
-        badgeNo: '29',
-        reason: 'Foreign',
-        resignedDate: '03/10/2025 05:40 pm',
-        enterBy: ''
-      },
-      {
-        id: 703,
-        image: 'https://via.placeholder.com/40',
-        userName: 'Charn Kaur',
-        taskBranch: 'Nurmahal',
-        correspondingBranch: 'Kapurthala',
-        sewa: 'Jal Sewa Sis',
-        badgeNo: '54',
-        reason: 'Death',
-        resignedDate: '03/10/2025 05:41 pm',
-        enterBy: 'Kabir'
-      }
-    ];
+    this.buildFilterOptions();
+  }
 
-    // Generate more sample records
-    const reasons = ['Foreign', 'Death', 'Personal', 'Health', 'Transfer'];
-    const branches = ['Nurmahal', 'Jalandhar', 'Ludhiana', 'Amritsar', 'Kapurthala'];
-    const sewas = ['Control Room Br', 'Jal Sewa Sis', 'Food Distribution', 'Medical Camp'];
-    
-    for (let i = 2; i < 15; i++) {
-      const date = new Date(2025, 2, 10 + i);
-      const hours = 5 + (i % 12);
-      const minutes = 40 + (i % 20);
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      const displayHours = hours > 12 ? hours - 12 : hours;
-      
-      this.allResignedSewas.push({
-        id: 20171 + i,
-        image: i % 3 === 0 ? undefined : `https://via.placeholder.com/40?text=${String.fromCharCode(65 + i)}`,
-        userName: `User ${i + 1}`,
-        taskBranch: branches[i % branches.length],
-        correspondingBranch: branches[(i + 1) % branches.length],
-        sewa: sewas[i % sewas.length],
-        badgeNo: String(29 + i),
-        reason: reasons[i % reasons.length],
-        resignedDate: `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} ${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`,
-        enterBy: i % 2 === 0 ? 'Admin' : 'Manager'
-      });
-    }
+  ngOnInit(): void {
+    this.loadResignedSewas();
+  }
 
-    // Build filter options
+  /**
+   * Builds filter options
+   */
+  private buildFilterOptions(): void {
     this.genderOptions = [
       { id: '1', label: 'Male', value: 'Male' },
       { id: '2', label: 'Female', value: 'Female' },
       { id: '3', label: 'Other', value: 'Other' }
     ];
 
-    this.taskBranchOptions = [
-      { id: '1', label: 'Nurmahal', value: 'Nurmahal' },
-      { id: '2', label: 'Jalandhar', value: 'Jalandhar' },
-      { id: '3', label: 'Ludhiana', value: 'Ludhiana' },
-      { id: '4', label: 'Amritsar', value: 'Amritsar' },
-      { id: '5', label: 'Kapurthala', value: 'Kapurthala' }
-    ];
+    // Task branch and sewa options will be populated from API data
+    this.taskBranchOptions = [];
+    this.sewaOptions = [];
+  }
 
-    this.sewaOptions = [
-      { id: '1', label: 'Control Room Br', value: 'Control Room Br' },
-      { id: '2', label: 'Jal Sewa Sis', value: 'Jal Sewa Sis' },
-      { id: '3', label: 'Food Distribution', value: 'Food Distribution' },
-      { id: '4', label: 'Medical Camp', value: 'Medical Camp' }
-    ];
+  /**
+   * Loads resigned sewas from the API
+   */
+  loadResignedSewas(): void {
+    this.isLoading = true;
+    this.error = null;
 
-    this.applyFilter();
+    this.dataService.get<any>('v1/unassigned-regular-sewas').pipe(
+      catchError((error) => {
+        console.error('Error loading resigned sewas:', error);
+        this.error = error.error?.message || error.message || 'Failed to load resigned sewas. Please try again.';
+        return of({ data: [] }); // Return empty array to prevent breaking
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe((response) => {
+      // Handle different response structures
+      const sewasData = response.data || response.sewas || response.results || response || [];
+      
+      // Map API response to ResignedSewa interface
+      this.allResignedSewas = (Array.isArray(sewasData) ? sewasData : []).map((item: any) => {
+        // Get first image from user_images array if available
+        const firstImage = item.user_images && item.user_images.length > 0 
+          ? item.user_images[0].full_path 
+          : null;
+
+        // Extract address information
+        const userAddress = item.user_address || {};
+        const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
+        const primaryAddress = addressArray[0] || {};
+
+        // Extract sewa information
+        const regularSewa = item.regular_sewa || {};
+        const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
+        const primarySewa = sewaArray[0] || {};
+
+        // Format resigned date
+        const resignedDate = item.resigned_date || item.resigned_at || item.created_at || '';
+        let formattedDate = '';
+        if (resignedDate) {
+          try {
+            const date = new Date(resignedDate);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours() % 12 || 12).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = date.getHours() >= 12 ? 'pm' : 'am';
+            formattedDate = `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+          } catch (e) {
+            formattedDate = resignedDate;
+          }
+        }
+
+        const resignedSewa: ResignedSewa = {
+          id: item.unique_id || item.id || 0,
+          uuid: item.id, // Store UUID for API calls
+          image: firstImage,
+          userName: item.name || item.user_name || '',
+          taskBranch: primaryAddress.task_branch || item.task_branch || '',
+          correspondingBranch: primaryAddress.corresponding_branch || item.corresponding_branch || '',
+          sewa: primarySewa.sewa_name || primarySewa.name || item.sewa_name || '',
+          badgeNo: item.badge_no || item.badge_number || '',
+          reason: item.resignation_reason || item.reason || '',
+          resignedDate: formattedDate,
+          enterBy: item.entered_by || item.created_by || ''
+        };
+        
+        return resignedSewa;
+      });
+
+      // Update filter options from API data
+      this.updateFilterOptions();
+
+      this.applyFilter();
+    });
+  }
+
+  /**
+   * Updates filter options from loaded data
+   */
+  private updateFilterOptions(): void {
+    // Update task branch options
+    const taskBranches = new Set<string>();
+    this.allResignedSewas.forEach(sewa => {
+      if (sewa.taskBranch) taskBranches.add(sewa.taskBranch);
+    });
+
+    this.taskBranchOptions = Array.from(taskBranches).sort().map((branch, index) => ({
+      id: String(index + 1),
+      label: branch,
+      value: branch
+    }));
+
+    // Update sewa options
+    const sewas = new Set<string>();
+    this.allResignedSewas.forEach(sewa => {
+      if (sewa.sewa) sewas.add(sewa.sewa);
+    });
+
+    this.sewaOptions = Array.from(sewas).sort().map((sewa, index) => ({
+      id: String(index + 1),
+      label: sewa,
+      value: sewa
+    }));
   }
 
   get filteredResignedSewas(): ResignedSewa[] {

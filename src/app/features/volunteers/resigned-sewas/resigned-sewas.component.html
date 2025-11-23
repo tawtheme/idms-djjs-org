@@ -3,8 +3,19 @@
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
     </div>
 
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Loading resigned sewas...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadResignedSewas()">Retry</button>
+    </div>
+
     <!-- Filter Section -->
-    <div class="listing-search">
+    <div class="listing-search" *ngIf="!isLoading && !error">
         <div class="listing-search-item">
             <input
                 type="search"
@@ -48,7 +59,7 @@
     </div>
 
     <!-- Resigned Sewas table -->
-    <div class="table-container">
+    <div class="table-container" *ngIf="!isLoading && !error">
         <table class="table">
             <thead>
                 <tr>
@@ -83,7 +94,6 @@
                     </td>
                     <td data-label="Action" (click)="$event.stopPropagation()">
                         <app-menu-dropdown
-                            *ngIf="resignedSewa.id === 20171"
                             [options]="getActionOptions(resignedSewa)"
                             (selectionChange)="onAction(resignedSewa, $event)">
                         </app-menu-dropdown>
@@ -129,6 +139,7 @@
 
     <!-- Pagination -->
     <app-pager
+        *ngIf="!isLoading && !error"
         [total]="totalItems"
         [pageSize]="pageSize"
         [currentPage]="currentPage"
@@ -139,7 +150,7 @@
 
     <!-- Empty state -->
     <app-empty-state
-        *ngIf="resignedSewas.length === 0"
+        *ngIf="!isLoading && !error && resignedSewas.length === 0"
         title="No Resigned Sewas Found"
         description="There are no resigned sewas to display at the moment."
         icon="person_remove"

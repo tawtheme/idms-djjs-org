@@ -47,8 +47,19 @@
         </div>
     </div>
 
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Loading volunteers...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadVolunteers()">Retry</button>
+    </div>
+
     <!-- Volunteers table -->
-    <div class="table-container">
+    <div class="table-container" *ngIf="!isLoading && !error">
         <table class="table">
             <thead>
                 <tr>

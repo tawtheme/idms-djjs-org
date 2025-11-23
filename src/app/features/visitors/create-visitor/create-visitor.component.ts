@@ -211,13 +211,21 @@ export class CreateVisitorComponent {
    * Called from side panel footer button
    */
   submitForm(): void {
-    if (this.visitorForm?.valid) {
+    // Use custom validation instead of form.valid since we're using standalone ngModel
+    if (this.isFormValid()) {
       this.onSubmit();
-    } else if (this.visitorForm) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.visitorForm.controls).forEach(key => {
-        this.visitorForm.controls[key].markAsTouched();
-      });
+    } else {
+      // Show validation error
+      const errorMessage = 'Name, Phone, Gender, Purpose of Visit, Start Date, and Valid Upto are required fields.';
+      this.error = errorMessage;
+      this.snackbarService.showError(errorMessage);
+      
+      // Mark form as touched if it exists
+      if (this.visitorForm) {
+        Object.keys(this.visitorForm.controls).forEach(key => {
+          this.visitorForm.controls[key].markAsTouched();
+        });
+      }
     }
   }
 
@@ -319,7 +327,7 @@ export class CreateVisitorComponent {
     // Build and send payload
     const payload = this.buildPayload();
     
-    this.dataService.post('v1/visitors', payload).pipe(
+    this.dataService.post('v1/visitor/create', payload).pipe(
       catchError((error) => {
         this.handleSubmitError(error);
         return of(null);
@@ -330,6 +338,10 @@ export class CreateVisitorComponent {
     ).subscribe((response) => {
       if (response) {
         this.handleSubmitSuccess();
+      } else {
+        // If response is null, error was already handled in catchError
+        // But ensure loading state is cleared
+        this.isLoading = false;
       }
     });
   }

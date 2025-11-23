@@ -1,7 +1,9 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -9,9 +11,11 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { MoreFiltersModalComponent } from '../all-volunteers/more-filters-modal/more-filters-modal.component';
 import { SewaTrackingModalComponent } from '../all-volunteers/sewa-tracking-modal/sewa-tracking-modal.component';
+import { DataService } from '../../../data.service';
 
 export interface BranchApplication {
   id: number;
+  uuid?: string; // UUID for API calls
   image?: string;
   name: string;
   age?: number;
@@ -56,11 +60,17 @@ export interface BranchApplication {
   templateUrl: './branch-applications.component.html',
   styleUrls: ['./branch-applications.component.scss']
 })
-export class BranchApplicationsComponent {
+export class BranchApplicationsComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  private dataService = inject(DataService);
 
   applications: BranchApplication[] = [];
   allApplications: BranchApplication[] = [];
+
+  // Loading and error states
+  isLoading = false;
+  error: string | null = null;
 
   // Selection
   selectedApplications = new Set<number>();
@@ -97,52 +107,21 @@ export class BranchApplicationsComponent {
   ];
 
   constructor() {
-    // Sample data - replace with actual API call
-    const branches = ['Nurmahal', 'Jalandhar', 'Ludhiana', 'Amritsar', 'Patiala'];
-    const genders = ['Male', 'Female', 'Other'];
-    
-    for (let i = 0; i < 15; i++) {
-      const branch = branches[i % branches.length];
-      this.allApplications.push({
-        id: 30000 + i,
-        image: i % 3 === 0 ? undefined : `https://via.placeholder.com/40?text=${String.fromCharCode(65 + i)}`,
-        name: `Applicant ${i + 1}`,
-        age: 20 + (i * 2),
-        relationName: i % 3 === 0 ? 'D/O Sh. Rishi Goyal' : i % 3 === 1 ? 'S/O Sh. Kumar' : 'W/O Sh. Singh',
-        gender: genders[i % genders.length],
-        address: {
-          street: `Street ${i}, City- Test${i}, Teh-Test, Distt-Test,`,
-          pincode: `State-${100000 + i}`,
-          cityName: `City : Test${i}`,
-          correspondingBranch: `Corresponding branch : ${branch}`,
-          taskBranch: `Task branch : ${branch}`,
-          mobileNumber: `Mobile Number : ${9000000000 + i}`
-        },
-        regularSewa: {
-          tracking: 'Vise Sewa Tracking',
-          sewaName: `Sewa Name ${i}`,
-          count: 10 + i
-        },
-        enterBy: i % 2 === 0 ? 'Admin' : 'Manager',
-        sewaInterest: i % 2 === 0,
-        applicationDate: new Date(2025, 0, 15 + i).toISOString().split('T')[0],
-        status: i % 3 === 0 ? 'Pending' : i % 3 === 1 ? 'Approved' : 'Rejected'
-      });
-    }
+    this.buildFilterOptions();
+  }
 
-    // Build filter options
+  ngOnInit(): void {
+    this.loadBranchApplications();
+  }
+
+  /**
+   * Builds filter options
+   */
+  private buildFilterOptions(): void {
     this.genderOptions = [
       { id: '1', label: 'Male', value: 'Male' },
       { id: '2', label: 'Female', value: 'Female' },
       { id: '3', label: 'Other', value: 'Other' }
-    ];
-
-    this.taskBranchOptions = [
-      { id: '1', label: 'Nurmahal', value: 'Nurmahal' },
-      { id: '2', label: 'Jalandhar', value: 'Jalandhar' },
-      { id: '3', label: 'Ludhiana', value: 'Ludhiana' },
-      { id: '4', label: 'Amritsar', value: 'Amritsar' },
-      { id: '5', label: 'Patiala', value: 'Patiala' }
     ];
 
     this.sortOrderOptions = [
@@ -155,7 +134,110 @@ export class BranchApplicationsComponent {
       { id: '6', label: 'Application Date (DESC)', value: 'applicationDate:desc' }
     ];
 
-    this.applyFilter();
+    // Task branch options will be populated from API data if needed
+    this.taskBranchOptions = [];
+  }
+
+  /**
+   * Loads branch applications from the API
+   */
+  loadBranchApplications(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.dataService.get<any>('v1/branchApplication').pipe(
+      catchError((error) => {
+        console.error('Error loading branch applications:', error);
+        this.error = error.error?.message || error.message || 'Failed to load branch applications. Please try again.';
+        return of({ data: [] }); // Return empty array to prevent breaking
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe((response) => {
+      // Handle different response structures
+      const applicationsData = response.data || response.applications || response.results || response || [];
+      
+      // Map API response to BranchApplication interface
+      this.allApplications = (Array.isArray(applicationsData) ? applicationsData : []).map((item: any) => {
+        // Get first image from user_images array if available
+        const firstImage = item.user_images && item.user_images.length > 0 
+          ? item.user_images[0].full_path 
+          : null;
+
+        // Extract relation name from user_profile
+        const relationOf = item.user_profile?.relation_of || {};
+        const relationName = Object.values(relationOf)[0] as string || '';
+
+        // Extract address information
+        const userAddress = item.user_address || {};
+        const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
+        const primaryAddress = addressArray[0] || {};
+
+        // Extract sewa information
+        const regularSewa = item.regular_sewa || {};
+        const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
+        const primarySewa = sewaArray[0] || {};
+
+        const application: BranchApplication = {
+          id: item.unique_id || item.id || 0,
+          uuid: item.id, // Store UUID for API calls
+          image: firstImage,
+          name: item.name || '',
+          age: item.user_profile?.age || null,
+          relationName: relationName || item.user_profile?.relation_name || '',
+          gender: item.user_profile?.gender ? 
+            item.user_profile.gender.charAt(0).toUpperCase() + item.user_profile.gender.slice(1).toLowerCase() : '',
+          address: {
+            street: primaryAddress.address_1 || primaryAddress.street || '',
+            city: primaryAddress.city || '',
+            state: primaryAddress.state || '',
+            pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
+            cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
+            correspondingBranch: primaryAddress.corresponding_branch ? 
+              `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
+            taskBranch: primaryAddress.task_branch ? 
+              `Task branch : ${primaryAddress.task_branch}` : '',
+            mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
+          },
+          regularSewa: primarySewa.tracking || primarySewa.sewa_name || primarySewa.count ? {
+            tracking: primarySewa.tracking || '',
+            sewaName: primarySewa.sewa_name || primarySewa.name || '',
+            count: primarySewa.count || primarySewa.sewa_count || null
+          } : undefined,
+          enterBy: item.entered_by || item.created_by || '',
+          sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
+          applicationDate: item.application_date || item.created_at || item.date || '',
+          status: item.status || item.application_status || 'Pending'
+        };
+        
+        return application;
+      });
+
+      // Update task branch options from API data
+      this.updateTaskBranchOptions();
+
+      this.applyFilter();
+    });
+  }
+
+  /**
+   * Updates task branch options from loaded applications
+   */
+  private updateTaskBranchOptions(): void {
+    const branches = new Set<string>();
+    this.allApplications.forEach(app => {
+      const taskBranch = app.address.taskBranch?.replace('Task branch : ', '');
+      const correspondingBranch = app.address.correspondingBranch?.replace('Corresponding branch : ', '');
+      if (taskBranch) branches.add(taskBranch);
+      if (correspondingBranch) branches.add(correspondingBranch);
+    });
+
+    this.taskBranchOptions = Array.from(branches).sort().map((branch, index) => ({
+      id: String(index + 1),
+      label: branch,
+      value: branch
+    }));
   }
 
   get filteredApplications(): BranchApplication[] {
@@ -349,23 +431,64 @@ export class BranchApplicationsComponent {
 
   approveApplication(application: BranchApplication): void {
     if (confirm(`Approve application for ${application.name}?`)) {
-      application.status = 'Approved';
-      console.log('Application approved:', application.id);
+      const originalApplication = this.allApplications.find(a => a.id === application.id);
+      const applicationUuid = originalApplication?.uuid || application.id;
+      
+      this.dataService.patch(`v1/branchApplication/${applicationUuid}`, { status: 'Approved' }).pipe(
+        catchError((error) => {
+          console.error('Error approving application:', error);
+          alert('Failed to approve application. Please try again.');
+          return of(null);
+        })
+      ).subscribe((response) => {
+        if (response) {
+          application.status = 'Approved';
+          // Reload applications to get updated data
+          this.loadBranchApplications();
+        }
+      });
     }
   }
 
   rejectApplication(application: BranchApplication): void {
     if (confirm(`Reject application for ${application.name}?`)) {
-      application.status = 'Rejected';
-      console.log('Application rejected:', application.id);
+      const originalApplication = this.allApplications.find(a => a.id === application.id);
+      const applicationUuid = originalApplication?.uuid || application.id;
+      
+      this.dataService.patch(`v1/branchApplication/${applicationUuid}`, { status: 'Rejected' }).pipe(
+        catchError((error) => {
+          console.error('Error rejecting application:', error);
+          alert('Failed to reject application. Please try again.');
+          return of(null);
+        })
+      ).subscribe((response) => {
+        if (response) {
+          application.status = 'Rejected';
+          // Reload applications to get updated data
+          this.loadBranchApplications();
+        }
+      });
     }
   }
 
   // Toggle Sewa Interest
   toggleSewaInterest(application: BranchApplication, event: Event): void {
     event.stopPropagation();
-    application.sewaInterest = !application.sewaInterest;
-    console.log('Toggled sewa interest for application:', application.id, application.sewaInterest);
+    const newValue = !application.sewaInterest;
+    application.sewaInterest = newValue; // Optimistic update
+    
+    // Find the original application data to get UUID if available
+    const originalApplication = this.allApplications.find(a => a.id === application.id);
+    const applicationUuid = originalApplication?.uuid || application.id;
+    
+    this.dataService.patch(`v1/branchApplication/${applicationUuid}`, { sewa_interest: newValue ? 1 : 0 }).pipe(
+      catchError((error) => {
+        console.error('Error updating sewa interest:', error);
+        application.sewaInterest = !newValue; // Revert on error
+        alert('Failed to update sewa interest. Please try again.');
+        return of(null);
+      })
+    ).subscribe();
   }
 
   // Format address

@@ -3,8 +3,19 @@
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
     </div>
 
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Loading branch applications...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadBranchApplications()">Retry</button>
+    </div>
+
     <!-- Filter Section -->
-    <div class="listing-search">
+    <div class="listing-search" *ngIf="!isLoading && !error">
         <div class="listing-search-item">
             <input
                 type="search"
@@ -48,7 +59,7 @@
     </div>
 
     <!-- Applications table -->
-    <div class="table-container">
+    <div class="table-container" *ngIf="!isLoading && !error">
         <table class="table">
             <thead>
                 <tr>
@@ -147,6 +158,7 @@
 
     <!-- Pagination -->
     <app-pager
+        *ngIf="!isLoading && !error"
         [total]="totalItems"
         [pageSize]="pageSize"
         [currentPage]="currentPage"
@@ -157,7 +169,7 @@
 
     <!-- Empty state -->
     <app-empty-state
-        *ngIf="applications.length === 0"
+        *ngIf="!isLoading && !error && applications.length === 0"
         title="No Applications Found"
         description="There are no branch applications to display at the moment."
         icon="description"

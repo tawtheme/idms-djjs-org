@@ -187,7 +187,9 @@
         
         <app-create-visitor
             [hideBreadcrumbs]="true"
-            (visitorCreated)="onVisitorCreated()">
+            [hideFormActions]="true"
+            (visitorCreated)="onVisitorCreated()"
+            #createVisitorComponent>
         </app-create-visitor>
     </app-side-panel>
 </div>

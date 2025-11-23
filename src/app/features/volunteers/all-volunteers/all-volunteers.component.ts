@@ -1,7 +1,9 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -9,6 +11,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { SewaTrackingModalComponent } from './sewa-tracking-modal/sewa-tracking-modal.component';
 import { MoreFiltersModalComponent } from './more-filters-modal/more-filters-modal.component';
+import { DataService } from '../../../data.service';
 
 export interface Volunteer {
   id: number;
@@ -58,11 +61,17 @@ export interface Volunteer {
   templateUrl: './all-volunteers.component.html',
   styleUrls: ['./all-volunteers.component.scss']
 })
-export class AllVolunteersComponent {
+export class AllVolunteersComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  private dataService = inject(DataService);
 
   volunteers: Volunteer[] = [];
   allVolunteers: Volunteer[] = [];
+
+  // Loading and error states
+  isLoading = false;
+  error: string | null = null;
 
   // Selection
   selectedVolunteers = new Set<number>();
@@ -99,85 +108,103 @@ export class AllVolunteersComponent {
   ];
 
   constructor() {
-    // Sample data - replace with actual API call
-    this.allVolunteers = [
-      {
-        id: 27276,
-        image: undefined,
-        name: 'Aparna',
-        age: 10,
-        relationName: 'D/O Sh. Rishi Goyal',
-        gender: 'Female',
-        uid: 'UID123456',
-        badgeNo: 'BADGE001',
-        address: {
-          street: 'Divya Gram, Vill\\City- Nurmahal, Teh-Nakodar, Distt-Jalandhar,',
-          pincode: 'Punjab-144039',
-          cityName: 'City : Nurmahal',
-          correspondingBranch: 'Corresponding branch : Nurmahal',
-          taskBranch: 'Task branch : Nurmahal',
-          mobileNumber: 'Mobile Number : 8699095445'
-        },
-        regularSewa: {
-          tracking: 'Vise Sewa Tracking',
-          sewaName: 'Jal Sewa Sis(Nurmahal)',
-          count: 36
-        },
-        enterBy: '',
-        sewaInterest: true,
-        sewaAllocated: true,
-        sewaMode: 'regular'
-      }
-    ];
+    this.buildFilterOptions();
+  }
 
-    // Generate 14 more sample records
-    const branches = ['Nurmahal', 'Jalandhar', 'Ludhiana', 'Amritsar', 'Patiala'];
-    const genders = ['Male', 'Female', 'Other'];
-    
-    for (let i = 1; i < 15; i++) {
-      const branch = branches[i % branches.length];
-      this.allVolunteers.push({
-        id: 27276 + i,
-        image: i % 3 === 0 ? undefined : `https://via.placeholder.com/40?text=${String.fromCharCode(65 + i)}`,
-        name: `Volunteer ${i + 1}`,
-        age: 20 + (i * 2),
-        relationName: i % 3 === 0 ? 'D/O Sh. Rishi Goyal' : i % 3 === 1 ? 'S/O Sh. Kumar' : 'W/O Sh. Singh',
-        gender: genders[i % genders.length],
-        uid: `UID${123456 + i}`,
-        badgeNo: `BADGE${String(i).padStart(3, '0')}`,
-        address: {
-          street: `Street ${i}, City- Test${i}, Teh-Test, Distt-Test,`,
-          pincode: `State-${100000 + i}`,
-          cityName: `City : Test${i}`,
-          correspondingBranch: `Corresponding branch : ${branch}`,
-          taskBranch: `Task branch : ${branch}`,
-          mobileNumber: `Mobile Number : ${9000000000 + i}`
-        },
-        regularSewa: {
-          tracking: 'Vise Sewa Tracking',
-          sewaName: `Sewa Name ${i}`,
-          count: 10 + i
-        },
-        enterBy: i % 2 === 0 ? 'Admin' : 'Manager',
-        sewaInterest: i % 2 === 0,
-        sewaAllocated: i % 3 !== 0,
-        sewaMode: i % 2 === 0 ? 'regular' : 'occasional'
+  ngOnInit(): void {
+    this.loadVolunteers();
+  }
+
+  /**
+   * Loads volunteers from the API
+   */
+  loadVolunteers(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.dataService.get<any>('v1/volunteers').pipe(
+      catchError((error) => {
+        console.error('Error loading volunteers:', error);
+        this.error = error.error?.message || error.message || 'Failed to load volunteers. Please try again.';
+        return of({ data: [] }); // Return empty array to prevent breaking
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe((response) => {
+      // Handle different response structures
+      const volunteersData = response.data || response.volunteers || response.results || response || [];
+      
+      // Map API response to Volunteer interface
+      this.allVolunteers = (Array.isArray(volunteersData) ? volunteersData : []).map((item: any) => {
+        // Get first image from user_images array if available
+        const firstImage = item.user_images && item.user_images.length > 0 
+          ? item.user_images[0].full_path 
+          : null;
+
+        // Extract relation name from user_profile
+        const relationOf = item.user_profile?.relation_of || {};
+        const relationName = Object.values(relationOf)[0] as string || '';
+
+        // Extract address information
+        const userAddress = item.user_address || {};
+        const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
+        const primaryAddress = addressArray[0] || {};
+
+        // Extract sewa information
+        const regularSewa = item.regular_sewa || {};
+        const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
+        const primarySewa = sewaArray[0] || {};
+
+        const volunteer: Volunteer & { uuid?: string } = {
+          id: item.unique_id || item.id || 0,
+          uuid: item.id, // Store UUID for API calls
+          image: firstImage,
+          name: item.name || '',
+          age: item.user_profile?.age || null,
+          relationName: relationName || item.user_profile?.relation_name || '',
+          gender: item.user_profile?.gender ? 
+            item.user_profile.gender.charAt(0).toUpperCase() + item.user_profile.gender.slice(1).toLowerCase() : '',
+          uid: item.uid || item.user_profile?.uid || '',
+          badgeNo: item.badge_no || item.badge_number || '',
+          address: {
+            street: primaryAddress.address_1 || primaryAddress.street || '',
+            city: primaryAddress.city || '',
+            state: primaryAddress.state || '',
+            pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
+            cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
+            correspondingBranch: primaryAddress.corresponding_branch ? 
+              `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
+            taskBranch: primaryAddress.task_branch ? 
+              `Task branch : ${primaryAddress.task_branch}` : '',
+            mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
+          },
+          regularSewa: primarySewa.tracking || primarySewa.sewa_name || primarySewa.count ? {
+            tracking: primarySewa.tracking || '',
+            sewaName: primarySewa.sewa_name || primarySewa.name || '',
+            count: primarySewa.count || primarySewa.sewa_count || null
+          } : undefined,
+          enterBy: item.entered_by || item.created_by || '',
+          sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
+          sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
+          sewaMode: item.sewa_mode || primarySewa.mode || ''
+        };
+        
+        return volunteer;
       });
-    }
 
-    // Build filter options
+      this.applyFilter();
+    });
+  }
+
+  /**
+   * Builds filter options
+   */
+  private buildFilterOptions(): void {
     this.genderOptions = [
       { id: '1', label: 'Male', value: 'Male' },
       { id: '2', label: 'Female', value: 'Female' },
       { id: '3', label: 'Other', value: 'Other' }
-    ];
-
-    this.taskBranchOptions = [
-      { id: '1', label: 'Nurmahal', value: 'Nurmahal' },
-      { id: '2', label: 'Jalandhar', value: 'Jalandhar' },
-      { id: '3', label: 'Ludhiana', value: 'Ludhiana' },
-      { id: '4', label: 'Amritsar', value: 'Amritsar' },
-      { id: '5', label: 'Patiala', value: 'Patiala' }
     ];
 
     this.sortOrderOptions = [
@@ -188,7 +215,8 @@ export class AllVolunteersComponent {
       { id: '4', label: 'Id (DESC)', value: 'id:desc' }
     ];
 
-    this.applyFilter();
+    // Task branch options will be populated from API data if needed
+    this.taskBranchOptions = [];
   }
 
   get filteredVolunteers(): Volunteer[] {
@@ -391,16 +419,41 @@ export class AllVolunteersComponent {
 
   deleteVolunteer(volunteer: Volunteer): void {
     if (confirm(`Are you sure you want to delete ${volunteer.name}?`)) {
-      this.allVolunteers = this.allVolunteers.filter(v => v.id !== volunteer.id);
-      this.applyFilter();
+      // Find the original volunteer data to get UUID if available
+      const originalVolunteer = this.allVolunteers.find(v => v.id === volunteer.id);
+      const volunteerUuid = (originalVolunteer as any)?.uuid || volunteer.id;
+      
+      this.dataService.delete(`v1/volunteers/${volunteerUuid}`).pipe(
+        catchError((error) => {
+          console.error('Error deleting volunteer:', error);
+          alert('Failed to delete volunteer. Please try again.');
+          return of(null);
+        })
+      ).subscribe(() => {
+        this.allVolunteers = this.allVolunteers.filter(v => v.id !== volunteer.id);
+        this.applyFilter();
+      });
     }
   }
 
   // Toggle Sewa Interest
   toggleSewaInterest(volunteer: Volunteer, event: Event): void {
     event.stopPropagation();
-    volunteer.sewaInterest = !volunteer.sewaInterest;
-    console.log('Toggled sewa interest for volunteer:', volunteer.id, volunteer.sewaInterest);
+    const newValue = !volunteer.sewaInterest;
+    volunteer.sewaInterest = newValue; // Optimistic update
+    
+    // Find the original volunteer data to get UUID if available
+    const originalVolunteer = this.allVolunteers.find(v => v.id === volunteer.id);
+    const volunteerUuid = (originalVolunteer as any)?.uuid || volunteer.id;
+    
+    this.dataService.patch(`v1/volunteers/${volunteerUuid}`, { sewa_interest: newValue ? 1 : 0 }).pipe(
+      catchError((error) => {
+        console.error('Error updating sewa interest:', error);
+        volunteer.sewaInterest = !newValue; // Revert on error
+        alert('Failed to update sewa interest. Please try again.');
+        return of(null);
+      })
+    ).subscribe();
   }
 
   // Format address
