@@ -77,22 +77,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'preachers/desiring-devotees',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/preachers/desiring-devotees-list/desiring-devotees-list.component').then(
-        (m) => m.DesiringDevoteesListComponent
-      ),
-  },
-  {
-    path: 'preachers/preachers-list',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/preachers/preachers-list/preachers-list.component').then(
-        (m) => m.PreachersListComponent
-      ),
-  },
-  {
     path: 'forgot-password',
     canMatch: [guestOnly],
     loadComponent: () =>

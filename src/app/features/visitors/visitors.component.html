@@ -1,6 +1,7 @@
 <div class="visitors-container">
     <div class="visitors-header">
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVisitorModal()">Create Visitor</button>
     </div>
 
     <!-- Filter Section -->
@@ -57,8 +58,19 @@
         </div>
     </div>
 
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-container" style="text-align: center; padding: 40px;">
+        <p>Loading visitors...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-container" style="text-align: center; padding: 40px; color: red;">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary" (click)="loadVisitors()">Retry</button>
+    </div>
+
     <!-- Visitors table -->
-    <div class="table-container">
+    <div class="table-container" *ngIf="!isLoading && !error">
         <table class="table">
             <thead>
                 <tr>
@@ -140,6 +152,7 @@
 
     <!-- Pagination -->
     <app-pager
+        *ngIf="!isLoading && !error"
         [total]="totalItems"
         [pageSize]="pageSize"
         [currentPage]="currentPage"
@@ -150,11 +163,32 @@
 
     <!-- Empty state -->
     <app-empty-state
-        *ngIf="visitors.length === 0"
+        *ngIf="!isLoading && !error && visitors.length === 0"
         title="No Visitors Found"
         description="There are no visitors to display at the moment."
         icon="people"
         [showButton]="false">
     </app-empty-state>
+
+    <!-- Create Visitor Side Panel -->
+    <app-side-panel
+        [isOpen]="createVisitorModalOpen"
+        title="Create Visitor"
+        [width]="600"
+        position="right"
+        [closable]="true"
+        [showBackdrop]="true"
+        [closeOnBackdropClick]="false"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="createVisitorFooterButtons"
+        (close)="closeCreateVisitorModal()"
+        (footerAction)="onFooterAction($event)">
+        
+        <app-create-visitor
+            [hideBreadcrumbs]="true"
+            (visitorCreated)="onVisitorCreated()">
+        </app-create-visitor>
+    </app-side-panel>
 </div>
 

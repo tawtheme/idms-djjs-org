@@ -35,12 +35,6 @@ export class DashboardComponent {
       iconColor: 'blue'
     },
     { 
-      title: 'Total Preachers', 
-      value: 2, 
-      icon: 'record_voice_over',
-      iconColor: 'blue'
-    },
-    { 
       title: 'Total Branches', 
       value: 135, 
       icon: 'account_tree',

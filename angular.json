@@ -82,7 +82,8 @@
               "buildTarget": "idms-djjs-org:build:production"
             },
             "development": {
-              "buildTarget": "idms-djjs-org:build:development"
+              "buildTarget": "idms-djjs-org:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

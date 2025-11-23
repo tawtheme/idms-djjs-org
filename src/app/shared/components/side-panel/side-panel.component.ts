@@ -30,10 +30,20 @@ export class SidePanelComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() position: 'left' | 'right' = 'right';
   @Input() closable: boolean = true;
   @Input() showBackdrop: boolean = true;
+  @Input() closeOnBackdropClick: boolean = true;
   @Input() backdropClass: string = 'side-panel-backdrop';
   @Input() panelClass: string = '';
+  @Input() showFooter: boolean = false;
+  @Input() footerAlign: 'left' | 'center' | 'right' = 'right';
+  @Input() footerButtons: Array<{
+    text: string;
+    type: 'primary' | 'secondary' | 'danger';
+    disabled?: boolean;
+    action?: string;
+  }> = [];
 
   @Output() close = new EventEmitter<void>();
+  @Output() footerAction = new EventEmitter<string>();
 
   @ViewChild('panelTemplate', { static: false }) panelTemplate!: TemplateRef<any>;
 
@@ -69,6 +79,12 @@ export class SidePanelComponent implements AfterViewInit, OnDestroy, OnChanges {
       } else if (!this.isOpen && this.overlayRef) {
         this.closePanel();
       }
+    }
+  }
+
+  onFooterButtonClick(button: any): void {
+    if (button.action) {
+      this.footerAction.emit(button.action);
     }
   }
 
@@ -175,7 +191,7 @@ export class SidePanelComponent implements AfterViewInit, OnDestroy, OnChanges {
         }
       });
 
-      if (this.closable) {
+      if (this.closable && this.closeOnBackdropClick) {
         this.overlayRef.backdropClick()
           .pipe(takeUntil(this.destroy$))
           .subscribe(() => {

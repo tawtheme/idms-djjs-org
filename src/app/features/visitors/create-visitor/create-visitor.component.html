@@ -1,0 +1,218 @@
+<form (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form">
+    <!-- Name and Phone - Two Columns -->
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="name">Name </label>
+            <input
+                type="text"
+                id="name"
+                class="form-control"
+                [(ngModel)]="form.name"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter name"
+                required>
+        </div>
+    </div>
+
+    <!-- Gender and Date of Birth - Two Columns -->
+    <div class="form-grid cols-2">
+        <div class="form-field">
+            <label for="phone">Phone </label>
+            <input
+                type="tel"
+                id="phone"
+                class="form-control"
+                [(ngModel)]="form.phone"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter phone"
+                (input)="onPhoneChange()"
+                required>
+        </div>
+        <div class="form-field">
+            <label for="gender">Gender </label>
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Select Gender"
+                (selectionChange)="onGenderChange($event)"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+    </div>
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="dob">Date of birth</label>
+            <app-datepicker
+                [value]="form.dob"
+                placeholder="DD/MM/YYYY"
+                format="dd/MM/yyyy"
+                (dateChange)="onDobChange($event)">
+            </app-datepicker>
+        </div>
+    </div>
+
+    <!-- Father Name and Mother Name -->
+    <div class="form-grid cols-2">
+        <div class="form-field">
+            <label for="fatherName">Father Name</label>
+            <input
+                type="text"
+                id="fatherName"
+                class="form-control"
+                [(ngModel)]="form.fatherName"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter father name">
+        </div>
+
+        <div class="form-field">
+            <label for="motherName">Mother Name</label>
+            <input
+                type="text"
+                id="motherName"
+                class="form-control"
+                [(ngModel)]="form.motherName"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter mother name">
+        </div>
+    </div>
+
+    <!-- Spouse Name -->
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="spouseName">Spouse Name</label>
+            <input
+                type="text"
+                id="spouseName"
+                class="form-control"
+                [(ngModel)]="form.spouseName"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter spouse name">
+        </div>
+    </div>
+
+    <!-- Address -->
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="address">Address</label>
+            <input
+                type="text"
+                id="address"
+                class="form-control"
+                [(ngModel)]="form.address"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter address">
+        </div>
+    </div>
+
+    <!-- Purpose of Visit -->
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="purposeOfVisit">Purpose of Visit </label>
+            <input
+                type="text"
+                id="purposeOfVisit"
+                class="form-control"
+                [(ngModel)]="form.purposeOfVisit"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter purpose"
+                required>
+        </div>
+    </div>
+
+    <!-- Whatsapp Number, Email -->
+    <div class="form-grid cols-2">
+        <div class="form-field">
+            <label for="whatsappNumber">Whatsapp Number</label>
+            <input
+                type="tel"
+                id="whatsappNumber"
+                class="form-control"
+                [(ngModel)]="form.whatsappNumber"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter whatsapp number">
+        </div>
+
+        <div class="form-field">
+            <label for="email">Email Address</label>
+            <input
+                type="email"
+                id="email"
+                class="form-control"
+                [(ngModel)]="form.email"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter email">
+        </div>
+    </div>
+
+    <!-- Aadhaar Number -->
+    <div class="form-grid cols-1">
+        <div class="form-field">
+            <label for="aadhaarNumber">Aadhaar Number</label>
+            <input
+                type="text"
+                id="aadhaarNumber"
+                class="form-control"
+                [(ngModel)]="form.aadhaarNumber"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter aadhaar number"
+                maxlength="12">
+        </div>
+    </div>
+
+    <!-- Start Date and Valid Upto -->
+    <div class="form-grid cols-2">
+        <div class="form-field">
+            <label for="startDate">Start Date </label>
+            <app-datepicker
+                [value]="form.startDate"
+                placeholder="DD/MM/YYYY"
+                format="dd/MM/yyyy"
+                (dateChange)="onStartDateChange($event)">
+            </app-datepicker>
+        </div>
+
+        <div class="form-field">
+            <label for="validUpto">Valid Upto </label>
+            <app-datepicker
+                [value]="form.validUpto"
+                placeholder="DD/MM/YYYY"
+                format="dd/MM/yyyy"
+                (dateChange)="onValidUptoChange($event)">
+            </app-datepicker>
+        </div>
+    </div>
+
+    <!-- Image Upload Section -->
+    <div class="form-grid cols-1 image-upload-section">
+        <div class="form-field">
+            <label>Upload Profile Image</label>
+            <app-dropdown
+                [options]="imageOptions"
+                [selectedValues]="selectedImage"
+                placeholder="Select Image"
+                (selectionChange)="onImageChange($event)"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+    </div>
+    <div class="form-grid cols-1">
+        <div class="form-field" *ngIf="selectedImageType === 'upload'">
+            <app-file-upload
+                [config]="fileUploadConfig"
+                [disabled]="isLoading"
+                (filesSelected)="onFilesSelected($event)"
+                (fileRejected)="onFileRejected($event)"
+                (removed)="onFileRemoved($event)">
+            </app-file-upload>
+        </div>
+
+        <div class="form-field" *ngIf="selectedImageType === 'capture'">
+            <app-camera-upload
+                [disabled]="isLoading"
+                (imageCaptured)="onImageCaptured($event)"
+                (removed)="onCameraImageRemoved()">
+            </app-camera-upload>
+        </div>
+    </div>
+
+</form>

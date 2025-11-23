@@ -72,6 +72,32 @@
         padding: 24px;
         -webkit-overflow-scrolling: touch;
     }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px;
+        border-top: 1px solid $color-gray-200;
+        flex-shrink: 0;
+        background: $color-white;
+
+        &.footer-left {
+            justify-content: flex-start;
+        }
+
+        &.footer-center {
+            justify-content: center;
+        }
+
+        &.footer-right {
+            justify-content: flex-end;
+        }
+
+        .btn {
+            min-width: 100px;
+        }
+    }
 }
 
 // Animation for side panel entry

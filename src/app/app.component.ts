@@ -126,8 +126,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       '/volunteers': 'All Volunteers',
       '/volunteers/branch-applications': 'Branch Applications',
       '/volunteers/resigned-sewas': 'Resigned Sewas',
-      '/preachers/desiring-devotees': 'Desiring Devotees List',
-      '/preachers/preachers-list': 'Preachers List',
       '/sewa/all-sewa': 'All Sewa',
       '/sewa/allocate-sewa': 'Allocate Sewa',
       '/programs/programs-list': 'Programs List',

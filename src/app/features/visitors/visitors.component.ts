@@ -1,15 +1,21 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../shared/components/dropdown/dropdown.component';
+import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
+import { CreateVisitorComponent } from './create-visitor/create-visitor.component';
+import { DataService } from '../../data.service';
 
 export interface Visitor {
-  id: number;
+  id: number; // Display ID (unique_id)
+  uuid?: string; // UUID for API calls
   image?: string;
   name: string;
   email: string;
@@ -33,17 +39,29 @@ export interface Visitor {
     PagerComponent,
     EmptyStateComponent,
     MenuDropdownComponent,
-    DropdownComponent
+    DropdownComponent,
+    SidePanelComponent,
+    CreateVisitorComponent
   ],
   selector: 'app-visitors',
   templateUrl: './visitors.component.html',
   styleUrls: ['./visitors.component.scss']
 })
-export class VisitorsComponent {
+export class VisitorsComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+  @ViewChild('createVisitorComponent') createVisitorComponent!: CreateVisitorComponent;
+
+  private dataService = inject(DataService);
 
   visitors: Visitor[] = [];
   allVisitors: Visitor[] = [];
+
+  // Loading and error states
+  isLoading = false;
+  error: string | null = null;
+
+  // Create Visitor Modal
+  createVisitorModalOpen = false;
 
   // Selection
   selectedVisitors = new Set<number>();
@@ -66,60 +84,14 @@ export class VisitorsComponent {
   ];
 
   constructor() {
-    // Sample data - replace with actual API call
-    const sampleNames = [
-      'Kuldeep Kaur', 'Rajesh Kumar', 'Priya Sharma', 'Amit Singh', 'Sunita Devi',
-      'Vikram Patel', 'Anjali Gupta', 'Rohit Mehta', 'Kavita Joshi', 'Suresh Reddy',
-      'Meera Nair', 'Arjun Iyer', 'Deepa Menon', 'Nikhil Rao', 'Shweta Desai'
-    ];
-    
-    const sampleEmails = [
-      'kuldeep@gmail.com', 'rajesh@gmail.com', 'priya@gmail.com', 'amit@gmail.com', 'sunita@gmail.com',
-      'vikram@gmail.com', 'anjali@gmail.com', 'rohit@gmail.com', 'kavita@gmail.com', 'suresh@gmail.com',
-      'meera@gmail.com', 'arjun@gmail.com', 'deepa@gmail.com', 'nikhil@gmail.com', 'shweta@gmail.com'
-    ];
-    
-    const samplePhones = [
-      '8888899999', '7777788888', '6666677777', '5555566666', '4444455555',
-      '3333344444', '2222233333', '1111122222', '9999900000', '8888811111',
-      '7777722222', '6666633333', '5555544444', '4444455555', '3333366666'
-    ];
-    
-    const genders = ['Male', 'Female', 'Other'];
-    const purposes = [
-      'For Ayurvedic Pharmacy to See how the Medicene are made',
-      'General Visit',
-      'Meeting with Management',
-      'Volunteer Registration',
-      'Donation Inquiry',
-      'Program Participation',
-      'Branch Visit',
-      'Sewa Interest Discussion'
-    ];
+    this.buildFilterOptions();
+  }
 
-    this.allVisitors = [];
-    
-    for (let i = 0; i < 15; i++) {
-      const baseId = 22273 + i;
-      const date = new Date(2025, 4, 22 + i);
-      const validDate = new Date(2025, 4, 23 + i);
-      
-      this.allVisitors.push({
-        id: baseId,
-        image: `https://via.placeholder.com/40?text=${sampleNames[i].charAt(0)}`,
-        name: sampleNames[i],
-        email: sampleEmails[i],
-        phone: samplePhones[i],
-        date: `${date.toLocaleDateString('en-GB')} 12:00 am`,
-        validUpto: `${validDate.toLocaleDateString('en-GB')} 12:00 am`,
-        purposeToVisit: purposes[i % purposes.length],
-        sewaInterest: i % 2 === 0,
-        gender: genders[i % genders.length],
-        relationName: i % 3 === 0 ? 'Mother' : i % 3 === 1 ? 'Father' : 'Spouse',
-        uid: `UID${123456 + i}`
-      });
-    }
+  ngOnInit(): void {
+    this.loadVisitors();
+  }
 
+  buildFilterOptions(): void {
     // Build filter options
     this.genderOptions = [
       { id: '1', label: 'Male', value: 'Male' },
@@ -149,8 +121,70 @@ export class VisitorsComponent {
       { id: '17', label: 'City (ASC)', value: 'city:asc' },
       { id: '18', label: 'City (DESC)', value: 'city:desc' }
     ];
+  }
 
-    this.applyFilter();
+  loadVisitors(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.dataService.get<any>('v1/visitors').pipe(
+      catchError((error) => {
+        console.error('Error loading visitors:', error);
+        this.error = error.error?.message || error.message || 'Failed to load visitors. Please try again.';
+        // Return empty array on error to prevent breaking the UI
+        return of({ data: [], visitors: [], results: [] });
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe((response) => {
+      // Handle different response structures
+      const visitorsData = response.data || response.visitors || response.results || response || [];
+      
+      // Map API response to Visitor interface
+      this.allVisitors = (Array.isArray(visitorsData) ? visitorsData : []).map((item: any) => {
+        // Get first image from user_images array
+        const firstImage = item.user_images && item.user_images.length > 0 
+          ? item.user_images[0].full_path 
+          : null;
+        
+        // Extract relation name from relation_of object
+        let relationName = '';
+        if (item.user_profile?.relation_of) {
+          const relationOf = item.user_profile.relation_of;
+          // Get first value from relation_of object
+          const relationKeys = Object.keys(relationOf);
+          if (relationKeys.length > 0) {
+            relationName = relationOf[relationKeys[0]] || '';
+          }
+        }
+        
+        // Convert gender to proper case
+        let gender = '';
+        if (item.user_profile?.gender) {
+          const genderValue = item.user_profile.gender.toLowerCase();
+          gender = genderValue === 'male' ? 'Male' : genderValue === 'female' ? 'Female' : 'Other';
+        }
+        
+        return {
+          id: item.unique_id || 0, // Display ID (unique_id)
+          uuid: item.id || '', // UUID for API calls
+          image: firstImage || null,
+          name: item.name || '',
+          email: item.email || '', // Email not in API response
+          phone: item.phone || '',
+          date: item.created_at || item.date || '', // Date not in API response
+          validUpto: item.valid_upto || item.valid_until || '', // Not in API response
+          purposeToVisit: item.purpose_to_visit || item.purpose || '', // Not in API response
+          sewaInterest: item.user_profile?.sewa_interest === 1 || false, // Convert number to boolean
+          gender: gender,
+          relationName: relationName,
+          uid: item.unique_id?.toString() || item.uid || ''
+        };
+      });
+
+      this.applyFilter();
+    });
   }
 
   get filteredVisitors(): Visitor[] {
@@ -347,17 +381,49 @@ export class VisitorsComponent {
 
   deleteVisitor(visitor: Visitor): void {
     if (confirm(`Are you sure you want to delete ${visitor.name}?`)) {
-      this.allVisitors = this.allVisitors.filter(v => v.id !== visitor.id);
-      this.applyFilter();
+      const visitorId = visitor.uuid || visitor.id;
+      this.dataService.delete(`v1/visitors/${visitorId}`).pipe(
+        catchError((error) => {
+          console.error('Error deleting visitor:', error);
+          alert('Failed to delete visitor. Please try again.');
+          return of(null);
+        })
+      ).subscribe(() => {
+        // Remove from local array on success
+        this.allVisitors = this.allVisitors.filter(v => v.id !== visitor.id);
+        this.applyFilter();
+      });
     }
   }
 
   // Toggle Sewa Interest
   toggleSewaInterest(visitor: Visitor, event: Event): void {
     event.stopPropagation();
-    visitor.sewaInterest = !visitor.sewaInterest;
-    // Here you would typically make an API call to update the visitor
-    console.log('Toggled sewa interest for visitor:', visitor.id, visitor.sewaInterest);
+    const newValue = !visitor.sewaInterest;
+    
+    // Optimistically update UI
+    visitor.sewaInterest = newValue;
+    
+    // Use UUID for API call, convert boolean to number (1 or 0)
+    const visitorId = visitor.uuid || visitor.id;
+    const sewaInterestValue = newValue ? 1 : 0;
+    
+    // Make API call to update - need to update user_profile
+    this.dataService.patch(`v1/visitors/${visitorId}`, { 
+      user_profile: {
+        sewa_interest: sewaInterestValue
+      }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error updating sewa interest:', error);
+        // Revert on error
+        visitor.sewaInterest = !newValue;
+        alert('Failed to update sewa interest. Please try again.');
+        return of(null);
+      })
+    ).subscribe(() => {
+      console.log('Sewa interest updated successfully');
+    });
   }
 
   // Format date
@@ -376,10 +442,6 @@ export class VisitorsComponent {
     return dateString;
   }
 
-  onCreateVisitorClick(): void {
-    console.log('Create new visitor');
-    // Implement create visitor logic
-  }
 
   exportMenuOpen = false;
 
@@ -541,6 +603,44 @@ export class VisitorsComponent {
       printWindow.print();
       printWindow.close();
     }, 250);
+  }
+
+  // Create Visitor Modal Methods
+  createVisitorFooterButtons = [
+    {
+      text: 'Cancel',
+      type: 'secondary' as const,
+      action: 'cancel'
+    },
+    {
+      text: 'Submit',
+      type: 'primary' as const,
+      action: 'submit'
+    }
+  ];
+
+  openCreateVisitorModal(): void {
+    this.createVisitorModalOpen = true;
+  }
+
+  closeCreateVisitorModal(): void {
+    this.createVisitorModalOpen = false;
+  }
+
+  onFooterAction(action: string): void {
+    if (action === 'cancel') {
+      this.closeCreateVisitorModal();
+    } else if (action === 'submit') {
+      // Trigger form submission in create-visitor component
+      if (this.createVisitorComponent) {
+        this.createVisitorComponent.submitForm();
+      }
+    }
+  }
+
+  onVisitorCreated(): void {
+    this.closeCreateVisitorModal();
+    this.loadVisitors(); // Reload the visitors list
   }
 }
 

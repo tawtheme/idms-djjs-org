@@ -1,0 +1,9 @@
+{
+  "/idms_api": {
+    "target": "https://idms.djjsglobal.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+

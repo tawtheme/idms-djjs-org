@@ -1,0 +1,77 @@
+<div class="camera-upload" [class.disabled]="disabled">
+    @if (!capturedImageFile) {
+        @if (isStreaming) {
+            <!-- Camera Preview -->
+            <div class="camera-preview-container">
+                <div class="video-container">
+                    <video 
+                        #videoElement
+                        autoplay
+                        playsinline
+                        muted
+                        class="camera-video">
+                    </video>
+                    <canvas #canvasElement style="display: none;"></canvas>
+                </div>
+                <div class="camera-controls">
+                    <button 
+                        type="button" 
+                        class="btn btn--secondary btn--sm" 
+                        (click)="cancelCapture()"
+                        [disabled]="disabled">
+                        Cancel
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn btn--primary btn--sm capture-btn" 
+                        (click)="captureImage(); $event.stopPropagation()"
+                        [disabled]="disabled || !isStreaming"
+                        [attr.aria-label]="'Capture image'">
+                        <span class="material-icons">camera_alt</span>
+                        Capture
+                    </button>
+                </div>
+            </div>
+        } @else if (hasError) {
+            <!-- Error State -->
+            <div class="error-container">
+                <span class="material-icons error-icon">error_outline</span>
+                <p class="error-message">{{ errorMessage }}</p>
+                <button type="button" class="btn btn--primary btn--sm" (click)="retryCamera()" [disabled]="disabled">
+                    Retry
+                </button>
+            </div>
+        } @else {
+            <!-- Initial State - Drop Zone Style -->
+            <div class="drop-zone" (click)="startCamera()">
+                <div class="drop-zone-inner">
+                    <div class="drop-zone-content">
+                        <span class="material-icons">camera_alt</span>
+                        <div class="drop-text">
+                            Capture Live Profile Image
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn--primary btn--sm" [disabled]="disabled">
+                        Capture
+                    </button>
+                </div>
+            </div>
+        }
+    } @else {
+        <!-- Image Preview -->
+        <div class="image-preview-container">
+            <div class="image-preview-wrapper">
+                <img [src]="capturedImagePreview || ''" [alt]="capturedImageFile?.name || 'Captured image'" class="preview-image">
+                <button 
+                    type="button" 
+                    class="delete-image-btn" 
+                    (click)="removeFile()"
+                    title="Delete image"
+                    [disabled]="disabled">
+                    <span class="material-icons">delete</span>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+

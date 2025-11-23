@@ -41,6 +41,7 @@ export class FileUploadComponent {
 
   isDragging = false;
   selectedFiles: File[] = [];
+  imagePreviews: Map<File, string> = new Map();
 
   onBrowseClick(event: MouseEvent): void {
     if (!this.allowBrowse) {
@@ -92,7 +93,16 @@ export class FileUploadComponent {
 
   removeFile(file: File): void {
     this.selectedFiles = this.selectedFiles.filter(f => f !== file);
+    this.imagePreviews.delete(file);
     this.removed.emit(file);
+  }
+
+  isImageFile(file: File): boolean {
+    return file.type.startsWith('image/');
+  }
+
+  getImagePreview(file: File): string | null {
+    return this.imagePreviews.get(file) || null;
   }
 
   formatFileSize(bytes: number): string {
@@ -129,6 +139,15 @@ export class FileUploadComponent {
         continue;
       }
       this.selectedFiles.push(file);
+      
+      // Create preview for image files
+      if (this.isImageFile(file)) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imagePreviews.set(file, e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
     if (accepted.length) {
       this.filesSelected.emit(this.selectedFiles.slice());

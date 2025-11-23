@@ -84,7 +84,23 @@ export class AuthService {
       }),
       catchError((error) => {
         this.isLoading.set(false);
-        const errorMessage = error.error?.message || error.error?.error || error.message || 'Login failed. Please try again.';
+        
+        // Handle CORS errors specifically
+        let errorMessage = 'Login failed. Please try again.';
+        
+        if (error.status === 0) {
+          // CORS or network error
+          if (error.message?.includes('CORS') || error.message?.includes('Failed to fetch')) {
+            errorMessage = 'CORS error: Unable to connect to the server. Please check server configuration or contact support.';
+          } else {
+            errorMessage = 'Network error: Unable to connect to the server. Please check your internet connection.';
+          }
+        } else if (error.error) {
+          errorMessage = error.error?.message || error.error?.error || error.message || errorMessage;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         this.error.set(errorMessage);
         return throwError(() => error);
       })

@@ -13,6 +13,21 @@
         <div class="side-panel__body">
             <ng-content></ng-content>
         </div>
+        @if (showFooter || footerButtons.length > 0) {
+            <div class="side-panel__footer" [class]="'footer-' + footerAlign">
+                <ng-content select="[slot=footer]"></ng-content>
+                @if (footerButtons.length > 0) {
+                    @for (button of footerButtons; track button.text) {
+                        <button 
+                            (click)="onFooterButtonClick(button)"
+                            [disabled]="button.disabled"
+                            [class]="'btn btn--' + button.type + ' btn--md'">
+                            {{ button.text }}
+                        </button>
+                    }
+                }
+            </div>
+        }
     </div>
 </ng-template>
 

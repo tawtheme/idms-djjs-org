@@ -54,14 +54,6 @@ export class SidenavComponent implements OnInit, OnDestroy {
             { label: 'Branch Applications', icon: 'business', route: '/volunteers/branch-applications' },
             { label: 'Resigned Sewas', icon: 'person_remove', route: '/volunteers/resigned-sewas' }
           ]
-        },
-        {
-          label: 'Manage Preachers',
-          icon: 'record_voice_over',
-          children: [
-            { label: 'Desiring Devotees List', icon: 'people', route: '/preachers/desiring-devotees' },
-            { label: 'Preachers List', icon: 'list', route: '/preachers/preachers-list' }
-          ]
         }
       ]
     },

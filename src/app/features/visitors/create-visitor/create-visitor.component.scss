@@ -1,0 +1,18 @@
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+
+.visitor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.error-message {
+    color: $color-red-600;
+    font-size: 14px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: $color-red-50;
+    border: 1px solid $color-red-200;
+    border-radius: 4px;
+}

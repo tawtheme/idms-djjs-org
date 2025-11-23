@@ -17,7 +17,7 @@ export interface SnackbarConfig {
   imports: [CommonModule],
   template: `
     @if (isVisible) {
-    <div class="snackbar" [class]="'snackbar-' + config.type" [@slideInOut]>
+    <div class="snackbar" [class]="'snackbar-' + config.type">
       <div class="snackbar-content">
         <div class="snackbar-icon">
           <span class="material-icons">{{ getIcon() }}</span>
