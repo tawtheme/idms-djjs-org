@@ -1,0 +1,116 @@
+<div class="branches-container">
+    <div class="branches-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="listing-search">
+        <div class="listing-search-item">
+            <input
+                type="search"
+                class="form-control"
+                placeholder="Search by Name, Code, City or Type"
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="applyFilters()"/>
+        </div>
+    </div>
+
+    <!-- Branches table -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Action</th>
+                    <th (click)="sortBy('name')" class="sortable">
+                        Name
+                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                    </th>
+                    <th (click)="sortBy('code')" class="sortable">
+                        Code
+                        <span class="material-icons sort-icon">{{ getSortIcon('code') }}</span>
+                    </th>
+                    <th (click)="sortBy('city')" class="sortable">
+                        City
+                        <span class="material-icons sort-icon">{{ getSortIcon('city') }}</span>
+                    </th>
+                    <th (click)="sortBy('type')" class="sortable">
+                        Type
+                        <span class="material-icons sort-icon">{{ getSortIcon('type') }}</span>
+                    </th>
+                    <th>Status</th>
+                    <th (click)="sortBy('createdAt')" class="sortable">
+                        Created At
+                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let branch of pagedBranches; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedBranches.has(branch.id)"
+                            (change)="toggleSelectBranch(branch.id, $event)">
+                    </td>
+                    <td data-label="Action" (click)="$event.stopPropagation()">
+                        <app-menu-dropdown
+                            [options]="getActionOptions(branch)"
+                            (selectionChange)="onAction(branch, $event)">
+                        </app-menu-dropdown>
+                    </td>
+                    <td data-label="Name" class="name">
+                        {{ branch.name }}
+                    </td>
+                    <td data-label="Code">
+                        {{ branch.code }}
+                    </td>
+                    <td data-label="City">
+                        {{ branch.city }}
+                    </td>
+                    <td data-label="Type">
+                        {{ branch.type }}
+                    </td>
+                    <td data-label="Status" class="status">
+                        <span class="status-badge" [ngClass]="'status-' + (branch.status | lowercase)">
+                            {{ branch.status }}
+                        </span>
+                    </td>
+                    <td data-label="Created At" class="date">
+                        {{ branch.createdAt }}
+                    </td>
+                </tr>
+                <tr *ngIf="pagedBranches.length === 0">
+                    <td [attr.colspan]="8" class="no-data">No data available in table</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pager
+        [total]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+    </app-pager>
+
+    <!-- Empty state -->
+    <app-empty-state
+        *ngIf="branches.length === 0 && !searchTerm"
+        title="No Branches Found"
+        message="There are no branches available at the moment.">
+    </app-empty-state>
+</div>
+
+

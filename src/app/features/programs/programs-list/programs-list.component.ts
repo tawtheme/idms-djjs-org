@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,9 +7,12 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { DataService } from '../../../data.service';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 export interface Program {
-  id: number;
+  id: string;
   name: string;
   programCoordinator: string;
   initiativeName: string;
@@ -37,14 +40,16 @@ export interface Program {
   templateUrl: './programs-list.component.html',
   styleUrls: ['./programs-list.component.scss']
 })
-export class ProgramsListComponent {
+export class ProgramsListComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  private dataService = inject(DataService);
 
   programs: Program[] = [];
   allPrograms: Program[] = [];
 
   // Selection
-  selectedPrograms = new Set<number>();
+  selectedPrograms = new Set<string>();
 
   // Filters
   searchTerm = '';
@@ -64,63 +69,52 @@ export class ProgramsListComponent {
     { label: 'Programs List', route: '/programs/programs-list' }
   ];
 
-  constructor() {
-    // Sample data based on the screenshot
-    this.allPrograms = [
-      {
-        id: 1,
-        name: 'Kabir copy 2025-10-22 19:07:07',
-        programCoordinator: 'Preacher',
-        initiativeName: 'Initiative',
-        projectName: 'Project',
-        taskBranch: 'Nurmahal',
-        startDateTime: '22/10/2025 12:00 am',
-        endDateTime: '24/10/2025 12:00 am',
-        status: 'Completed',
-        createdAt: '22/10/2025 07:07 pm'
-      },
-      {
-        id: 2,
-        name: 'Bhandara 4 Oct 2025 (Test) copy 2025-10-22 19:29:17',
-        programCoordinator: 'Preacher',
-        initiativeName: 'Initiative',
-        projectName: 'Project',
-        taskBranch: 'Nurmahal',
-        startDateTime: '22/10/2025 12:00 am',
-        endDateTime: '24/10/2025 12:00 am',
-        status: 'Completed',
-        createdAt: '22/10/2025 07:29 pm'
-      }
-    ];
+  constructor() {}
 
-    // Generate more sample records
-    const branches = ['Nurmahal', 'Jalandhar', 'Ludhiana', 'Amritsar', 'Kapurthala'];
-    const statuses: Program['status'][] = ['Completed', 'Pending', 'In Progress', 'Cancelled'];
-    const coordinators = ['Preacher', 'Coordinator 1', 'Coordinator 2'];
-    const initiatives = ['Initiative', 'Initiative A', 'Initiative B'];
-    const projects = ['Project', 'Project X', 'Project Y'];
-    
-    for (let i = 2; i < 25; i++) {
-      const date = new Date(2025, 9, 22 + (i % 10));
-      const startDate = this.formatDate(date);
-      const endDate = this.formatDate(new Date(date.getTime() + 2 * 24 * 60 * 60 * 1000));
-      const createdAt = this.formatDate(new Date(date.getTime() + 7 * 60 * 60 * 1000), true);
-      
-      this.allPrograms.push({
-        id: i + 1,
-        name: `Program ${i + 1} ${startDate} ${createdAt.split(' ')[1]} ${createdAt.split(' ')[2]}`,
-        programCoordinator: coordinators[i % coordinators.length],
-        initiativeName: initiatives[i % initiatives.length],
-        projectName: projects[i % projects.length],
-        taskBranch: branches[i % branches.length],
-        startDateTime: `${startDate} 12:00 am`,
-        endDateTime: `${endDate} 12:00 am`,
-        status: statuses[i % statuses.length],
-        createdAt: createdAt
+  ngOnInit(): void {
+    this.loadPrograms();
+  }
+
+  /**
+   * Load programs from /api/v1/programs using DataService (environment.apiUrl/v1/programs)
+   */
+  private loadPrograms(): void {
+    this.dataService.get<any>('v1/programs').pipe(
+      catchError((error) => {
+        console.error('Error loading programs:', error);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = response.data || response.results || response || [];
+
+      this.allPrograms = (Array.isArray(data) ? data : []).map((item: any) => {
+        // Map numeric status to label
+        const statusNumber = item.status;
+        let statusLabel: Program['status'] = 'Pending';
+        if (statusNumber === 1) {
+          statusLabel = 'Completed';
+        } else if (statusNumber === 2) {
+          statusLabel = 'In Progress';
+        } else if (statusNumber === 3) {
+          statusLabel = 'Cancelled';
+        }
+
+        return {
+          id: String(item.id),
+          name: item.name || '',
+          programCoordinator: item.user?.name || '',
+          initiativeName: item.initiative?.name || '',
+          projectName: item.project?.name || '',
+          taskBranch: item.branch?.name || '',
+          startDateTime: item.start_date_time || '',
+          endDateTime: item.end_date_time || '',
+          status: statusLabel,
+          createdAt: item.created_at || ''
+        } as Program;
       });
-    }
 
-    this.applyFilters();
+      this.applyFilters();
+    });
   }
 
   formatDate(date: Date, includeTime: boolean = false): string {
@@ -202,7 +196,7 @@ export class ProgramsListComponent {
   }
 
   // Selection
-  toggleSelectProgram(id: number, event: Event) {
+  toggleSelectProgram(id: string, event: Event) {
     event.stopPropagation();
     if (this.selectedPrograms.has(id)) {
       this.selectedPrograms.delete(id);
@@ -254,7 +248,7 @@ export class ProgramsListComponent {
     this.currentPage = 1;
   }
 
-  trackById(index: number, program: Program): number {
+  trackById(index: number, program: Program): string {
     return program.id;
   }
 }

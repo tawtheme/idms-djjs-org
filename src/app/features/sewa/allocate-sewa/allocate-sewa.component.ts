@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -6,16 +6,19 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { DataService } from '../../../data.service';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 export interface UnallocatedVolunteer {
-  id: number;
+  id: number | string;
   name: string;
   image?: string;
   phone?: string;
 }
 
 export interface AllocatedVolunteer {
-  id: number;
+  id: number | string;
   badgeNo?: string;
   name: string;
   image?: string;
@@ -40,13 +43,15 @@ export interface AllocatedVolunteer {
   templateUrl: './allocate-sewa.component.html',
   styleUrls: ['./allocate-sewa.component.scss']
 })
-export class AllocateSewaComponent {
+export class AllocateSewaComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  private dataService = inject(DataService);
 
   // Unallocated Volunteers
   unallocatedVolunteers: UnallocatedVolunteer[] = [];
   allUnallocatedVolunteers: UnallocatedVolunteer[] = [];
-  selectedUnallocated = new Set<number>();
+  selectedUnallocated = new Set<number | string>();
   unallocatedSearchTerm = '';
   unallocatedPageSize = 10;
   unallocatedCurrentPage = 1;
@@ -57,7 +62,7 @@ export class AllocateSewaComponent {
   // Allocated Volunteers
   allocatedVolunteers: AllocatedVolunteer[] = [];
   allAllocatedVolunteers: AllocatedVolunteer[] = [];
-  selectedAllocated = new Set<number>();
+  selectedAllocated = new Set<number | string>();
   allocatedSearchTerm = '';
   allocatedPageSize = 20;
   allocatedCurrentPage = 1;
@@ -80,47 +85,74 @@ export class AllocateSewaComponent {
   ];
 
   constructor() {
-    // Initialize unallocated volunteers sample data
-    this.allUnallocatedVolunteers = [
-      { id: 1, name: 'Volunteer 1', phone: '1234567890' },
-      { id: 2, name: 'Volunteer 2', phone: '2345678901', image: 'https://via.placeholder.com/40' },
-      { id: 3, name: 'Volunteer 3', phone: '3456789012' },
-      { id: 4, name: 'Volunteer 4', phone: '4567890123', image: 'https://via.placeholder.com/40' },
-      { id: 5, name: 'Volunteer 5', phone: '5678901234' }
-    ];
-
-    // Initialize allocated volunteers sample data
-    this.allAllocatedVolunteers = [
-      {
-        id: 1,
-        badgeNo: '001',
-        name: 'Allocated Volunteer 1',
-        head: 'Head 1',
-        subHead: 'Sub Head 1',
-        isRegular: true,
-        sewa: 'VIP Langar',
-        image: 'https://via.placeholder.com/40'
-      },
-      {
-        id: 2,
-        badgeNo: '002',
-        name: 'Allocated Volunteer 2',
-        head: 'Head 2',
-        subHead: 'Sub Head 2',
-        isRegular: false,
-        sewa: 'SG LANGAR'
-      }
-    ];
-
     // Initialize page size dropdown options
     this.pageSizeDropdownOptions = this.pageSizeOptions.map(s => ({
       id: String(s),
       label: `${s} entries`,
       value: s
     }));
+  }
 
-    this.applyUnallocatedFilter();
-    this.applyAllocatedFilter();
+  ngOnInit(): void {
+    this.loadUnallocatedVolunteers();
+    this.loadAllocatedVolunteers();
+  }
+
+  /**
+   * Load UnAllocated volunteers from /api/v1/userSewas
+   */
+  private loadUnallocatedVolunteers(): void {
+    this.dataService.get<any>('v1/userSewas').pipe(
+      catchError((error) => {
+        console.error('Error loading unallocated volunteers:', error);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = response.data || response.results || response || [];
+
+      this.allUnallocatedVolunteers = (Array.isArray(data) ? data : []).map((item: any) => {
+        // Try common fields; adjust mappings as needed when you see real payload
+        return {
+          id: item.id ?? item.unique_id ?? item.user_id ?? '',
+          name: item.name || item.full_name || '',
+          image: item.image || item.profile_image || (item.user_images?.[0]?.full_path ?? undefined),
+          phone: item.phone || item.mobile || item.contact_no || ''
+        } as UnallocatedVolunteer;
+      });
+
+      this.applyUnallocatedFilter();
+    });
+  }
+
+  /**
+   * Load Allocated volunteers from /api/v1/assigned-regular-sewas
+   */
+  private loadAllocatedVolunteers(): void {
+    this.dataService.get<any>('v1/assigned-regular-sewas').pipe(
+      catchError((error) => {
+        console.error('Error loading allocated volunteers:', error);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = response.data || response.results || response || [];
+
+      this.allAllocatedVolunteers = (Array.isArray(data) ? data : []).map((item: any) => {
+        // Map likely API fields; refine once actual response is confirmed
+        const sewaInfo = item.sewa || item.regular_sewa || {};
+        return {
+          id: item.id ?? item.user_id ?? item.unique_id ?? '',
+          badgeNo: item.badge_no || item.badge_number || '',
+          name: item.name || item.full_name || '',
+          image: item.image || item.profile_image || (item.user_images?.[0]?.full_path ?? undefined),
+          head: sewaInfo.head || item.head || '',
+          subHead: sewaInfo.sub_head || item.sub_head || '',
+          isRegular: sewaInfo.is_regular === 1 || sewaInfo.is_regular === true || item.is_regular === 1 || item.is_regular === true,
+          sewa: sewaInfo.name || sewaInfo.sewa_name || item.sewa_name || ''
+        } as AllocatedVolunteer;
+      });
+
+      this.applyAllocatedFilter();
+    });
   }
 
   getUnallocatedPageSizeSelected(): DropdownOption[] {
@@ -191,7 +223,7 @@ export class AllocateSewaComponent {
     return this.unallocatedSortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
-  toggleSelectUnallocated(id: number, event: Event): void {
+  toggleSelectUnallocated(id: number | string, event: Event): void {
     event.stopPropagation();
     if (this.selectedUnallocated.has(id)) {
       this.selectedUnallocated.delete(id);
@@ -310,7 +342,7 @@ export class AllocateSewaComponent {
     return this.allocatedSortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
-  toggleSelectAllocated(id: number, event: Event): void {
+  toggleSelectAllocated(id: number | string, event: Event): void {
     event.stopPropagation();
     if (this.selectedAllocated.has(id)) {
       this.selectedAllocated.delete(id);
@@ -392,7 +424,7 @@ export class AllocateSewaComponent {
     }
   }
 
-  trackById(_: number, item: UnallocatedVolunteer | AllocatedVolunteer): number {
+  trackById(_: number, item: UnallocatedVolunteer | AllocatedVolunteer): number | string {
     return item.id;
   }
 

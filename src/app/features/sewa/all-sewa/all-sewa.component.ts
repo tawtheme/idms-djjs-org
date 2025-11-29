@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,9 +7,10 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { DataService } from '../../../data.service';
 
 export interface Sewa {
-  id: number;
+  id: string;
   name: string;
   type: string;
   status: string;
@@ -32,14 +33,14 @@ export interface Sewa {
   templateUrl: './all-sewa.component.html',
   styleUrls: ['./all-sewa.component.scss']
 })
-export class AllSewaComponent {
+export class AllSewaComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
 
   sewas: Sewa[] = [];
   allSewas: Sewa[] = [];
 
   // Selection
-  selectedSewas = new Set<number>();
+  selectedSewas = new Set<string>();
 
   // Filters
   searchTerm = '';
@@ -63,62 +64,57 @@ export class AllSewaComponent {
     { label: 'All Sewa', route: '/sewa/all-sewa' }
   ];
 
-  constructor() {
-    // Sample data based on the screenshot
-    this.allSewas = [
-      {
-        id: 1,
-        name: 'VIP Langar',
-        type: 'Volunteer',
-        status: 'Active',
-        createdAt: '11/08/2025 08:52 pm'
-      },
-      {
-        id: 2,
-        name: 'SG LANGAR',
-        type: 'Volunteer',
-        status: 'Active',
-        createdAt: '11/08/2025 08:51 pm'
-      }
-    ];
-
-    // Generate more sample records
-    const types = ['Volunteer', 'Regular', 'Special', 'Event'];
-    const statuses = ['Active', 'Inactive', 'Pending', 'Completed'];
-    const names = ['Langar', 'Sewa', 'Service', 'Activity', 'Program'];
-    
-    for (let i = 2; i < 25; i++) {
-      const date = new Date(2025, 7, 11 - (i % 10));
-      const hours = 8 + (i % 12);
-      const minutes = 50 + (i % 10);
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      const displayHours = hours > 12 ? hours - 12 : hours;
-      
-      this.allSewas.push({
-        id: i + 1,
-        name: `${names[i % names.length]} ${i + 1}`,
-        type: types[i % types.length],
-        status: statuses[i % statuses.length],
-        createdAt: `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} ${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`
-      });
-    }
-
-    // Build filter options
-    this.typeOptions = [
-      { id: '1', label: 'Volunteer', value: 'Volunteer' },
-      { id: '2', label: 'Regular', value: 'Regular' },
-      { id: '3', label: 'Special', value: 'Special' },
-      { id: '4', label: 'Event', value: 'Event' }
-    ];
-
+  constructor(private dataService: DataService) {
+    // Build initial filter options (status is static, types will be refined from API data)
+    this.typeOptions = [];
     this.statusOptions = [
       { id: '1', label: 'Active', value: 'Active' },
-      { id: '2', label: 'Inactive', value: 'Inactive' },
-      { id: '3', label: 'Pending', value: 'Pending' },
-      { id: '4', label: 'Completed', value: 'Completed' }
+      { id: '0', label: 'Inactive', value: 'Inactive' }
     ];
+  }
 
-    this.applyFilter();
+  ngOnInit(): void {
+    this.loadSewas();
+  }
+
+  /**
+   * Load sewas from the API: /api/v1/sewas
+   * Uses DataService base URL (environment.apiUrl) similar to volunteers list.
+   */
+  private loadSewas(): void {
+    this.dataService.get<any>('v1/sewas?per_page=1000').subscribe({
+      next: (response) => {
+        const sewasData = response.data || response.sewas || response.results || response || [];
+
+        this.allSewas = (Array.isArray(sewasData) ? sewasData : []).map((item: any) => ({
+          id: String(item.id),
+          name: item.name || '',
+          type: item.type || '',
+          status: item.status === 1 ? 'Active' : 'Inactive',
+          createdAt: item.created_at || ''
+        }));
+
+        this.totalItems = this.allSewas.length;
+
+        // Build type filter options from API data
+        const uniqueTypes = Array.from(
+          new Set(this.allSewas.map((s) => s.type).filter((t) => !!t))
+        );
+        this.typeOptions = uniqueTypes.map((type, index) => ({
+          id: String(index + 1),
+          label: type,
+          value: type
+        }));
+
+        this.applyFilter();
+      },
+      error: (error) => {
+        console.error('Failed to load sewas:', error);
+        this.allSewas = [];
+        this.sewas = [];
+        this.totalItems = 0;
+      }
+    });
   }
 
   get filteredSewas(): Sewa[] {
@@ -130,7 +126,7 @@ export class AllSewaComponent {
     return this.sewas.slice(start, start + this.pageSize);
   }
 
-  trackById(_: number, s: Sewa): number {
+  trackById(_: number, s: Sewa): string {
     return s.id;
   }
 
@@ -225,7 +221,7 @@ export class AllSewaComponent {
     }
   }
 
-  toggleSelectSewa(id: number, event: Event): void {
+  toggleSelectSewa(id: string, event: Event): void {
     event.stopPropagation();
     if (this.selectedSewas.has(id)) {
       this.selectedSewas.delete(id);

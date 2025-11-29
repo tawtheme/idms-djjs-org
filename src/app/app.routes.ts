@@ -29,11 +29,67 @@ const guestOnly = () => {
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
+    path: 'branches',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/branches/all-branches/all-branches.component').then(
+        (m) => m.AllBranchesComponent
+      ),
+  },
+  {
+    path: 'master-tables',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/master-tables/master-tables-list/master-tables-list.component').then(
+        (m) => m.MasterTablesListComponent
+      ),
+  },
+  {
+    path: 'departments',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/departments/departments-list/departments-list.component').then(
+        (m) => m.DepartmentsListComponent
+      ),
+  },
+  {
+    path: 'branches/areas',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/branches/branch-areas/branch-areas.component').then(
+        (m) => m.BranchAreasComponent
+      ),
+  },
+  {
     path: 'login',
     canMatch: [guestOnly],
     loadComponent: () =>
       import('./features/auth/login/login.component').then(
         (m) => m.LoginComponent
+      ),
+  },
+  {
+    path: 'projects',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/projects/projects-list/projects-list.component').then(
+        (m) => m.ProjectsListComponent
+      ),
+  },
+  {
+    path: 'initiatives',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/initiatives/initiatives-list/initiatives-list.component').then(
+        (m) => m.InitiativesListComponent
+      ),
+  },
+  {
+    path: 'roles',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/roles/roles-list/roles-list.component').then(
+        (m) => m.RolesListComponent
       ),
   },
   {
