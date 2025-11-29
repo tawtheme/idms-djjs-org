@@ -1,127 +1,119 @@
 <div class="master-tables-container">
-    <div class="master-tables-header">
-        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    <div class="master-tables-layout">
+        <!-- Left Sidebar with Tabs -->
+        <div class="master-tables-sidebar">
+            <nav class="sidebar-tabs">
+                <button
+                    *ngFor="let config of masterConfigs"
+                    class="tab-item"
+                    [class.active]="selectedMasterType === config.type"
+                    (click)="onTabSelect(config.type)">
+                    {{ config.label }}
+                </button>
+            </nav>
+        </div>
 
-        <div class="master-select">
-            <label class="master-select__label">Table</label>
-            <app-dropdown
-                [options]="masterOptions"
-                [selectedValues]="[selectedMasterType]"
-                [closeOnSelect]="true"
-                (selectionChange)="onMasterChange($event)">
-            </app-dropdown>
+        <!-- Right Content Area -->
+        <div class="master-tables-content">
+            <!-- Filter Section -->
+            <div class="master-listing-search">
+                <input
+                    type="search"
+                    class="form-control"
+                    placeholder="Search by Name or Details"
+                    [(ngModel)]="searchTerm"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="applyFilters()"
+                />
+                <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
+                    Add New
+                </button>
+            </div>
+
+            <div *ngIf="error" class="alert alert--error">
+                {{ error }}
+            </div>
+
+            <!-- Records table -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th (click)="sortBy('name')" class="sortable">
+                                Name
+                                <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                            </th>
+                            <th>Status</th>
+                            <th (click)="sortBy('createdAt')" class="sortable">
+                                Created At
+                                <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                            </th>
+                            <th class="action-column">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngIf="!isLoading">
+                            <tr *ngFor="let rec of pagedRecords; trackBy: trackById" (click)="$event.stopPropagation()">
+                                <td data-label="Name" class="name">
+                                    {{ rec.name }}
+                                </td>
+                                <td data-label="Status" class="status">
+                                    <span *ngIf="rec.status" class="status-badge" [ngClass]="'status-' + (rec.status | lowercase)">
+                                        {{ rec.status }}
+                                    </span>
+                                    <span *ngIf="!rec.status">-</span>
+                                </td>
+                                <td data-label="Created At" class="date">
+                                    {{ rec.createdAt || '-' }}
+                                </td>
+                                <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                    <app-menu-dropdown
+                                        [options]="getActionOptions(rec)"
+                                        (selectionChange)="onAction(rec, $event)">
+                                    </app-menu-dropdown>
+                                </td>
+                            </tr>
+                            <!-- Empty state cell -->
+                            <tr *ngIf="pagedRecords.length === 0 && !error">
+                                <td [attr.colspan]="4" class="empty-state-cell">
+                                    <app-empty-state
+                                        [title]="searchTerm ? 'No Results Found' : 'No Records Found'"
+                                        [description]="searchTerm ? 'No records match your search criteria.' : 'There are no records available for the selected master table.'"
+                                        [icon]="'inbox'"
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <!-- Loading cell -->
+                        <tr *ngIf="isLoading">
+                            <td [attr.colspan]="4" class="loading-cell">
+                                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <app-pager
+                [total]="totalItems"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)">
+            </app-pager>
         </div>
     </div>
 
-    <!-- Filter Section -->
-    <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name or Details"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
-        </div>
-    </div>
-
-    <div *ngIf="error" class="alert alert--error">
-        {{ error }}
-    </div>
-
-    <!-- Records table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th (click)="sortBy('name')" class="sortable">
-                        Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
-                    </th>
-                    <th (click)="sortBy('extra1')" class="sortable">
-                        Details 1
-                        <span class="material-icons sort-icon">{{ getSortIcon('extra1') }}</span>
-                    </th>
-                    <th (click)="sortBy('extra2')" class="sortable">
-                        Details 2
-                        <span class="material-icons sort-icon">{{ getSortIcon('extra2') }}</span>
-                    </th>
-                    <th>Status</th>
-                    <th (click)="sortBy('createdAt')" class="sortable">
-                        Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let rec of pagedRecords; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedRecords.has(rec.id)"
-                            (change)="toggleSelectRecord(rec.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(rec)"
-                            (selectionChange)="onAction(rec, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ rec.name }}
-                    </td>
-                    <td data-label="Details 1">
-                        {{ rec.extra1 || '-' }}
-                    </td>
-                    <td data-label="Details 2">
-                        {{ rec.extra2 || '-' }}
-                    </td>
-                    <td data-label="Status" class="status">
-                        <span *ngIf="rec.status" class="status-badge" [ngClass]="'status-' + (rec.status | lowercase)">
-                            {{ rec.status }}
-                        </span>
-                        <span *ngIf="!rec.status">-</span>
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ rec.createdAt || '-' }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedRecords.length === 0 && !isLoading">
-                    <td [attr.colspan]="7" class="no-data">No data available in table</td>
-                </tr>
-                <tr *ngIf="isLoading">
-                    <td [attr.colspan]="7" class="no-data">Loading...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="records.length === 0 && !searchTerm && !isLoading && !error"
-        title="No Records Found"
-        message="There are no records available for the selected master table.">
-    </app-empty-state>
+    <!-- Add New Entry Modal -->
+    <app-add-master-entry-modal
+        [isOpen]="isAddModalOpen"
+        [masterType]="selectedMasterType"
+        [masterLabel]="selectedMasterConfig.label"
+        (close)="closeAddModal()"
+        (submit)="onAddEntrySubmit($event)">
+    </app-add-master-entry-modal>
 </div>
-
-

@@ -1,16 +1,19 @@
-import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { AddMasterEntryModalComponent } from './add-master-entry-modal/add-master-entry-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+/**
+ * Type definition for all available master table types
+ */
 type MasterType =
   | 'skills'
   | 'degrees'
@@ -28,42 +31,55 @@ type MasterType =
   | 'weapon_types'
   | 'technical_qualifications';
 
+/**
+ * Configuration interface for master table types
+ */
 interface MasterConfig {
   type: MasterType;
   label: string;
   endpoint: string | null;
 }
 
+/**
+ * Master record interface representing a single record in any master table
+ * Note: extra1 and extra2 are used for search functionality but not displayed in the table
+ */
 export interface MasterRecord {
   id: string;
   name: string;
   createdAt: string;
   status?: string;
-  extra1?: string;
-  extra2?: string;
+  extra1?: string; // Used for search: code/iso_code for countries/states/cities, branch_name for ashram_adhaar_areas
+  extra2?: string; // Used for search: parent_name for countries/states/cities, city for ashram_adhaar_areas
 }
 
+/**
+ * Component for displaying and managing master tables list
+ * Supports multiple master table types with filtering, sorting, and pagination
+ */
 @Component({
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     FormsModule,
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
     MenuDropdownComponent,
-    DropdownComponent
+    LoadingComponent,
+    AddMasterEntryModalComponent
   ],
   selector: 'app-master-tables-list',
   templateUrl: './master-tables-list.component.html',
   styleUrls: ['./master-tables-list.component.scss']
 })
 export class MasterTablesListComponent implements OnInit {
-  @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+  private readonly dataService = inject(DataService);
 
-  private dataService = inject(DataService);
-
+  /**
+   * Configuration array for all available master table types
+   * Each config defines the type, display label, and API endpoint
+   */
   readonly masterConfigs: MasterConfig[] = [
     { type: 'skills', label: 'Skills', endpoint: 'v1/skills' },
     { type: 'degrees', label: 'Degrees', endpoint: 'v1/degrees' },
@@ -82,67 +98,77 @@ export class MasterTablesListComponent implements OnInit {
     { type: 'technical_qualifications', label: 'Technical Qualifications', endpoint: 'v1/technical_qualifications' }
   ];
 
-  // Selected master
+  /** Currently selected master table type */
   selectedMasterType: MasterType = 'skills';
 
+  /**
+   * Getter for the currently selected master table configuration
+   * @returns The configuration object for the selected master type
+   */
   get selectedMasterConfig(): MasterConfig {
     return this.masterConfigs.find((m) => m.type === this.selectedMasterType)!;
   }
 
-  get masterOptions(): DropdownOption[] {
-    return this.masterConfigs.map((m) => ({
-      id: m.type,
-      label: m.label,
-      value: m.type
-    }));
-  }
-
-  // For dropdown, we pass just the selected value array
-
+  /** Filtered and sorted records to display */
   records: MasterRecord[] = [];
+  /** All records loaded from API (before filtering/sorting) */
   allRecords: MasterRecord[] = [];
 
-  // Selection
-  selectedRecords = new Set<string>();
-
-  // Filters
+  /** Search filter term */
   searchTerm = '';
 
-  // Sorting
+  /** Current field being sorted by */
   sortField = '';
+  /** Current sort direction */
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  // Pagination
-  pageSizeOptions: number[] = [20, 50, 100];
+  /** Available page size options */
+  readonly pageSizeOptions: number[] = [20, 50, 100];
+  /** Current page size */
   pageSize = 20;
+  /** Current page number (1-indexed) */
   currentPage = 1;
+  /** Total number of items after filtering */
   totalItems = 0;
 
-  // Loading / error
+  /** Loading state indicator */
   isLoading = false;
+  /** Error message if API call fails */
   error: string | null = null;
 
-  breadcrumbs: BreadcrumbItem[] = [
+  /** Modal state for adding new entry */
+  isAddModalOpen = false;
+
+  /** Breadcrumb navigation items */
+  readonly breadcrumbs: BreadcrumbItem[] = [
     { label: 'Master Tables', route: '/master-tables' },
     { label: 'All Tables', route: '/master-tables' }
   ];
 
-  constructor() {}
-
+  /**
+   * Initialize component and load initial data
+   */
   ngOnInit(): void {
     this.loadRecords();
   }
 
-  // app-dropdown emits an array of selected values
-  onMasterChange(values: any[] | null): void {
-    const value = Array.isArray(values) ? values[0] : null;
-    if (!value) return;
-    this.selectedMasterType = value as MasterType;
+  /**
+   * Handle tab selection to switch between master table types
+   * @param masterType - The master table type to switch to
+   */
+  onTabSelect(masterType: MasterType): void {
+    if (this.selectedMasterType === masterType) return;
+    
+    this.selectedMasterType = masterType;
     this.currentPage = 1;
-    this.selectedRecords.clear();
+    this.searchTerm = '';
     this.loadRecords();
   }
 
+  /**
+   * Load records from API for the currently selected master table type
+   * Handles loading state, error handling, and data transformation
+   */
   private loadRecords(): void {
     const cfg = this.selectedMasterConfig;
     this.allRecords = [];
@@ -176,24 +202,21 @@ export class MasterTablesListComponent implements OnInit {
   }
 
   /**
-   * Map raw API item to MasterRecord depending on master type.
+   * Convert raw API response item to standardized MasterRecord format
+   * Handles different data structures for different master table types
+   * @param type - The master table type
+   * @param item - Raw item from API response
+   * @returns Standardized MasterRecord object
    */
   private mapToRecord(type: MasterType, item: any): MasterRecord {
-    // Most of these master tables have { id, name, status?, created_at }
-    const baseStatus =
-      item.status === 1 || item.status === true || item.status === 'active'
-        ? 'Active'
-        : item.status != null
-        ? 'Inactive'
-        : undefined;
-
     const base: MasterRecord = {
       id: String(item.id),
       name: item.name || '',
       createdAt: item.created_at || '',
-      status: baseStatus
+      status: this.normalizeStatus(item.status)
     };
 
+    // Handle special cases for tables with additional fields
     switch (type) {
       case 'countries':
       case 'states':
@@ -214,22 +237,43 @@ export class MasterTablesListComponent implements OnInit {
     }
   }
 
+  /**
+   * Normalize status value from API to consistent string format
+   * @param status - Status value from API (can be number, boolean, or string)
+   * @returns Normalized status string ('Active', 'Inactive', or undefined)
+   */
+  private normalizeStatus(status: any): string | undefined {
+    if (status === 1 || status === true || status === 'active') {
+      return 'Active';
+    }
+    if (status != null) {
+      return 'Inactive';
+    }
+    return undefined;
+  }
+
+  /**
+   * Apply search filter and sorting to all records
+   * Updates the filtered records array and resets pagination
+   */
   applyFilters(): void {
     let filtered = [...this.allRecords];
 
+    // Apply search filter
     if (this.searchTerm.trim()) {
-      const search = this.searchTerm.toLowerCase();
+      const searchLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter((rec) =>
-        rec.name.toLowerCase().includes(search) ||
-        (rec.extra1 && rec.extra1.toLowerCase().includes(search)) ||
-        (rec.extra2 && rec.extra2.toLowerCase().includes(search))
+        rec.name.toLowerCase().includes(searchLower) ||
+        rec.extra1?.toLowerCase().includes(searchLower) ||
+        rec.extra2?.toLowerCase().includes(searchLower)
       );
     }
 
+    // Apply sorting
     if (this.sortField) {
       filtered.sort((a, b) => {
-        const aVal = (a as any)[this.sortField];
-        const bVal = (b as any)[this.sortField];
+        const aVal = (a as any)[this.sortField] ?? '';
+        const bVal = (b as any)[this.sortField] ?? '';
 
         if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
         if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
@@ -239,88 +283,119 @@ export class MasterTablesListComponent implements OnInit {
 
     this.records = filtered;
     this.totalItems = filtered.length;
-    this.currentPage = 1;
+    this.currentPage = 1; // Reset to first page after filtering
   }
 
-  // Sorting
+  /**
+   * Handle column header click for sorting
+   * Toggles sort direction if clicking the same field, otherwise sets new sort field
+   * @param field - The field name to sort by
+   */
   sortBy(field: string): void {
     if (this.sortField === field) {
+      // Toggle sort direction for same field
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
+      // Set new sort field with ascending direction
       this.sortField = field;
       this.sortDirection = 'asc';
     }
     this.applyFilters();
   }
 
+  /**
+   * Get the appropriate Material Icon name for sort indicator
+   * @param field - The field name to check
+   * @returns Material Icon name for the sort indicator
+   */
   getSortIcon(field: string): string {
     if (this.sortField !== field) {
-      return 'unfold_more';
+      return 'unfold_more'; // Neutral/unsorted state
     }
     return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
-  // Paged data
+  /**
+   * Get paginated records for current page
+   * @returns Array of records for the current page
+   */
   get pagedRecords(): MasterRecord[] {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     return this.records.slice(start, end);
   }
 
-  // Selection
-  toggleSelectRecord(id: string, event: Event): void {
-    event.stopPropagation();
-    if (this.selectedRecords.has(id)) {
-      this.selectedRecords.delete(id);
-    } else {
-      this.selectedRecords.add(id);
-    }
-  }
-
-  toggleSelectAll(event: Event): void {
-    event.stopPropagation();
-    if (this.isAllSelected()) {
-      this.selectedRecords.clear();
-    } else {
-      this.pagedRecords.forEach((rec) => this.selectedRecords.add(rec.id));
-    }
-  }
-
-  isAllSelected(): boolean {
-    return this.pagedRecords.length > 0 && this.pagedRecords.every((rec) => this.selectedRecords.has(rec.id));
-  }
-
-  isIndeterminate(): boolean {
-    const selectedCount = this.pagedRecords.filter((rec) => this.selectedRecords.has(rec.id)).length;
-    return selectedCount > 0 && selectedCount < this.pagedRecords.length;
-  }
-
-  // Actions
+  /**
+   * Get action menu options for a record
+   * @param rec - The master record
+   * @returns Array of menu options
+   */
   getActionOptions(rec: MasterRecord): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
+  /**
+   * Handle action menu item selection
+   * @param rec - The master record the action is performed on
+   * @param option - The selected menu option
+   */
   onAction(rec: MasterRecord, option: MenuOption): void {
     console.log('Action:', option.value, 'on record:', rec, 'for master:', this.selectedMasterType);
+    // TODO: Implement actual action handlers (edit, delete, etc.)
   }
 
-  // Pagination
+  /**
+   * Handle page change event from pagination component
+   * @param page - The page number to navigate to
+   */
   onPageChange(page: number): void {
     this.currentPage = page;
   }
 
+  /**
+   * Handle page size change event from pagination component
+   * @param size - The new page size
+   */
   onPageSizeChange(size: number): void {
     this.pageSize = size;
-    this.currentPage = 1;
+    this.currentPage = 1; // Reset to first page when changing page size
   }
 
+  /**
+   * TrackBy function for ngFor to optimize rendering performance
+   * @param index - Array index
+   * @param rec - Master record
+   * @returns Unique identifier for the record
+   */
   trackById(index: number, rec: MasterRecord): string {
     return rec.id;
   }
+
+  /**
+   * Open the add new entry modal
+   */
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  /**
+   * Close the add new entry modal
+   */
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  /**
+   * Handle form submission from add entry modal
+   * @param data - Form data containing name and status
+   */
+  onAddEntrySubmit(data: { name: string; status: string }): void {
+    console.log('Add new entry:', data, 'for master type:', this.selectedMasterType);
+    // TODO: Implement API call to add new entry
+    // After successful API call, reload records:
+    // this.loadRecords();
+  }
 }
-
-

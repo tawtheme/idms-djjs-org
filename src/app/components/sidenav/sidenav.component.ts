@@ -114,14 +114,7 @@ export class SidenavComponent implements OnInit, OnDestroy {
           ]
         },
         { label: 'Departments', icon: 'business', route: '/departments' },
-        {
-          label: 'Master Tables',
-          icon: 'table_chart',
-          children: [
-            { label: 'All Tables', icon: 'list', route: '/master-tables' },
-            { label: 'Table Configuration', icon: 'settings', route: '/master-tables/config' }
-          ]
-        }
+        { label: 'Master Tables', icon: 'table_chart', route: '/master-tables' }
       ]
     }
   ];

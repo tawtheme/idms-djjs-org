@@ -1,4 +1,6 @@
 <div class="pager" *ngIf="total > 0">
+    <div class="pager-summary">Showing {{startIndex}}–{{endIndex}} of {{total}} results</div>
+
     <div class="pager-group">
         <button class="nav prev" type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
             <span class="material-icons">chevron_left</span>
@@ -18,6 +20,4 @@
             <span class="material-icons">chevron_right</span>
         </button>
     </div>
-
-    <div class="pager-summary">Showing {{startIndex}}–{{endIndex}} of {{total}} results</div>
 </div>

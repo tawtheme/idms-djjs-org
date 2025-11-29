@@ -92,6 +92,11 @@
     .text-center {
         text-align: center !important;
     }
+
+    // Action column - right aligned
+    .action-column {
+        text-align: right !important;
+    }
 }
 
 // Sticky header - wraps table in scrollable container
