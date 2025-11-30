@@ -109,8 +109,7 @@ export class SidenavComponent implements OnInit, OnDestroy {
           icon: 'account_tree',
           children: [
             { label: 'All Branches', icon: 'list', route: '/branches' },
-            { label: 'Branch Areas', icon: 'map', route: '/branches/areas' },
-            { label: 'Add Branch', icon: 'add', route: '/branches/add' }
+            { label: 'Branch Areas', icon: 'map', route: '/branches/areas' }
           ]
         },
         { label: 'Departments', icon: 'business', route: '/departments' },
