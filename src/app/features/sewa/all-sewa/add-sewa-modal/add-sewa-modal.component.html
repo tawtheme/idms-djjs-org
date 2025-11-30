@@ -1,0 +1,59 @@
+<app-modal
+    [isOpen]="isOpen"
+    [title]="'Add New Sewa'"
+    [size]="'small'"
+    [closable]="true"
+    [showHeader]="true"
+    [showFooter]="true"
+    [footerButtons]="footerButtons"
+    [footerAlign]="'right'"
+    (close)="onClose()"
+    (footerAction)="onFooterAction($event)">
+    
+    <form class="add-sewa-form" (ngSubmit)="onSubmit()">
+        <!-- Sewa Name Field -->
+        <div class="form-group">
+            <label class="form-label" for="sewa-name">
+                Sewa Name <span class="required">*</span>
+            </label>
+            <input
+                id="sewa-name"
+                type="text"
+                class="form-control"
+                [(ngModel)]="name"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter sewa name"
+                required
+                autofocus>
+        </div>
+
+        <!-- Type Dropdown -->
+        <div class="form-group">
+            <label class="form-label" for="sewa-type">
+                Type <span class="required">*</span>
+            </label>
+            <app-dropdown
+                [options]="typeOptions"
+                [selectedValues]="type ? [type] : []"
+                [closeOnSelect]="true"
+                placeholder="Select Type"
+                (selectionChange)="onTypeChange($event)">
+            </app-dropdown>
+        </div>
+
+        <!-- Status Dropdown -->
+        <div class="form-group">
+            <label class="form-label" for="sewa-status">
+                Status
+            </label>
+            <app-dropdown
+                [options]="statusOptions"
+                [selectedValues]="[status]"
+                [closeOnSelect]="true"
+                placeholder="Select Status"
+                (selectionChange)="onStatusChange($event)">
+            </app-dropdown>
+        </div>
+    </form>
+</app-modal>
+

@@ -5,8 +5,10 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { AddSewaModalComponent } from './add-sewa-modal/add-sewa-modal.component';
 import { DataService } from '../../../data.service';
 
 export interface Sewa {
@@ -26,8 +28,10 @@ export interface Sewa {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
+    LoadingComponent,
     MenuDropdownComponent,
-    DropdownComponent
+    DropdownComponent,
+    AddSewaModalComponent
   ],
   selector: 'app-all-sewa',
   templateUrl: './all-sewa.component.html',
@@ -38,6 +42,13 @@ export class AllSewaComponent implements OnInit {
 
   sewas: Sewa[] = [];
   allSewas: Sewa[] = [];
+
+  // Loading and error states
+  isLoading = true; // Start with true to show loader on initial load
+  error: string | null = null;
+
+  // Modal state
+  isAddModalOpen = false;
 
   // Selection
   selectedSewas = new Set<string>();
@@ -81,7 +92,10 @@ export class AllSewaComponent implements OnInit {
    * Load sewas from the API: /api/v1/sewas
    * Uses DataService base URL (environment.apiUrl) similar to volunteers list.
    */
-  private loadSewas(): void {
+  loadSewas(): void {
+    this.isLoading = true;
+    this.error = null;
+
     this.dataService.get<any>('v1/sewas?per_page=1000').subscribe({
       next: (response) => {
         const sewasData = response.data || response.sewas || response.results || response || [];
@@ -107,12 +121,15 @@ export class AllSewaComponent implements OnInit {
         }));
 
         this.applyFilter();
+        this.isLoading = false; // Set loading to false after data is processed
       },
       error: (error) => {
         console.error('Failed to load sewas:', error);
+        this.error = error.error?.message || error.message || 'Failed to load sewas. Please try again.';
         this.allSewas = [];
         this.sewas = [];
         this.totalItems = 0;
+        this.isLoading = false; // Set loading to false on error
       }
     });
   }
@@ -293,6 +310,31 @@ export class AllSewaComponent implements OnInit {
         this.applyFilter();
       }
     }
+  }
+
+  // Modal methods
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  onAddSewaSubmit(newSewa: { name: string; type: string; status: string }): void {
+    console.log('New Sewa Added:', newSewa);
+    // In a real application, you would send this data to your API
+    // For now, we'll simulate adding it to the list
+    const newId = String(this.allSewas.length + 1);
+    const createdAt = new Date().toISOString();
+    this.allSewas.push({
+      id: newId,
+      name: newSewa.name,
+      type: newSewa.type,
+      status: newSewa.status,
+      createdAt: createdAt
+    });
+    this.applyFilter();
   }
 
   @HostListener('document:click', ['$event'])

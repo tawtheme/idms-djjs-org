@@ -197,22 +197,5 @@ export const routes: Routes = [
         (m) => m.VolunteerCardsComponent
       ),
   },
-  {
-    path: 'pensions/transactions-list',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/pension/pensions-transactions-list/pensions-transactions-list.component').then(
-        (m) => m.PensionsTransactionsListComponent
-      ),
-  },
-  {
-    path: 'pensions/create-transaction',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/pension/create-transaction/create-transaction.component').then(
-        (m) => m.CreateTransactionComponent
-      ),
-  },
-  
   { path: '**', redirectTo: 'dashboard' },
 ];

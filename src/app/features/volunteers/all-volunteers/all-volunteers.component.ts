@@ -7,10 +7,13 @@ import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { SewaTrackingModalComponent } from './sewa-tracking-modal/sewa-tracking-modal.component';
 import { MoreFiltersModalComponent } from './more-filters-modal/more-filters-modal.component';
+import { CreateVolunteerComponent } from './create-volunteer/create-volunteer.component';
+import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 import { DataService } from '../../../data.service';
 
 export interface Volunteer {
@@ -52,10 +55,13 @@ export interface Volunteer {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
+    LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
     SewaTrackingModalComponent,
-    MoreFiltersModalComponent
+    MoreFiltersModalComponent,
+    CreateVolunteerComponent,
+    SidePanelComponent
   ],
   selector: 'app-all-volunteers',
   templateUrl: './all-volunteers.component.html',
@@ -63,6 +69,7 @@ export interface Volunteer {
 })
 export class AllVolunteersComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+  @ViewChild('createVolunteerComponent') createVolunteerComponent!: CreateVolunteerComponent;
 
   private dataService = inject(DataService);
 
@@ -70,7 +77,7 @@ export class AllVolunteersComponent implements OnInit {
   allVolunteers: Volunteer[] = [];
 
   // Loading and error states
-  isLoading = false;
+  isLoading = true; // Start with true to show loader on initial load
   error: string | null = null;
 
   // Selection
@@ -84,9 +91,13 @@ export class AllVolunteersComponent implements OnInit {
   taskBranchOptions: DropdownOption[] = [];
   sortOrder: any[] = [];
   sortOrderOptions: DropdownOption[] = [];
-  
+
   // More Filters
   moreFiltersModalOpen = false;
+  
+  // Create Volunteer Modal
+  createVolunteerModalOpen = false;
+  
   moreFilters: any = {
     correspondingBranch: [],
     branchSearchType: [],
@@ -126,6 +137,7 @@ export class AllVolunteersComponent implements OnInit {
       catchError((error) => {
         console.error('Error loading volunteers:', error);
         this.error = error.error?.message || error.message || 'Failed to load volunteers. Please try again.';
+        this.isLoading = false;
         return of({ data: [] }); // Return empty array to prevent breaking
       }),
       finalize(() => {
@@ -134,12 +146,12 @@ export class AllVolunteersComponent implements OnInit {
     ).subscribe((response) => {
       // Handle different response structures
       const volunteersData = response.data || response.volunteers || response.results || response || [];
-      
+
       // Map API response to Volunteer interface
       this.allVolunteers = (Array.isArray(volunteersData) ? volunteersData : []).map((item: any) => {
         // Get first image from user_images array if available
-        const firstImage = item.user_images && item.user_images.length > 0 
-          ? item.user_images[0].full_path 
+        const firstImage = item.user_images && item.user_images.length > 0
+          ? item.user_images[0].full_path
           : null;
 
         // Extract relation name from user_profile
@@ -163,7 +175,7 @@ export class AllVolunteersComponent implements OnInit {
           name: item.name || '',
           age: item.user_profile?.age || null,
           relationName: relationName || item.user_profile?.relation_name || '',
-          gender: item.user_profile?.gender ? 
+          gender: item.user_profile?.gender ?
             item.user_profile.gender.charAt(0).toUpperCase() + item.user_profile.gender.slice(1).toLowerCase() : '',
           uid: item.uid || item.user_profile?.uid || '',
           badgeNo: item.badge_no || item.badge_number || '',
@@ -173,9 +185,9 @@ export class AllVolunteersComponent implements OnInit {
             state: primaryAddress.state || '',
             pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
             cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
-            correspondingBranch: primaryAddress.corresponding_branch ? 
+            correspondingBranch: primaryAddress.corresponding_branch ?
               `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
-            taskBranch: primaryAddress.task_branch ? 
+            taskBranch: primaryAddress.task_branch ?
               `Task branch : ${primaryAddress.task_branch}` : '',
             mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
           },
@@ -189,7 +201,7 @@ export class AllVolunteersComponent implements OnInit {
           sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
           sewaMode: item.sewa_mode || primarySewa.mode || ''
         };
-        
+
         return volunteer;
       });
 
@@ -265,7 +277,7 @@ export class AllVolunteersComponent implements OnInit {
     // Filter volunteers
     let filtered = this.allVolunteers.filter((v) => {
       // Search in Name, Relation Name, Mobile No., UID, Badge No
-      const matchesTerm = !term || 
+      const matchesTerm = !term ||
         v.name.toLowerCase().includes(term) ||
         v.relationName.toLowerCase().includes(term) ||
         v.address.mobileNumber?.includes(term) ||
@@ -273,7 +285,7 @@ export class AllVolunteersComponent implements OnInit {
         (v.badgeNo && v.badgeNo.toLowerCase().includes(term));
 
       const matchesGender = !gender || v.gender === gender;
-      
+
       const taskBranchValue = v.address.taskBranch?.replace('Task branch : ', '') || '';
       const matchesTaskBranch = !taskBranch || taskBranchValue === taskBranch;
 
@@ -282,7 +294,7 @@ export class AllVolunteersComponent implements OnInit {
 
       const matchesSewa = !sewa || v.regularSewa?.sewaName?.includes(sewa);
 
-      const matchesSewaInterest = !sewaInterest || 
+      const matchesSewaInterest = !sewaInterest ||
         (sewaInterest === 'yes' && v.sewaInterest) ||
         (sewaInterest === 'no' && !v.sewaInterest);
 
@@ -292,14 +304,14 @@ export class AllVolunteersComponent implements OnInit {
 
       const matchesSewaMode = !sewaMode || v.sewaMode === sewaMode;
 
-      return matchesTerm && matchesGender && matchesTaskBranch && 
-             matchesCorrespondingBranch && matchesSewa && 
-             matchesSewaInterest && matchesSewaAllocated && matchesSewaMode;
+      return matchesTerm && matchesGender && matchesTaskBranch &&
+        matchesCorrespondingBranch && matchesSewa &&
+        matchesSewaInterest && matchesSewaAllocated && matchesSewaMode;
     });
 
     // Apply sorting
     const sortOrderValue = this.sortOrder[0]?.value || '';
-    
+
     if (sortOrderValue) {
       const [sortField, orderDirection] = sortOrderValue.split(':');
       const orderByValue = orderDirection || 'asc';
@@ -362,8 +374,8 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   isAllSelected(): boolean {
-    return this.pagedVolunteers.length > 0 && 
-           this.pagedVolunteers.every(v => this.selectedVolunteers.has(v.id));
+    return this.pagedVolunteers.length > 0 &&
+      this.pagedVolunteers.every(v => this.selectedVolunteers.has(v.id));
   }
 
   isIndeterminate(): boolean {
@@ -399,7 +411,7 @@ export class AllVolunteersComponent implements OnInit {
   onAction(volunteer: Volunteer, action: any): void {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
-    
+
     if (actionId === 'view') {
       this.viewDetails(volunteer);
     } else if (actionId === 'edit') {
@@ -422,7 +434,7 @@ export class AllVolunteersComponent implements OnInit {
       // Find the original volunteer data to get UUID if available
       const originalVolunteer = this.allVolunteers.find(v => v.id === volunteer.id);
       const volunteerUuid = (originalVolunteer as any)?.uuid || volunteer.id;
-      
+
       this.dataService.delete(`v1/volunteers/${volunteerUuid}`).pipe(
         catchError((error) => {
           console.error('Error deleting volunteer:', error);
@@ -441,11 +453,11 @@ export class AllVolunteersComponent implements OnInit {
     event.stopPropagation();
     const newValue = !volunteer.sewaInterest;
     volunteer.sewaInterest = newValue; // Optimistic update
-    
+
     // Find the original volunteer data to get UUID if available
     const originalVolunteer = this.allVolunteers.find(v => v.id === volunteer.id);
     const volunteerUuid = (originalVolunteer as any)?.uuid || volunteer.id;
-    
+
     this.dataService.patch(`v1/volunteers/${volunteerUuid}`, { sewa_interest: newValue ? 1 : 0 }).pipe(
       catchError((error) => {
         console.error('Error updating sewa interest:', error);
@@ -499,9 +511,9 @@ export class AllVolunteersComponent implements OnInit {
   onExportAction(action: any): void {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
-    
+
     this.exportMenuOpen = false;
-    
+
     if (actionId === 'export') {
       this.exportSelectedRecords();
     } else if (actionId === 'print') {
@@ -539,9 +551,9 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   getBranchName(): string {
-    return this.selectedVolunteerForSewa?.address?.correspondingBranch?.replace('Corresponding branch : ', '') || 
-           this.selectedVolunteerForSewa?.address?.taskBranch?.replace('Task branch : ', '') || 
-           'NURMAHAL';
+    return this.selectedVolunteerForSewa?.address?.correspondingBranch?.replace('Corresponding branch : ', '') ||
+      this.selectedVolunteerForSewa?.address?.taskBranch?.replace('Task branch : ', '') ||
+      'NURMAHAL';
   }
 
   // More Filters Modal
@@ -556,6 +568,44 @@ export class AllVolunteersComponent implements OnInit {
   onMoreFiltersApply(filters: any): void {
     this.moreFilters = filters;
     this.applyFilter();
+  }
+
+  // Create Volunteer Modal Methods
+  createVolunteerFooterButtons = [
+    {
+      text: 'Cancel',
+      type: 'secondary' as const,
+      action: 'cancel'
+    },
+    {
+      text: 'Submit',
+      type: 'primary' as const,
+      action: 'submit'
+    }
+  ];
+
+  openCreateVolunteerModal(): void {
+    this.createVolunteerModalOpen = true;
+  }
+
+  closeCreateVolunteerModal(): void {
+    this.createVolunteerModalOpen = false;
+  }
+
+  onFooterAction(action: string): void {
+    if (action === 'cancel') {
+      this.closeCreateVolunteerModal();
+    } else if (action === 'submit') {
+      // Trigger form submission in create-volunteer component
+      if (this.createVolunteerComponent) {
+        this.createVolunteerComponent.submitForm();
+      }
+    }
+  }
+
+  onVolunteerCreated(): void {
+    this.closeCreateVolunteerModal();
+    this.loadVolunteers(); // Reload the volunteers list
   }
 
   @HostListener('document:click', ['$event'])

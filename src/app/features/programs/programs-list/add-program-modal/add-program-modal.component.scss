@@ -1,0 +1,11 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/form';
+@import '../../../../../assets/scss/grid';
+
+.add-program-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+}
+

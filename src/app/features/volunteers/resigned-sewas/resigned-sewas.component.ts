@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { MoreFiltersModalComponent } from '../all-volunteers/more-filters-modal/more-filters-modal.component';
@@ -35,6 +36,7 @@ export interface ResignedSewa {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
+    LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
     MoreFiltersModalComponent
@@ -52,7 +54,7 @@ export class ResignedSewasComponent implements OnInit {
   allResignedSewas: ResignedSewa[] = [];
 
   // Loading and error states
-  isLoading = false;
+  isLoading = true; // Start with true to show loader on initial load
   error: string | null = null;
 
   // Selection
@@ -123,10 +125,11 @@ export class ResignedSewasComponent implements OnInit {
       catchError((error) => {
         console.error('Error loading resigned sewas:', error);
         this.error = error.error?.message || error.message || 'Failed to load resigned sewas. Please try again.';
+        this.isLoading = false; // Set loading to false on error
         return of({ data: [] }); // Return empty array to prevent breaking
       }),
       finalize(() => {
-        this.isLoading = false;
+        // Loading state is managed in catchError and subscribe
       })
     ).subscribe((response) => {
       // Handle different response structures
@@ -188,6 +191,7 @@ export class ResignedSewasComponent implements OnInit {
       this.updateFilterOptions();
 
       this.applyFilter();
+      this.isLoading = false; // Set loading to false after data is processed
     });
   }
 

@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../shared/components/dropdown/dropdown.component';
 import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
@@ -38,6 +39,7 @@ export interface Visitor {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
+    LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
     SidePanelComponent,
@@ -140,14 +142,14 @@ export class VisitorsComponent implements OnInit {
     ).subscribe((response) => {
       // Handle different response structures
       const visitorsData = response.data || response.visitors || response.results || response || [];
-      
+
       // Map API response to Visitor interface
       this.allVisitors = (Array.isArray(visitorsData) ? visitorsData : []).map((item: any) => {
         // Get first image from user_images array
-        const firstImage = item.user_images && item.user_images.length > 0 
-          ? item.user_images[0].full_path 
+        const firstImage = item.user_images && item.user_images.length > 0
+          ? item.user_images[0].full_path
           : null;
-        
+
         // Extract relation name from relation_of object
         let relationName = '';
         if (item.user_profile?.relation_of) {
@@ -158,14 +160,14 @@ export class VisitorsComponent implements OnInit {
             relationName = relationOf[relationKeys[0]] || '';
           }
         }
-        
+
         // Convert gender to proper case
         let gender = '';
         if (item.user_profile?.gender) {
           const genderValue = item.user_profile.gender.toLowerCase();
           gender = genderValue === 'male' ? 'Male' : genderValue === 'female' ? 'Female' : 'Other';
         }
-        
+
         return {
           id: item.unique_id || 0, // Display ID (unique_id)
           uuid: item.id || '', // UUID for API calls
@@ -218,12 +220,12 @@ export class VisitorsComponent implements OnInit {
     // Filter visitors
     let filtered = this.allVisitors.filter((v) => {
       // Search in Name, Mobile No., Relation Name, UID
-      const matchesTerm = !term || 
+      const matchesTerm = !term ||
         v.name.toLowerCase().includes(term) ||
         v.phone.includes(term) ||
         (v.relationName && v.relationName.toLowerCase().includes(term)) ||
         (v.uid && v.uid.toLowerCase().includes(term));
-      
+
       const matchesGender = !gender || v.gender === gender;
 
       return matchesTerm && matchesGender;
@@ -231,7 +233,7 @@ export class VisitorsComponent implements OnInit {
 
     // Apply sorting
     const sortOrderValue = this.sortOrder[0]?.value || '';
-    
+
     if (sortOrderValue) {
       const [sortField, orderDirection] = sortOrderValue.split(':');
       const orderByValue = orderDirection || 'asc';
@@ -322,8 +324,8 @@ export class VisitorsComponent implements OnInit {
   }
 
   isAllSelected(): boolean {
-    return this.pagedVisitors.length > 0 && 
-           this.pagedVisitors.every(v => this.selectedVisitors.has(v.id));
+    return this.pagedVisitors.length > 0 &&
+      this.pagedVisitors.every(v => this.selectedVisitors.has(v.id));
   }
 
   isIndeterminate(): boolean {
@@ -334,32 +336,17 @@ export class VisitorsComponent implements OnInit {
   // Action handlers
   getActionOptions(visitor: Visitor): MenuOption[] {
     return [
-      {
-        id: 'view',
-        label: 'View',
-        value: 'view',
-        icon: 'visibility'
-      },
-      {
-        id: 'edit',
-        label: 'Edit',
-        value: 'edit',
-        icon: 'edit'
-      },
-      {
-        id: 'delete',
-        label: 'Delete',
-        value: 'delete',
-        icon: 'delete',
-        danger: true
-      }
+      { id: '1', label: 'View', value: 'view', icon: 'visibility' },
+      { id: '2', label: 'Edit', value: 'edit', icon: 'edit' },
+      { id: '3', label: 'Convert To Volunteer', value: 'convert', icon: 'refresh' },
+      { id: '4', label: 'Print Visitor Card', value: 'print', icon: 'print' }
     ];
   }
 
   onAction(visitor: Visitor, action: any): void {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
-    
+
     if (actionId === 'view') {
       this.viewDetails(visitor);
     } else if (actionId === 'edit') {
@@ -400,16 +387,16 @@ export class VisitorsComponent implements OnInit {
   toggleSewaInterest(visitor: Visitor, event: Event): void {
     event.stopPropagation();
     const newValue = !visitor.sewaInterest;
-    
+
     // Optimistically update UI
     visitor.sewaInterest = newValue;
-    
+
     // Use UUID for API call, convert boolean to number (1 or 0)
     const visitorId = visitor.uuid || visitor.id;
     const sewaInterestValue = newValue ? 1 : 0;
-    
+
     // Make API call to update - need to update user_profile
-    this.dataService.patch(`v1/visitors/${visitorId}`, { 
+    this.dataService.patch(`v1/visitors/${visitorId}`, {
       user_profile: {
         sewa_interest: sewaInterestValue
       }
@@ -477,9 +464,9 @@ export class VisitorsComponent implements OnInit {
   onExportAction(action: any): void {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
-    
+
     this.exportMenuOpen = false;
-    
+
     if (actionId === 'export') {
       this.exportSelectedRecords();
     } else if (actionId === 'print') {
@@ -494,7 +481,7 @@ export class VisitorsComponent implements OnInit {
     }
 
     const selectedData = this.allVisitors.filter(v => this.selectedVisitors.has(v.id));
-    
+
     // Convert to CSV
     const headers = ['Id', 'Name', 'Email', 'Phone', 'Date', 'Valid Upto', 'Purpose To Visit', 'Sewa Interest', 'Gender', 'Relation Name', 'UID'];
     const rows = selectedData.map(v => [
@@ -534,7 +521,7 @@ export class VisitorsComponent implements OnInit {
     }
 
     const selectedData = this.allVisitors.filter(v => this.selectedVisitors.has(v.id));
-    
+
     // Create print window
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;

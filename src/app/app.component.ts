@@ -131,8 +131,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       '/programs/programs-list': 'Programs List',
       '/programs/sewa-volunteers': 'Sewa Volunteers',
       '/volunteer-cards': 'Volunteer Cards',
-      '/pensions/transactions-list': 'Pensions Transactions List',
-      '/pensions/create-transaction': 'Create Transaction',
       '/settings': 'Settings'
     };
 

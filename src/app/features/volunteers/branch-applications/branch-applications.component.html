@@ -3,11 +3,6 @@
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
     </div>
 
-    <!-- Loading state -->
-    <div *ngIf="isLoading" class="loading-state">
-        <p>Loading branch applications...</p>
-    </div>
-
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
@@ -15,7 +10,7 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="listing-search" *ngIf="!isLoading && !error">
+    <div class="listing-search" *ngIf="!error">
         <div class="listing-search-item">
             <input
                 type="search"
@@ -59,125 +54,138 @@
     </div>
 
     <!-- Applications table -->
-    <div class="table-container" *ngIf="!isLoading && !error">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th>Id</th>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Relation Name</th>
-                    <th>Address</th>
-                    <th>Regular Sewa</th>
-                    <th>Enter By</th>
-                    <th>Sewa Interest</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let application of pagedApplications; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedApplications.has(application.id)"
-                            (change)="toggleSelectApplication(application.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(application)"
-                            (selectionChange)="onAction(application, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Id">
-                        {{ application.id }}
-                    </td>
-                    <td data-label="Image" class="image-column">
-                        <div class="application-image">
-                            <img [src]="application.image || '/assets/img/placeholder.svg'" 
-                                 [alt]="application.name"
-                                 onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ application.name }}<span *ngIf="application.age">: Age({{ application.age }})</span>
-                    </td>
-                    <td data-label="Relation Name">
-                        {{ application.relationName }}
-                    </td>
-                    <td data-label="Address" class="address-column">
-                        <div class="address-content">
-                            <div *ngIf="application.address.street">{{ application.address.street }}</div>
-                            <div *ngIf="application.address.pincode">{{ application.address.pincode }}</div>
-                            <div *ngIf="application.address.cityName">{{ application.address.cityName }}</div>
-                            <div *ngIf="application.address.correspondingBranch">{{ application.address.correspondingBranch }}</div>
-                            <div *ngIf="application.address.taskBranch">{{ application.address.taskBranch }}</div>
-                            <div *ngIf="application.address.mobileNumber">{{ application.address.mobileNumber }}</div>
-                        </div>
-                    </td>
-                    <td data-label="Regular Sewa" class="sewa-column">
-                        <div class="sewa-content" *ngIf="application.regularSewa">
-                            <a href="#" 
-                               class="sewa-tracking" 
-                               *ngIf="application.regularSewa.tracking"
-                               (click)="openSewaTrackingModal(application, $event)">
-                                {{ application.regularSewa.tracking }}
-                            </a>
-                            <div class="sewa-name" *ngIf="application.regularSewa.sewaName">
-                                {{ application.regularSewa.sewaName }}
-                            </div>
-                            <span class="sewa-badge" *ngIf="application.regularSewa.count">
-                                {{ application.regularSewa.count }}
-                            </span>
-                        </div>
-                        <span *ngIf="!application.regularSewa">-</span>
-                    </td>
-                    <td data-label="Enter By">
-                        {{ application.enterBy || '-' }}
-                    </td>
-                    <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
-                        <span class="toggle-switch">
-                            <input 
-                                type="checkbox" 
-                                [checked]="application.sewaInterest"
-                                (change)="toggleSewaInterest(application, $event)" />
-                            <span class="toggle-slider"></span>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()">
+                        </th>
+                        <th>Id</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Relation Name</th>
+                        <th>Address</th>
+                        <th>Regular Sewa</th>
+                        <th>Enter By</th>
+                        <th>Sewa Interest</th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let application of pagedApplications; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedApplications.has(application.id)"
+                                    (change)="toggleSelectApplication(application.id, $event)">
+                            </td>
+                            <td data-label="Id">
+                                {{ application.id }}
+                            </td>
+                            <td data-label="Image" class="image-column">
+                                <div class="application-image">
+                                    <img [src]="application.image || '/assets/img/placeholder.svg'" 
+                                         [alt]="application.name"
+                                         onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ application.name }}<span *ngIf="application.age">: Age({{ application.age }})</span>
+                            </td>
+                            <td data-label="Relation Name">
+                                {{ application.relationName }}
+                            </td>
+                            <td data-label="Address" class="address-column">
+                                <div class="address-content">
+                                    <div *ngIf="application.address.street">{{ application.address.street }}</div>
+                                    <div *ngIf="application.address.pincode">{{ application.address.pincode }}</div>
+                                    <div *ngIf="application.address.cityName">{{ application.address.cityName }}</div>
+                                    <div *ngIf="application.address.correspondingBranch">{{ application.address.correspondingBranch }}</div>
+                                    <div *ngIf="application.address.taskBranch">{{ application.address.taskBranch }}</div>
+                                    <div *ngIf="application.address.mobileNumber">{{ application.address.mobileNumber }}</div>
+                                </div>
+                            </td>
+                            <td data-label="Regular Sewa" class="sewa-column">
+                                <div class="sewa-content" *ngIf="application.regularSewa">
+                                    <a href="#" 
+                                       class="sewa-tracking" 
+                                       *ngIf="application.regularSewa.tracking"
+                                       (click)="openSewaTrackingModal(application, $event)">
+                                        {{ application.regularSewa.tracking }}
+                                    </a>
+                                    <div class="sewa-name" *ngIf="application.regularSewa.sewaName">
+                                        {{ application.regularSewa.sewaName }}
+                                    </div>
+                                    <span class="sewa-badge" *ngIf="application.regularSewa.count">
+                                        {{ application.regularSewa.count }}
+                                    </span>
+                                </div>
+                                <span *ngIf="!application.regularSewa">-</span>
+                            </td>
+                            <td data-label="Enter By">
+                                {{ application.enterBy || '-' }}
+                            </td>
+                            <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                                <span class="toggle-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        [checked]="application.sewaInterest"
+                                        (change)="toggleSewaInterest(application, $event)" />
+                                    <span class="toggle-slider"></span>
+                                </span>
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(application)"
+                                    (selectionChange)="onAction(application, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedApplications.length === 0">
+                            <td [attr.colspan]="10" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No Results Found' : 'No Applications Found'"
+                                    [description]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No applications match your search criteria.' : 'There are no branch applications to display at the moment.'"
+                                    [icon]="'description'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="10" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            *ngIf="!error"
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
-
-    <!-- Pagination -->
-    <app-pager
-        *ngIf="!isLoading && !error"
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="!isLoading && !error && applications.length === 0"
-        title="No Applications Found"
-        description="There are no branch applications to display at the moment."
-        icon="description"
-        [showButton]="false">
-    </app-empty-state>
 
     <!-- More Filters Modal -->
     <app-more-filters-modal
+        *ngIf="moreFiltersModalOpen"
         [isOpen]="moreFiltersModalOpen"
         [filters]="moreFilters"
         (close)="closeMoreFiltersModal()"
@@ -186,9 +194,9 @@
 
     <!-- Sewa Tracking Modal -->
     <app-sewa-tracking-modal
+        *ngIf="sewaTrackingModalOpen"
         [isOpen]="sewaTrackingModalOpen"
         [branchName]="getBranchName()"
         (close)="closeSewaTrackingModal()">
     </app-sewa-tracking-modal>
 </div>
-

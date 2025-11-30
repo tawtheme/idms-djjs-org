@@ -1,6 +1,7 @@
 <div class="volunteers-container">
     <div class="volunteers-header">
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVolunteerModal()">Create Volunteer</button>
     </div>
 
     <!-- Filter Section -->
@@ -47,11 +48,6 @@
         </div>
     </div>
 
-    <!-- Loading state -->
-    <div *ngIf="isLoading" class="loading-state">
-        <p>Loading volunteers...</p>
-    </div>
-
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
@@ -59,124 +55,138 @@
     </div>
 
     <!-- Volunteers table -->
-    <div class="table-container" *ngIf="!isLoading && !error">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th>Id</th>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Relation Name</th>
-                    <th>Address</th>
-                    <th>Regular Sewa</th>
-                    <th>Enter By</th>
-                    <th>Sewa Interest</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedVolunteers.has(volunteer.id)"
-                            (change)="toggleSelectVolunteer(volunteer.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(volunteer)"
-                            (selectionChange)="onAction(volunteer, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Id">
-                        {{ volunteer.id }}
-                    </td>
-                    <td data-label="Image" class="image-column">
-                        <div class="volunteer-image">
-                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
-                                 [alt]="volunteer.name"
-                                 onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ volunteer.name }}<span *ngIf="volunteer.age">: Age({{ volunteer.age }})</span>
-                    </td>
-                    <td data-label="Relation Name">
-                        {{ volunteer.relationName }}
-                    </td>
-                    <td data-label="Address" class="address-column">
-                        <div class="address-content">
-                            <div *ngIf="volunteer.address.street">{{ volunteer.address.street }}</div>
-                            <div *ngIf="volunteer.address.pincode">{{ volunteer.address.pincode }}</div>
-                            <div *ngIf="volunteer.address.cityName">{{ volunteer.address.cityName }}</div>
-                            <div *ngIf="volunteer.address.correspondingBranch">{{ volunteer.address.correspondingBranch }}</div>
-                            <div *ngIf="volunteer.address.taskBranch">{{ volunteer.address.taskBranch }}</div>
-                            <div *ngIf="volunteer.address.mobileNumber">{{ volunteer.address.mobileNumber }}</div>
-                        </div>
-                    </td>
-                    <td data-label="Regular Sewa" class="sewa-column">
-                        <div class="sewa-content" *ngIf="volunteer.regularSewa">
-                            <a href="#" 
-                               class="sewa-tracking" 
-                               *ngIf="volunteer.regularSewa.tracking"
-                               (click)="openSewaTrackingModal(volunteer, $event)">
-                                {{ volunteer.regularSewa.tracking }}
-                            </a>
-                            <div class="sewa-name" *ngIf="volunteer.regularSewa.sewaName">
-                                {{ volunteer.regularSewa.sewaName }}
-                            </div>
-                            <span class="sewa-badge" *ngIf="volunteer.regularSewa.count">
-                                {{ volunteer.regularSewa.count }}
-                            </span>
-                        </div>
-                        <span *ngIf="!volunteer.regularSewa">-</span>
-                    </td>
-                    <td data-label="Enter By">
-                        {{ volunteer.enterBy || '-' }}
-                    </td>
-                    <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
-                        <span class="toggle-switch">
-                            <input 
-                                type="checkbox" 
-                                [checked]="volunteer.sewaInterest"
-                                (change)="toggleSewaInterest(volunteer, $event)" />
-                            <span class="toggle-slider"></span>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()"
+                            />
+                        </th>
+                        <th>Id</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Relation Name</th>
+                        <th>Address</th>
+                        <th>Regular Sewa</th>
+                        <th>Enter By</th>
+                        <th>Sewa Interest</th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedVolunteers.has(volunteer.id)"
+                                    (change)="toggleSelectVolunteer(volunteer.id, $event)">
+                            </td>
+                            <td data-label="Id">
+                                {{ volunteer.id }}
+                            </td>
+                            <td data-label="Image" class="image-column">
+                                <div class="volunteer-image">
+                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
+                                        [alt]="volunteer.name"
+                                        onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ volunteer.name }}<span *ngIf="volunteer.age">: Age({{ volunteer.age }})</span>
+                            </td>
+                            <td data-label="Relation Name">
+                                {{ volunteer.relationName }}
+                            </td>
+                            <td data-label="Address" class="address-column">
+                                <div class="address-content">
+                                    <div *ngIf="volunteer.address.street">{{ volunteer.address.street }}</div>
+                                    <div *ngIf="volunteer.address.pincode">{{ volunteer.address.pincode }}</div>
+                                    <div *ngIf="volunteer.address.cityName">{{ volunteer.address.cityName }}</div>
+                                    <div *ngIf="volunteer.address.correspondingBranch">{{ volunteer.address.correspondingBranch }}</div>
+                                    <div *ngIf="volunteer.address.taskBranch">{{ volunteer.address.taskBranch }}</div>
+                                    <div *ngIf="volunteer.address.mobileNumber">{{ volunteer.address.mobileNumber }}</div>
+                                </div>
+                            </td>
+                            <td data-label="Regular Sewa" class="sewa-column">
+                                <div class="sewa-content" *ngIf="volunteer.regularSewa">
+                                    <a href="#" 
+                                    class="sewa-tracking" 
+                                    *ngIf="volunteer.regularSewa.tracking"
+                                    (click)="openSewaTrackingModal(volunteer, $event)">
+                                        {{ volunteer.regularSewa.tracking }}
+                                    </a>
+                                    <div class="sewa-name" *ngIf="volunteer.regularSewa.sewaName">
+                                        {{ volunteer.regularSewa.sewaName }}
+                                    </div>
+                                    <span class="sewa-badge" *ngIf="volunteer.regularSewa.count">
+                                        {{ volunteer.regularSewa.count }}
+                                    </span>
+                                </div>
+                                <span *ngIf="!volunteer.regularSewa">-</span>
+                            </td>
+                            <td data-label="Enter By">
+                                {{ volunteer.enterBy || '-' }}
+                            </td>
+                            <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                                <span class="toggle-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        [checked]="volunteer.sewaInterest"
+                                        (change)="toggleSewaInterest(volunteer, $event)" />
+                                    <span class="toggle-slider"></span>
+                                </span>
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(volunteer)"
+                                    (selectionChange)="onAction(volunteer, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedVolunteers.length === 0">
+                            <td [attr.colspan]="10" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No Results Found' : 'No Volunteers Found'"
+                                    [description]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No volunteers match your search criteria.' : 'There are no volunteers available at the moment.'"
+                                    [icon]="'people'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="10" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
-
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="volunteers.length === 0"
-        title="No Volunteers Found"
-        description="There are no volunteers to display at the moment."
-        icon="people"
-        [showButton]="false">
-    </app-empty-state>
 
     <!-- Sewa Tracking Modal -->
     <app-sewa-tracking-modal
+        *ngIf="sewaTrackingModalOpen"
         [isOpen]="sewaTrackingModalOpen"
         [branchName]="getBranchName()"
         (close)="closeSewaTrackingModal()">
@@ -184,10 +194,35 @@
 
     <!-- More Filters Modal -->
     <app-more-filters-modal
+        *ngIf="moreFiltersModalOpen"
         [isOpen]="moreFiltersModalOpen"
         [filters]="moreFilters"
         (close)="closeMoreFiltersModal()"
         (applyFilters)="onMoreFiltersApply($event)">
     </app-more-filters-modal>
+
+    <!-- Create Volunteer Side Panel -->
+    <app-side-panel
+        *ngIf="createVolunteerModalOpen"
+        [isOpen]="createVolunteerModalOpen"
+        title="Create Volunteer"
+        [width]="500"
+        position="right"
+        [closable]="true"
+        [showBackdrop]="true"
+        [closeOnBackdropClick]="false"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="createVolunteerFooterButtons"
+        (close)="closeCreateVolunteerModal()"
+        (footerAction)="onFooterAction($event)">
+        
+        <app-create-volunteer
+            [hideBreadcrumbs]="true"
+            [hideFormActions]="true"
+            (volunteerCreated)="onVolunteerCreated()"
+            #createVolunteerComponent>
+        </app-create-volunteer>
+    </app-side-panel>
 </div>
 

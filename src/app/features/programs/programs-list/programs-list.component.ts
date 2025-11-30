@@ -5,8 +5,11 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { AddProgramModalComponent } from './add-program-modal/add-program-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -33,8 +36,11 @@ export interface Program {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
+    LoadingComponent,
     MenuDropdownComponent,
-    DropdownComponent
+    DropdownComponent,
+    DatepickerComponent,
+    AddProgramModalComponent
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',
@@ -48,11 +54,22 @@ export class ProgramsListComponent implements OnInit {
   programs: Program[] = [];
   allPrograms: Program[] = [];
 
+  // Loading and error states
+  isLoading = true; // Start with true to show loader on initial load
+  error: string | null = null;
+
+  // Modal state
+  isAddModalOpen = false;
+
   // Selection
   selectedPrograms = new Set<string>();
 
   // Filters
   searchTerm = '';
+  selectedTaskBranch: any[] = [];
+  taskBranchOptions: DropdownOption[] = [];
+  startDate: Date | null = null;
+  endDate: Date | null = null;
 
   // Sorting
   sortField = '';
@@ -78,10 +95,15 @@ export class ProgramsListComponent implements OnInit {
   /**
    * Load programs from /api/v1/programs using DataService (environment.apiUrl/v1/programs)
    */
-  private loadPrograms(): void {
+  loadPrograms(): void {
+    this.isLoading = true;
+    this.error = null;
+
     this.dataService.get<any>('v1/programs').pipe(
       catchError((error) => {
         console.error('Error loading programs:', error);
+        this.error = error.error?.message || error.message || 'Failed to load programs. Please try again.';
+        this.isLoading = false; // Set loading to false on error
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -113,8 +135,28 @@ export class ProgramsListComponent implements OnInit {
         } as Program;
       });
 
+      // Update task branch options from API data
+      this.updateTaskBranchOptions();
+
       this.applyFilters();
+      this.isLoading = false; // Set loading to false after data is processed
     });
+  }
+
+  /**
+   * Updates task branch options from loaded programs
+   */
+  private updateTaskBranchOptions(): void {
+    const branches = new Set<string>();
+    this.allPrograms.forEach(program => {
+      if (program.taskBranch) branches.add(program.taskBranch);
+    });
+
+    this.taskBranchOptions = Array.from(branches).sort().map((branch, index) => ({
+      id: String(index + 1),
+      label: branch,
+      value: branch
+    }));
   }
 
   formatDate(date: Date, includeTime: boolean = false): string {
@@ -146,6 +188,30 @@ export class ProgramsListComponent implements OnInit {
         program.projectName.toLowerCase().includes(search) ||
         program.taskBranch.toLowerCase().includes(search)
       );
+    }
+
+    // Task Branch filter
+    if (this.selectedTaskBranch && this.selectedTaskBranch.length > 0) {
+      const selectedBranch = this.selectedTaskBranch[0];
+      filtered = filtered.filter(program => program.taskBranch === selectedBranch);
+    }
+
+    // Start Date filter
+    if (this.startDate) {
+      filtered = filtered.filter(program => {
+        if (!program.startDateTime) return false;
+        const programDate = new Date(program.startDateTime);
+        return programDate >= this.startDate!;
+      });
+    }
+
+    // End Date filter
+    if (this.endDate) {
+      filtered = filtered.filter(program => {
+        if (!program.endDateTime) return false;
+        const programDate = new Date(program.endDateTime);
+        return programDate <= this.endDate!;
+      });
     }
 
     // Sorting
@@ -195,6 +261,29 @@ export class ProgramsListComponent implements OnInit {
     return this.programs.slice(start, end);
   }
 
+  /**
+   * Handle task branch selection change
+   */
+  onTaskBranchChange(): void {
+    this.applyFilters();
+  }
+
+  /**
+   * Handle start date change
+   */
+  onStartDateChange(date: Date | null): void {
+    this.startDate = date;
+    this.applyFilters();
+  }
+
+  /**
+   * Handle end date change
+   */
+  onEndDateChange(date: Date | null): void {
+    this.endDate = date;
+    this.applyFilters();
+  }
+
   // Selection
   toggleSelectProgram(id: string, event: Event) {
     event.stopPropagation();
@@ -227,15 +316,43 @@ export class ProgramsListComponent implements OnInit {
   // Actions
   getActionOptions(program: Program): MenuOption[] {
     return [
-      { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '1', label: 'View', value: 'view', icon: 'visibility' },
+      { id: '2', label: 'Duplicate', value: 'duplicate', icon: 'content_copy' },
+      { id: '3', label: 'Delete', value: 'delete', icon: 'delete' }
     ];
   }
 
   onAction(program: Program, option: MenuOption) {
-    console.log('Action:', option.value, 'on program:', program);
-    // Implement action logic
+    if (!option) return;
+    const actionId = typeof option === 'string' ? option : (option.value || option.id);
+    
+    if (actionId === 'view') {
+      this.viewProgram(program);
+    } else if (actionId === 'duplicate') {
+      this.duplicateProgram(program);
+    } else if (actionId === 'delete') {
+      this.deleteProgram(program);
+    }
+  }
+
+  viewProgram(program: Program): void {
+    console.log('View program:', program);
+    // Implement view logic (e.g., navigate to detail page or open view modal)
+  }
+
+  duplicateProgram(program: Program): void {
+    console.log('Duplicate program:', program);
+    // Implement duplicate logic (e.g., open add modal with pre-filled data)
+  }
+
+  deleteProgram(program: Program): void {
+    if (confirm(`Delete ${program.name}?`)) {
+      const index = this.allPrograms.findIndex(p => p.id === program.id);
+      if (index > -1) {
+        this.allPrograms.splice(index, 1);
+        this.applyFilters();
+      }
+    }
   }
 
   // Pagination
@@ -250,5 +367,60 @@ export class ProgramsListComponent implements OnInit {
 
   trackById(index: number, program: Program): string {
     return program.id;
+  }
+
+  // Modal methods
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  onAddProgramSubmit(newProgram: { 
+    name: string; 
+    programCoordinator: string; 
+    initiative: string; 
+    project: string; 
+    branch: string; 
+    chooseSewa: string; 
+    startDateTime: Date | null; 
+    endDateTime: Date | null; 
+    status: string; 
+    repeats: string; 
+    remarks: string 
+  }): void {
+    console.log('New Program Added:', newProgram);
+    // In a real application, you would send this data to your API
+    // For now, we'll simulate adding it to the list
+    const newId = String(this.allPrograms.length + 1);
+    const createdAt = new Date().toISOString();
+    
+    // Format dates
+    const formatDateTime = (date: Date | null): string => {
+      if (!date) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours() % 12 || 12).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = date.getHours() >= 12 ? 'pm' : 'am';
+      return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+    };
+
+    this.allPrograms.push({
+      id: newId,
+      name: newProgram.name,
+      programCoordinator: newProgram.programCoordinator,
+      initiativeName: newProgram.initiative,
+      projectName: newProgram.project,
+      taskBranch: newProgram.branch,
+      startDateTime: formatDateTime(newProgram.startDateTime),
+      endDateTime: formatDateTime(newProgram.endDateTime),
+      status: newProgram.status as Program['status'],
+      createdAt: createdAt
+    });
+    this.applyFilters();
   }
 }

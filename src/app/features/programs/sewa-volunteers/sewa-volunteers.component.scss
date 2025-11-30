@@ -1,5 +1,23 @@
+@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
 @import '../../../../assets/scss/table';
+
+// Apply shared listing styles
+@include listing.listing('.sewa-volunteers');
+
+.seaw-volunteers-filter{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
 
 .sewa-volunteers-container {
     height: 100%;
@@ -12,7 +30,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .sewa-volunteers-content {
@@ -101,9 +119,21 @@
     flex: 1;
     overflow-y: auto;
     padding: 16px 20px;
+    min-height: 200px;
+}
+
+.cards-loading,
+.cards-error,
+.cards-empty {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
 }
 
 .cards-grid {
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
@@ -208,66 +238,6 @@
                 font-size: 16px;
             }
         }
-    }
-}
-
-// No data for cards
-.cards-container .no-data {
-    text-align: center;
-    padding: 60px 20px;
-    color: $color-gray-500;
-    font-style: italic;
-    font-size: 14px;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-
-    thead {
-        background: $color-gray-50;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-
-        th {
-            padding: 12px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 600;
-            color: $color-gray-700;
-            text-transform: uppercase;
-            border-bottom: 2px solid $color-gray-200;
-        }
-    }
-
-    tbody {
-        tr {
-            border-bottom: 1px solid $color-gray-200;
-
-            &:hover {
-                background: $color-gray-50;
-            }
-
-            td {
-                padding: 12px;
-                font-size: 14px;
-                color: $color-gray-700;
-            }
-        }
-    }
-}
-
-// Checkbox column
-.checkbox-column {
-    width: 40px;
-    text-align: center;
-    padding: 12px 8px !important;
-
-    input[type="checkbox"] {
-        cursor: pointer;
-        width: 18px;
-        height: 18px;
     }
 }
 

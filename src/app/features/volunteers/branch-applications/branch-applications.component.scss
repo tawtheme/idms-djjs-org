@@ -5,27 +5,6 @@
 // Apply shared listing styles
 @include listing.listing('.branch-applications');
 
-.branch-applications-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-// Checkbox column
-.checkbox-column {
-    width: 40px;
-    text-align: center;
-    padding: 12px 8px !important;
-
-    input[type="checkbox"] {
-        cursor: pointer;
-        width: 18px;
-        height: 18px;
-    }
-}
-
 // Image column
 .image-column {
     width: 80px;

@@ -58,11 +58,6 @@
         </div>
     </div>
 
-    <!-- Loading state -->
-    <div *ngIf="isLoading" class="loading-container" style="text-align: center; padding: 40px;">
-        <p>Loading visitors...</p>
-    </div>
-
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-container" style="text-align: center; padding: 40px; color: red;">
         <p>{{ error }}</p>
@@ -70,111 +65,123 @@
     </div>
 
     <!-- Visitors table -->
-    <div class="table-container" *ngIf="!isLoading && !error">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th>Id</th>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Date</th>
-                    <th>Valid Upto</th>
-                    <th>Purpose To Visit</th>
-                    <th>Sewa Interest</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let visitor of pagedVisitors; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedVisitors.has(visitor.id)"
-                            (change)="toggleSelectVisitor(visitor.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(visitor)"
-                            (selectionChange)="onAction(visitor, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Id">
-                        {{ visitor.id }}
-                    </td>
-                    <td data-label="Image" class="image-column">
-                        <div class="visitor-image">
-                            <img [src]="visitor.image || '/assets/img/placeholder.svg'" 
-                                 [alt]="visitor.name"
-                                 onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ visitor.name }}
-                    </td>
-                    <td data-label="Email">
-                        {{ visitor.email }}
-                    </td>
-                    <td data-label="Phone">
-                        {{ visitor.phone }}
-                    </td>
-                    <td data-label="Date" class="date">
-                        {{ formatDateTime(visitor.date) }}
-                    </td>
-                    <td data-label="Valid Upto" class="date">
-                        {{ formatDateTime(visitor.validUpto) }}
-                    </td>
-                    <td data-label="Purpose To Visit" class="purpose">
-                        {{ visitor.purposeToVisit }}
-                    </td>
-                    <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
-                        <span class="toggle-switch">
-                            <input 
-                                type="checkbox" 
-                                [checked]="visitor.sewaInterest"
-                                (change)="toggleSewaInterest(visitor, $event)" />
-                            <span class="toggle-slider"></span>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()">
+                        </th>
+                        <th>Id</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Date</th>
+                        <th>Valid Upto</th>
+                        <th>Purpose To Visit</th>
+                        <th>Sewa Interest</th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let visitor of pagedVisitors; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedVisitors.has(visitor.id)"
+                                    (change)="toggleSelectVisitor(visitor.id, $event)">
+                            </td>
+                            <td data-label="Id">
+                                {{ visitor.id }}
+                            </td>
+                            <td data-label="Image" class="image-column">
+                                <div class="visitor-image">
+                                    <img [src]="visitor.image || '/assets/img/placeholder.svg'" 
+                                        [alt]="visitor.name"
+                                        onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ visitor.name }}
+                            </td>
+                            <td data-label="Contact" class="contact-column">
+                                <div class="contact-info">
+                                    <div class="contact-email" *ngIf="visitor.email">{{ visitor.email }}</div>
+                                    <div class="contact-phone" *ngIf="visitor.phone">{{ visitor.phone }}</div>
+                                </div>
+                            </td>
+                            <td data-label="Date" class="date">
+                                {{ formatDateTime(visitor.date) }}
+                            </td>
+                            <td data-label="Valid Upto" class="date">
+                                {{ formatDateTime(visitor.validUpto) }}
+                            </td>
+                            <td data-label="Purpose To Visit" class="purpose">
+                                {{ visitor.purposeToVisit }}
+                            </td>
+                            <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                                <span class="toggle-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        [checked]="visitor.sewaInterest"
+                                        (change)="toggleSewaInterest(visitor, $event)" />
+                                    <span class="toggle-slider"></span>
+                                </span>
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(visitor)"
+                                    (selectionChange)="onAction(visitor, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedVisitors.length === 0">
+                            <td [attr.colspan]="10" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm || selectedGender.length > 0 ? 'No Results Found' : 'No Visitors Found'"
+                                    [description]="searchTerm || selectedGender.length > 0 ? 'No visitors match your search criteria.' : 'There are no visitors available at the moment.'"
+                                    [icon]="'people'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="10" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            *ngIf="!error"
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
-
-    <!-- Pagination -->
-    <app-pager
-        *ngIf="!isLoading && !error"
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="!isLoading && !error && visitors.length === 0"
-        title="No Visitors Found"
-        description="There are no visitors to display at the moment."
-        icon="people"
-        [showButton]="false">
-    </app-empty-state>
 
     <!-- Create Visitor Side Panel -->
     <app-side-panel
+        *ngIf="createVisitorModalOpen"
         [isOpen]="createVisitorModalOpen"
         title="Create Visitor"
-        [width]="600"
+        [width]="500"
         position="right"
         [closable]="true"
         [showBackdrop]="true"

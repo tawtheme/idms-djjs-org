@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, OnDestroy, signal, Input, Output, EventEmitter } from '@angular/core';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs/operators';
 
 interface MenuItem {
   label: string;
@@ -33,6 +34,9 @@ export class SidenavComponent implements OnInit, OnDestroy {
 
   // Track expanded menu items
   expandedItems = new Set<string>();
+  
+  // Subscription for route changes
+  private routeSubscription: any;
 
   // Menu structure
   menuGroups = [
@@ -83,19 +87,6 @@ export class SidenavComponent implements OnInit, OnDestroy {
       title: 'Volunteer Management',
       items: [
         { label: 'Volunteer Cards', icon: 'badge', route: '/volunteer-cards' }
-      ]
-    },
-    {
-      title: 'Financial',
-      items: [
-        {
-          label: 'Manage Pensions',
-          icon: 'account_balance_wallet',
-          children: [
-            { label: 'All Pensions', icon: 'list', route: '/pensions/transactions-list' },
-            { label: 'Add Pension', icon: 'add', route: '/pensions/create-transaction' }
-          ]
-        }
       ]
     },
     {

@@ -6,6 +6,8 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
 export interface UnallocatedVolunteer {
   id: number;
@@ -34,7 +36,9 @@ export interface AllocatedVolunteer {
     BreadcrumbComponent,
     DropdownComponent,
     PagerComponent,
-    MenuDropdownComponent
+    MenuDropdownComponent,
+    LoadingComponent,
+    EmptyStateComponent
   ],
   selector: 'app-sewa-volunteers',
   templateUrl: './sewa-volunteers.component.html',
@@ -42,6 +46,34 @@ export interface AllocatedVolunteer {
 })
 export class SewaVolunteersComponent {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+
+  // Filters
+  selectedProgram: string[] = ['None'];
+  selectedSewa: string[] = [];
+  selectedGender: string[] = ['None'];
+  selectedSewaAssignment: string[] = ['Unassigned Volunteers'];
+
+  // Filter options
+  programOptions: DropdownOption[] = [
+    { id: '0', label: 'None', value: 'None' }
+    // TODO: Load actual program options from API
+  ];
+
+  sewaOptions: DropdownOption[] = [
+    // TODO: Load actual sewa options from API
+  ];
+
+  genderOptions: DropdownOption[] = [
+    { id: '0', label: 'None', value: 'None' },
+    { id: '1', label: 'Male', value: 'Male' },
+    { id: '2', label: 'Female', value: 'Female' },
+    { id: '3', label: 'Other', value: 'Other' }
+  ];
+
+  sewaAssignmentOptions: DropdownOption[] = [
+    { id: '1', label: 'Unassigned Volunteers', value: 'Unassigned Volunteers' },
+    { id: '2', label: 'Assigned Volunteers', value: 'Assigned Volunteers' }
+  ];
 
   // Unallocated Volunteers
   unallocatedVolunteers: UnallocatedVolunteer[] = [];
@@ -53,6 +85,8 @@ export class SewaVolunteersComponent {
   unallocatedTotalItems = 0;
   unallocatedSortField = 'id';
   unallocatedSortDirection: 'asc' | 'desc' = 'asc';
+  isLoadingUnallocated = true;
+  errorUnallocated: string | null = null;
 
   // Allocated Volunteers
   allocatedVolunteers: AllocatedVolunteer[] = [];
@@ -64,6 +98,8 @@ export class SewaVolunteersComponent {
   allocatedTotalItems = 0;
   allocatedSortField = '';
   allocatedSortDirection: 'asc' | 'desc' = 'asc';
+  isLoadingAllocated = true;
+  errorAllocated: string | null = null;
 
   pageSizeOptions: number[] = [10, 20, 50, 100];
   pageSizeDropdownOptions: DropdownOption[] = [];
@@ -91,10 +127,34 @@ export class SewaVolunteersComponent {
     this.applyAllocatedFilter();
   }
 
+  // Filter change handlers
+  onProgramChange(): void {
+    this.applyFilters();
+  }
+
+  onSewaChange(): void {
+    this.applyFilters();
+  }
+
+  onGenderChange(): void {
+    this.applyFilters();
+  }
+
+  onSewaAssignmentChange(): void {
+    this.applyFilters();
+  }
+
+  // Apply all filters
+  applyFilters(): void {
+    this.applyUnallocatedFilter();
+    this.applyAllocatedFilter();
+  }
+
   // Unallocated Volunteers Methods
   applyUnallocatedFilter() {
     let filtered = [...this.allUnallocatedVolunteers];
 
+    // Apply search filter
     if (this.unallocatedSearchTerm.trim()) {
       const search = this.unallocatedSearchTerm.toLowerCase();
       filtered = filtered.filter(v =>
@@ -102,6 +162,31 @@ export class SewaVolunteersComponent {
         v.phone?.toLowerCase().includes(search) ||
         v.id.toString().includes(search)
       );
+    }
+
+    // Apply program filter
+    if (this.selectedProgram.length > 0 && !this.selectedProgram.includes('None')) {
+      // TODO: Filter by program when program data is available
+    }
+
+    // Apply sewa filter
+    if (this.selectedSewa.length > 0) {
+      // TODO: Filter by sewa when sewa data is available
+    }
+
+    // Apply gender filter
+    if (this.selectedGender.length > 0 && !this.selectedGender.includes('None')) {
+      // TODO: Filter by gender when gender data is available in unallocated volunteers
+    }
+
+    // Apply sewa assignment filter
+    if (this.selectedSewaAssignment.length > 0) {
+      if (this.selectedSewaAssignment.includes('Unassigned Volunteers')) {
+        // Show only unassigned volunteers (already filtered)
+      } else if (this.selectedSewaAssignment.includes('Assigned Volunteers')) {
+        // Show only assigned volunteers - move to allocated section
+        filtered = [];
+      }
     }
 
     if (this.unallocatedSortField) {
@@ -191,6 +276,7 @@ export class SewaVolunteersComponent {
   applyAllocatedFilter() {
     let filtered = [...this.allAllocatedVolunteers];
 
+    // Apply search filter
     if (this.allocatedSearchTerm.trim()) {
       const search = this.allocatedSearchTerm.toLowerCase();
       filtered = filtered.filter(v =>
@@ -201,6 +287,35 @@ export class SewaVolunteersComponent {
         v.sewa?.toLowerCase().includes(search) ||
         v.id.toString().includes(search)
       );
+    }
+
+    // Apply program filter
+    if (this.selectedProgram.length > 0 && !this.selectedProgram.includes('None')) {
+      // TODO: Filter by program when program data is available
+    }
+
+    // Apply sewa filter
+    if (this.selectedSewa.length > 0) {
+      filtered = filtered.filter(v => 
+        v.sewa && this.selectedSewa.some(sewa => 
+          v.sewa?.toLowerCase().includes(sewa.toLowerCase())
+        )
+      );
+    }
+
+    // Apply gender filter
+    if (this.selectedGender.length > 0 && !this.selectedGender.includes('None')) {
+      // TODO: Filter by gender when gender data is available in allocated volunteers
+    }
+
+    // Apply sewa assignment filter
+    if (this.selectedSewaAssignment.length > 0) {
+      if (this.selectedSewaAssignment.includes('Assigned Volunteers')) {
+        // Show only assigned volunteers (already filtered)
+      } else if (this.selectedSewaAssignment.includes('Unassigned Volunteers')) {
+        // Show only unassigned volunteers - move to unallocated section
+        filtered = [];
+      }
     }
 
     this.allocatedVolunteers = filtered;

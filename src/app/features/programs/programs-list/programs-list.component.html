@@ -1,10 +1,17 @@
 <div class="programs-container">
     <div class="programs-header">
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadPrograms()">Retry</button>
     </div>
 
     <!-- Filter Section -->
-    <div class="listing-search">
+    <div class="listing-search" *ngIf="!error">
         <div class="listing-search-item">
             <input
                 type="search"
@@ -12,112 +19,154 @@
                 placeholder="Search by Name, Program Co-Ordinator, Initiative Name, Project Name, or Task Branch"
                 [(ngModel)]="searchTerm"
                 [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
+                (input)="applyFilters()"
+            />
+        </div>
+        <div class="listing-search-item">
+            <app-datepicker
+                [value]="startDate"
+                placeholder="Start Date"
+                format="dd/MM/yyyy"
+                (dateChange)="onStartDateChange($event)">
+            </app-datepicker>
+            <app-datepicker
+                [value]="endDate"
+                placeholder="End Date"
+                format="dd/MM/yyyy"
+                (dateChange)="onEndDateChange($event)">
+            </app-datepicker>
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="selectedTaskBranch"
+                placeholder="Task Branch"
+                (selectionChange)="selectedTaskBranch = $event; onTaskBranchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
         </div>
     </div>
 
     <!-- Programs table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th>Name</th>
-                    <th (click)="sortBy('programCoordinator')" class="sortable">
-                        Program Co-Ordinator
-                        <span class="material-icons sort-icon">{{ getSortIcon('programCoordinator') }}</span>
-                    </th>
-                    <th>Initiative Name</th>
-                    <th>Project Name</th>
-                    <th>Task Branch</th>
-                    <th (click)="sortBy('startDateTime')" class="sortable">
-                        Start Date Time
-                        <span class="material-icons sort-icon">{{ getSortIcon('startDateTime') }}</span>
-                    </th>
-                    <th (click)="sortBy('endDateTime')" class="sortable">
-                        End Date Time
-                        <span class="material-icons sort-icon">{{ getSortIcon('endDateTime') }}</span>
-                    </th>
-                    <th>Status</th>
-                    <th (click)="sortBy('createdAt')" class="sortable">
-                        Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let program of pagedPrograms; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedPrograms.has(program.id)"
-                            (change)="toggleSelectProgram(program.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(program)"
-                            (selectionChange)="onAction(program, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ program.name }}
-                    </td>
-                    <td data-label="Program Co-Ordinator">
-                        {{ program.programCoordinator }}
-                    </td>
-                    <td data-label="Initiative Name">
-                        {{ program.initiativeName }}
-                    </td>
-                    <td data-label="Project Name">
-                        {{ program.projectName }}
-                    </td>
-                    <td data-label="Task Branch">
-                        {{ program.taskBranch }}
-                    </td>
-                    <td data-label="Start Date Time" class="date">
-                        {{ program.startDateTime }}
-                    </td>
-                    <td data-label="End Date Time" class="date">
-                        {{ program.endDateTime }}
-                    </td>
-                    <td data-label="Status" class="status">
-                        <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
-                            {{ program.status }}
-                        </span>
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ program.createdAt }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedPrograms.length === 0">
-                    <td [attr.colspan]="11" class="no-data">No data available in table</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()">
+                        </th>
+                        <th>Name</th>
+                        <th (click)="sortBy('programCoordinator')" class="sortable">
+                            Program Co-Ordinator
+                            <span class="material-icons sort-icon">{{ getSortIcon('programCoordinator') }}</span>
+                        </th>
+                        <th>Initiative Name</th>
+                        <th>Project Name</th>
+                        <th>Task Branch</th>
+                        <th (click)="sortBy('startDateTime')" class="sortable">
+                            Start Date Time
+                            <span class="material-icons sort-icon">{{ getSortIcon('startDateTime') }}</span>
+                        </th>
+                        <th (click)="sortBy('endDateTime')" class="sortable">
+                            End Date Time
+                            <span class="material-icons sort-icon">{{ getSortIcon('endDateTime') }}</span>
+                        </th>
+                        <th>Status</th>
+                        <th (click)="sortBy('createdAt')" class="sortable">
+                            Created At
+                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        </th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let program of pagedPrograms; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedPrograms.has(program.id)"
+                                    (change)="toggleSelectProgram(program.id, $event)">
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ program.name }}
+                            </td>
+                            <td data-label="Program Co-Ordinator">
+                                {{ program.programCoordinator }}
+                            </td>
+                            <td data-label="Initiative Name">
+                                {{ program.initiativeName }}
+                            </td>
+                            <td data-label="Project Name">
+                                {{ program.projectName }}
+                            </td>
+                            <td data-label="Task Branch">
+                                {{ program.taskBranch }}
+                            </td>
+                            <td data-label="Start Date Time" class="date">
+                                {{ program.startDateTime }}
+                            </td>
+                            <td data-label="End Date Time" class="date">
+                                {{ program.endDateTime }}
+                            </td>
+                            <td data-label="Status" class="status">
+                                <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
+                                    {{ program.status }}
+                                </span>
+                            </td>
+                            <td data-label="Created At" class="date">
+                                {{ program.createdAt }}
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(program)"
+                                    (selectionChange)="onAction(program, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedPrograms.length === 0">
+                            <td [attr.colspan]="11" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm ? 'No Results Found' : 'No Programs Found'"
+                                    [description]="searchTerm ? 'No programs match your search criteria.' : 'There are no programs available at the moment.'"
+                                    [icon]="'event'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="11" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            *ngIf="!error"
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
 
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="programs.length === 0 && !searchTerm"
-        title="No Programs Found"
-        message="There are no programs available at the moment.">
-    </app-empty-state>
+    <!-- Add New Program Modal -->
+    <app-add-program-modal
+        *ngIf="isAddModalOpen"
+        [isOpen]="isAddModalOpen"
+        (close)="closeAddModal()"
+        (submit)="onAddProgramSubmit($event)">
+    </app-add-program-modal>
 </div>
