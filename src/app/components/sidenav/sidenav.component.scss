@@ -1,6 +1,12 @@
 @import '../../../assets/scss/variable';
 
-// Material Icons mixin
+// ============================================
+// Mixins
+// ============================================
+
+/**
+ * Material Icons base styles
+ */
 @mixin material-icon {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -13,6 +19,56 @@
     white-space: nowrap;
     direction: ltr;
 }
+
+/**
+ * Base menu item styles (shared by parent and child items)
+ */
+@mixin menu-item-base {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: $color-gray-700;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/**
+ * Menu item hover and active states
+ */
+@mixin menu-item-states {
+    &:hover:not(.active) {
+        background: $color-gray-100;
+        color: $color-gray-900;
+    }
+
+    &.active {
+        background: rgba($color-primary-500, 0.1);
+        color: $color-primary-600;
+        font-weight: 600;
+    }
+}
+
+/**
+ * Icon base styles
+ */
+@mixin menu-icon($size: 20px, $width: 24px) {
+    font-size: $size;
+    width: $width;
+    text-align: center;
+    @include material-icon;
+}
+
+// ============================================
+// Main Sidenav Container
+// ============================================
 
 .sidenav {
     position: fixed;
@@ -28,7 +84,9 @@
     border-right: 1px solid $color-gray-200;
     transition: width 0.3s ease;
 
-    // Collapsed state
+    // ============================================
+    // Collapsed State
+    // ============================================
     &.collapsed {
         width: 64px;
 
@@ -57,7 +115,8 @@
                         gap: 4px;
                     }
 
-                    a {
+                    a,
+                    .menu-parent {
                         padding: 8px;
                         margin: 0 4px;
                         justify-content: center;
@@ -66,30 +125,14 @@
                             margin: 0;
                         }
 
-                        .text {
+                        .text,
+                        .arrow {
                             display: none;
                         }
                     }
 
-                    .menu-item-with-children {
-                        .menu-parent {
-                            padding: 8px;
-                            margin: 0 4px;
-                            justify-content: center;
-
-                            .icon {
-                                margin: 0;
-                            }
-
-                            .text,
-                            .arrow {
-                                display: none;
-                            }
-                        }
-
-                        .child-menu {
-                            display: none;
-                        }
+                    .child-menu {
+                        display: none;
                     }
                 }
             }
@@ -109,7 +152,9 @@
         }
     }
 
-    // Mobile styles
+    // ============================================
+    // Mobile Styles
+    // ============================================
     @media (max-width: 768px) {
         width: 300px;
         z-index: 1000;
@@ -122,7 +167,9 @@
         }
     }
 
+    // ============================================
     // Header
+    // ============================================
     .sidenav-header {
         position: sticky;
         top: 0;
@@ -142,8 +189,7 @@
             transition: all 0.3s ease;
 
             .brand-icon {
-                font-size: 22px;
-                @include material-icon;
+                @include menu-icon(22px, 22px);
             }
 
             .brand-text {
@@ -153,7 +199,9 @@
         }
     }
 
+    // ============================================
     // Content
+    // ============================================
     .sidenav-content {
         flex: 1;
         padding: 8px 0;
@@ -213,32 +261,20 @@
                     position: relative;
                 }
 
-                // Menu item with children
+                // ============================================
+                // Menu Item with Children
+                // ============================================
                 .menu-item-with-children {
+                    display: flex;
+                    flex-direction: column;
+
                     .menu-parent {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        position: relative;
-                        width: 100%;
+                        @include menu-item-base;
                         margin: 0 12px;
                         padding: 10px 8px;
-                        border: none;
-                        border-radius: 8px;
-                        background: transparent;
-                        color: $color-gray-700;
-                        text-decoration: none;
-                        font-weight: 500;
-                        font-size: 14px;
-                        transition: all 0.2s ease;
-                        cursor: pointer;
-                        text-align: left;
 
                         .icon {
-                            font-size: 20px;
-                            width: 24px;
-                            text-align: center;
-                            @include material-icon;
+                            @include menu-icon(20px, 24px);
                         }
 
                         .text {
@@ -246,28 +282,15 @@
                         }
 
                         .arrow {
-                            font-size: 18px;
-                            width: 18px;
+                            @include menu-icon(18px, 18px);
                             transition: transform 0.2s ease;
-                            @include material-icon;
                         }
 
-                        &.expanded {
-                            .arrow {
-                                transform: rotate(0deg);
-                            }
+                        &.expanded .arrow {
+                            transform: rotate(0deg);
                         }
 
-                        &:hover:not(.active) {
-                            background: $color-gray-100;
-                            color: $color-gray-900;
-                        }
-
-                        &.active {
-                            background: rgba($color-primary-500, 0.1);
-                            color: $color-primary-600;
-                            font-weight: 600;
-                        }
+                        @include menu-item-states;
                     }
 
                     // Child menu
@@ -283,24 +306,16 @@
 
                         li {
                             a {
-                                display: flex;
-                                align-items: center;
-                                gap: 12px;
-                                position: relative;
+                                @include menu-item-base;
                                 margin: 0 12px 0 36px;
-                                padding: 8px 8px;
+                                padding: 8px;
                                 border-radius: 6px;
-                                color: $color-gray-600;
-                                text-decoration: none;
                                 font-weight: 400;
                                 font-size: 13px;
-                                transition: all 0.2s ease;
+                                color: $color-gray-600;
 
                                 .icon {
-                                    font-size: 18px;
-                                    width: 20px;
-                                    text-align: center;
-                                    @include material-icon;
+                                    @include menu-icon(18px, 20px);
                                 }
 
                                 .text {
@@ -322,48 +337,31 @@
                     }
                 }
 
-                // Regular menu item (without children)
+                // ============================================
+                // Regular Menu Item (without children)
+                // ============================================
                 a {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    position: relative;
+                    @include menu-item-base;
                     margin: 0 12px;
                     padding: 10px 8px;
-                    border-radius: 8px;
-                    color: $color-gray-700;
-                    text-decoration: none;
-                    font-weight: 500;
-                    font-size: 14px;
-                    transition: all 0.2s ease;
 
                     .icon {
-                        font-size: 20px;
-                        width: 24px;
-                        text-align: center;
-                        @include material-icon;
+                        @include menu-icon(20px, 24px);
                     }
 
                     .text {
                         flex: 1;
                     }
 
-                    &:hover:not(.active) {
-                        background: $color-gray-100;
-                        color: $color-gray-900;
-                    }
-
-                    &.active {
-                        background: rgba($color-primary-500, 0.1);
-                        color: $color-primary-600;
-                        font-weight: 600;
-                    }
+                    @include menu-item-states;
                 }
             }
         }
     }
 
+    // ============================================
     // Footer
+    // ============================================
     .sidenav-footer {
         position: sticky;
         bottom: 0;
@@ -388,10 +386,7 @@
             transition: all 0.2s ease;
 
             .icon {
-                font-size: 20px;
-                width: 24px;
-                text-align: center;
-                @include material-icon;
+                @include menu-icon(20px, 24px);
             }
 
             .text {
@@ -406,7 +401,10 @@
     }
 }
 
-// Animation for child menu
+// ============================================
+// Animations
+// ============================================
+
 @keyframes slideDown {
     from {
         opacity: 0;
