@@ -2,12 +2,14 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './services/auth.service';
 
+/**
+ * Route guard that ensures user is authenticated
+ * Redirects to login if not authenticated
+ */
 const authOnly = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   
-  // Use comprehensive auth check that includes localStorage fallback
-  // This prevents logout during development file changes/reloads
   if (!auth.checkAuth()) {
     router.navigateByUrl('/login');
     return false;
@@ -16,50 +18,37 @@ const authOnly = () => {
   return true;
 };
 
+/**
+ * Route guard that ensures user is NOT authenticated (guest only)
+ * Redirects to dashboard if already authenticated
+ */
 const guestOnly = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
+  
   if (auth.isAuthenticated()) {
     router.navigateByUrl('/dashboard');
     return false;
   }
+  
   return true;
 };
 
+/**
+ * Application routes configuration
+ * Routes are organized by feature area for better maintainability
+ */
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
-  {
-    path: 'branches',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/branches/all-branches/all-branches.component').then(
-        (m) => m.AllBranchesComponent
-      ),
+  // Default route - redirect to login
+  { 
+    path: '', 
+    pathMatch: 'full', 
+    redirectTo: 'login' 
   },
-  {
-    path: 'master-tables',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/master-tables/master-tables-list/master-tables-list.component').then(
-        (m) => m.MasterTablesListComponent
-      ),
-  },
-  {
-    path: 'departments',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/departments/departments-list/departments-list.component').then(
-        (m) => m.DepartmentsListComponent
-      ),
-  },
-  {
-    path: 'branches/areas',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/branches/branch-areas/branch-areas.component').then(
-        (m) => m.BranchAreasComponent
-      ),
-  },
+
+  // ============================================
+  // Authentication Routes (Guest Only)
+  // ============================================
   {
     path: 'login',
     canMatch: [guestOnly],
@@ -69,29 +58,25 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'projects',
-    canMatch: [authOnly],
+    path: 'forgot-password',
+    canMatch: [guestOnly],
     loadComponent: () =>
-      import('./features/projects/projects-list/projects-list.component').then(
-        (m) => m.ProjectsListComponent
+      import('./features/auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent
       ),
   },
   {
-    path: 'initiatives',
-    canMatch: [authOnly],
+    path: 'reset-password',
+    canMatch: [guestOnly],
     loadComponent: () =>
-      import('./features/initiatives/initiatives-list/initiatives-list.component').then(
-        (m) => m.InitiativesListComponent
+      import('./features/auth/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent
       ),
   },
-  {
-    path: 'roles',
-    canMatch: [authOnly],
-    loadComponent: () =>
-      import('./features/roles/roles-list/roles-list.component').then(
-        (m) => m.RolesListComponent
-      ),
-  },
+
+  // ============================================
+  // Main Application Routes (Authenticated)
+  // ============================================
   {
     path: 'dashboard',
     canMatch: [authOnly],
@@ -100,6 +85,10 @@ export const routes: Routes = [
         (m) => m.DashboardComponent
       ),
   },
+
+  // ============================================
+  // People Management Routes
+  // ============================================
   {
     path: 'visitors',
     canMatch: [authOnly],
@@ -133,30 +122,17 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'forgot-password',
-    canMatch: [guestOnly],
-    loadComponent: () =>
-      import('./features/auth/forgot-password/forgot-password.component').then(
-        (m) => m.ForgotPasswordComponent
-      ),
-  },
-  {
-    path: 'reset-password',
-    canMatch: [guestOnly],
-    loadComponent: () =>
-      import('./features/auth/reset-password/reset-password.component').then(
-        (m) => m.ResetPasswordComponent
-      ),
-  },
-  {
-    path: 'settings',
+    path: 'volunteer-cards',
     canMatch: [authOnly],
     loadComponent: () =>
-      import('./features/settings/settings.component').then(
-        (m) => m.SettingsComponent
+      import('./features/volunteers/volunteer-cards/volunteer-cards.component').then(
+        (m) => m.VolunteerCardsComponent
       ),
   },
-  
+
+  // ============================================
+  // Programs & Services Routes
+  // ============================================
   {
     path: 'sewa/all-sewa',
     canMatch: [authOnly],
@@ -189,13 +165,72 @@ export const routes: Routes = [
         (m) => m.SewaVolunteersComponent
       ),
   },
+
+  // ============================================
+  // Administration Routes
+  // ============================================
   {
-    path: 'volunteer-cards',
+    path: 'roles',
     canMatch: [authOnly],
     loadComponent: () =>
-      import('./features/volunteers/volunteer-cards/volunteer-cards.component').then(
-        (m) => m.VolunteerCardsComponent
+      import('./features/roles/roles-list/roles-list.component').then(
+        (m) => m.RolesListComponent
       ),
   },
-  { path: '**', redirectTo: 'dashboard' },
+  {
+    path: 'initiatives',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/initiatives/initiatives-list/initiatives-list.component').then(
+        (m) => m.InitiativesListComponent
+      ),
+  },
+  {
+    path: 'projects',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/projects/projects-list/projects-list.component').then(
+        (m) => m.ProjectsListComponent
+      ),
+  },
+  {
+    path: 'branches',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/branches/all-branches/all-branches.component').then(
+        (m) => m.AllBranchesComponent
+      ),
+  },
+  {
+    path: 'branches/areas',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/branches/branch-areas/branch-areas.component').then(
+        (m) => m.BranchAreasComponent
+      ),
+  },
+  {
+    path: 'departments',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/departments/departments-list/departments-list.component').then(
+        (m) => m.DepartmentsListComponent
+      ),
+  },
+  {
+    path: 'master-tables',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/master-tables/master-tables-list/master-tables-list.component').then(
+        (m) => m.MasterTablesListComponent
+      ),
+  },
+
+  // ============================================
+  // Wildcard Route (404 - redirect to dashboard)
+  // ============================================
+  { 
+    path: '**', 
+    redirectTo: 'dashboard' 
+  },
 ];

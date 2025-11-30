@@ -130,8 +130,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       '/sewa/allocate-sewa': 'Allocate Sewa',
       '/programs/programs-list': 'Programs List',
       '/programs/sewa-volunteers': 'Sewa Volunteers',
-      '/volunteer-cards': 'Volunteer Cards',
-      '/settings': 'Settings'
+      '/volunteer-cards': 'Volunteer Cards'
     };
 
     // Get the base path (remove query params and fragments)

@@ -443,21 +443,6 @@ export class MasterTablesListComponent implements OnInit {
       return;
     }
     
-    // TODO: Implement API call to add new entry
-    // Example:
-    // this.dataService.post(cfg.endpoint, {
-    //   name: data.name.trim(),
-    //   status: data.status === 'Active' ? 1 : 0
-    // }).subscribe({
-    //   next: () => {
-    //     this.loadRecords();
-    //     this.closeAddModal();
-    //   },
-    //   error: (error) => {
-    //     this.error = error.error?.message || 'Failed to add entry.';
-    //   }
-    // });
-    
     console.log('Add new entry:', data, 'for master type:', this.selectedMasterType);
   }
 }
