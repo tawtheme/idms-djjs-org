@@ -20,6 +20,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isCollapsed = signal(false);
   contentWrapperHeight = signal('calc(100vh - 64px)');
   isMobile = signal(false);
+  headerHeight = signal(64); // Default header height
 
   @ViewChild('contentWrapper', { static: false }) contentWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild(HeaderComponent, { static: false }) headerComponent!: HeaderComponent;
@@ -178,6 +179,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.heightCalculationTimeout = window.setTimeout(() => {
       // Step 1: Calculate header height
       const headerHeight = this.getHeaderHeight();
+      // Update header height signal for sidenav
+      this.headerHeight.set(headerHeight);
       
       // Step 2: Calculate available height for layout (viewport - header)
       const layoutHeight = window.innerHeight - headerHeight;

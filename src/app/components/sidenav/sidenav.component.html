@@ -1,4 +1,8 @@
-<aside [ngClass]="sidenavClasses" role="navigation" aria-label="Main navigation">    
+<aside 
+    [ngClass]="sidenavClasses" 
+    [ngStyle]="{'top.px': headerHeight, 'height': 'calc(100vh - ' + headerHeight + 'px)'}"
+    role="navigation" 
+    aria-label="Main navigation">    
     <!-- Navigation Content -->
     <div class="sidenav-content">
         <nav>

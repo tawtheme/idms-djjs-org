@@ -16,6 +16,7 @@
     <div class="layout" [class.collapsed]="isCollapsed()">
         <app-sidenav 
             [isCollapsed]="isCollapsed()"
+            [headerHeight]="headerHeight()"
             (closeSidebar)="onToggleCollapse()"></app-sidenav>
         <div class="content-wrapper" 
             #contentWrapper>

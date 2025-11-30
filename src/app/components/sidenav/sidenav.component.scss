@@ -72,17 +72,16 @@
 
 .sidenav {
     position: fixed;
-    top: 0;
+    // top and height are set dynamically via ngStyle in component
     left: 0;
     bottom: 0;
     display: flex;
     flex-direction: column;
     width: 250px;
-    height: 100vh;
     background: $color-white;
     color: $color-gray-700;
     border-right: 1px solid $color-gray-200;
-    transition: width 0.3s ease;
+    transition: width 0.3s ease, top 0.3s ease, height 0.3s ease;
 
     // ============================================
     // Collapsed State
@@ -156,11 +155,12 @@
     // Mobile Styles
     // ============================================
     @media (max-width: 768px) {
+        // top and height are set dynamically via ngStyle in component
         width: 300px;
         z-index: 1000;
         box-shadow: 2px 0 8px rgba($color-black, 0.15);
         transform: translateX(-100%);
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, top 0.3s ease, height 0.3s ease;
 
         &:not(.collapsed) {
             transform: translateX(0);

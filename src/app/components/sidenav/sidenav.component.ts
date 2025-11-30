@@ -25,6 +25,7 @@ interface MenuItem {
 })
 export class SidenavComponent implements OnInit, OnDestroy {
   @Input() isCollapsed: boolean = false;
+  @Input() headerHeight: number = 64; // Default header height
   @Output() closeSidebar = new EventEmitter<void>();
   
   private readonly auth = inject(AuthService);
