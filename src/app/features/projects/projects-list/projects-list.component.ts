@@ -5,7 +5,10 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { AddProjectModalComponent } from './add-project-modal/add-project-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -29,7 +32,10 @@ export interface Project {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    LoadingComponent,
+    MenuDropdownComponent,
+    DropdownComponent,
+    AddProjectModalComponent
   ],
   selector: 'app-projects-list',
   templateUrl: './projects-list.component.html',
@@ -43,11 +49,24 @@ export class ProjectsListComponent implements OnInit {
   projects: Project[] = [];
   allProjects: Project[] = [];
 
+  // Loading state
+  isLoading = true; // Start with true to show loader on initial load
+
+  // Modal state
+  isAddModalOpen = false;
+
   // Selection
   selectedProjects = new Set<string>();
 
   // Filters
   searchTerm = '';
+  taskBranch: string = '';
+
+  // Filter dropdown options
+  readonly taskBranchOptions: DropdownOption[] = [
+    { id: '0', label: 'Task Branch', value: '' }
+    // TODO: Load actual branch options from API
+  ];
 
   // Sorting
   sortField = '';
@@ -74,10 +93,12 @@ export class ProjectsListComponent implements OnInit {
    * Load projects from /api/v1/projects using POST (API does not allow GET)
    */
   private loadProjects(): void {
+    this.isLoading = true;
     // Backend for /api/v1/projects only supports POST, so use post with an empty payload
     this.dataService.post<any>('v1/projects', {}).pipe(
       catchError((error) => {
         console.error('Error loading projects:', error);
+        this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -101,6 +122,7 @@ export class ProjectsListComponent implements OnInit {
         } as Project;
       });
 
+      this.isLoading = false;
       this.applyFilters();
     });
   }
@@ -192,8 +214,7 @@ export class ProjectsListComponent implements OnInit {
   getActionOptions(project: Project): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
@@ -213,6 +234,48 @@ export class ProjectsListComponent implements OnInit {
 
   trackById(index: number, project: Project): string {
     return project.id;
+  }
+
+  /**
+   * Handle task branch selection change
+   */
+  onTaskBranchChange(values: any[] | null): void {
+    if (values && values.length > 0 && values[0] !== '') {
+      this.taskBranch = values[0];
+    } else {
+      this.taskBranch = '';
+    }
+    this.applyFilters();
+  }
+
+  /**
+   * Open the add project modal
+   */
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  /**
+   * Close the add project modal
+   */
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  /**
+   * Handle form submission from add project modal
+   */
+  onAddProjectSubmit(data: { 
+    name: string; 
+    projectHead: string; 
+    initiative: string; 
+    description: string; 
+    status: string 
+  }): void {
+    console.log('Add project:', data);
+    // TODO: Implement API call to add project
+    // For now, just close the modal
+    this.closeAddModal();
   }
 }
 

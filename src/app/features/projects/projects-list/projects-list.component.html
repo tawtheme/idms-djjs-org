@@ -12,102 +12,133 @@
                 placeholder="Search by Name, Project Head, Initiative Name or Description"
                 [(ngModel)]="searchTerm"
                 [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
+                (input)="applyFilters()"
+            />
+            <app-dropdown
+                [options]="taskBranchOptions"
+                [selectedValues]="taskBranch ? [taskBranch] : []"
+                [closeOnSelect]="true"
+                placeholder="Task Branch"
+                (selectionChange)="onTaskBranchChange($event)">
+            </app-dropdown>
         </div>
+        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
+            Add New
+        </button>
     </div>
 
     <!-- Projects table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th (click)="sortBy('name')" class="sortable">
-                        Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
-                    </th>
-                    <th (click)="sortBy('projectHead')" class="sortable">
-                        Project Head
-                        <span class="material-icons sort-icon">{{ getSortIcon('projectHead') }}</span>
-                    </th>
-                    <th (click)="sortBy('initiativeName')" class="sortable">
-                        Initiative Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('initiativeName') }}</span>
-                    </th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th (click)="sortBy('createdAt')" class="sortable">
-                        Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let project of pagedProjects; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedProjects.has(project.id)"
-                            (change)="toggleSelectProject(project.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(project)"
-                            (selectionChange)="onAction(project, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ project.name }}
-                    </td>
-                    <td data-label="Project Head">
-                        {{ project.projectHead }}
-                    </td>
-                    <td data-label="Initiative Name">
-                        {{ project.initiativeName }}
-                    </td>
-                    <td data-label="Description">
-                        {{ project.description }}
-                    </td>
-                    <td data-label="Status" class="status">
-                        <span class="status-badge" [ngClass]="'status-' + (project.status | lowercase)">
-                            {{ project.status }}
-                        </span>
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ project.createdAt }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedProjects.length === 0">
-                    <td [attr.colspan]="8" class="no-data">No data available in table</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()"
+                            />
+                        </th>
+                        <th (click)="sortBy('name')" class="sortable">
+                            Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        </th>
+                        <th (click)="sortBy('projectHead')" class="sortable">
+                            Project Head
+                            <span class="material-icons sort-icon">{{ getSortIcon('projectHead') }}</span>
+                        </th>
+                        <th (click)="sortBy('initiativeName')" class="sortable">
+                            Initiative Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('initiativeName') }}</span>
+                        </th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th (click)="sortBy('createdAt')" class="sortable">
+                            Created At
+                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        </th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let project of pagedProjects; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedProjects.has(project.id)"
+                                    (change)="toggleSelectProject(project.id, $event)">
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ project.name }}
+                            </td>
+                            <td data-label="Project Head">
+                                {{ project.projectHead }}
+                            </td>
+                            <td data-label="Initiative Name">
+                                {{ project.initiativeName }}
+                            </td>
+                            <td data-label="Description">
+                                {{ project.description }}
+                            </td>
+                            <td data-label="Status" class="status">
+                                <span class="status-badge" [ngClass]="'status-' + (project.status | lowercase)">
+                                    {{ project.status }}
+                                </span>
+                            </td>
+                            <td data-label="Created At" class="date">
+                                {{ project.createdAt }}
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(project)"
+                                    (selectionChange)="onAction(project, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedProjects.length === 0">
+                            <td [attr.colspan]="8" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm ? 'No Results Found' : 'No Projects Found'"
+                                    [description]="searchTerm ? 'No projects match your search criteria.' : 'There are no projects available at the moment.'"
+                                    [icon]="'inbox'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="8" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
+        <!-- Pagination -->
+        <app-pager
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+         </app-pager>
+     </div>
 
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="projects.length === 0 && !searchTerm"
-        title="No Projects Found"
-        message="There are no projects available at the moment.">
-    </app-empty-state>
-</div>
+     <!-- Add New Project Modal - Only render when needed -->
+     <app-add-project-modal
+         *ngIf="isAddModalOpen"
+         [isOpen]="isAddModalOpen"
+         (close)="closeAddModal()"
+         (submit)="onAddProjectSubmit($event)">
+     </app-add-project-modal>
+ </div>
 
 
