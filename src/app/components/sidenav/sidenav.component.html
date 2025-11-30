@@ -1,13 +1,13 @@
-<aside [ngClass]="sidenavClasses">
-    <!-- Header - Fixed -->
+<aside [ngClass]="sidenavClasses" role="navigation" aria-label="Main navigation">
+    <!-- Header -->
     <div class="sidenav-header">
         <div class="brand">
-            <div class="brand-icon material-icons">dashboard</div>
+            <div class="brand-icon material-icons" aria-hidden="true">dashboard</div>
             <div class="brand-text" *ngIf="!isCollapsed">idms-djjs-org</div>
         </div>
     </div>
     
-    <!-- Navigation - Scrollable -->
+    <!-- Navigation Content -->
     <div class="sidenav-content">
         <nav>
             <div class="group" *ngFor="let group of menuGroups">
@@ -16,23 +16,30 @@
                     <li *ngFor="let item of group.items">
                         <!-- Menu item with children -->
                         <div *ngIf="hasChildren(item)" class="menu-item-with-children">
-                            <a class="menu-parent" 
-                               [class.expanded]="isExpanded(item.label)"
-                               (click)="toggleExpand(item.label, $event)">
-                                <span class="icon material-icons">{{ item.icon }}</span>
+                            <button 
+                                type="button"
+                                class="menu-parent" 
+                                [class.expanded]="isExpanded(item.label)"
+                                [attr.aria-expanded]="isExpanded(item.label)"
+                                [attr.aria-label]="item.label"
+                                (click)="toggleExpand(item.label, $event)">
+                                <span class="icon material-icons" aria-hidden="true">{{ item.icon }}</span>
                                 <span class="text" *ngIf="!isCollapsed">{{ item.label }}</span>
-                                <span class="arrow material-icons" *ngIf="!isCollapsed">
+                                <span class="arrow material-icons" *ngIf="!isCollapsed" aria-hidden="true">
                                     {{ isExpanded(item.label) ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
                                 </span>
-                            </a>
+                            </button>
                             <!-- Child menu items -->
                             <ul class="child-menu" 
-                                *ngIf="!isCollapsed && isExpanded(item.label)">
-                                <li *ngFor="let child of item.children">
+                                *ngIf="!isCollapsed && isExpanded(item.label)"
+                                role="menu">
+                                <li *ngFor="let child of item.children" role="none">
                                     <a [routerLink]="child.route" 
                                        [class.active]="isChildRouteActive(child.route, item.children)"
+                                       [attr.aria-current]="isChildRouteActive(child.route, item.children) ? 'page' : null"
+                                       role="menuitem"
                                        (click)="onNavClick()">
-                                        <span class="icon material-icons">{{ child.icon }}</span>
+                                        <span class="icon material-icons" aria-hidden="true">{{ child.icon }}</span>
                                         <span class="text">{{ child.label }}</span>
                                     </a>
                                 </li>
@@ -44,7 +51,7 @@
                            [routerLink]="item.route" 
                            routerLinkActive="active"
                            (click)="onNavClick()">
-                            <span class="icon material-icons">{{ item.icon }}</span>
+                            <span class="icon material-icons" aria-hidden="true">{{ item.icon }}</span>
                             <span class="text" *ngIf="!isCollapsed">{{ item.label }}</span>
                         </a>
                     </li>
@@ -53,11 +60,14 @@
         </nav>
     </div>
 
-    <!-- Footer - Fixed -->
+    <!-- Footer -->
     <div class="sidenav-footer">
-        <button class="logout-btn" 
-                (click)="logout()">
-            <span class="icon material-icons">logout</span>
+        <button 
+            type="button"
+            class="logout-btn" 
+            aria-label="Logout"
+            (click)="logout()">
+            <span class="icon material-icons" aria-hidden="true">logout</span>
             <span class="text" *ngIf="!isCollapsed">Logout</span>
         </button>
     </div>

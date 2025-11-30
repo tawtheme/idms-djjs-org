@@ -220,15 +220,19 @@
                         align-items: center;
                         gap: 12px;
                         position: relative;
+                        width: 100%;
                         margin: 0 12px;
                         padding: 10px 8px;
+                        border: none;
                         border-radius: 8px;
+                        background: transparent;
                         color: $color-gray-700;
                         text-decoration: none;
                         font-weight: 500;
                         font-size: 14px;
                         transition: all 0.2s ease;
                         cursor: pointer;
+                        text-align: left;
 
                         .icon {
                             font-size: 20px;

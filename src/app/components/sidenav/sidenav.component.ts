@@ -4,7 +4,11 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
+/**
+ * Menu item interface for navigation structure
+ */
 interface MenuItem {
   label: string;
   icon: string;
@@ -23,20 +27,18 @@ export class SidenavComponent implements OnInit, OnDestroy {
   @Input() isCollapsed: boolean = false;
   @Output() closeSidebar = new EventEmitter<void>();
   
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private breakpointObserver = inject(BreakpointObserver);
+  private readonly auth = inject(AuthService);
+  readonly router = inject(Router);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
-  // Signals for reactive state
-  isMobile = signal(false);
-  isTablet = signal(false);
-  isDesktop = signal(false);
+  // Reactive state for responsive behavior
+  readonly isMobile = signal(false);
 
-  // Track expanded menu items
-  expandedItems = new Set<string>();
+  // Track expanded menu items (only one can be expanded at a time)
+  private readonly expandedItems = new Set<string>();
   
   // Subscription for route changes
-  private routeSubscription: any;
+  private routeSubscription?: Subscription;
 
   // Menu structure
   menuGroups = [
@@ -109,75 +111,74 @@ export class SidenavComponent implements OnInit, OnDestroy {
     }
   ];
 
-  ngOnInit() {
-    // Watch for screen size changes
-    this.breakpointObserver.observe([
-      Breakpoints.Handset,
-      Breakpoints.Tablet,
-      Breakpoints.Web
-    ]).subscribe(result => {
-      this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
-      this.isTablet.set(this.breakpointObserver.isMatched(Breakpoints.Tablet));
-      this.isDesktop.set(this.breakpointObserver.isMatched(Breakpoints.Web));
-      
-      // Auto-collapse on mobile handled by parent component
-    });
+  ngOnInit(): void {
+    // Watch for mobile screen size changes
+    this.breakpointObserver
+      .observe(Breakpoints.Handset)
+      .subscribe(() => {
+        this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
+      });
 
-    // Check and expand menu items based on current route
+    // Initialize menu expansion based on current route
     this.checkAndExpandActiveRoute();
 
-    // Listen to route changes and expand menu items accordingly
+    // Listen to route changes and update menu expansion
     this.routeSubscription = this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
         this.checkAndExpandActiveRoute();
       });
   }
 
-  ngOnDestroy() {
-    // Unsubscribe from route changes
-    if (this.routeSubscription) {
-      this.routeSubscription.unsubscribe();
-    }
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
-  logout() {
+  /**
+   * Logout user and redirect to login page
+   */
+  logout(): void {
     this.auth.logout();
     this.router.navigateByUrl('/login');
   }
 
-  // Close sidebar on mobile when navigation link is clicked
-  onNavClick() {
+  /**
+   * Close sidebar on mobile when navigation link is clicked
+   */
+  onNavClick(): void {
     if (this.isMobile()) {
       this.closeSidebar.emit();
     }
   }
 
-  // Toggle expand/collapse for menu items with children
-  // Only one menu item can be expanded at a time
-  toggleExpand(itemLabel: string, event: Event) {
+  /**
+   * Toggle expand/collapse for menu items with children
+   * Only one menu item can be expanded at a time
+   */
+  toggleExpand(itemLabel: string, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     
     if (this.expandedItems.has(itemLabel)) {
-      // If already expanded, collapse it
       this.expandedItems.delete(itemLabel);
     } else {
-      // Collapse all other expanded items first (only one expanded at a time)
       this.expandedItems.clear();
-      // Then expand the clicked item
       this.expandedItems.add(itemLabel);
     }
   }
 
-  // Check if item is expanded
+  /**
+   * Check if a menu item is currently expanded
+   */
   isExpanded(itemLabel: string): boolean {
     return this.expandedItems.has(itemLabel);
   }
 
-  // Check if item has children
+  /**
+   * Check if a menu item has children
+   */
   hasChildren(item: MenuItem): boolean {
-    return !!(item.children && item.children.length > 0);
+    return !!(item.children?.length);
   }
 
   /**
@@ -186,7 +187,9 @@ export class SidenavComponent implements OnInit, OnDestroy {
    * Only the longest matching route in the same parent group will be active
    */
   isChildRouteActive(route: string | undefined, siblings: MenuItem[] | undefined): boolean {
-    if (!route) return false;
+    if (!route) {
+      return false;
+    }
     
     const currentUrl = this.router.url;
     
@@ -197,36 +200,35 @@ export class SidenavComponent implements OnInit, OnDestroy {
     
     // Check if current URL starts with the route followed by a slash
     // This handles nested routes like /volunteers/branch-applications/something
-    if (currentUrl.startsWith(route + '/')) {
-      // Check if there's a longer sibling route that also matches
-      // If there is, only the longer route should be active
-      if (siblings) {
-        const longerMatch = siblings.find(sibling => {
-          if (!sibling.route || sibling.route === route) return false;
-          // Check if this sibling route is longer and also matches the current URL
-          return sibling.route.length > route.length && 
-                 (currentUrl === sibling.route || currentUrl.startsWith(sibling.route + '/'));
-        });
-        
-        // If there's a longer match, this route shouldn't be active
-        if (longerMatch) {
-          return false;
-        }
-      }
-      
-      return true;
+    if (!currentUrl.startsWith(route + '/')) {
+      return false;
     }
     
-    return false;
+    // Check if there's a longer sibling route that also matches
+    // If there is, only the longer route should be active
+    if (siblings) {
+      const longerMatch = siblings.find(sibling => {
+        if (!sibling.route || sibling.route === route) {
+          return false;
+        }
+        return sibling.route.length > route.length && 
+               (currentUrl === sibling.route || currentUrl.startsWith(sibling.route + '/'));
+      });
+      
+      return !longerMatch;
+    }
+    
+    return true;
   }
 
-  get sidenavClasses() {
+  /**
+   * Get CSS classes for the sidenav element
+   */
+  get sidenavClasses(): Record<string, boolean> {
     return {
       'sidenav': true,
       'collapsed': this.isCollapsed,
-      'mobile': this.isMobile(),
-      'tablet': this.isTablet(),
-      'desktop': this.isDesktop()
+      'mobile': this.isMobile()
     };
   }
 
@@ -240,27 +242,26 @@ export class SidenavComponent implements OnInit, OnDestroy {
     // Clear all expanded items first (only one expanded at a time)
     this.expandedItems.clear();
     
-    // Iterate through all menu groups and items
-    this.menuGroups.forEach(group => {
-      group.items.forEach(item => {
-        // If item has children, check if any child route matches current URL
-        if (this.hasChildren(item) && item.children) {
-          const hasActiveChild = item.children.some(child => {
-            if (child.route) {
-              // Check if current URL starts with or equals the child route
-              return currentUrl === child.route || currentUrl.startsWith(child.route + '/');
-            }
-            return false;
-          });
-          
-          // If a child route is active, expand the parent menu item
-          // (only one will be expanded since we cleared the set first)
-          if (hasActiveChild) {
-            this.expandedItems.add(item.label);
-          }
+    // Find and expand the menu item that contains the active child route
+    for (const group of this.menuGroups) {
+      for (const item of group.items) {
+        if (!this.hasChildren(item) || !item.children) {
+          continue;
         }
-      });
-    });
+        
+        const hasActiveChild = item.children.some(child => {
+          if (!child.route) {
+            return false;
+          }
+          return currentUrl === child.route || currentUrl.startsWith(child.route + '/');
+        });
+        
+        if (hasActiveChild) {
+          this.expandedItems.add(item.label);
+          return; // Only one menu can be expanded at a time
+        }
+      }
+    }
   }
 }
 
