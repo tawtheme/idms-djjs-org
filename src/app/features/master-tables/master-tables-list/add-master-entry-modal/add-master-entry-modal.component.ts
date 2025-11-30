@@ -47,32 +47,43 @@ export class AddMasterEntryModalComponent {
   ];
 
   /**
+   * Map of plural labels to singular forms
+   * Used for generating dynamic labels and titles
+   */
+  private readonly labelMap: { [key: string]: string } = {
+    'Skills': 'Skill',
+    'Degrees': 'Degree',
+    'Professions': 'Profession',
+    'Languages': 'Language',
+    'Dress Codes': 'Dress Code',
+    'Castes': 'Caste',
+    'Newspapers': 'Newspaper',
+    'Countries': 'Country',
+    'States': 'State',
+    'Districts': 'District',
+    'Cities': 'City',
+    'Ashram Adhaar Areas': 'Ashram Adhaar Area',
+    'Weapon Types': 'Weapon Type',
+    'Technical Qualifications': 'Technical Qualification'
+  };
+
+  /**
+   * Get singular form of master label
+   * @returns Singular form of the label
+   */
+  private getSingularLabel(): string {
+    if (!this.masterLabel) {
+      return 'Entry';
+    }
+    return this.labelMap[this.masterLabel] || this.masterLabel;
+  }
+
+  /**
    * Get the dynamic label for the name field
    * @returns Label based on master table type (e.g., "Skill Name", "Degree Name")
    */
   get nameFieldLabel(): string {
-    if (!this.masterLabel) return 'Name';
-    
-    // Handle special cases
-    const labelMap: { [key: string]: string } = {
-      'Skills': 'Skill',
-      'Degrees': 'Degree',
-      'Professions': 'Profession',
-      'Languages': 'Language',
-      'Dress Codes': 'Dress Code',
-      'Castes': 'Caste',
-      'Newspapers': 'Newspaper',
-      'Countries': 'Country',
-      'States': 'State',
-      'Districts': 'District',
-      'Cities': 'City',
-      'Ashram Adhaar Areas': 'Ashram Adhaar Area',
-      'Weapon Types': 'Weapon Type',
-      'Technical Qualifications': 'Technical Qualification'
-    };
-
-    const singular = labelMap[this.masterLabel] || this.masterLabel;
-    return `${singular} Name`;
+    return `${this.getSingularLabel()} Name`;
   }
 
   /**
@@ -80,28 +91,7 @@ export class AddMasterEntryModalComponent {
    * @returns Title for the modal (e.g., "Add New Skill")
    */
   get modalTitle(): string {
-    if (!this.masterLabel) return 'Add New Entry';
-    
-    // Handle special cases for modal title
-    const titleMap: { [key: string]: string } = {
-      'Skills': 'Skill',
-      'Degrees': 'Degree',
-      'Professions': 'Profession',
-      'Languages': 'Language',
-      'Dress Codes': 'Dress Code',
-      'Castes': 'Caste',
-      'Newspapers': 'Newspaper',
-      'Countries': 'Country',
-      'States': 'State',
-      'Districts': 'District',
-      'Cities': 'City',
-      'Ashram Adhaar Areas': 'Ashram Adhaar Area',
-      'Weapon Types': 'Weapon Type',
-      'Technical Qualifications': 'Technical Qualification'
-    };
-
-    const singular = titleMap[this.masterLabel] || this.masterLabel;
-    return `Add New ${singular}`;
+    return `Add New ${this.getSingularLabel()}`;
   }
 
   /**
@@ -131,8 +121,9 @@ export class AddMasterEntryModalComponent {
 
   /**
    * Handle status selection change
+   * @param values - Selected values from dropdown
    */
-  onStatusChange(values: any[] | null): void {
+  onStatusChange(values: string[] | null): void {
     if (values && values.length > 0) {
       this.status = values[0];
     }

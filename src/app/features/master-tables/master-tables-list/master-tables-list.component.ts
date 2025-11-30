@@ -347,8 +347,44 @@ export class MasterTablesListComponent implements OnInit {
    * @param option - The selected menu option
    */
   onAction(rec: MasterRecord, option: MenuOption): void {
-    console.log('Action:', option.value, 'on record:', rec, 'for master:', this.selectedMasterType);
-    // TODO: Implement actual action handlers (edit, delete, etc.)
+    if (!option) return;
+    
+    const action = typeof option === 'string' ? option : (option.value || option.id);
+    
+    switch (action) {
+      case 'edit':
+        this.editRecord(rec);
+        break;
+      case 'delete':
+        this.deleteRecord(rec);
+        break;
+      default:
+        console.warn('Unknown action:', action);
+    }
+  }
+
+  /**
+   * Handle edit action for a record
+   * @param rec - The master record to edit
+   */
+  private editRecord(rec: MasterRecord): void {
+    console.log('Edit record:', rec, 'for master:', this.selectedMasterType);
+    // TODO: Implement edit functionality
+  }
+
+  /**
+   * Handle delete action for a record
+   * @param rec - The master record to delete
+   */
+  private deleteRecord(rec: MasterRecord): void {
+    if (!confirm(`Are you sure you want to delete "${rec.name}"?`)) {
+      return;
+    }
+    
+    console.log('Delete record:', rec, 'for master:', this.selectedMasterType);
+    // TODO: Implement delete API call
+    // After successful deletion, reload records:
+    // this.loadRecords();
   }
 
   /**
@@ -397,9 +433,31 @@ export class MasterTablesListComponent implements OnInit {
    * @param data - Form data containing name and status
    */
   onAddEntrySubmit(data: { name: string; status: string }): void {
-    console.log('Add new entry:', data, 'for master type:', this.selectedMasterType);
+    if (!data?.name?.trim()) {
+      return;
+    }
+    
+    const cfg = this.selectedMasterConfig;
+    if (!cfg.endpoint) {
+      this.error = `Cannot add entry: API endpoint not configured for ${cfg.label}.`;
+      return;
+    }
+    
     // TODO: Implement API call to add new entry
-    // After successful API call, reload records:
-    // this.loadRecords();
+    // Example:
+    // this.dataService.post(cfg.endpoint, {
+    //   name: data.name.trim(),
+    //   status: data.status === 'Active' ? 1 : 0
+    // }).subscribe({
+    //   next: () => {
+    //     this.loadRecords();
+    //     this.closeAddModal();
+    //   },
+    //   error: (error) => {
+    //     this.error = error.error?.message || 'Failed to add entry.';
+    //   }
+    // });
+    
+    console.log('Add new entry:', data, 'for master type:', this.selectedMasterType);
   }
 }
