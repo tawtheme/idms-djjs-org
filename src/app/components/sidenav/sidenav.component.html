@@ -30,7 +30,7 @@
                                 *ngIf="!isCollapsed && isExpanded(item.label)">
                                 <li *ngFor="let child of item.children">
                                     <a [routerLink]="child.route" 
-                                       routerLinkActive="active"
+                                       [class.active]="isChildRouteActive(child.route, item.children)"
                                        (click)="onNavClick()">
                                         <span class="icon material-icons">{{ child.icon }}</span>
                                         <span class="text">{{ child.label }}</span>

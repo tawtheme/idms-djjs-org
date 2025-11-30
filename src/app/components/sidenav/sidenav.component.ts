@@ -122,10 +122,23 @@ export class SidenavComponent implements OnInit, OnDestroy {
       
       // Auto-collapse on mobile handled by parent component
     });
+
+    // Check and expand menu items based on current route
+    this.checkAndExpandActiveRoute();
+
+    // Listen to route changes and expand menu items accordingly
+    this.routeSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.checkAndExpandActiveRoute();
+      });
   }
 
   ngOnDestroy() {
-    // Cleanup handled automatically by Angular
+    // Unsubscribe from route changes
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   logout() {
@@ -141,13 +154,18 @@ export class SidenavComponent implements OnInit, OnDestroy {
   }
 
   // Toggle expand/collapse for menu items with children
+  // Only one menu item can be expanded at a time
   toggleExpand(itemLabel: string, event: Event) {
     event.preventDefault();
     event.stopPropagation();
     
     if (this.expandedItems.has(itemLabel)) {
+      // If already expanded, collapse it
       this.expandedItems.delete(itemLabel);
     } else {
+      // Collapse all other expanded items first (only one expanded at a time)
+      this.expandedItems.clear();
+      // Then expand the clicked item
       this.expandedItems.add(itemLabel);
     }
   }
@@ -162,6 +180,46 @@ export class SidenavComponent implements OnInit, OnDestroy {
     return !!(item.children && item.children.length > 0);
   }
 
+  /**
+   * Check if a child route is currently active
+   * Prevents parent routes from being highlighted when a child route is active
+   * Only the longest matching route in the same parent group will be active
+   */
+  isChildRouteActive(route: string | undefined, siblings: MenuItem[] | undefined): boolean {
+    if (!route) return false;
+    
+    const currentUrl = this.router.url;
+    
+    // Exact match
+    if (currentUrl === route) {
+      return true;
+    }
+    
+    // Check if current URL starts with the route followed by a slash
+    // This handles nested routes like /volunteers/branch-applications/something
+    if (currentUrl.startsWith(route + '/')) {
+      // Check if there's a longer sibling route that also matches
+      // If there is, only the longer route should be active
+      if (siblings) {
+        const longerMatch = siblings.find(sibling => {
+          if (!sibling.route || sibling.route === route) return false;
+          // Check if this sibling route is longer and also matches the current URL
+          return sibling.route.length > route.length && 
+                 (currentUrl === sibling.route || currentUrl.startsWith(sibling.route + '/'));
+        });
+        
+        // If there's a longer match, this route shouldn't be active
+        if (longerMatch) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
+  }
+
   get sidenavClasses() {
     return {
       'sidenav': true,
@@ -170,6 +228,39 @@ export class SidenavComponent implements OnInit, OnDestroy {
       'tablet': this.isTablet(),
       'desktop': this.isDesktop()
     };
+  }
+
+  /**
+   * Checks the current route and expands parent menu items if any child route is active
+   * Only one menu item can be expanded at a time
+   */
+  private checkAndExpandActiveRoute(): void {
+    const currentUrl = this.router.url;
+    
+    // Clear all expanded items first (only one expanded at a time)
+    this.expandedItems.clear();
+    
+    // Iterate through all menu groups and items
+    this.menuGroups.forEach(group => {
+      group.items.forEach(item => {
+        // If item has children, check if any child route matches current URL
+        if (this.hasChildren(item) && item.children) {
+          const hasActiveChild = item.children.some(child => {
+            if (child.route) {
+              // Check if current URL starts with or equals the child route
+              return currentUrl === child.route || currentUrl.startsWith(child.route + '/');
+            }
+            return false;
+          });
+          
+          // If a child route is active, expand the parent menu item
+          // (only one will be expanded since we cleared the set first)
+          if (hasActiveChild) {
+            this.expandedItems.add(item.label);
+          }
+        }
+      });
+    });
   }
 }
 
