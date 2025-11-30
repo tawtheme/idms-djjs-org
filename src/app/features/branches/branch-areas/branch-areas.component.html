@@ -5,15 +5,17 @@
 
     <!-- Filter Section -->
     <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Branch Name, Area Name or City"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
-        </div>
+        <input
+            type="search"
+            class="form-control"
+            placeholder="Search by Branch Name, Area Name or City"
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="applyFilters()"
+        />
+        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
+            Add New
+        </button>
     </div>
 
     <!-- Branch Areas table -->
@@ -27,9 +29,9 @@
                             [checked]="isAllSelected()"
                             [indeterminate]="isIndeterminate()"
                             (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
+                            (click)="$event.stopPropagation()"
+                        />
                     </th>
-                    <th>Action</th>
                     <th (click)="sortBy('branchName')" class="sortable">
                         Branch Name
                         <span class="material-icons sort-icon">{{ getSortIcon('branchName') }}</span>
@@ -47,42 +49,59 @@
                         Created At
                         <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
                     </th>
+                    <th class="action-column">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let area of pagedBranchAreas; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedBranchAreas.has(area.id)"
-                            (change)="toggleSelectBranchArea(area.id, $event)">
+                <ng-container *ngIf="!isLoading">
+                    <tr *ngFor="let area of pagedBranchAreas; trackBy: trackById" (click)="$event.stopPropagation()">
+                        <td class="checkbox-column" (click)="$event.stopPropagation()">
+                            <input
+                                type="checkbox"
+                                [checked]="selectedBranchAreas.has(area.id)"
+                                (change)="toggleSelectBranchArea(area.id, $event)">
+                        </td>
+                        <td data-label="Branch Name" class="name">
+                            {{ area.branchName }}
+                        </td>
+                        <td data-label="Area Name">
+                            {{ area.areaName }}
+                        </td>
+                        <td data-label="City">
+                            {{ area.city }}
+                        </td>
+                        <td data-label="Status" class="status">
+                            <span class="status-badge" [ngClass]="'status-' + (area.status | lowercase)">
+                                {{ area.status }}
+                            </span>
+                        </td>
+                        <td data-label="Created At" class="date">
+                            {{ area.createdAt }}
+                        </td>
+                        <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                            <app-menu-dropdown
+                                [options]="getActionOptions(area)"
+                                (selectionChange)="onAction(area, $event)">
+                            </app-menu-dropdown>
+                        </td>
+                    </tr>
+                    <!-- Empty state -->
+                    <tr *ngIf="pagedBranchAreas.length === 0">
+                        <td [attr.colspan]="7" class="empty-state-cell">
+                            <app-empty-state
+                                [title]="searchTerm ? 'No Results Found' : 'No Branch Areas Found'"
+                                [description]="searchTerm ? 'No branch areas match your search criteria.' : 'There are no branch areas available at the moment.'"
+                                [icon]="'inbox'"
+                                [size]="'small'">
+                            </app-empty-state>
+                        </td>
+                    </tr>
+                </ng-container>
+                <!-- Loading cell -->
+                <tr *ngIf="isLoading">
+                    <td [attr.colspan]="7" class="loading-cell">
+                        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                     </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(area)"
-                            (selectionChange)="onAction(area, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Branch Name" class="name">
-                        {{ area.branchName }}
-                    </td>
-                    <td data-label="Area Name">
-                        {{ area.areaName }}
-                    </td>
-                    <td data-label="City">
-                        {{ area.city }}
-                    </td>
-                    <td data-label="Status" class="status">
-                        <span class="status-badge" [ngClass]="'status-' + (area.status | lowercase)">
-                            {{ area.status }}
-                        </span>
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ area.createdAt }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedBranchAreas.length === 0">
-                    <td [attr.colspan]="7" class="no-data">No data available in table</td>
                 </tr>
             </tbody>
         </table>
@@ -98,12 +117,13 @@
         (pageSizeChange)="onPageSizeChange($event)">
     </app-pager>
 
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="branchAreas.length === 0 && !searchTerm"
-        title="No Branch Areas Found"
-        message="There are no branch areas available at the moment.">
-    </app-empty-state>
+    <!-- Add New Branch Area Modal -->
+    <app-add-branch-area-modal
+        *ngIf="isAddModalOpen"
+        [isOpen]="isAddModalOpen"
+        (close)="closeAddModal()"
+        (submit)="onAddBranchAreaSubmit($event)">
+    </app-add-branch-area-modal>
 </div>
 
 

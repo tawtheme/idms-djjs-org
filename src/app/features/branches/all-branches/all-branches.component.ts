@@ -5,7 +5,9 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -29,7 +31,9 @@ export interface Branch {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    LoadingComponent,
+    MenuDropdownComponent,
+    AddBranchModalComponent
   ],
   selector: 'app-all-branches',
   templateUrl: './all-branches.component.html',
@@ -42,6 +46,12 @@ export class AllBranchesComponent implements OnInit {
 
   branches: Branch[] = [];
   allBranches: Branch[] = [];
+
+  // Loading state
+  isLoading = true; // Start with true to show loader on initial load
+
+  // Modal state
+  isAddModalOpen = false;
 
   // Selection
   selectedBranches = new Set<string>();
@@ -74,9 +84,11 @@ export class AllBranchesComponent implements OnInit {
    * Load branches from /api/v1/branches
    */
   private loadBranches(): void {
+    this.isLoading = true;
     this.dataService.get<any>('v1/branches').pipe(
       catchError((error) => {
         console.error('Error loading branches:', error);
+        this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -99,6 +111,7 @@ export class AllBranchesComponent implements OnInit {
         } as Branch;
       });
 
+      this.isLoading = false;
       this.applyFilters();
     });
   }
@@ -190,13 +203,52 @@ export class AllBranchesComponent implements OnInit {
   getActionOptions(branch: Branch): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
   onAction(branch: Branch, option: MenuOption): void {
     console.log('Action:', option.value, 'on branch:', branch);
+  }
+
+  // Modal methods
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  onAddBranchSubmit(newBranch: {
+    parentBranch: string;
+    name: string;
+    code: string;
+    branchHead: string;
+    email: string;
+    address: string;
+    country: string;
+    state: string;
+    city: string;
+    pincode: string;
+    canBeParentBranch: string;
+    status: string;
+  }): void {
+    console.log('New Branch Added:', newBranch);
+    // In a real application, you would send this data to your API
+    // For now, we'll simulate adding it to the list
+    const newId = String(this.allBranches.length + 1);
+    const createdAt = new Date().toLocaleString();
+    this.allBranches.push({
+      id: newId,
+      name: newBranch.name,
+      code: newBranch.code || '',
+      city: newBranch.city,
+      type: '', // Type field removed from Branch interface, keeping for compatibility
+      status: newBranch.status,
+      createdAt: createdAt
+    });
+    this.applyFilters();
   }
 
   // Pagination

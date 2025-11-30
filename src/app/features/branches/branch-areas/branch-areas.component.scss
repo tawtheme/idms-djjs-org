@@ -5,90 +5,59 @@
 // Apply shared listing styles
 @include listing.listing('.branch-areas');
 
-.branch-areas-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-// Checkbox column
-.checkbox-column {
-  width: 40px;
-  text-align: center;
-  padding: 12px 8px !important;
-
-  input[type='checkbox'] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-  }
-}
-
 // Sortable column headers
 .sortable {
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  padding-right: 32px !important;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 32px !important;
 
-  &:hover {
-    background-color: $color-gray-100;
-  }
+    &:hover {
+        background-color: $color-gray-100;
+    }
 
-  .sort-icon {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: $color-gray-500;
-    width: 18px;
-    height: 18px;
-  }
+    .sort-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: $color-gray-500;
+        width: 18px;
+        height: 18px;
+    }
 }
 
 // Name column
 .name {
-  font-weight: 500;
-  color: $color-gray-900;
+    font-weight: 500;
+    color: $color-gray-900;
 }
 
 // Date column
 .date {
-  color: $color-gray-700;
-  font-size: 13px;
+    color: $color-gray-700;
+    font-size: 13px;
 }
 
 // Status badge
 .status {
-  .status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: capitalize;
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: capitalize;
 
-    &.status-active {
-      background: #dcfce7;
-      color: #16a34a;
+        &.status-active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        &.status-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
     }
-
-    &.status-inactive {
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-  }
 }
-
-// No data row
-.no-data {
-  text-align: center;
-  padding: 40px 20px !important;
-  color: $color-gray-500;
-  font-style: italic;
-}
-
-

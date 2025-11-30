@@ -5,7 +5,9 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { AddBranchAreaModalComponent } from './add-branch-area-modal/add-branch-area-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -28,7 +30,9 @@ export interface BranchArea {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    LoadingComponent,
+    MenuDropdownComponent,
+    AddBranchAreaModalComponent
   ],
   selector: 'app-branch-areas',
   templateUrl: './branch-areas.component.html',
@@ -41,6 +45,12 @@ export class BranchAreasComponent implements OnInit {
 
   branchAreas: BranchArea[] = [];
   allBranchAreas: BranchArea[] = [];
+
+  // Loading state
+  isLoading = true; // Start with true to show loader on initial load
+
+  // Modal state
+  isAddModalOpen = false;
 
   // Selection
   selectedBranchAreas = new Set<string>();
@@ -73,9 +83,11 @@ export class BranchAreasComponent implements OnInit {
    * Load branch areas from /api/v1/branches/area
    */
   private loadBranchAreas(): void {
+    this.isLoading = true;
     this.dataService.get<any>('v1/branches/area').pipe(
       catchError((error) => {
         console.error('Error loading branch areas:', error);
+        this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -97,6 +109,7 @@ export class BranchAreasComponent implements OnInit {
         } as BranchArea;
       });
 
+      this.isLoading = false;
       this.applyFilters();
     });
   }
@@ -187,13 +200,38 @@ export class BranchAreasComponent implements OnInit {
   getActionOptions(area: BranchArea): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
   onAction(area: BranchArea, option: MenuOption): void {
     console.log('Action:', option.value, 'on branch area:', area);
+  }
+
+  // Modal methods
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  onAddBranchAreaSubmit(newBranchArea: { branch: string; areaName: string; status: string }): void {
+    console.log('New Branch Area Added:', newBranchArea);
+    // In a real application, you would send this data to your API
+    // For now, we'll simulate adding it to the list
+    const newId = String(this.allBranchAreas.length + 1);
+    const createdAt = new Date().toLocaleString();
+    this.allBranchAreas.push({
+      id: newId,
+      branchName: '', // Will be populated from branch data
+      areaName: newBranchArea.areaName,
+      city: '', // Will be populated from branch data
+      status: newBranchArea.status,
+      createdAt: createdAt
+    });
+    this.applyFilters();
   }
 
   // Pagination

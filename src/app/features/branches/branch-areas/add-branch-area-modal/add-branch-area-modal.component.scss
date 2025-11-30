@@ -1,0 +1,11 @@
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/grid';
+@import '../../../../../assets/scss/form';
+
+.add-branch-area-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+}
+
