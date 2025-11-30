@@ -108,8 +108,9 @@
         </div>
     </div>
 
-    <!-- Add New Entry Modal -->
+    <!-- Add New Entry Modal - Only render when needed -->
     <app-add-master-entry-modal
+        *ngIf="isAddModalOpen"
         [isOpen]="isAddModalOpen"
         [masterType]="selectedMasterType"
         [masterLabel]="selectedMasterConfig.label"

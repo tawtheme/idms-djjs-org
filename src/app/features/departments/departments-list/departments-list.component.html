@@ -5,105 +5,109 @@
 
     <!-- Filter Section -->
     <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Email, Branch or User"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
-        </div>
+        <input
+            type="search"
+            class="form-control"
+            placeholder="Search by Name, Email, Branch or User"
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="applyFilters()"
+        />
+        <button class="btn btn--primary btn--sm" type="button">
+            Add New
+        </button>
     </div>
 
     <!-- Departments table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th (click)="sortBy('name')" class="sortable">
-                        Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
-                    </th>
-                    <th (click)="sortBy('email')" class="sortable">
-                        Email
-                        <span class="material-icons sort-icon">{{ getSortIcon('email') }}</span>
-                    </th>
-                    <th (click)="sortBy('branchName')" class="sortable">
-                        Branch Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('branchName') }}</span>
-                    </th>
-                    <th (click)="sortBy('userName')" class="sortable">
-                        User Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('userName') }}</span>
-                    </th>
-                    <th>Status</th>
-                    <th (click)="sortBy('createdAt')" class="sortable">
-                        Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let dept of pagedDepartments; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedDepartments.has(dept.id)"
-                            (change)="toggleSelectDepartment(dept.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(dept)"
-                            (selectionChange)="onAction(dept, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ dept.name }}
-                    </td>
-                    <td data-label="Email">
-                        {{ dept.email || '-' }}
-                    </td>
-                    <td data-label="Branch Name">
-                        {{ dept.branchName || '-' }}
-                    </td>
-                    <td data-label="User Name">
-                        {{ dept.userName || '-' }}
-                    </td>
-                    <td data-label="Status" class="status">
-                        <span class="status-badge" [ngClass]="'status-' + (dept.status | lowercase)">
-                            {{ dept.status }}
-                        </span>
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ dept.createdAt }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedDepartments.length === 0">
-                    <td [attr.colspan]="8" class="no-data">No data available in table</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+     <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()">
+                        </th>
+                        <th>Action</th>
+                        <th (click)="sortBy('name')" class="sortable">
+                            Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        </th>
+                        <th (click)="sortBy('email')" class="sortable">
+                            Email
+                            <span class="material-icons sort-icon">{{ getSortIcon('email') }}</span>
+                        </th>
+                        <th (click)="sortBy('branchName')" class="sortable">
+                            Branch Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('branchName') }}</span>
+                        </th>
+                        <th (click)="sortBy('userName')" class="sortable">
+                            User Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('userName') }}</span>
+                        </th>
+                        <th>Status</th>
+                        <th (click)="sortBy('createdAt')" class="sortable">
+                            Created At
+                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let dept of pagedDepartments; trackBy: trackById" (click)="$event.stopPropagation()">
+                        <td class="checkbox-column" (click)="$event.stopPropagation()">
+                            <input
+                                type="checkbox"
+                                [checked]="selectedDepartments.has(dept.id)"
+                                (change)="toggleSelectDepartment(dept.id, $event)">
+                        </td>
+                        <td data-label="Action" (click)="$event.stopPropagation()">
+                            <app-menu-dropdown
+                                [options]="getActionOptions(dept)"
+                                (selectionChange)="onAction(dept, $event)">
+                            </app-menu-dropdown>
+                        </td>
+                        <td data-label="Name" class="name">
+                            {{ dept.name }}
+                        </td>
+                        <td data-label="Email">
+                            {{ dept.email || '-' }}
+                        </td>
+                        <td data-label="Branch Name">
+                            {{ dept.branchName || '-' }}
+                        </td>
+                        <td data-label="User Name">
+                            {{ dept.userName || '-' }}
+                        </td>
+                        <td data-label="Status" class="status">
+                            <span class="status-badge" [ngClass]="'status-' + (dept.status | lowercase)">
+                                {{ dept.status }}
+                            </span>
+                        </td>
+                        <td data-label="Created At" class="date">
+                            {{ dept.createdAt }}
+                        </td>
+                    </tr>
+                    <tr *ngIf="pagedDepartments.length === 0">
+                        <td [attr.colspan]="8" class="no-data">No data available in table</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
+        <!-- Pagination -->
+        <app-pager
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
+    </div>
 
     <!-- Empty state -->
     <app-empty-state

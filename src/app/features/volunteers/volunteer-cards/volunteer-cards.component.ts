@@ -92,77 +92,8 @@ export class VolunteerCardsComponent {
   ];
 
   constructor() {
-    // Sample data
-    const branches = ['Nurmahal', 'Jalandhar', 'Ludhiana', 'Amritsar', 'Patiala'];
-    this.allVolunteerCards = [
-      {
-        id: 1,
-        name: 'John Doe',
-        relationName: 'S/O Sh. Rishi Goyal',
-        fatherName: 'Father Name 1',
-        phone: '1234567890',
-        mobileNo: '1234567890',
-        uid: 'UID123456',
-        sewa: 'VIP Langar',
-        gender: 'Male',
-        unallocationReason: 'Not available',
-        enterBy: 'Admin',
-        createdAt: new Date(2024, 0, 15),
-        address: {
-          taskBranch: 'Nurmahal',
-          correspondingBranch: 'Nurmahal'
-        }
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        relationName: 'D/O Sh. Kumar',
-        fatherName: 'Father Name 2',
-        phone: '2345678901',
-        mobileNo: '2345678901',
-        uid: 'UID234567',
-        sewa: 'SG LANGAR',
-        gender: 'Female',
-        unallocationReason: 'Personal reasons',
-        enterBy: 'Manager',
-        createdAt: new Date(2024, 1, 20),
-        address: {
-          taskBranch: 'Jalandhar',
-          correspondingBranch: 'Jalandhar'
-        }
-      }
-    ];
-
-    // Generate more sample records
-    const genders = ['Male', 'Female', 'Other'];
-    const sewas = ['VIP Langar', 'SG LANGAR', 'Kitchen Sewa', 'Cleaning Sewa'];
-    const unallocationReasons = ['Not available', 'Personal reasons', 'Health issues', 'Other'];
-    const enterByOptions = ['Admin', 'Manager', 'Coordinator'];
-    const relationTypes = ['S/O', 'D/O', 'W/O'];
-
-    for (let i = 2; i < 25; i++) {
-      const branch = branches[i % branches.length];
-      const relationType = relationTypes[i % relationTypes.length];
-      this.allVolunteerCards.push({
-        id: i + 1,
-        image: i % 3 === 0 ? undefined : `/assets/img/placeholder.svg`,
-        name: `Volunteer ${i + 1}`,
-        relationName: `${relationType} Sh. Name ${i + 1}`,
-        fatherName: `Father Name ${i + 1}`,
-        phone: `${9000000000 + i}`,
-        mobileNo: `${9000000000 + i}`,
-        uid: `UID${123456 + i}`,
-        sewa: sewas[i % sewas.length],
-        gender: genders[i % genders.length],
-        unallocationReason: unallocationReasons[i % unallocationReasons.length],
-        enterBy: enterByOptions[i % enterByOptions.length],
-        createdAt: new Date(2024, i % 12, (i % 28) + 1),
-        address: {
-          taskBranch: branch,
-          correspondingBranch: branch
-        }
-      });
-    }
+    // Initialize empty arrays - data will be loaded from API
+    this.allVolunteerCards = [];
 
     // Build filter options
     this.genderOptions = [
@@ -171,11 +102,7 @@ export class VolunteerCardsComponent {
       { id: '3', label: 'Other', value: 'Other' }
     ];
 
-    this.sewaOptions = sewas.map((sewa, index) => ({
-      id: String(index + 1),
-      label: sewa,
-      value: sewa
-    }));
+    this.sewaOptions = [];
 
     this.applyFilter();
   }

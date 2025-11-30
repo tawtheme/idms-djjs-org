@@ -112,59 +112,43 @@ export class SettingsComponent implements OnInit {
   }
 
   loadSettings(): void {
-    this.data.getJson<any>('settings.json').subscribe({
-      next: (response) => {
-        const settingsData = response?.settings || {};
-        
-        // Load company information
-        if (settingsData.company) {
-          this.settings.company = {
-            ...this.settings.company,
-            ...settingsData.company
-          };
-        }
-        
-        // Load preferences
-        if (settingsData.preferences) {
-          this.settings.preferences = {
-            ...this.settings.preferences,
-            ...settingsData.preferences
-          };
-        }
-        
-        // Load notifications
-        if (settingsData.notifications) {
-          this.settings.notifications = {
-            ...this.settings.notifications,
-            ...settingsData.notifications
-          };
-        }
-        
-        // Backward compatibility with old format
-        if (settingsData.companyName) {
-          this.settings.company.name = settingsData.companyName;
-        }
-        if (settingsData.currency) {
-          this.settings.preferences.currency = settingsData.currency;
-        }
-        if (settingsData.timezone) {
-          this.settings.preferences.timezone = settingsData.timezone;
-        }
-        if (settingsData.address) {
-          this.settings.company.address = { ...this.settings.company.address, ...settingsData.address };
-        }
-        if (settingsData.email) {
-          this.settings.company.email = settingsData.email;
-        }
-        if (settingsData.phone) {
-          this.settings.company.phone = settingsData.phone;
-        }
-      },
-      error: () => {
-        // Use default values if settings file doesn't exist
-        console.log('Settings file not found, using defaults');
-      }
-    });
+    // TODO: Replace with actual API endpoint when available
+    // this.data.get<any>('v1/settings').subscribe({
+    //   next: (response) => {
+    //     const settingsData = response?.settings || {};
+    //     
+    //     // Load company information
+    //     if (settingsData.company) {
+    //       this.settings.company = {
+    //         ...this.settings.company,
+    //         ...settingsData.company
+    //       };
+    //     }
+    //     
+    //     // Load preferences
+    //     if (settingsData.preferences) {
+    //       this.settings.preferences = {
+    //         ...this.settings.preferences,
+    //         ...settingsData.preferences
+    //       };
+    //     }
+    //     
+    //     // Load notifications
+    //     if (settingsData.notifications) {
+    //       this.settings.notifications = {
+    //         ...this.settings.notifications,
+    //         ...settingsData.notifications
+    //       };
+    //     }
+    //   },
+    //   error: () => {
+    //     // Use default values if API call fails
+    //     console.log('Failed to load settings, using defaults');
+    //   }
+    // });
+    
+    // For now, settings are initialized with default values
+    // Settings will be loaded from API when endpoint is available
   }
 
   onCompanyChange(data: CompanyData): void {

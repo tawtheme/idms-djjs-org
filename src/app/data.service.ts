@@ -9,11 +9,6 @@ export class DataService {
 
   constructor(private http: HttpClient) {}
 
-  // Get data from mock JSON files (for development)
-  getJson<T>(path: string): Observable<T> {
-    return this.http.get<T>(`/assets/mock/${path}`);
-  }
-
   // API methods
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`);

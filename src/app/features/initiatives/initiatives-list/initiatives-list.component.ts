@@ -5,7 +5,10 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { AddInitiativeModalComponent } from './add-initiative-modal/add-initiative-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -25,7 +28,10 @@ export interface Initiative {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    LoadingComponent,
+    MenuDropdownComponent,
+    DropdownComponent,
+    AddInitiativeModalComponent
   ],
   selector: 'app-initiatives-list',
   templateUrl: './initiatives-list.component.html',
@@ -39,11 +45,38 @@ export class InitiativesListComponent implements OnInit {
   initiatives: Initiative[] = [];
   allInitiatives: Initiative[] = [];
 
+  // Loading state
+  isLoading = true; // Start with true to show loader on initial load
+
+  // Modal state
+  isAddModalOpen = false;
+
   // Selection
   selectedInitiatives = new Set<string>();
 
   // Filters
   searchTerm = '';
+  taskBranch: string = '';
+  correspondingBranch: string = '';
+  branchSearchType: string = '';
+
+  // Filter dropdown options
+  readonly taskBranchOptions: DropdownOption[] = [
+    { id: '0', label: 'Task Branch', value: '' },
+    { id: '1', label: 'None', value: 'None' }
+    // TODO: Load actual branch options from API
+  ];
+
+  readonly correspondingBranchOptions: DropdownOption[] = [
+    { id: '0', label: 'Corresponding Branch', value: '' },
+    { id: '1', label: 'None', value: 'None' }
+    // TODO: Load actual branch options from API
+  ];
+
+  readonly branchSearchTypeOptions: DropdownOption[] = [
+    { id: '0', label: 'Branch Search Type', value: '' }
+    // TODO: Load actual branch search type options from API
+  ];
 
   // Sorting
   sortField = '';
@@ -70,9 +103,11 @@ export class InitiativesListComponent implements OnInit {
    * Load initiatives from /api/v1/initiatives using DataService
    */
   private loadInitiatives(): void {
+    this.isLoading = true;
     this.dataService.get<any>('v1/initiatives').pipe(
       catchError((error) => {
         console.error('Error loading initiatives:', error);
+        this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -86,6 +121,7 @@ export class InitiativesListComponent implements OnInit {
         } as Initiative;
       });
 
+      this.isLoading = false;
       this.applyFilters();
     });
   }
@@ -99,6 +135,17 @@ export class InitiativesListComponent implements OnInit {
         initiative.name.toLowerCase().includes(search)
       );
     }
+
+    // TODO: Apply branch filters when API data is available
+    // if (this.taskBranch && this.taskBranch !== 'None') {
+    //   filtered = filtered.filter(initiative => initiative.taskBranch === this.taskBranch);
+    // }
+    // if (this.correspondingBranch && this.correspondingBranch !== 'None') {
+    //   filtered = filtered.filter(initiative => initiative.correspondingBranch === this.correspondingBranch);
+    // }
+    // if (this.branchSearchType) {
+    //   filtered = filtered.filter(initiative => initiative.branchSearchType === this.branchSearchType);
+    // }
 
     if (this.sortField) {
       filtered.sort((a, b) => {
@@ -114,6 +161,42 @@ export class InitiativesListComponent implements OnInit {
     this.initiatives = filtered;
     this.totalItems = filtered.length;
     this.currentPage = 1;
+  }
+
+  /**
+   * Handle task branch selection change
+   */
+  onTaskBranchChange(values: any[] | null): void {
+    if (values && values.length > 0 && values[0] !== '') {
+      this.taskBranch = values[0];
+    } else {
+      this.taskBranch = '';
+    }
+    this.applyFilters();
+  }
+
+  /**
+   * Handle corresponding branch selection change
+   */
+  onCorrespondingBranchChange(values: any[] | null): void {
+    if (values && values.length > 0 && values[0] !== '') {
+      this.correspondingBranch = values[0];
+    } else {
+      this.correspondingBranch = '';
+    }
+    this.applyFilters();
+  }
+
+  /**
+   * Handle branch search type selection change
+   */
+  onBranchSearchTypeChange(values: any[] | null): void {
+    if (values && values.length > 0 && values[0] !== '') {
+      this.branchSearchType = values[0];
+    } else {
+      this.branchSearchType = '';
+    }
+    this.applyFilters();
   }
 
   // Sorting
@@ -174,8 +257,7 @@ export class InitiativesListComponent implements OnInit {
   getActionOptions(initiative: Initiative): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
@@ -195,6 +277,30 @@ export class InitiativesListComponent implements OnInit {
 
   trackById(index: number, initiative: Initiative): string {
     return initiative.id;
+  }
+
+  /**
+   * Open the add initiative modal
+   */
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  /**
+   * Close the add initiative modal
+   */
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  /**
+   * Handle form submission from add initiative modal
+   */
+  onAddInitiativeSubmit(data: { name: string; status: string }): void {
+    console.log('Add initiative:', data);
+    // TODO: Implement API call to add initiative
+    // For now, just close the modal
+    this.closeAddModal();
   }
 }
 

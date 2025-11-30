@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class HeaderComponent {
   @Input() isCollapsed: boolean = false;
-  @Input() title: string = 'idms-djjs-org';
+  @Input() title: string = 'IDMS ADMIN PANEL';
   @Output() toggleCollapse = new EventEmitter<void>();
   
   @ViewChild('headerElement', { static: false }) headerElement!: ElementRef<HTMLElement>;

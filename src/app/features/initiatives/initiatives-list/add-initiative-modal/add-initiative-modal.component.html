@@ -1,31 +1,31 @@
 <app-modal
     [isOpen]="isOpen"
-    [title]="modalTitle"
+    [title]="'Add New Initiative'"
     [size]="'small'"
     [closable]="true"
     [showHeader]="true"
     (close)="onClose()">
     
-    <form class="add-master-entry-form" (ngSubmit)="onSubmit()">
-        <!-- Name Field -->
+    <form class="add-initiative-form" (ngSubmit)="onSubmit()">
+        <!-- Initiative Name Field -->
         <div class="form-group">
-            <label class="form-label" [for]="'name-' + masterType">
-                {{ nameFieldLabel }} <span class="required">*</span>
+            <label class="form-label" for="initiative-name">
+                Initiative Name <span class="required">*</span>
             </label>
             <input
-                [id]="'name-' + masterType"
+                id="initiative-name"
                 type="text"
                 class="form-control"
                 [(ngModel)]="name"
                 [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter {{ nameFieldLabel.toLowerCase() }}"
+                placeholder="Enter initiative name"
                 required
                 autofocus>
         </div>
 
         <!-- Status Dropdown -->
         <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="initiative-status">
                 Status
             </label>
             <app-dropdown

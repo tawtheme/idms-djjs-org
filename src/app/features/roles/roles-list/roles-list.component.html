@@ -5,84 +5,106 @@
 
     <!-- Filter Section -->
     <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"/>
-        </div>
+        <input
+            type="search"
+            class="form-control"
+            placeholder="Search by Name"
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="applyFilters()"
+        />
+        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
+            Add New
+        </button>
     </div>
 
     <!-- Roles table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
-                    <th>Action</th>
-                    <th (click)="sortBy('name')" class="sortable">
-                        Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
-                    </th>
-                    <th (click)="sortBy('createdAt')" class="sortable">
-                        Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let role of pagedRoles; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedRoles.has(role.id)"
-                            (change)="toggleSelectRole(role.id, $event)">
-                    </td>
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(role)"
-                            (selectionChange)="onAction(role, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ role.name }}
-                    </td>
-                    <td data-label="Created At" class="date">
-                        {{ role.createdAt }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedRoles.length === 0">
-                    <td [attr.colspan]="4" class="no-data">No data available in table</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input
+                                type="checkbox"
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)"
+                                (click)="$event.stopPropagation()"
+                            />
+                        </th>
+                        <th (click)="sortBy('name')" class="sortable">
+                            Name
+                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        </th>
+                        <th (click)="sortBy('createdAt')" class="sortable">
+                            Created At
+                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        </th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let role of pagedRoles; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedRoles.has(role.id)"
+                                    (change)="toggleSelectRole(role.id, $event)">
+                            </td>
+                            <td data-label="Name" class="name">
+                                {{ role.name }}
+                            </td>
+                            <td data-label="Created At" class="date">
+                                {{ role.createdAt }}
+                            </td>
+                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                                <app-menu-dropdown
+                                    [options]="getActionOptions(role)"
+                                    (selectionChange)="onAction(role, $event)">
+                                </app-menu-dropdown>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedRoles.length === 0">
+                            <td [attr.colspan]="4" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="searchTerm ? 'No Results Found' : 'No Roles Found'"
+                                    [description]="searchTerm ? 'No roles match your search criteria.' : 'There are no roles available at the moment.'"
+                                    [icon]="'inbox'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading cell -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="4" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
 
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
-
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="roles.length === 0 && !searchTerm"
-        title="No Roles Found"
-        message="There are no roles available at the moment.">
-    </app-empty-state>
+    <!-- Add New Role Modal - Only render when needed -->
+    <app-add-role-modal
+        *ngIf="isAddModalOpen"
+        [isOpen]="isAddModalOpen"
+        (close)="closeAddModal()"
+        (submit)="onAddRoleSubmit($event)">
+    </app-add-role-modal>
 </div>
 

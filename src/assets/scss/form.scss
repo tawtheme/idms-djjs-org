@@ -23,6 +23,7 @@ label {
 // Common class to apply input styles to any custom control
 .form-control {
     width: 100%;
+    max-width: 500px;
     background: $color-white;
     font-size: 14px;
     font-weight: 500;

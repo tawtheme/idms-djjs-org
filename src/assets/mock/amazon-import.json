@@ -1,9 +1,0 @@
-{
-    "amazonImportSummary": {
-        "importedCount": 3,
-        "skippedCount": 1,
-        "errors": [
-            "Rate limit"
-        ]
-    }
-}

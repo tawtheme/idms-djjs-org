@@ -72,12 +72,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.calculateContentHeight();
       });
       
-      // Observe the main content area and header
-      const contentElement = document.querySelector('.content');
+      // Observe the layout area and header
+      const layoutElement = document.querySelector('.layout');
       const headerElement = document.querySelector('app-header .header');
       
-      if (contentElement) {
-        this.resizeObserver.observe(contentElement);
+      if (layoutElement) {
+        this.resizeObserver.observe(layoutElement);
       }
       if (headerElement) {
         this.resizeObserver.observe(headerElement);
@@ -152,10 +152,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Get the current calculated content height
   getContentHeight(): number {
-    const mainContent = document.querySelector('.content') as HTMLElement;
-    if (mainContent) {
-      const computedStyle = window.getComputedStyle(mainContent);
-      const heightValue = computedStyle.getPropertyValue('--content-height');
+    const contentWrapper = document.querySelector('.content-wrapper') as HTMLElement;
+    if (contentWrapper) {
+      const computedStyle = window.getComputedStyle(contentWrapper);
+      const heightValue = computedStyle.height;
       return parseInt(heightValue) || 0;
     }
     return 0;
@@ -163,13 +163,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Get the current calculated header height
   getCalculatedHeaderHeight(): number {
-    const mainContent = document.querySelector('.content') as HTMLElement;
-    if (mainContent) {
-      const computedStyle = window.getComputedStyle(mainContent);
-      const heightValue = computedStyle.getPropertyValue('--header-height');
-      return parseInt(heightValue) || 0;
-    }
-    return 0;
+    return this.getHeaderHeight();
   }
 
   @HostListener('window:resize', ['$event'])
@@ -185,23 +179,22 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Debounce the calculation
     this.heightCalculationTimeout = window.setTimeout(() => {
-      // Step 1: Calculate main section height (full viewport height)
-      const mainSectionHeight = window.innerHeight;
-      
-      // Step 2: Calculate header height
+      // Step 1: Calculate header height
       const headerHeight = this.getHeaderHeight();
       
-      // Step 3: Calculate content-wrapper height (main - header)
-      // Note: padding is included in height due to box-sizing: border-box
-      const contentWrapperHeight = mainSectionHeight - headerHeight;
+      // Step 2: Calculate available height for layout (viewport - header)
+      const layoutHeight = window.innerHeight - headerHeight;
       
-      // Step 5: Set main section height
-      const mainContent = document.querySelector('.content') as HTMLElement;
-      if (mainContent) {
-        mainContent.style.height = `${mainSectionHeight}px`;
+      // Step 3: Set layout height
+      const layoutElement = document.querySelector('.layout') as HTMLElement;
+      if (layoutElement) {
+        layoutElement.style.height = `${layoutHeight}px`;
       }
       
-      // Step 6: Set content-wrapper height
+      // Step 4: Calculate content-wrapper height (same as layout height)
+      const contentWrapperHeight = layoutHeight;
+      
+      // Step 5: Set content-wrapper height
       const contentWrapper = document.querySelector('.content-wrapper') as HTMLElement;
       if (contentWrapper) {
         contentWrapper.style.height = `${contentWrapperHeight}px`;

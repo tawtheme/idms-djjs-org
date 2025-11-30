@@ -5,12 +5,6 @@
 // Apply shared listing styles
 @include listing.listing('.master-tables');
 
-.master-tables-container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
 .master-tables-layout {
     display: flex;
     gap: 30px;
@@ -19,8 +13,8 @@
 
 // Left Sidebar
 .master-tables-sidebar {
-    width: 280px;
-    min-width: 280px;
+    width: 220px;
+    min-width: 220px;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -171,34 +165,4 @@
 }
 
 // Loading cell
-.loading-cell {
-    text-align: center;
-    padding: 40px 20px !important;
-
-    ::ng-deep app-loading {
-        display: block;
-        width: 100%;
-
-        .loading {
-            padding: 20px !important;
-            height: auto !important;
-            min-height: auto !important;
-        }
-
-        .spinner {
-            border: 3px solid $color-gray-100;
-            border-top: 3px solid $color-primary-600;
-        }
-    }
-}
-
-// Empty state cell
-.empty-state-cell {
-    text-align: center;
-    padding: 40px 20px !important;
-
-    ::ng-deep app-empty-state {
-        display: block;
-        width: 100%;
-    }
-}
+// Empty state and loading cell styles are now in table.scss

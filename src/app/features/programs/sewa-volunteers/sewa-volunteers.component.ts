@@ -76,36 +76,9 @@ export class SewaVolunteersComponent {
   Math = Math;
 
   constructor() {
-    // Initialize unallocated volunteers sample data
-    this.allUnallocatedVolunteers = [
-      { id: 1, name: 'Volunteer 1', phone: '1234567890' },
-      { id: 2, name: 'Volunteer 2', phone: '2345678901' },
-      { id: 3, name: 'Volunteer 3', phone: '3456789012' },
-      { id: 4, name: 'Volunteer 4', phone: '4567890123' },
-      { id: 5, name: 'Volunteer 5', phone: '5678901234' }
-    ];
-
-    // Initialize allocated volunteers sample data
-    this.allAllocatedVolunteers = [
-      {
-        id: 1,
-        badgeNo: '001',
-        name: 'Allocated Volunteer 1',
-        head: 'Head 1',
-        subHead: 'Sub Head 1',
-        isRegular: true,
-        sewa: 'VIP Langar'
-      },
-      {
-        id: 2,
-        badgeNo: '002',
-        name: 'Allocated Volunteer 2',
-        head: 'Head 2',
-        subHead: 'Sub Head 2',
-        isRegular: false,
-        sewa: 'SG LANGAR'
-      }
-    ];
+    // Initialize empty arrays - data will be loaded from API
+    this.allUnallocatedVolunteers = [];
+    this.allAllocatedVolunteers = [];
 
     // Initialize page size dropdown options
     this.pageSizeDropdownOptions = this.pageSizeOptions.map(s => ({

@@ -61,7 +61,7 @@
         <!-- Image Preview -->
         <div class="image-preview-container">
             <div class="image-preview-wrapper">
-                <img [src]="capturedImagePreview || ''" [alt]="capturedImageFile?.name || 'Captured image'" class="preview-image">
+                <img [src]="capturedImagePreview || ''" [alt]="capturedImageFile!.name || 'Captured image'" class="preview-image">
                 <button 
                     type="button" 
                     class="delete-image-btn" 

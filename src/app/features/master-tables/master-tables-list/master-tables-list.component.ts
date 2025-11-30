@@ -20,7 +20,6 @@ type MasterType =
   | 'professions'
   | 'languages'
   | 'dress_codes'
-  | 'bank'
   | 'castes'
   | 'newspapers'
   | 'countries'
@@ -86,7 +85,6 @@ export class MasterTablesListComponent implements OnInit {
     { type: 'professions', label: 'Professions', endpoint: 'v1/professions' },
     { type: 'languages', label: 'Languages', endpoint: 'v1/languages' },
     { type: 'dress_codes', label: 'Dress Codes', endpoint: 'v1/dress_codes' },
-    { type: 'bank', label: 'Banks', endpoint: null }, // endpoint not provided
     { type: 'castes', label: 'Castes', endpoint: 'v1/castes' },
     { type: 'newspapers', label: 'Newspapers', endpoint: 'v1/newspapers' },
     { type: 'countries', label: 'Countries', endpoint: 'v1/countries' },
@@ -139,11 +137,17 @@ export class MasterTablesListComponent implements OnInit {
   /** Modal state for adding new entry */
   isAddModalOpen = false;
 
-  /** Breadcrumb navigation items */
-  readonly breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Master Tables', route: '/master-tables' },
-    { label: 'All Tables', route: '/master-tables' }
-  ];
+  /**
+   * Get breadcrumb navigation items
+   * Dynamically shows the selected master table name in the breadcrumb
+   * @returns Array of breadcrumb items
+   */
+  get breadcrumbs(): BreadcrumbItem[] {
+    return [
+      { label: 'Master Tables', route: '/master-tables' },
+      { label: this.selectedMasterConfig.label, route: '/master-tables' }
+    ];
+  }
 
   /**
    * Initialize component and load initial data

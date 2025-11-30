@@ -23,7 +23,7 @@
 @import 'assets/scss/button';
 @import 'assets/scss/modal';
 @import 'assets/scss/animation';
-@import 'assets/scss/pages';
+/* pages.scss is imported per-component using @use to avoid duplicate styles */
 
 * {
     box-sizing: border-box;

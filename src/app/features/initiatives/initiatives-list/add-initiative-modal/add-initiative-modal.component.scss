@@ -1,0 +1,17 @@
+@import '../../../../../assets/scss/variable';
+
+.add-initiative-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid $color-gray-200;
+}
+

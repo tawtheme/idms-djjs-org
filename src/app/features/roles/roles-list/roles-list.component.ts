@@ -5,7 +5,9 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { AddRoleModalComponent } from './add-role-modal/add-role-modal.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -25,7 +27,9 @@ export interface Role {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    LoadingComponent,
+    MenuDropdownComponent,
+    AddRoleModalComponent
   ],
   selector: 'app-roles-list',
   templateUrl: './roles-list.component.html',
@@ -38,6 +42,12 @@ export class RolesListComponent implements OnInit {
 
   roles: Role[] = [];
   allRoles: Role[] = [];
+
+  // Loading state
+  isLoading = true; // Start with true to show loader on initial load
+
+  // Modal state
+  isAddModalOpen = false;
 
   // Selection
   selectedRoles = new Set<string>();
@@ -70,9 +80,11 @@ export class RolesListComponent implements OnInit {
    * Load roles from /api/v1/roles using DataService
    */
   private loadRoles(): void {
+    this.isLoading = true;
     this.dataService.get<any>('v1/roles').pipe(
       catchError((error) => {
         console.error('Error loading roles:', error);
+        this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
@@ -86,6 +98,7 @@ export class RolesListComponent implements OnInit {
         } as Role;
       });
 
+      this.isLoading = false;
       this.applyFilters();
     });
   }
@@ -176,8 +189,7 @@ export class RolesListComponent implements OnInit {
   getActionOptions(role: Role): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
-      { id: '2', label: 'View Details', value: 'view' },
-      { id: '3', label: 'Delete', value: 'delete' }
+      { id: '2', label: 'Delete', value: 'delete' }
     ];
   }
 
@@ -198,6 +210,30 @@ export class RolesListComponent implements OnInit {
 
   trackById(index: number, role: Role): string {
     return role.id;
+  }
+
+  /**
+   * Open the add role modal
+   */
+  openAddModal(): void {
+    this.isAddModalOpen = true;
+  }
+
+  /**
+   * Close the add role modal
+   */
+  closeAddModal(): void {
+    this.isAddModalOpen = false;
+  }
+
+  /**
+   * Handle form submission from add role modal
+   */
+  onAddRoleSubmit(data: { name: string; status: string }): void {
+    console.log('Add role:', data);
+    // TODO: Implement API call to add role
+    // For now, just close the modal
+    this.closeAddModal();
   }
 }
 

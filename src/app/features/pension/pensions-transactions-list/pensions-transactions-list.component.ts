@@ -78,7 +78,7 @@ export class PensionsTransactionsListComponent {
   ];
 
   constructor() {
-    // Sample data - empty for now as per design
+    // Initialize empty array - data will be loaded from API
     this.allTransactions = [];
 
     // Initialize gender options

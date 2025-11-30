@@ -1,24 +1,27 @@
-<div class="layout" [class.collapsed]="isCollapsed()" *ngIf="isAuthenticated; else authLayout">
+<div class="app-container" *ngIf="isAuthenticated; else authLayout">
+    <!-- Full Width Header -->
+    <app-header 
+        [isCollapsed]="isCollapsed()" 
+        [title]="title()"
+        (toggleCollapse)="onToggleCollapse()"
+        #headerComponent>
+    </app-header>
+    
     <!-- Backdrop for mobile sidebar -->
     <div class="sidebar-backdrop" 
          *ngIf="isMobile() && !isCollapsed()"
          (click)="onToggleCollapse()"></div>
     
-    <app-sidenav 
-        [isCollapsed]="isCollapsed()"
-        (closeSidebar)="onToggleCollapse()"></app-sidenav>
-    <main class="content">        
-        <app-header 
-            [isCollapsed]="isCollapsed()" 
-            [title]="title()"
-            (toggleCollapse)="onToggleCollapse()"
-            #headerComponent>
-        </app-header>
+    <!-- Main Layout: Sidebar + Content Wrapper -->
+    <div class="layout" [class.collapsed]="isCollapsed()">
+        <app-sidenav 
+            [isCollapsed]="isCollapsed()"
+            (closeSidebar)="onToggleCollapse()"></app-sidenav>
         <div class="content-wrapper" 
             #contentWrapper>
             <router-outlet />
         </div>
-    </main>
+    </div>
 </div>
 
 <ng-template #authLayout>

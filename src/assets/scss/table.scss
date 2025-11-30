@@ -97,6 +97,39 @@
     .action-column {
         text-align: right !important;
     }
+
+    // Empty state cell - for displaying empty state component in table
+    .empty-state-cell {
+        text-align: center;
+        padding: 40px 20px !important;
+
+        ::ng-deep app-empty-state {
+            display: block;
+            width: 100%;
+        }
+    }
+
+    // Loading cell - for displaying loading component in table
+    .loading-cell {
+        text-align: center;
+        padding: 40px 20px !important;
+
+        ::ng-deep app-loading {
+            display: block;
+            width: 100%;
+
+            .loading {
+                padding: 20px !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .spinner {
+                border: 3px solid $color-gray-100;
+                border-top: 3px solid $color-primary-600;
+            }
+        }
+    }
 }
 
 // Sticky header - wraps table in scrollable container
