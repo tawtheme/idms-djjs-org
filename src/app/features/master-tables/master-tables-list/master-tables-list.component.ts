@@ -8,14 +8,14 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { AddMasterEntryModalComponent } from './add-master-entry-modal/add-master-entry-modal.component';
 import { DataService } from '../../../data.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
 
-/**
- * Type definition for all available master table types
- */
+// All supported master table types / tabs
 type MasterType =
   | 'skills'
+  | 'banks'
   | 'degrees'
   | 'professions'
   | 'languages'
@@ -30,32 +30,24 @@ type MasterType =
   | 'weapon_types'
   | 'technical_qualifications';
 
-/**
- * Configuration interface for master table types
- */
+// Static configuration per master type (labels + API endpoints)
 interface MasterConfig {
   type: MasterType;
   label: string;
   endpoint: string | null;
+  storeEndpoint: string | null;
 }
 
-/**
- * Master record interface representing a single record in any master table
- * Note: extra1 and extra2 are used for search functionality but not displayed in the table
- */
+// Normalized record used by the table UI for all master types
 export interface MasterRecord {
   id: string;
   name: string;
   createdAt: string;
   status?: string;
-  extra1?: string; // Used for search: code/iso_code for countries/states/cities, branch_name for ashram_adhaar_areas
-  extra2?: string; // Used for search: parent_name for countries/states/cities, city for ashram_adhaar_areas
+  extra1?: string;
+  extra2?: string;
 }
 
-/**
- * Component for displaying and managing master tables list
- * Supports multiple master table types with filtering, sorting, and pagination
- */
 @Component({
   standalone: true,
   imports: [
@@ -72,76 +64,47 @@ export interface MasterRecord {
   templateUrl: './master-tables-list.component.html',
   styleUrls: ['./master-tables-list.component.scss']
 })
-export class MasterTablesListComponent implements OnInit {
+export class MasterTablesListComponent extends BasePaginatedList implements OnInit {
   private readonly dataService = inject(DataService);
 
-  /**
-   * Configuration array for all available master table types
-   * Each config defines the type, display label, and API endpoint
-   */
+  // Mapping between tab types and their list / store endpoints
   readonly masterConfigs: MasterConfig[] = [
-    { type: 'skills', label: 'Skills', endpoint: 'v1/skills' },
-    { type: 'degrees', label: 'Degrees', endpoint: 'v1/degrees' },
-    { type: 'professions', label: 'Professions', endpoint: 'v1/professions' },
-    { type: 'languages', label: 'Languages', endpoint: 'v1/languages' },
-    { type: 'dress_codes', label: 'Dress Codes', endpoint: 'v1/dress_codes' },
-    { type: 'castes', label: 'Castes', endpoint: 'v1/castes' },
-    { type: 'newspapers', label: 'Newspapers', endpoint: 'v1/newspapers' },
-    { type: 'countries', label: 'Countries', endpoint: 'v1/countries' },
-    { type: 'states', label: 'States', endpoint: 'v1/states' },
-    { type: 'districts', label: 'Districts', endpoint: null }, // endpoint not provided
-    { type: 'cities', label: 'Cities', endpoint: 'v1/cities' },
-    { type: 'ashram_adhaar_areas', label: 'Ashram Adhaar Areas', endpoint: 'v1/ashram_adhaar_areas' },
-    { type: 'weapon_types', label: 'Weapon Types', endpoint: 'v1/weapon_types' },
-    { type: 'technical_qualifications', label: 'Technical Qualifications', endpoint: 'v1/technical_qualifications' }
+    { type: 'skills', label: 'Skills', endpoint: 'v1/skills', storeEndpoint: 'v1/skills/store' },
+    { type: 'banks', label: 'Banks', endpoint: 'v1/banks', storeEndpoint: 'v1/banks/store' },
+    { type: 'degrees', label: 'Degrees', endpoint: 'v1/degrees', storeEndpoint: 'v1/degrees/store' },
+    { type: 'professions', label: 'Professions', endpoint: 'v1/professions', storeEndpoint: 'v1/professions/store' },
+    { type: 'languages', label: 'Languages', endpoint: 'v1/languages', storeEndpoint: 'v1/languages/store' },
+    { type: 'dress_codes', label: 'Dress Codes', endpoint: 'v1/dress_codes', storeEndpoint: 'v1/dress_codes/store' },
+    { type: 'castes', label: 'Castes', endpoint: 'v1/castes', storeEndpoint: 'v1/castes/store' },
+    { type: 'newspapers', label: 'Newspapers', endpoint: 'v1/newspapers', storeEndpoint: 'v1/newspapers/store' },
+    { type: 'countries', label: 'Countries', endpoint: 'v1/countries', storeEndpoint: 'v1/countries/store' },
+    { type: 'states', label: 'States', endpoint: 'v1/states', storeEndpoint: 'v1/states/store' },
+    { type: 'districts', label: 'Districts', endpoint: 'v1/districts', storeEndpoint: 'v1/districts/store' },
+    { type: 'cities', label: 'Cities', endpoint: 'v1/cities', storeEndpoint: 'v1/cities/store' },
+    { type: 'ashram_adhaar_areas', label: 'Ashram Adhaar Areas', endpoint: 'v1/ashram_adhaar_areas', storeEndpoint: 'v1/ashram_adhaar_areas/store' },
+    { type: 'weapon_types', label: 'Weapon Types', endpoint: 'v1/weapon_types', storeEndpoint: 'v1/weapon_types/store' },
+    { type: 'technical_qualifications', label: 'Technical Qualifications', endpoint: 'v1/technical_qualifications', storeEndpoint: 'v1/technical_qualifications/store' }
   ];
 
-  /** Currently selected master table type */
+  // Currently active tab
   selectedMasterType: MasterType = 'skills';
 
-  /**
-   * Getter for the currently selected master table configuration
-   * @returns The configuration object for the selected master type
-   */
+  // Convenience getter for the active tab configuration
   get selectedMasterConfig(): MasterConfig {
     return this.masterConfigs.find((m) => m.type === this.selectedMasterType)!;
   }
 
-  /** Filtered and sorted records to display */
+  // Full data set from API and filtered/paged data for display
   records: MasterRecord[] = [];
-  /** All records loaded from API (before filtering/sorting) */
   allRecords: MasterRecord[] = [];
 
-  /** Search filter term */
+  // Search + sort state
   searchTerm = '';
-
-  /** Current field being sorted by */
   sortField = '';
-  /** Current sort direction */
   sortDirection: 'asc' | 'desc' = 'asc';
-
-  /** Available page size options */
-  readonly pageSizeOptions: number[] = [20, 50, 100];
-  /** Current page size */
-  pageSize = 20;
-  /** Current page number (1-indexed) */
-  currentPage = 1;
-  /** Total number of items after filtering */
-  totalItems = 0;
-
-  /** Loading state indicator */
-  isLoading = false;
-  /** Error message if API call fails */
-  error: string | null = null;
-
-  /** Modal state for adding new entry */
   isAddModalOpen = false;
 
-  /**
-   * Get breadcrumb navigation items
-   * Dynamically shows the selected master table name in the breadcrumb
-   * @returns Array of breadcrumb items
-   */
+  // Breadcrumb uses current tab label
   get breadcrumbs(): BreadcrumbItem[] {
     return [
       { label: 'Master Tables', route: '/master-tables' },
@@ -149,35 +112,28 @@ export class MasterTablesListComponent implements OnInit {
     ];
   }
 
-  /**
-   * Initialize component and load initial data
-   */
+  // Load initial tab on first render
   ngOnInit(): void {
-    this.loadRecords();
+    this.loadPage(this.currentPage, this.pageSize);
   }
 
-  /**
-   * Handle tab selection to switch between master table types
-   * @param masterType - The master table type to switch to
-   */
+  // Switch between master types (tabs)
   onTabSelect(masterType: MasterType): void {
     if (this.selectedMasterType === masterType) return;
     
     this.selectedMasterType = masterType;
     this.currentPage = 1;
     this.searchTerm = '';
-    this.loadRecords();
+    this.loadPage(this.currentPage, this.pageSize);
   }
 
-  /**
-   * Load records from API for the currently selected master table type
-   * Handles loading state, error handling, and data transformation
-   */
-  private loadRecords(): void {
+  // Fetch data for the current master type
+  protected loadPage(page: number = this.currentPage, pageSize: number = this.pageSize): void {
     const cfg = this.selectedMasterConfig;
+
+    // Reset state before each load
     this.allRecords = [];
     this.records = [];
-    this.totalItems = 0;
     this.error = null;
 
     if (!cfg.endpoint) {
@@ -185,33 +141,39 @@ export class MasterTablesListComponent implements OnInit {
       return;
     }
 
+    // Build endpoint with pagination params expected by backend
+    const endpointWithParams = `${cfg.endpoint}?page=${page}&per_page=${pageSize}`;
+
     this.isLoading = true;
-    this.dataService.get<any>(cfg.endpoint).pipe(
-      catchError((error) => {
-        console.error(`Error loading ${cfg.label}:`, error);
-        this.error = error.error?.message || error.message || `Failed to load ${cfg.label}.`;
-        this.isLoading = false;
-        return of({ data: [] });
-      })
-    ).subscribe((response) => {
-      const data = response.data || response.results || response || [];
+    this.dataService
+      .get<any>(endpointWithParams)
+      .pipe(
+        catchError((error) => {
+          console.error(`Error loading ${cfg.label}:`, error);
+          this.error =
+            error.error?.message || error.message || `Failed to load ${cfg.label}.`;
+          return of({ data: [] });
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe((response) => {
+        const data = response.data || response.results || response || [];
+        const meta = (response as any).meta || {};
 
-      this.allRecords = (Array.isArray(data) ? data : []).map((item: any) =>
-        this.mapToRecord(this.selectedMasterType, item)
-      );
+        this.allRecords = (Array.isArray(data) ? data : []).map((item: any) =>
+          this.mapToRecord(this.selectedMasterType, item)
+        );
 
-      this.isLoading = false;
-      this.applyFilters();
-    });
+        // Update pagination from backend meta (fallback to requested values)
+        this.updatePaginationFromMeta(meta, page, pageSize);
+
+        this.applyFilters();
+      });
   }
 
-  /**
-   * Convert raw API response item to standardized MasterRecord format
-   * Handles different data structures for different master table types
-   * @param type - The master table type
-   * @param item - Raw item from API response
-   * @returns Standardized MasterRecord object
-   */
+  // Normalize raw API record to MasterRecord shape
   private mapToRecord(type: MasterType, item: any): MasterRecord {
     const base: MasterRecord = {
       id: String(item.id),
@@ -220,7 +182,6 @@ export class MasterTablesListComponent implements OnInit {
       status: this.normalizeStatus(item.status)
     };
 
-    // Handle special cases for tables with additional fields
     switch (type) {
       case 'countries':
       case 'states':
@@ -228,7 +189,7 @@ export class MasterTablesListComponent implements OnInit {
         return {
           ...base,
           extra1: item.code || item.iso_code || '',
-          extra2: item.parent_name || '' // e.g., country name for state, state name for city
+          extra2: item.parent_name || ''
         };
       case 'ashram_adhaar_areas':
         return {
@@ -241,11 +202,7 @@ export class MasterTablesListComponent implements OnInit {
     }
   }
 
-  /**
-   * Normalize status value from API to consistent string format
-   * @param status - Status value from API (can be number, boolean, or string)
-   * @returns Normalized status string ('Active', 'Inactive', or undefined)
-   */
+  // Convert various backend status formats to "Active"/"Inactive"
   private normalizeStatus(status: any): string | undefined {
     if (status === 1 || status === true || status === 'active') {
       return 'Active';
@@ -256,14 +213,10 @@ export class MasterTablesListComponent implements OnInit {
     return undefined;
   }
 
-  /**
-   * Apply search filter and sorting to all records
-   * Updates the filtered records array and resets pagination
-   */
+  // Apply search + sort to allRecords and update records
   applyFilters(): void {
     let filtered = [...this.allRecords];
 
-    // Apply search filter
     if (this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter((rec) =>
@@ -273,7 +226,6 @@ export class MasterTablesListComponent implements OnInit {
       );
     }
 
-    // Apply sorting
     if (this.sortField) {
       filtered.sort((a, b) => {
         const aVal = (a as any)[this.sortField] ?? '';
@@ -286,54 +238,34 @@ export class MasterTablesListComponent implements OnInit {
     }
 
     this.records = filtered;
-    this.totalItems = filtered.length;
-    this.currentPage = 1; // Reset to first page after filtering
   }
 
-  /**
-   * Handle column header click for sorting
-   * Toggles sort direction if clicking the same field, otherwise sets new sort field
-   * @param field - The field name to sort by
-   */
+  // Handle click on table header to change sort field/direction
   sortBy(field: string): void {
     if (this.sortField === field) {
-      // Toggle sort direction for same field
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-      // Set new sort field with ascending direction
       this.sortField = field;
       this.sortDirection = 'asc';
     }
     this.applyFilters();
   }
 
-  /**
-   * Get the appropriate Material Icon name for sort indicator
-   * @param field - The field name to check
-   * @returns Material Icon name for the sort indicator
-   */
+  // Choose the appropriate sort icon for a column
   getSortIcon(field: string): string {
     if (this.sortField !== field) {
-      return 'unfold_more'; // Neutral/unsorted state
+      return 'unfold_more';
     }
     return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
-  /**
-   * Get paginated records for current page
-   * @returns Array of records for the current page
-   */
+  // Slice current page from filtered records
   get pagedRecords(): MasterRecord[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.records.slice(start, end);
+    // Records already represent the current page from the backend
+    return this.records;
   }
 
-  /**
-   * Get action menu options for a record
-   * @param rec - The master record
-   * @returns Array of menu options
-   */
+  // Action menu for each row
   getActionOptions(rec: MasterRecord): MenuOption[] {
     return [
       { id: '1', label: 'Edit', value: 'edit' },
@@ -341,11 +273,7 @@ export class MasterTablesListComponent implements OnInit {
     ];
   }
 
-  /**
-   * Handle action menu item selection
-   * @param rec - The master record the action is performed on
-   * @param option - The selected menu option
-   */
+  // Handle "Edit" / "Delete" selection from action menu
   onAction(rec: MasterRecord, option: MenuOption): void {
     if (!option) return;
     
@@ -363,86 +291,101 @@ export class MasterTablesListComponent implements OnInit {
     }
   }
 
-  /**
-   * Handle edit action for a record
-   * @param rec - The master record to edit
-   */
+  // Placeholder for future edit workflow
   private editRecord(rec: MasterRecord): void {
     console.log('Edit record:', rec, 'for master:', this.selectedMasterType);
-    // TODO: Implement edit functionality
   }
 
-  /**
-   * Handle delete action for a record
-   * @param rec - The master record to delete
-   */
+  // Delete the selected record using its configured endpoint
   private deleteRecord(rec: MasterRecord): void {
     if (!confirm(`Are you sure you want to delete "${rec.name}"?`)) {
       return;
     }
-    
-    console.log('Delete record:', rec, 'for master:', this.selectedMasterType);
-    // TODO: Implement delete API call
-    // After successful deletion, reload records:
-    // this.loadRecords();
+
+    const cfg = this.selectedMasterConfig;
+    if (!cfg.endpoint) {
+      this.error = `Cannot delete entry: API endpoint not configured for ${cfg.label}.`;
+      return;
+    }
+
+    this.isLoading = true;
+    this.dataService
+      .delete<any>(`${cfg.endpoint}/${rec.id}`)
+      .pipe(
+        catchError((error) => {
+          console.error(`Error deleting ${cfg.label} entry:`, error);
+          this.error =
+            error.error?.message ||
+            error.message ||
+            `Failed to delete ${cfg.label} entry.`;
+          return of(null);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe((response) => {
+        if (response !== null) {
+          this.loadPage(this.currentPage, this.pageSize);
+        }
+      });
   }
 
-  /**
-   * Handle page change event from pagination component
-   * @param page - The page number to navigate to
-   */
-  onPageChange(page: number): void {
-    this.currentPage = page;
-  }
-
-  /**
-   * Handle page size change event from pagination component
-   * @param size - The new page size
-   */
-  onPageSizeChange(size: number): void {
-    this.pageSize = size;
-    this.currentPage = 1; // Reset to first page when changing page size
-  }
-
-  /**
-   * TrackBy function for ngFor to optimize rendering performance
-   * @param index - Array index
-   * @param rec - Master record
-   * @returns Unique identifier for the record
-   */
+  // Stable trackBy for *ngFor on rows
   trackById(index: number, rec: MasterRecord): string {
     return rec.id;
   }
 
-  /**
-   * Open the add new entry modal
-   */
+  // Show "Add entry" modal
   openAddModal(): void {
     this.isAddModalOpen = true;
   }
 
-  /**
-   * Close the add new entry modal
-   */
+  // Hide "Add entry" modal
   closeAddModal(): void {
     this.isAddModalOpen = false;
   }
 
-  /**
-   * Handle form submission from add entry modal
-   * @param data - Form data containing name and status
-   */
+  // Create new entry for current master type using its store endpoint
   onAddEntrySubmit(data: { name: string; status: string }): void {
     if (!data?.name?.trim()) {
       return;
     }
-    
+
     const cfg = this.selectedMasterConfig;
-    if (!cfg.endpoint) {
-      this.error = `Cannot add entry: API endpoint not configured for ${cfg.label}.`;
+    if (!cfg.storeEndpoint) {
+      this.error = `Cannot add entry: API store endpoint not configured for ${cfg.label}.`;
       return;
     }
-    
-    console.log('Add new entry:', data, 'for master type:', this.selectedMasterType);
+
+    // Prepare payload for API
+    const payload: any = {
+      name: data.name.trim(),
+      // Backend expects numeric status: 1 = Active, 0 = Inactive
+      status: data.status === 'Active' ? 1 : 0
+    };
+
+    this.isLoading = true;
+    this.dataService
+      .post<any>(cfg.storeEndpoint, payload)
+      .pipe(
+        catchError((error) => {
+          console.error(`Error adding ${cfg.label} entry:`, error);
+          this.error =
+            error.error?.message ||
+            error.message ||
+            `Failed to add ${cfg.label} entry.`;
+          return of(null);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+          this.isAddModalOpen = false;
+        })
+      )
+      .subscribe((response) => {
+        if (response) {
+          this.loadPage(this.currentPage, this.pageSize);
+        }
+      });
   }
 }

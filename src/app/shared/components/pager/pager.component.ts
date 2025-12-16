@@ -14,7 +14,7 @@ export class PagerComponent {
   @Input() total = 0;
   @Input() pageSize = 20;
   @Input() currentPage = 1;
-  @Input() pageSizeOptions: number[] = [10, 20, 50];
+  @Input() pageSizeOptions: number[] = [20, 50, 100, 150, 200, 500];
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 

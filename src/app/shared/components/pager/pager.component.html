@@ -1,5 +1,15 @@
 <div class="pager" *ngIf="total > 0">
-    <div class="pager-summary">Showing {{startIndex}}–{{endIndex}} of {{total}} results</div>
+    <!-- Page size selector on the left -->
+    <div class="pager-page-size">
+        Rows per page:
+        <select
+            [(ngModel)]="pageSize"
+            (ngModelChange)="changePageSize($event)">
+            <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+                {{ size }}
+            </option>
+        </select>
+    </div>
 
     <div class="pager-group">
         <button class="nav prev" type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
