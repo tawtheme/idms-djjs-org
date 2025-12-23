@@ -108,13 +108,30 @@
         </div>
     </div>
 
-    <!-- Add New Entry Modal - Only render when needed -->
+    <!-- Add / Edit Entry Modal - Only render when needed -->
     <app-add-master-entry-modal
         *ngIf="isAddModalOpen"
         [isOpen]="isAddModalOpen"
         [masterType]="selectedMasterType"
         [masterLabel]="selectedMasterConfig.label"
+        [mode]="isEditMode ? 'edit' : 'add'"
+        [loading]="false"
+        [initialData]="editingInitialData"
         (close)="closeAddModal()"
         (submit)="onAddEntrySubmit($event)">
     </app-add-master-entry-modal>
+
+    <!-- Delete Confirmation Dialog - Always render, controlled by isOpen -->
+    <app-confirmation-dialog
+        [isOpen]="isDeleteDialogOpen"
+        title="Delete Record"
+        [message]="deleteConfirmationMessage"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        [confirmType]="'danger'"
+        [cancelType]="'secondary'"
+        [closable]="true"
+        (confirm)="onConfirmDelete()"
+        (cancel)="onCancelDelete()">
+    </app-confirmation-dialog>
 </div>

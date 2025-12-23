@@ -1,0 +1,44 @@
+@if (isOpen) {
+    <div 
+        class="modal-backdrop" 
+        [class.is-open]="isOpen" 
+        (click)="onBackdropClick($event)" 
+        (keydown)="onEscapeKey($event)" 
+        tabindex="0">
+    </div>
+    <div class="modal confirmation-dialog" [class.is-open]="isOpen">
+        <div [class]="dialogClasses">
+            <div class="modal__header">
+                <div class="modal__title">{{ title }}</div>
+                @if (closable) {
+                    <button 
+                        (click)="onCloseClick()" 
+                        class="modal__close" 
+                        aria-label="Close dialog">
+                        <span class="material-icons">close</span>
+                    </button>
+                }
+            </div>
+
+            <div class="modal__body confirmation-dialog__body">
+                <p class="confirmation-dialog__message">{{ message }}</p>
+            </div>
+
+            <div class="modal__footer confirmation-dialog__footer">
+                <button 
+                    type="button" 
+                    class="btn btn--{{ cancelType }} btn--md"
+                    (click)="onCancel()">
+                    {{ cancelLabel }}
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn--{{ confirmType }} btn--md"
+                    (click)="onConfirm()">
+                    {{ confirmLabel }}
+                </button>
+            </div>
+        </div>
+    </div>
+}
+

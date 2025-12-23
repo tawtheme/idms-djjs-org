@@ -7,10 +7,12 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { AddMasterEntryModalComponent } from './add-master-entry-modal/add-master-entry-modal.component';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataService } from '../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
+import type { MasterEntryFormData } from './add-master-entry-modal/add-master-entry-modal.component';
 
 // All supported master table types / tabs
 type MasterType =
@@ -58,7 +60,8 @@ export interface MasterRecord {
     EmptyStateComponent,
     MenuDropdownComponent,
     LoadingComponent,
-    AddMasterEntryModalComponent
+    AddMasterEntryModalComponent,
+    ConfirmationDialogComponent
   ],
   selector: 'app-master-tables-list',
   templateUrl: './master-tables-list.component.html',
@@ -104,6 +107,21 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   sortDirection: 'asc' | 'desc' = 'asc';
   isAddModalOpen = false;
 
+  // Edit/Add modal state
+  isEditMode = false;
+  editingRecord: MasterRecord | null = null;
+  editingInitialData: MasterEntryFormData | null = null;
+
+  // Delete confirmation dialog state
+  isDeleteDialogOpen = false;
+  recordToDelete: MasterRecord | null = null;
+
+  // Timing trackers for edit process
+  private editStartTime: number = 0;
+  private fetchStartTime: number = 0;
+  private updateStartTime: number = 0;
+  private listReloadStartTime: number = 0;
+
   // Breadcrumb uses current tab label
   get breadcrumbs(): BreadcrumbItem[] {
     return [
@@ -144,12 +162,26 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
     // Build endpoint with pagination params expected by backend
     const endpointWithParams = `${cfg.endpoint}?page=${page}&per_page=${pageSize}`;
 
+    // Track list reload timing if this is part of edit/add flow
+    const isEditReload = this.listReloadStartTime > 0;
+
     this.isLoading = true;
     this.dataService
       .get<any>(endpointWithParams)
       .pipe(
         catchError((error) => {
-          console.error(`Error loading ${cfg.label}:`, error);
+          if (isEditReload) {
+            const reloadDuration = performance.now() - this.listReloadStartTime;
+            console.error(`[EDIT] Error during list reload:`, {
+              error,
+              duration: `${reloadDuration.toFixed(2)}ms`,
+              timestamp: new Date().toISOString()
+            });
+            // Clean up edit state on error
+            this.resetEditState();
+          } else {
+            console.error(`Error loading ${cfg.label}:`, error);
+          }
           this.error =
             error.error?.message || error.message || `Failed to load ${cfg.label}.`;
           return of({ data: [] });
@@ -170,6 +202,21 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
         this.updatePaginationFromMeta(meta, page, pageSize);
 
         this.applyFilters();
+
+        // Log list reload completion if this was part of edit/add flow
+        if (isEditReload) {
+          const reloadDuration = performance.now() - this.listReloadStartTime;
+          const totalEditDuration = this.editStartTime > 0 ? performance.now() - this.editStartTime : 0;
+          
+          console.log(`[EDIT] List reload completed:`, {
+            reloadDuration: `${reloadDuration.toFixed(2)}ms`,
+            totalEditDuration: `${totalEditDuration.toFixed(2)}ms`,
+            timestamp: new Date().toISOString()
+          });
+          
+          // Clean up edit state after list reload completes
+          this.resetEditState();
+        }
       });
   }
 
@@ -291,24 +338,145 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
     }
   }
 
-  // Placeholder for future edit workflow
+  // Open modal in edit mode with selected record
   private editRecord(rec: MasterRecord): void {
-    console.log('Edit record:', rec, 'for master:', this.selectedMasterType);
-  }
-
-  // Delete the selected record using its configured endpoint
-  private deleteRecord(rec: MasterRecord): void {
-    if (!confirm(`Are you sure you want to delete "${rec.name}"?`)) {
+    const cfg = this.selectedMasterConfig;
+    if (!cfg.endpoint) {
+      this.error = `Cannot load entry for edit: API endpoint not configured for ${cfg.label}.`;
       return;
     }
 
+    // Track edit process start
+    this.editStartTime = performance.now();
+    console.log(`[EDIT] Edit clicked for ${cfg.label} record:`, {
+      id: rec.id,
+      name: rec.name,
+      timestamp: new Date().toISOString(),
+      time: this.editStartTime
+    });
+
+    // Open modal immediately with current row values (no loader in modal for edit)
+    this.isEditMode = true;
+    this.editingRecord = rec;
+    this.editingInitialData = {
+      id: rec.id,
+      name: rec.name,
+      status: rec.status || 'Active'
+    };
+    this.isAddModalOpen = true;
+
+    const modalOpenTime = performance.now();
+    const timeToModalOpen = modalOpenTime - this.editStartTime;
+    console.log(`[EDIT] Modal opened:`, {
+      timeToOpen: `${timeToModalOpen.toFixed(2)}ms`,
+      timestamp: new Date().toISOString()
+    });
+
+    // Optionally refresh data from API in background (without affecting modal loader)
+    this.fetchStartTime = performance.now();
+    console.log(`[EDIT] Starting API fetch for record ${rec.id}:`, {
+      endpoint: `${cfg.endpoint}/${rec.id}`,
+      timestamp: new Date().toISOString(),
+      time: this.fetchStartTime
+    });
+
+    this.dataService
+      .get<any>(`${cfg.endpoint}/${rec.id}`)
+      .pipe(
+        catchError((error) => {
+          const fetchDuration = performance.now() - this.fetchStartTime;
+          console.error(`[EDIT] Error loading ${cfg.label} entry for edit:`, {
+            error,
+            duration: `${fetchDuration.toFixed(2)}ms`,
+            timestamp: new Date().toISOString()
+          });
+          this.error =
+            error.error?.message ||
+            error.message ||
+            `Failed to load ${cfg.label} entry for edit.`;
+          return of(null);
+        })
+      )
+      .subscribe((response) => {
+        const fetchDuration = performance.now() - this.fetchStartTime;
+        console.log(`[EDIT] API fetch completed:`, {
+          duration: `${fetchDuration.toFixed(2)}ms`,
+          timestamp: new Date().toISOString()
+        });
+
+        if (!response) {
+          return;
+        }
+        const item = (response as any).data ?? response;
+
+        const statusLabel = this.normalizeStatus(item.status) || 'Active';
+
+        const baseData: MasterEntryFormData = {
+          id: String(item.id ?? rec.id),
+          name: item.name ?? rec.name,
+          status: statusLabel
+        };
+
+        // For banks, map extended fields if present
+        if (this.selectedMasterType === 'banks') {
+          baseData.branch = item.branch ?? '';
+          baseData.ifsc_code = item.ifsc_code ?? '';
+          baseData.address = item.address ?? '';
+          baseData.country = item.country ?? '';
+          baseData.state = item.state ?? '';
+          baseData.city = item.city ?? '';
+          baseData.phone_primary = item.phone_primary ?? '';
+          baseData.phone_secondary = item.phone_secondary ?? '';
+          baseData.remarks = item.remarks ?? '';
+
+          // Optional IDs for cascading dropdowns
+          if (item.country_id) {
+            baseData.countryId = String(item.country_id);
+          }
+          if (item.state_id) {
+            baseData.stateId = String(item.state_id);
+          }
+          if (item.city_id) {
+            baseData.cityId = String(item.city_id);
+          }
+        }
+
+        // Update modal with freshest values (if still in edit mode)
+        this.editingInitialData = baseData;
+        const totalTimeToDataReady = performance.now() - this.editStartTime;
+        console.log(`[EDIT] Modal data updated with API response:`, {
+          totalTimeToDataReady: `${totalTimeToDataReady.toFixed(2)}ms`,
+          timestamp: new Date().toISOString()
+        });
+      });
+  }
+
+  // Open delete confirmation dialog
+  private deleteRecord(rec: MasterRecord): void {
+    this.recordToDelete = rec;
+    this.isDeleteDialogOpen = true;
+  }
+
+  // Handle delete confirmation - proceed with deletion
+  onConfirmDelete(): void {
+    if (!this.recordToDelete) {
+      this.isDeleteDialogOpen = false;
+      return;
+    }
+
+    const rec = this.recordToDelete;
     const cfg = this.selectedMasterConfig;
+    
     if (!cfg.endpoint) {
       this.error = `Cannot delete entry: API endpoint not configured for ${cfg.label}.`;
+      this.isDeleteDialogOpen = false;
+      this.recordToDelete = null;
       return;
     }
 
     this.isLoading = true;
+    this.isDeleteDialogOpen = false;
+    
     this.dataService
       .delete<any>(`${cfg.endpoint}/${rec.id}`)
       .pipe(
@@ -322,13 +490,29 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
         }),
         finalize(() => {
           this.isLoading = false;
+          this.recordToDelete = null;
         })
       )
       .subscribe((response) => {
         if (response !== null) {
+          // Reload the current page after successful deletion
           this.loadPage(this.currentPage, this.pageSize);
         }
       });
+  }
+
+  // Handle delete cancellation
+  onCancelDelete(): void {
+    this.isDeleteDialogOpen = false;
+    this.recordToDelete = null;
+  }
+
+  // Get delete confirmation message
+  get deleteConfirmationMessage(): string {
+    if (!this.recordToDelete) {
+      return 'Are you sure you want to delete this record?';
+    }
+    return `Are you sure you want to delete "${this.recordToDelete.name}"? This action cannot be undone.`;
   }
 
   // Stable trackBy for *ngFor on rows
@@ -336,22 +520,59 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
     return rec.id;
   }
 
+  // Helper method to clean up edit state and timing trackers
+  private resetEditState(): void {
+    this.isEditMode = false;
+    this.editingRecord = null;
+    this.editingInitialData = null;
+    this.editStartTime = 0;
+    this.fetchStartTime = 0;
+    this.updateStartTime = 0;
+    this.listReloadStartTime = 0;
+  }
+
   // Show "Add entry" modal
   openAddModal(): void {
+    this.resetEditState();
     this.isAddModalOpen = true;
   }
 
   // Hide "Add entry" modal
   closeAddModal(): void {
+    if (this.isEditMode && this.editStartTime > 0) {
+      const timeSinceEditStart = performance.now() - this.editStartTime;
+      console.log(`[EDIT] Modal closed manually (without submit):`, {
+        timeSinceEditStart: `${timeSinceEditStart.toFixed(2)}ms`,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     this.isAddModalOpen = false;
+    this.resetEditState();
   }
 
-  // Create new entry for current master type using its store endpoint
-  onAddEntrySubmit(data: { name: string; status: string }): void {
+  // Create or update entry for current master type
+  onAddEntrySubmit(data: MasterEntryFormData): void {
     if (!data?.name?.trim()) {
       return;
     }
 
+    // Store edit state before closing modal
+    const isEdit = this.isEditMode && this.editingRecord;
+    const editingRec = this.editingRecord;
+
+    // Close modal immediately after submit
+    this.isAddModalOpen = false;
+
+    if (isEdit && editingRec) {
+      this.updateEntry(editingRec, data);
+    } else {
+      this.createEntry(data);
+    }
+  }
+
+  // Create new entry for current master type using its store endpoint (POST)
+  private createEntry(data: MasterEntryFormData): void {
     const cfg = this.selectedMasterConfig;
     if (!cfg.storeEndpoint) {
       this.error = `Cannot add entry: API store endpoint not configured for ${cfg.label}.`;
@@ -365,6 +586,10 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
       status: data.status === 'Active' ? 1 : 0
     };
 
+    // Attach bank-specific fields when needed
+    this.attachBankFieldsIfNeeded(data, payload);
+
+    // Show loader in listing (modal is already closed)
     this.isLoading = true;
     this.dataService
       .post<any>(cfg.storeEndpoint, payload)
@@ -375,17 +600,116 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
             error.error?.message ||
             error.message ||
             `Failed to add ${cfg.label} entry.`;
-          return of(null);
-        }),
-        finalize(() => {
           this.isLoading = false;
-          this.isAddModalOpen = false;
+          return of(null);
         })
       )
       .subscribe((response) => {
         if (response) {
+          this.listReloadStartTime = performance.now();
+          console.log(`[ADD] Starting list reload:`, {
+            timestamp: new Date().toISOString(),
+            time: this.listReloadStartTime
+          });
           this.loadPage(this.currentPage, this.pageSize);
+        } else {
+          // If API call failed, stop loading
+          this.isLoading = false;
         }
       });
+  }
+
+  // Update existing entry for current master type using its endpoint and PUT
+  private updateEntry(rec: MasterRecord, data: MasterEntryFormData): void {
+    const cfg = this.selectedMasterConfig;
+    if (!cfg.endpoint) {
+      this.error = `Cannot update entry: API endpoint not configured for ${cfg.label}.`;
+      return;
+    }
+
+    const submitTime = performance.now();
+    const timeSinceEditStart = submitTime - this.editStartTime;
+    console.log(`[EDIT] Form submitted (Update):`, {
+      recordId: rec.id,
+      timeSinceEditStart: `${timeSinceEditStart.toFixed(2)}ms`,
+      timestamp: new Date().toISOString()
+    });
+
+    const payload: any = {
+      name: data.name.trim(),
+      status: data.status === 'Active' ? 1 : 0
+    };
+
+    // Attach bank-specific fields when needed
+    this.attachBankFieldsIfNeeded(data, payload);
+
+    // Show loader in listing (modal is already closed)
+    this.isLoading = true;
+
+    this.updateStartTime = performance.now();
+    console.log(`[EDIT] Starting PUT API call:`, {
+      endpoint: `${cfg.endpoint}/${rec.id}`,
+      timestamp: new Date().toISOString(),
+      time: this.updateStartTime
+    });
+
+    this.dataService
+      .put<any>(`${cfg.endpoint}/${rec.id}`, payload)
+      .pipe(
+        catchError((error) => {
+          const updateDuration = performance.now() - this.updateStartTime;
+          console.error(`[EDIT] Error updating ${cfg.label} entry:`, {
+            error,
+            duration: `${updateDuration.toFixed(2)}ms`,
+            timestamp: new Date().toISOString()
+          });
+          this.error =
+            error.error?.message ||
+            error.message ||
+            `Failed to update ${cfg.label} entry.`;
+          this.isLoading = false;
+          return of(null);
+        })
+      )
+      .subscribe((response) => {
+        if (response) {
+          const updateDuration = performance.now() - this.updateStartTime;
+          console.log(`[EDIT] PUT API completed:`, {
+            duration: `${updateDuration.toFixed(2)}ms`,
+            timestamp: new Date().toISOString()
+          });
+
+          this.listReloadStartTime = performance.now();
+          console.log(`[EDIT] Starting list reload:`, {
+            timestamp: new Date().toISOString(),
+            time: this.listReloadStartTime
+          });
+          this.loadPage(this.currentPage, this.pageSize);
+        } else {
+          // If API call returned null, stop loading and clean up
+          this.isLoading = false;
+          this.resetEditState();
+        }
+      });
+  }
+
+  /**
+   * Attach bank-specific fields to the payload when current tab is "banks".
+   * Keeps create/update logic DRY.
+   */
+  private attachBankFieldsIfNeeded(data: MasterEntryFormData, payload: any): void {
+    if (this.selectedMasterType !== 'banks') {
+      return;
+    }
+
+    if (data.branch != null) payload.branch = data.branch;
+    if (data.ifsc_code != null) payload.ifsc_code = data.ifsc_code;
+    if (data.address != null) payload.address = data.address;
+    if (data.country != null) payload.country = data.country;
+    if (data.state != null) payload.state = data.state;
+    if (data.city != null) payload.city = data.city;
+    if (data.phone_primary != null) payload.phone_primary = data.phone_primary;
+    if (data.phone_secondary != null) payload.phone_secondary = data.phone_secondary;
+    if (data.remarks != null) payload.remarks = data.remarks;
   }
 }

@@ -530,7 +530,10 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
       return `${count} items selected`;
     }
 
-    return this.selectedOptions[0].label;
+    // Single-select: derive label safely from selectedValues/options
+    const value = (this.selectedValues[0] !== undefined) ? this.selectedValues[0] : this.selectedOptions[0]?.value;
+    const opt = this.options.find(o => String(o.value) === String(value));
+    return opt?.label || this.selectedOptions[0]?.label || this.placeholder;
   }
 
   // Get visible selected items based on configuration
