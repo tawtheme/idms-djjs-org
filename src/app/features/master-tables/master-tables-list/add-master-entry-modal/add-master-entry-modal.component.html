@@ -1,9 +1,4 @@
-<app-modal
-    [isOpen]="isOpen"
-    [title]="modalTitle"
-    [size]="'small'"
-    [closable]="true"
-    [showHeader]="true"
+<app-modal [isOpen]="isOpen" [title]="modalTitle" [size]="'small'" [closable]="true" [showHeader]="true"
     (close)="onClose()">
 
     <form class="add-master-entry-form" (ngSubmit)="onSubmit()">
@@ -12,16 +7,79 @@
             <label class="form-label" [for]="'name-' + masterType">
                 {{ nameFieldLabel }} <span class="required">*</span>
             </label>
-            <input
-                [id]="'name-' + masterType"
-                type="text"
-                class="form-control"
-                [(ngModel)]="name"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter {{ nameFieldLabel.toLowerCase() }}"
-                required
+            <input [id]="'name-' + masterType" type="text" class="form-control" [(ngModel)]="name"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter {{ nameFieldLabel.toLowerCase() }}" required
                 autofocus>
         </div>
+
+        <!-- State Master specific fields (only for States master) -->
+        <ng-container *ngIf="masterType === 'states'">
+            <div class="form-group">
+                <label class="form-label" for="state-country">
+                    Country <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
+                    (selectionChange)="onCountryChange($event)">
+                </app-dropdown>
+            </div>
+        </ng-container>
+
+        <!-- District Master specific fields (only for Districts master) -->
+        <ng-container *ngIf="masterType === 'districts'">
+            <div class="form-group">
+                <label class="form-label" for="district-country">
+                    Country <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
+                    (selectionChange)="onCountryChange($event)">
+                </app-dropdown>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="district-state">
+                    State <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
+                    (selectionChange)="onStateChange($event)">
+                </app-dropdown>
+            </div>
+        </ng-container>
+
+        <!-- City Master specific fields (only for Cities master) -->
+        <ng-container *ngIf="masterType === 'cities'">
+            <div class="form-group">
+                <label class="form-label" for="city-country">
+                    Country <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
+                    (selectionChange)="onCountryChange($event)">
+                </app-dropdown>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="city-state">
+                    State <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
+                    (selectionChange)="onStateChange($event)">
+                </app-dropdown>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="city-district">
+                    District <span class="required">*</span>
+                </label>
+                <app-dropdown [options]="districtOptions"
+                    [selectedValues]="selectedDistrictId ? [selectedDistrictId] : []" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select district" (selectionChange)="onDistrictChange($event)">
+                </app-dropdown>
+            </div>
+        </ng-container>
 
         <!-- Bank specific fields (only for Banks master) -->
         <ng-container *ngIf="masterType === 'banks'">
@@ -29,65 +87,40 @@
                 <label class="form-label" for="bank-name">
                     Bank <span class="required">*</span>
                 </label>
-                <input
-                    id="bank-name"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="name"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter bank name"
-                    required
-                    autofocus>
+                <input id="bank-name" type="text" class="form-control" [(ngModel)]="name"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter bank name" required autofocus>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-branch">
                     Branch
                 </label>
-                <input
-                    id="bank-branch"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="branch"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter branch">
+                <input id="bank-branch" type="text" class="form-control" [(ngModel)]="branch"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter branch">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-ifsc">
                     IFSC Code
                 </label>
-                <input
-                    id="bank-ifsc"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="ifsc_code"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter IFSC code">
+                <input id="bank-ifsc" type="text" class="form-control" [(ngModel)]="ifsc_code"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter IFSC code">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-address">
                     Address
                 </label>
-                <input
-                    id="bank-address"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="address"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter address">
+                <input id="bank-address" type="text" class="form-control" [(ngModel)]="address"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-country">
                     Country
                 </label>
-                <app-dropdown
-                    [options]="countryOptions"
-                    [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select country"
+                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
                     (selectionChange)="onCountryChange($event)">
                 </app-dropdown>
             </div>
@@ -96,12 +129,19 @@
                 <label class="form-label" for="bank-state">
                     State
                 </label>
-                <app-dropdown
-                    [options]="stateOptions"
-                    [selectedValues]="selectedStateId ? [selectedStateId] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select state"
+                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
                     (selectionChange)="onStateChange($event)">
+                </app-dropdown>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="bank-district">
+                    District
+                </label>
+                <app-dropdown [options]="districtOptions"
+                    [selectedValues]="selectedDistrictId ? [selectedDistrictId] : []" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select district" (selectionChange)="onDistrictChange($event)">
                 </app-dropdown>
             </div>
 
@@ -109,11 +149,8 @@
                 <label class="form-label" for="bank-city">
                     City
                 </label>
-                <app-dropdown
-                    [options]="cityOptions"
-                    [selectedValues]="selectedCityId ? [selectedCityId] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select city"
+                <app-dropdown [options]="cityOptions" [selectedValues]="selectedCityId ? [selectedCityId] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select city"
                     (selectionChange)="onCityChange($event)">
                 </app-dropdown>
             </div>
@@ -122,39 +159,24 @@
                 <label class="form-label" for="bank-phone-primary">
                     Phone primary
                 </label>
-                <input
-                    id="bank-phone-primary"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="phone_primary"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter primary phone">
+                <input id="bank-phone-primary" type="text" class="form-control" [(ngModel)]="phone_primary"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter primary phone">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-phone-secondary">
                     Phone secondary
                 </label>
-                <input
-                    id="bank-phone-secondary"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="phone_secondary"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter secondary phone">
+                <input id="bank-phone-secondary" type="text" class="form-control" [(ngModel)]="phone_secondary"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter secondary phone">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="bank-remarks">
                     Remarks
                 </label>
-                <input
-                    id="bank-remarks"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="remarks"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter remarks">
+                <input id="bank-remarks" type="text" class="form-control" [(ngModel)]="remarks"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks">
             </div>
         </ng-container>
 
@@ -163,12 +185,8 @@
             <label class="form-label">
                 Status
             </label>
-            <app-dropdown
-                [options]="statusOptions"
-                [selectedValues]="[status]"
-                [closeOnSelect]="true"
-                placeholder="Select Status"
-                (selectionChange)="onStatusChange($event)">
+            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
             </app-dropdown>
         </div>
 
@@ -183,4 +201,3 @@
         </div>
     </form>
 </app-modal>
-

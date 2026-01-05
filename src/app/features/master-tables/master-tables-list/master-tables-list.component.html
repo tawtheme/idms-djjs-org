@@ -4,11 +4,8 @@
         <!-- Left Sidebar with Tabs -->
         <div class="master-tables-sidebar">
             <nav class="sidebar-tabs">
-                <button
-                    *ngFor="let config of masterConfigs"
-                    class="tab-item"
-                    [class.active]="selectedMasterType === config.type"
-                    (click)="onTabSelect(config.type)">
+                <button *ngFor="let config of masterConfigs" class="tab-item"
+                    [class.active]="selectedMasterType === config.type" (click)="onTabSelect(config.type)">
                     {{ config.label }}
                 </button>
             </nav>
@@ -18,14 +15,8 @@
         <div class="master-tables-content">
             <!-- Filter Section -->
             <div class="master-listing-search">
-                <input
-                    type="search"
-                    class="form-control"
-                    placeholder="Search by Name or Details"
-                    [(ngModel)]="searchTerm"
-                    [ngModelOptions]="{ standalone: true }"
-                    (input)="applyFilters()"
-                />
+                <input type="search" class="form-control" placeholder="Search by Name or Details"
+                    [(ngModel)]="searchTerm" [ngModelOptions]="{ standalone: true }" (input)="applyFilters()" />
                 <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
                     Add New
                 </button>
@@ -54,12 +45,13 @@
                     </thead>
                     <tbody>
                         <ng-container *ngIf="!isLoading">
-                            <tr *ngFor="let rec of pagedRecords; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <tr *ngFor="let rec of records" (click)="$event.stopPropagation()">
                                 <td data-label="Name" class="name">
                                     {{ rec.name }}
                                 </td>
                                 <td data-label="Status" class="status">
-                                    <span *ngIf="rec.status" class="status-badge" [ngClass]="'status-' + (rec.status | lowercase)">
+                                    <span *ngIf="rec.status" class="status-badge"
+                                        [ngClass]="'status-' + (rec.status | lowercase)">
                                         {{ rec.status }}
                                     </span>
                                     <span *ngIf="!rec.status">-</span>
@@ -68,20 +60,17 @@
                                     {{ rec.createdAt || '-' }}
                                 </td>
                                 <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                    <app-menu-dropdown
-                                        [options]="getActionOptions(rec)"
+                                    <app-menu-dropdown [options]="getActionOptions(rec)"
                                         (selectionChange)="onAction(rec, $event)">
                                     </app-menu-dropdown>
                                 </td>
                             </tr>
                             <!-- Empty state cell -->
-                            <tr *ngIf="pagedRecords.length === 0 && !error">
+                            <tr *ngIf="records.length === 0 && !error">
                                 <td [attr.colspan]="4" class="empty-state-cell">
-                                    <app-empty-state
-                                        [title]="searchTerm ? 'No Results Found' : 'No Records Found'"
+                                    <app-empty-state [title]="searchTerm ? 'No Results Found' : 'No Records Found'"
                                         [description]="searchTerm ? 'No records match your search criteria.' : 'There are no records available for the selected master table.'"
-                                        [icon]="'inbox'"
-                                        [size]="'small'">
+                                        [icon]="'inbox'" [size]="'small'">
                                     </app-empty-state>
                                 </td>
                             </tr>
@@ -97,41 +86,22 @@
             </div>
 
             <!-- Pagination -->
-            <app-pager
-                [total]="totalItems"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage"
-                [pageSizeOptions]="pageSizeOptions"
-                (pageChange)="onPageChange($event)"
+            <app-pager [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+                [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)"
                 (pageSizeChange)="onPageSizeChange($event)">
             </app-pager>
         </div>
     </div>
 
     <!-- Add / Edit Entry Modal - Only render when needed -->
-    <app-add-master-entry-modal
-        *ngIf="isAddModalOpen"
-        [isOpen]="isAddModalOpen"
-        [masterType]="selectedMasterType"
-        [masterLabel]="selectedMasterConfig.label"
-        [mode]="isEditMode ? 'edit' : 'add'"
-        [loading]="false"
-        [initialData]="editingInitialData"
-        (close)="closeAddModal()"
-        (submit)="onAddEntrySubmit($event)">
+    <app-add-master-entry-modal *ngIf="isAddModalOpen" [isOpen]="isAddModalOpen" [masterType]="selectedMasterType"
+        [masterLabel]="selectedMasterConfig.label" [mode]="isEditMode ? 'edit' : 'add'"
+        [initialData]="editingInitialData" (close)="closeAddModal()" (submit)="onAddEntrySubmit($event)">
     </app-add-master-entry-modal>
 
     <!-- Delete Confirmation Dialog - Always render, controlled by isOpen -->
-    <app-confirmation-dialog
-        [isOpen]="isDeleteDialogOpen"
-        title="Delete Record"
-        [message]="deleteConfirmationMessage"
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        [confirmType]="'danger'"
-        [cancelType]="'secondary'"
-        [closable]="true"
-        (confirm)="onConfirmDelete()"
-        (cancel)="onCancelDelete()">
+    <app-confirmation-dialog [isOpen]="isDeleteDialogOpen" title="Delete Record" [message]="deleteConfirmationMessage"
+        confirmLabel="Delete" cancelLabel="Cancel" [confirmType]="'danger'" [cancelType]="'secondary'" [closable]="true"
+        (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
     </app-confirmation-dialog>
 </div>

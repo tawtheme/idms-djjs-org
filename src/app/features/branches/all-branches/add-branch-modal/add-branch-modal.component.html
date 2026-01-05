@@ -1,27 +1,14 @@
-<app-side-panel
-    [isOpen]="isOpen"
-    [title]="'Add New Branch'"
-    [width]="500"
-    position="right"
-    [closable]="true"
-    [showBackdrop]="true"
-    [closeOnBackdropClick]="false"
-    [showFooter]="true"
-    [footerAlign]="'right'"
-    [footerButtons]="footerButtons"
-    (close)="onClose()"
-    (footerAction)="onFooterAction($event)">
+<app-side-panel [isOpen]="isOpen" [title]="'Add New Branch'" [width]="500" position="right" [closable]="true"
+    [showBackdrop]="true" [closeOnBackdropClick]="false" [showFooter]="true" [footerAlign]="'right'"
+    [footerButtons]="footerButtons" (close)="onClose()" (footerAction)="onFooterAction($event)">
 
     <form class="add-branch-form" (ngSubmit)="onSubmit()">
         <div class="form-group">
             <label class="form-label" for="parent-branch">
                 Parent Branch
             </label>
-            <app-dropdown
-                [options]="parentBranchOptions"
-                [selectedValues]="parentBranch ? [parentBranch] : []"
-                [closeOnSelect]="true"
-                placeholder="Select Parent Branch"
+            <app-dropdown [options]="parentBranchOptions" [selectedValues]="parentBranch ? [parentBranch] : []"
+                [searchable]="true" [closeOnSelect]="true" placeholder="Select Parent Branch"
                 (selectionChange)="onParentBranchChange($event)">
             </app-dropdown>
         </div>
@@ -30,39 +17,24 @@
             <label class="form-label" for="branch-name">
                 Name <span class="required">*</span>
             </label>
-            <input
-                id="branch-name"
-                type="text"
-                class="form-control"
-                [(ngModel)]="name"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter name"
-                required
-                autofocus>
+            <input id="branch-name" type="text" class="form-control" [(ngModel)]="name"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required autofocus>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="branch-code">
                 Branch Code
             </label>
-            <input
-                id="branch-code"
-                type="text"
-                class="form-control"
-                [(ngModel)]="code"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter branch code">
+            <input id="branch-code" type="text" class="form-control" [(ngModel)]="code"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter branch code">
         </div>
 
         <div class="form-group">
             <label class="form-label" for="branch-head">
                 Branch Head <span class="required">*</span>
             </label>
-            <app-dropdown
-                [options]="branchHeadOptions"
-                [selectedValues]="branchHead ? [branchHead] : []"
-                [closeOnSelect]="true"
-                placeholder="Select Branch Head"
+            <app-dropdown [options]="branchHeadOptions" [selectedValues]="branchHead ? [branchHead] : []"
+                [searchable]="true" [closeOnSelect]="true" placeholder="Select Branch Head"
                 (selectionChange)="onBranchHeadChange($event)">
             </app-dropdown>
         </div>
@@ -71,39 +43,23 @@
             <label class="form-label" for="email">
                 Email <span class="required">*</span>
             </label>
-            <input
-                id="email"
-                type="email"
-                class="form-control"
-                [(ngModel)]="email"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter email"
-                required>
+            <input id="email" type="email" class="form-control" [(ngModel)]="email"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter email" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="address">
                 Address <span class="required">*</span>
             </label>
-            <input
-                id="address"
-                type="text"
-                class="form-control"
-                [(ngModel)]="address"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter address"
-                required>
+            <input id="address" type="text" class="form-control" [(ngModel)]="address"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter address" required>
         </div>
         <div class="form-group">
             <label class="form-label" for="country">
                 Country <span class="required">*</span>
             </label>
-            <app-dropdown
-                [options]="countryOptions"
-                [selectedValues]="country ? [country] : []"
-                [closeOnSelect]="true"
-                placeholder="Select Country"
-                (selectionChange)="onCountryChange($event)">
+            <app-dropdown [options]="countryOptions" [selectedValues]="country ? [country] : []" [searchable]="true"
+                [closeOnSelect]="true" placeholder="Select Country" (selectionChange)="onCountryChange($event)">
             </app-dropdown>
         </div>
 
@@ -111,54 +67,32 @@
             <label class="form-label" for="state">
                 State <span class="required">*</span>
             </label>
-            <input
-                id="state"
-                type="text"
-                class="form-control"
-                [(ngModel)]="state"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter state"
-                required>
+            <input id="state" type="text" class="form-control" [(ngModel)]="state"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter state" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="city">
                 City <span class="required">*</span>
             </label>
-            <input
-                id="city"
-                type="text"
-                class="form-control"
-                [(ngModel)]="city"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter city"
-                required>
+            <input id="city" type="text" class="form-control" [(ngModel)]="city" [ngModelOptions]="{ standalone: true }"
+                placeholder="Enter city" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="pincode">
                 Pincode <span class="required">*</span>
             </label>
-            <input
-                id="pincode"
-                type="text"
-                class="form-control"
-                [(ngModel)]="pincode"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter pincode"
-                required>
+            <input id="pincode" type="text" class="form-control" [(ngModel)]="pincode"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter pincode" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="can-be-parent-branch">
                 Can be a parent branch
             </label>
-            <app-dropdown
-                [options]="canBeParentBranchOptions"
-                [selectedValues]="[canBeParentBranch]"
-                [closeOnSelect]="true"
-                placeholder="Select"
-                (selectionChange)="onCanBeParentBranchChange($event)">
+            <app-dropdown [options]="canBeParentBranchOptions" [selectedValues]="[canBeParentBranch]"
+                [closeOnSelect]="true" placeholder="Select" (selectionChange)="onCanBeParentBranchChange($event)">
             </app-dropdown>
         </div>
 
@@ -166,14 +100,9 @@
             <label class="form-label" for="status">
                 Status
             </label>
-            <app-dropdown
-                [options]="statusOptions"
-                [selectedValues]="[status]"
-                [closeOnSelect]="true"
-                placeholder="Select Status"
-                (selectionChange)="onStatusChange($event)">
+            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
             </app-dropdown>
         </div>
     </form>
 </app-side-panel>
-

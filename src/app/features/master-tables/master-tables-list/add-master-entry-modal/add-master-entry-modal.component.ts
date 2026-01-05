@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
-import { DataService } from '../../../../data.service';
+import { LocationService } from '../../../../core/services/location.service';
 
 /**
  * Component for adding new entries to master tables
@@ -22,14 +22,14 @@ import { DataService } from '../../../../data.service';
   styleUrls: ['./add-master-entry-modal.component.scss']
 })
 export class AddMasterEntryModalComponent implements OnChanges {
-  /** Shared data service for fetching dropdown data (countries, states, cities) */
-  private readonly dataService = inject(DataService);
+  /** Shared location service for fetching dropdown data (countries, states, cities) */
+  private readonly locationService = inject(LocationService);
   /** Whether the modal is open */
   @Input() isOpen = false;
-  
+
   /** Master table type (e.g., 'skills', 'degrees') */
   @Input() masterType: string = '';
-  
+
   /** Master table label (e.g., 'Skills', 'Degrees') */
   @Input() masterLabel: string = '';
 
@@ -41,7 +41,7 @@ export class AddMasterEntryModalComponent implements OnChanges {
 
   /** Event emitted when modal is closed */
   @Output() close = new EventEmitter<void>();
-  
+
   /** Event emitted when form is submitted */
   @Output() submit = new EventEmitter<MasterEntryFormData>();
 
@@ -59,18 +59,21 @@ export class AddMasterEntryModalComponent implements OnChanges {
   country = '';
   state = '';
   city = '';
+  district = '';
   phone_primary = '';
   phone_secondary = '';
   remarks = '';
 
-  /** Dropdown options for country / state / city (used only for banks) */
+  /** Dropdown options for country / state / district / city (used for banks, states, districts, cities) */
   countryOptions: DropdownOption[] = [];
   stateOptions: DropdownOption[] = [];
+  districtOptions: DropdownOption[] = [];
   cityOptions: DropdownOption[] = [];
 
   /** Currently selected IDs for cascading dropdowns */
   selectedCountryId: string | null = null;
   selectedStateId: string | null = null;
+  selectedDistrictId: string | null = null;
   selectedCityId: string | null = null;
 
   /** Status dropdown options */
@@ -144,14 +147,23 @@ export class AddMasterEntryModalComponent implements OnChanges {
         // If we have IDs for cascading dropdowns, pre-select them
         if (this.initialData.countryId) {
           this.selectedCountryId = this.initialData.countryId;
-          this.loadStates(this.initialData.countryId, this.initialData.stateId, this.initialData.cityId);
+          this.loadStates(
+            this.initialData.countryId,
+            this.initialData.country || '',
+            this.initialData.stateId,
+            this.initialData.districtId,
+            this.initialData.cityId
+          );
         }
       }
     }
 
-    // Load countries when modal opens for banks
-    if (this.masterType === 'banks' && this.isOpen && this.countryOptions.length === 0) {
-      this.loadCountries();
+    // Load countries when modal opens for banks, states, districts, or cities
+    if (this.isOpen && this.countryOptions.length === 0) {
+      if (this.masterType === 'banks' || this.masterType === 'states' ||
+        this.masterType === 'districts' || this.masterType === 'cities') {
+        this.loadCountries();
+      }
     }
   }
 
@@ -198,10 +210,39 @@ export class AddMasterEntryModalComponent implements OnChanges {
       payload.address = this.address.trim();
       payload.country = this.country.trim();
       payload.state = this.state.trim();
+      payload.district = this.district.trim();
       payload.city = this.city.trim();
+      payload.countryId = this.selectedCountryId || undefined;
+      payload.stateId = this.selectedStateId || undefined;
+      payload.districtId = this.selectedDistrictId || undefined;
+      payload.cityId = this.selectedCityId || undefined;
       payload.phone_primary = this.phone_primary.trim();
       payload.phone_secondary = this.phone_secondary.trim();
       payload.remarks = this.remarks.trim();
+    }
+
+    // Include country for states master
+    if (this.masterType === 'states') {
+      payload.countryId = this.selectedCountryId || undefined;
+      payload.country = this.country.trim();
+    }
+
+    // Include country and state for districts master
+    if (this.masterType === 'districts') {
+      payload.countryId = this.selectedCountryId || undefined;
+      payload.stateId = this.selectedStateId || undefined;
+      payload.country = this.country.trim();
+      payload.state = this.state.trim();
+    }
+
+    // Include country, state, and district for cities master
+    if (this.masterType === 'cities') {
+      payload.countryId = this.selectedCountryId || undefined;
+      payload.stateId = this.selectedStateId || undefined;
+      payload.districtId = this.selectedDistrictId || undefined;
+      payload.country = this.country.trim();
+      payload.state = this.state.trim();
+      payload.district = this.district.trim();
     }
 
     this.submit.emit(payload);
@@ -229,92 +270,83 @@ export class AddMasterEntryModalComponent implements OnChanges {
     this.country = '';
     this.state = '';
     this.city = '';
+    this.district = '';
     this.phone_primary = '';
     this.phone_secondary = '';
     this.remarks = '';
     this.countryOptions = [];
     this.stateOptions = [];
+    this.districtOptions = [];
     this.cityOptions = [];
     this.selectedCountryId = null;
     this.selectedStateId = null;
+    this.selectedDistrictId = null;
     this.selectedCityId = null;
   }
 
   // -------- Bank-specific dropdown helpers --------
 
   /**
-   * Transform API response to dropdown options
-   */
-  private transformToDropdownOptions(response: any): DropdownOption[] {
-    const data = response?.data || response?.results || response || [];
-    return (Array.isArray(data) ? data : []).map((item: any) => ({
-      id: String(item.id),
-      label: item.name,
-      value: String(item.id)
-    }));
-  }
-
-  /**
    * Load all countries for the country dropdown (banks only)
    */
   private loadCountries(): void {
-    this.dataService
-      .get<any>('v1/countries')
-      .subscribe((response) => {
-        this.countryOptions = this.transformToDropdownOptions(response);
-      });
+    this.locationService.loadCountries().subscribe((options) => {
+      this.countryOptions = options;
+    });
   }
 
   /**
    * Load states for the selected country
    * Optionally pre-select a state and city when editing.
    */
-  private loadStates(countryId: string, preselectStateId?: string, preselectCityId?: string): void {
-    if (!countryId) {
+  private loadStates(countryId: string, countryName: string, preselectStateId?: string, preselectDistrictId?: string, preselectCityId?: string): void {
+    if (!countryId || !countryName) {
       this.stateOptions = [];
+      this.districtOptions = [];
       this.cityOptions = [];
       return;
     }
 
-    this.dataService
-      .get<any>(`v1/states?country_id=${countryId}`)
-      .subscribe((response) => {
-        this.stateOptions = this.transformToDropdownOptions(response);
+    this.locationService.loadStates(countryName).subscribe((options) => {
+      this.stateOptions = options;
 
-        // Pre-select state (and load cities) when editing
-        if (preselectStateId) {
-          this.selectedStateId = preselectStateId;
-          const selected = this.stateOptions.find((opt) => opt.value === preselectStateId);
-          this.state = selected?.label || '';
+      // Pre-select state (and load next level) when editing
+      if (preselectStateId) {
+        this.selectedStateId = preselectStateId;
+        const selected = this.stateOptions.find((opt) => opt.value === preselectStateId);
+        this.state = selected?.label || '';
 
-          if (preselectCityId) {
-            this.loadCities(preselectStateId, preselectCityId);
-          }
+        if (this.masterType === 'cities' || this.masterType === 'banks') {
+          this.loadDistricts(preselectStateId, this.state, preselectDistrictId, preselectCityId);
+        } else {
+          this.loadCities(preselectStateId, this.state, preselectCityId);
         }
-      });
+      }
+    });
   }
 
   /**
    * Load cities for the selected state
    * Optionally pre-select a city when editing.
    */
-  private loadCities(stateId: string, preselectCityId?: string): void {
-    if (!stateId) {
+  private loadCities(stateId: string, stateName: string, preselectCityId?: string): void {
+    if (!stateId || !stateName) {
       this.cityOptions = [];
       return;
     }
 
-    this.dataService
-      .get<any>(`v1/cities?state_id=${stateId}`)
-      .subscribe((response) => {
-        this.cityOptions = this.transformToDropdownOptions(response);
+    this.locationService.loadCities({
+      stateName: stateName,
+      countryName: this.country || undefined
+    }).subscribe((options) => {
+      this.cityOptions = options;
 
-        if (preselectCityId) {
-          this.selectedCityId = preselectCityId;
-          const selected = this.cityOptions.find((opt) => opt.value === preselectCityId);
-          this.city = selected?.label || '';
-        }
-      });
+      if (preselectCityId) {
+        this.selectedCityId = preselectCityId;
+        const selected = this.cityOptions.find((opt) => opt.value === preselectCityId);
+        this.city = selected?.label || '';
+      }
+    });
   }
 
   /**
@@ -334,19 +366,29 @@ export class AddMasterEntryModalComponent implements OnChanges {
     }
 
     const selected = this.countryOptions.find((opt) => opt.value === first);
-    this.country = selected?.label || '';
+    const countryName = selected?.label || '';
+    this.country = countryName;
 
     // Reset dependent selections
     this.state = '';
+    this.district = '';
     this.city = '';
+    this.selectedStateId = null;
+    this.selectedDistrictId = null;
+    this.selectedCityId = null;
     this.stateOptions = [];
+    this.districtOptions = [];
     this.cityOptions = [];
 
-    this.loadStates(first);
+    // Only load states for districts, cities, and banks master types
+    // Don't load states when adding a new state (masterType === 'states')
+    if (this.masterType === 'districts' || this.masterType === 'cities' || this.masterType === 'banks') {
+      this.loadStates(first, countryName);
+    }
   }
 
   /**
-   * Handle state selection change - also triggers loading of cities.
+   * Handle state selection change - also triggers loading of districts or cities.
    */
   onStateChange(values: string[] | null): void {
     const first = values && values.length ? values[0] : null;
@@ -360,14 +402,54 @@ export class AddMasterEntryModalComponent implements OnChanges {
     }
 
     const selected = this.stateOptions.find((opt) => opt.value === first);
-    this.state = selected?.label || '';
+    const stateName = selected?.label || '';
+    this.state = stateName;
 
-    // Reset cities and load for new state
+    // Reset dependent selections
+    this.district = '';
+    this.city = '';
+    this.selectedDistrictId = null;
+    this.selectedCityId = null;
+    this.districtOptions = [];
+    this.cityOptions = [];
+
+    // Only load districts for cities and banks master types
+    // Don't load districts when adding a new district (masterType === 'districts')
+    if (this.masterType === 'cities' || this.masterType === 'banks') {
+      this.loadDistricts(first, stateName);
+    }
+    // Note: We don't load cities directly anymore as the hierarchy is now
+    // Country → State → District → City for better data organization
+  }
+
+  /**
+   * Handle district selection change - also triggers loading of cities.
+   */
+  onDistrictChange(values: string[] | null): void {
+    const first = values && values.length ? values[0] : null;
+    this.selectedDistrictId = first;
+
+    if (!first) {
+      this.district = '';
+      this.city = '';
+      this.cityOptions = [];
+      return;
+    }
+
+    const selected = this.districtOptions.find((opt) => opt.value === first);
+    const districtName = selected?.label || '';
+    this.district = districtName;
+
+    // Reset cities
     this.city = '';
     this.cityOptions = [];
     this.selectedCityId = null;
 
-    this.loadCities(first);
+    // Only load cities for banks master type
+    // Don't load cities when adding a new city (masterType === 'cities')
+    if (this.masterType === 'banks') {
+      this.loadCitiesForDistrict(first, districtName);
+    }
   }
 
   /**
@@ -386,6 +468,56 @@ export class AddMasterEntryModalComponent implements OnChanges {
     this.city = selected?.label || '';
     this.selectedCityId = first;
   }
+
+  /**
+   * Load districts for the selected state (for cities master)
+   */
+  private loadDistricts(stateId: string, stateName: string, preselectDistrictId?: string, preselectCityId?: string): void {
+    if (!stateId || !stateName) {
+      this.districtOptions = [];
+      this.cityOptions = [];
+      return;
+    }
+
+    this.locationService.loadDistricts(stateName, this.country || undefined).subscribe((options) => {
+      this.districtOptions = options;
+
+      // Pre-select district when editing
+      if (preselectDistrictId) {
+        this.selectedDistrictId = preselectDistrictId;
+        const selected = this.districtOptions.find((opt) => opt.value === preselectDistrictId);
+        this.district = selected?.label || '';
+
+        if (preselectCityId) {
+          this.loadCitiesForDistrict(preselectDistrictId, this.district, preselectCityId);
+        }
+      }
+    });
+  }
+
+  /**
+   * Load cities for the selected district (for cities master)
+   */
+  private loadCitiesForDistrict(districtId: string, districtName: string, preselectCityId?: string): void {
+    if (!districtId || !districtName) {
+      this.cityOptions = [];
+      return;
+    }
+
+    this.locationService.loadCities({
+      districtName: districtName,
+      stateName: this.state || undefined,
+      countryName: this.country || undefined
+    }).subscribe((options) => {
+      this.cityOptions = options;
+
+      if (preselectCityId) {
+        this.selectedCityId = preselectCityId;
+        const selected = this.cityOptions.find((opt) => opt.value === preselectCityId);
+        this.city = selected?.label || '';
+      }
+    });
+  }
 }
 
 /**
@@ -397,15 +529,17 @@ export interface MasterEntryFormData {
   id?: string;
   name: string;
   status: string;
-  // Optional IDs for cascading dropdowns (banks)
+  // Optional IDs for cascading dropdowns (banks, states, districts, cities)
   countryId?: string;
   stateId?: string;
+  districtId?: string;
   cityId?: string;
   branch?: string;
   ifsc_code?: string;
   address?: string;
   country?: string;
   state?: string;
+  district?: string;
   city?: string;
   phone_primary?: string;
   phone_secondary?: string;

@@ -1,26 +1,14 @@
-<app-modal
-    [isOpen]="isOpen"
-    [title]="'Add New Role'"
-    [size]="'small'"
-    [closable]="true"
-    [showHeader]="true"
+<app-modal [isOpen]="isOpen" [title]="'Add New Role'" [size]="'small'" [closable]="true" [showHeader]="true"
     (close)="onClose()">
-    
+
     <form class="add-role-form" (ngSubmit)="onSubmit()">
         <!-- Role Name Field -->
         <div class="form-group">
             <label class="form-label" for="role-name">
                 Role Name <span class="required">*</span>
             </label>
-            <input
-                id="role-name"
-                type="text"
-                class="form-control"
-                [(ngModel)]="name"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="Enter role name"
-                required
-                autofocus>
+            <input id="role-name" type="text" class="form-control" [(ngModel)]="name"
+                [ngModelOptions]="{ standalone: true }" placeholder="Enter role name" required autofocus>
         </div>
 
         <!-- Status Dropdown -->
@@ -28,12 +16,8 @@
             <label class="form-label" for="role-status">
                 Status
             </label>
-            <app-dropdown
-                [options]="statusOptions"
-                [selectedValues]="[status]"
-                [closeOnSelect]="true"
-                placeholder="Select Status"
-                (selectionChange)="onStatusChange($event)">
+            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
             </app-dropdown>
         </div>
 
@@ -48,4 +32,3 @@
         </div>
     </form>
 </app-modal>
-

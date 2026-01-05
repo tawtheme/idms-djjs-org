@@ -1,15 +1,7 @@
-<app-modal
-    [isOpen]="isOpen"
-    [title]="'Add New Program'"
-    [size]="'medium'"
-    [closable]="true"
-    [showHeader]="true"
-    [showFooter]="true"
-    [footerButtons]="footerButtons"
-    [footerAlign]="'right'"
-    (close)="onClose()"
+<app-modal [isOpen]="isOpen" [title]="'Add New Program'" [size]="'medium'" [closable]="true" [showHeader]="true"
+    [showFooter]="true" [footerButtons]="footerButtons" [footerAlign]="'right'" (close)="onClose()"
     (footerAction)="onFooterAction($event)">
-    
+
     <form class="add-program-form" (ngSubmit)="onSubmit()">
         <!-- Row 1: Program Name, Program Co-ordinator, Initiative -->
         <div class="form-grid cols-3">
@@ -17,26 +9,17 @@
                 <label class="form-label" for="program-name">
                     Program Name <span class="required">*</span>
                 </label>
-                <input
-                    id="program-name"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="name"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter program name"
-                    required
-                    autofocus>
+                <input id="program-name" type="text" class="form-control" [(ngModel)]="name"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter program name" required autofocus>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="program-coordinator">
                     Program Co-ordinator <span class="required">*</span>
                 </label>
-                <app-dropdown
-                    [options]="programCoordinatorOptions"
-                    [selectedValues]="programCoordinator ? [programCoordinator] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select Program Co-ordinator"
+                <app-dropdown [options]="programCoordinatorOptions"
+                    [selectedValues]="programCoordinator ? [programCoordinator] : []" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select Program Co-ordinator"
                     (selectionChange)="onProgramCoordinatorChange($event)">
                 </app-dropdown>
             </div>
@@ -45,11 +28,8 @@
                 <label class="form-label" for="initiative">
                     Initiative <span class="required">*</span>
                 </label>
-                <app-dropdown
-                    [options]="initiativeOptions"
-                    [selectedValues]="initiative ? [initiative] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select Initiative"
+                <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []"
+                    [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative"
                     (selectionChange)="onInitiativeChange($event)">
                 </app-dropdown>
             </div>
@@ -61,12 +41,8 @@
                 <label class="form-label" for="project">
                     Project <span class="required">*</span>
                 </label>
-                <app-dropdown
-                    [options]="projectOptions"
-                    [selectedValues]="project ? [project] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select Project"
-                    (selectionChange)="onProjectChange($event)">
+                <app-dropdown [options]="projectOptions" [selectedValues]="project ? [project] : []" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select Project" (selectionChange)="onProjectChange($event)">
                 </app-dropdown>
             </div>
 
@@ -74,12 +50,8 @@
                 <label class="form-label" for="branch">
                     Branch <span class="required">*</span>
                 </label>
-                <app-dropdown
-                    [options]="branchOptions"
-                    [selectedValues]="branch ? [branch] : []"
-                    [closeOnSelect]="true"
-                    placeholder="Select Branch"
-                    (selectionChange)="onBranchChange($event)">
+                <app-dropdown [options]="branchOptions" [selectedValues]="branch ? [branch] : []" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select Branch" (selectionChange)="onBranchChange($event)">
                 </app-dropdown>
             </div>
 
@@ -87,14 +59,8 @@
                 <label class="form-label" for="choose-sewa">
                     Choose Sewa <span class="required">*</span>
                 </label>
-                <input
-                    id="choose-sewa"
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="chooseSewa"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter sewa"
-                    required>
+                <input id="choose-sewa" type="text" class="form-control" [(ngModel)]="chooseSewa"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter sewa" required>
             </div>
         </div>
 
@@ -104,10 +70,7 @@
                 <label class="form-label" for="start-date-time">
                     Start Date Time <span class="required">*</span>
                 </label>
-                <app-datepicker
-                    [value]="startDateTime"
-                    placeholder="DD/MM/YYYY"
-                    format="dd/MM/yyyy"
+                <app-datepicker [value]="startDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
                     (dateChange)="onStartDateTimeChange($event)">
                 </app-datepicker>
             </div>
@@ -116,10 +79,7 @@
                 <label class="form-label" for="end-date-time">
                     End Date Time <span class="required">*</span>
                 </label>
-                <app-datepicker
-                    [value]="endDateTime"
-                    placeholder="DD/MM/YYYY"
-                    format="dd/MM/yyyy"
+                <app-datepicker [value]="endDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
                     (dateChange)="onEndDateTimeChange($event)">
                 </app-datepicker>
             </div>
@@ -128,12 +88,8 @@
                 <label class="form-label" for="status">
                     Status
                 </label>
-                <app-dropdown
-                    [options]="statusOptions"
-                    [selectedValues]="[status]"
-                    [closeOnSelect]="true"
-                    placeholder="Select Status"
-                    (selectionChange)="onStatusChange($event)">
+                <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
                 </app-dropdown>
             </div>
         </div>
@@ -144,12 +100,8 @@
                 <label class="form-label" for="repeats">
                     Repeats
                 </label>
-                <app-dropdown
-                    [options]="repeatsOptions"
-                    [selectedValues]="[repeats]"
-                    [closeOnSelect]="true"
-                    placeholder="Select Repeats"
-                    (selectionChange)="onRepeatsChange($event)">
+                <app-dropdown [options]="repeatsOptions" [selectedValues]="[repeats]" [searchable]="true"
+                    [closeOnSelect]="true" placeholder="Select Repeats" (selectionChange)="onRepeatsChange($event)">
                 </app-dropdown>
             </div>
 
@@ -157,15 +109,9 @@
                 <label class="form-label" for="remarks">
                     Remarks
                 </label>
-                <textarea
-                    id="remarks"
-                    class="form-control"
-                    [(ngModel)]="remarks"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="Enter remarks"
-                    rows="4"></textarea>
+                <textarea id="remarks" class="form-control" [(ngModel)]="remarks"
+                    [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks" rows="4"></textarea>
             </div>
         </div>
     </form>
 </app-modal>
-
