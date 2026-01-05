@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
@@ -9,8 +9,10 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { AddMasterEntryModalComponent, MasterEntryFormData } from './add-master-entry-modal/add-master-entry-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataService } from '../../../data.service';
-import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { SearchService, SearchState } from '../../../core/services/search.service';
+import { SortService, SortState } from '../../../core/services/sort.service';
+import { finalize } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
 
 type MasterType =
@@ -34,6 +36,18 @@ export interface MasterRecord {
   extra2?: string;
 }
 
+const EXTRA_FIELD_KEYS = [
+  'branch', 'ifsc_code', 'address', 'country', 'state', 'city', 'district',
+  'phone_primary', 'phone_secondary', 'remarks'
+];
+
+const ID_FIELD_MAPPINGS: Record<string, string> = {
+  countryId: 'country_id',
+  stateId: 'state_id',
+  districtId: 'district_id',
+  cityId: 'city_id'
+};
+
 @Component({
   standalone: true,
   imports: [
@@ -43,10 +57,15 @@ export interface MasterRecord {
   ],
   selector: 'app-master-tables-list',
   templateUrl: './master-tables-list.component.html',
-  styleUrls: ['./master-tables-list.component.scss']
+  styleUrls: ['./master-tables-list.component.scss'],
+  providers: [SortService]
 })
-export class MasterTablesListComponent extends BasePaginatedList implements OnInit {
+export class MasterTablesListComponent extends BasePaginatedList implements OnInit, OnDestroy {
   private readonly dataService = inject(DataService);
+  private readonly searchService = inject(SearchService);
+  private readonly sortService = inject(SortService);
+  private searchSubscription?: Subscription;
+  private sortSubscription?: Subscription;
 
   readonly masterConfigs: MasterConfig[] = [
     { type: 'skills', label: 'Skills', endpoint: 'v1/skills', storeEndpoint: 'v1/skills/store' },
@@ -68,15 +87,11 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
 
   selectedMasterType: MasterType = 'skills';
   records: MasterRecord[] = [];
-  allRecords: MasterRecord[] = [];
   searchTerm = '';
-  sortField = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
 
   isAddModalOpen = false;
   isEditMode = false;
   editingInitialData: MasterEntryFormData | null = null;
-
   isDeleteDialogOpen = false;
   recordToDelete: MasterRecord | null = null;
 
@@ -92,7 +107,67 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   }
 
   ngOnInit(): void {
-    this.loadPage();
+    this.initSearch();
+  }
+
+  private initSearch(): void {
+    this.cleanupSubscriptions();
+
+    const search$ = this.searchService.createSearch<any>(this.selectedMasterConfig.endpoint, {
+      defaultPageSize: this.pageSize,
+      debounceTime: 300,
+      enableCache: true
+    });
+
+    this.searchSubscription = search$.subscribe(state => this.handleSearchUpdate(state));
+    this.searchService.search(this.searchTerm);
+
+    this.sortSubscription = this.sortService.sortState$.subscribe(sort => {
+      if (sort.field) this.searchService.updateSort(sort.field, sort.direction);
+    });
+  }
+
+  private handleSearchUpdate(state: SearchState<any>): void {
+    this.isLoading = state.loading;
+    this.error = state.error;
+
+    let results = state.results.map(item => this.mapToRecord(item));
+    this.applyClientSideSort(results);
+
+    this.records = results;
+    this.totalItems = state.total;
+    this.currentPage = state.currentPage;
+  }
+
+  private applyClientSideSort(results: MasterRecord[]): void {
+    const currentSort = this.sortService.currentSort;
+    if (!currentSort.field || results.length === 0) return;
+
+    results.sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (currentSort.field === 'createdAt') {
+        aVal = new Date(a.createdAt || 0).getTime();
+        bVal = new Date(b.createdAt || 0).getTime();
+      } else {
+        aVal = String((a as any)[currentSort.field] || '').toLowerCase();
+        bVal = String((b as any)[currentSort.field] || '').toLowerCase();
+      }
+
+      if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  private cleanupSubscriptions(): void {
+    this.searchSubscription?.unsubscribe();
+    this.sortSubscription?.unsubscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupSubscriptions();
   }
 
   onTabSelect(type: MasterType): void {
@@ -100,80 +175,64 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
     this.selectedMasterType = type;
     this.currentPage = 1;
     this.searchTerm = '';
-    this.loadPage();
+    this.sortService.reset();
+    this.initSearch();
   }
 
   protected override loadPage(page: number = this.currentPage, pageSize: number = this.pageSize): void {
-    const cfg = this.selectedMasterConfig;
-    this.isLoading = true;
-    this.error = null;
+    this.searchService.searchWithParams({ page, perPage: pageSize });
+  }
 
-    this.dataService.get<any>(`${cfg.endpoint}?page=${page}&per_page=${pageSize}`)
-      .pipe(
-        catchError(err => {
-          this.error = err.error?.message || err.message || `Failed to load ${cfg.label}.`;
-          return of({ data: [] });
-        }),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe(res => {
-        const data = res.data || res.results || res || [];
-        this.allRecords = (Array.isArray(data) ? data : []).map(item => this.mapToRecord(item));
-        this.updatePaginationFromMeta(res.meta || {}, page, pageSize);
-        this.applyFilters();
-      });
+  onSearchInput(): void {
+    this.searchService.search(this.searchTerm);
   }
 
   private mapToRecord(item: any): MasterRecord {
-    const base: MasterRecord = {
+    const rawDate = item.created_at || item.createdAt || item.date || '';
+    const record: MasterRecord = {
       id: String(item.id),
       name: item.name || '',
-      createdAt: item.created_at || '',
-      status: item.status === 1 || item.status === true || item.status === 'active' ? 'Active' : 'Inactive'
+      createdAt: this.parseApiDate(rawDate),
+      status: (item.status === 1 || item.status === true || item.status === 'active') ? 'Active' : 'Inactive'
     };
 
     if (['countries', 'states', 'cities'].includes(this.selectedMasterType)) {
-      base.extra1 = item.code || item.iso_code || '';
-      base.extra2 = item.parent_name || '';
+      record.extra1 = item.code || item.iso_code || '';
+      record.extra2 = item.parent_name || '';
     } else if (this.selectedMasterType === 'ashram_adhaar_areas') {
-      base.extra1 = item.branch_name || '';
-      base.extra2 = item.city || '';
+      record.extra1 = item.branch_name || '';
+      record.extra2 = item.city || '';
     }
-    return base;
+    return record;
   }
 
-  applyFilters(): void {
-    let filtered = [...this.allRecords];
-    if (this.searchTerm.trim()) {
-      const search = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(r =>
-        r.name.toLowerCase().includes(search) ||
-        r.extra1?.toLowerCase().includes(search) ||
-        r.extra2?.toLowerCase().includes(search)
-      );
+  /**
+   * Normalizes non-standard API date strings (e.g. DD/MM/YYYY) to ISO-like format
+   * for reliable parsing by Angular's DatePipe.
+   */
+  private parseApiDate(dateStr: string): string {
+    if (!dateStr || typeof dateStr !== 'string') return dateStr;
+
+    // If it's already an ISO string or similar, return as is
+    if (dateStr.includes('T') || dateStr.includes('-')) return dateStr;
+
+    // Handle DD/MM/YYYY format from API
+    const parts = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(.*)$/);
+    if (parts) {
+      const [_, day, month, year, rest] = parts;
+      // Convert to YYYY-MM-DD which is globally safe for Date constructors
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}${rest}`;
     }
 
-    if (this.sortField) {
-      filtered.sort((a, b) => {
-        const aVal = (a as any)[this.sortField] ?? '';
-        const bVal = (b as any)[this.sortField] ?? '';
-        return this.sortDirection === 'asc'
-          ? (aVal < bVal ? -1 : 1)
-          : (aVal > bVal ? -1 : 1);
-      });
-    }
-    this.records = filtered;
+    return dateStr;
   }
 
   sortBy(field: string): void {
-    this.sortDirection = this.sortField === field && this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.sortField = field;
-    this.applyFilters();
+    this.sortService.toggleSort(field);
   }
 
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return 'unfold_more';
-    return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
+    return this.sortService.getSortIcon(field);
   }
 
   onAction(rec: MasterRecord, option: MenuOption): void {
@@ -200,19 +259,13 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   }
 
   private extractExtraFields(item: any): Partial<MasterEntryFormData> {
-    const fields: any = {};
-    const keys = [
-      'branch', 'ifsc_code', 'address', 'country', 'state', 'city', 'district',
-      'phone_primary', 'phone_secondary', 'remarks'
-    ];
-    keys.forEach(k => { if (item[k]) fields[k] = item[k]; });
+    const data: any = {};
+    EXTRA_FIELD_KEYS.forEach(k => { if (item[k]) data[k] = item[k]; });
 
-    if (item.country_id) fields.countryId = String(item.country_id);
-    if (item.state_id) fields.stateId = String(item.state_id);
-    if (item.district_id) fields.districtId = String(item.district_id);
-    if (item.city_id) fields.cityId = String(item.city_id);
-
-    return fields;
+    Object.entries(ID_FIELD_MAPPINGS).forEach(([dtoKey, apiKey]) => {
+      if (item[apiKey]) data[dtoKey] = String(item[apiKey]);
+    });
+    return data;
   }
 
   private deleteRecord(rec: MasterRecord): void {
@@ -235,36 +288,29 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   onAddEntrySubmit(data: MasterEntryFormData): void {
     if (!data?.name?.trim()) return;
 
-    const payload: any = {
+    const payload = {
       name: data.name.trim(),
       status: data.status === 'Active' ? 1 : 0,
-      ...this.prepareExtraPayload(data)
+      ...this.preparePayload(data)
     };
 
     this.isAddModalOpen = false;
     this.isLoading = true;
 
-    const request = this.isEditMode
+    const req = this.isEditMode
       ? this.dataService.put(`${this.selectedMasterConfig.endpoint}/${data.id}`, payload)
       : this.dataService.post(this.selectedMasterConfig.storeEndpoint, payload);
 
-    request.pipe(finalize(() => this.isLoading = false))
-      .subscribe(() => this.loadPage());
+    req.pipe(finalize(() => this.isLoading = false)).subscribe(() => this.loadPage());
   }
 
-  private prepareExtraPayload(data: MasterEntryFormData): any {
+  private preparePayload(data: any): any {
     const payload: any = {};
-    const keys = [
-      'branch', 'ifsc_code', 'address', 'country', 'state', 'city', 'district',
-      'phone_primary', 'phone_secondary', 'remarks'
-    ];
-    keys.forEach(k => { if ((data as any)[k]) payload[k] = (data as any)[k]; });
+    EXTRA_FIELD_KEYS.forEach(k => { if (data[k]) payload[k] = data[k]; });
 
-    if (data.countryId) payload.country_id = data.countryId;
-    if (data.stateId) payload.state_id = data.stateId;
-    if (data.districtId) payload.district_id = data.districtId;
-    if (data.cityId) payload.city_id = data.cityId;
-
+    Object.entries(ID_FIELD_MAPPINGS).forEach(([dtoKey, apiKey]) => {
+      if (data[dtoKey]) payload[apiKey] = data[dtoKey];
+    });
     return payload;
   }
 

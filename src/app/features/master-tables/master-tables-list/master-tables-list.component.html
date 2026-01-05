@@ -16,7 +16,7 @@
             <!-- Filter Section -->
             <div class="master-listing-search">
                 <input type="search" class="form-control" placeholder="Search by Name or Details"
-                    [(ngModel)]="searchTerm" [ngModelOptions]="{ standalone: true }" (input)="applyFilters()" />
+                    [(ngModel)]="searchTerm" [ngModelOptions]="{ standalone: true }" (input)="onSearchInput()" />
                 <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
                     Add New
                 </button>
@@ -57,7 +57,7 @@
                                     <span *ngIf="!rec.status">-</span>
                                 </td>
                                 <td data-label="Created At" class="date">
-                                    {{ rec.createdAt || '-' }}
+                                    {{ rec.createdAt ? (rec.createdAt | date:'dd/MM/yyyy h:mm a') : '-' }}
                                 </td>
                                 <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
                                     <app-menu-dropdown [options]="getActionOptions(rec)"
