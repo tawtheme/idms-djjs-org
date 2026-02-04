@@ -13,28 +13,12 @@
     <!-- Filter Section -->
     <div class="listing-search" *ngIf="!error">
         <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name or Type"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="onSearchChange()"/>
+            <input type="search" class="form-control" placeholder="Search by Name or Type" [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }" (input)="onSearchChange()" />
         </div>
         <div class="listing-search-item">
-            <app-dropdown
-                [options]="typeOptions"
-                [selectedValues]="selectedType"
-                placeholder="Type"
-                (selectionChange)="selectedType = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="statusOptions"
-                [selectedValues]="selectedStatus"
-                placeholder="Status"
-                (selectionChange)="selectedStatus = $event; onSearchChange()"
-                [closeOnSelect]="true">
+            <app-dropdown [options]="typeOptions" [selectedValues]="selectedType" placeholder="Type"
+                (selectionChange)="selectedType = $event; onSearchChange()" [closeOnSelect]="true">
             </app-dropdown>
             <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
                 <span class="material-icons">refresh</span>
@@ -50,12 +34,8 @@
                 <thead>
                     <tr>
                         <th class="checkbox-column">
-                            <input
-                                type="checkbox"
-                                [checked]="isAllSelected()"
-                                [indeterminate]="isIndeterminate()"
-                                (change)="toggleSelectAll($event)"
-                                (click)="$event.stopPropagation()">
+                            <input type="checkbox" [checked]="isAllSelected()" [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll($event)" (click)="$event.stopPropagation()">
                         </th>
                         <th (click)="sortBy('name')" class="sortable">
                             Name
@@ -64,10 +44,6 @@
                         <th (click)="sortBy('type')" class="sortable">
                             Type
                             <span class="material-icons sort-icon">{{ getSortIcon('type') }}</span>
-                        </th>
-                        <th (click)="sortBy('status')" class="sortable">
-                            Status
-                            <span class="material-icons sort-icon">{{ getSortIcon('status') }}</span>
                         </th>
                         <th (click)="sortBy('createdAt')" class="sortable">
                             Created At
@@ -78,11 +54,9 @@
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let sewa of pagedSewas; trackBy: trackById" (click)="$event.stopPropagation()">
+                        <tr *ngFor="let sewa of sewas; trackBy: trackById" (click)="$event.stopPropagation()">
                             <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    [checked]="selectedSewas.has(sewa.id)"
+                                <input type="checkbox" [checked]="selectedSewas.has(sewa.id)"
                                     (change)="toggleSelectSewa(sewa.id, $event)">
                             </td>
                             <td data-label="Name" class="name">
@@ -91,36 +65,29 @@
                             <td data-label="Type">
                                 {{ sewa.type }}
                             </td>
-                            <td data-label="Status" class="status">
-                                <span class="status-badge" [ngClass]="'status-' + (sewa.status | lowercase)">
-                                    {{ sewa.status }}
-                                </span>
-                            </td>
                             <td data-label="Created At" class="date">
-                                {{ sewa.createdAt }}
+                                {{ sewa.createdAt | date:'dd/MM/yyyy h:mm a' }}
                             </td>
                             <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
-                                    [options]="getActionOptions(sewa)"
+                                <app-menu-dropdown [options]="getActionOptions(sewa)"
                                     (selectionChange)="onAction(sewa, $event)">
                                 </app-menu-dropdown>
                             </td>
                         </tr>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedSewas.length === 0">
-                            <td [attr.colspan]="6" class="empty-state-cell">
+                        <tr *ngIf="sewas.length === 0">
+                            <td [attr.colspan]="5" class="empty-state-cell">
                                 <app-empty-state
-                                    [title]="searchTerm || selectedType.length > 0 || selectedStatus.length > 0 ? 'No Results Found' : 'No Sewa Found'"
-                                    [description]="searchTerm || selectedType.length > 0 || selectedStatus.length > 0 ? 'No sewa match your search criteria.' : 'There are no sewa to display at the moment.'"
-                                    [icon]="'work'"
-                                    [size]="'small'">
+                                    [title]="searchTerm || selectedType.length > 0 ? 'No Results Found' : 'No Sewa Found'"
+                                    [description]="searchTerm || selectedType.length > 0 ? 'No sewa match your search criteria.' : 'There are no sewa to display at the moment.'"
+                                    [icon]="'work'" [size]="'small'">
                                 </app-empty-state>
                             </td>
                         </tr>
                     </ng-container>
                     <!-- Loading cell -->
                     <tr *ngIf="isLoading">
-                        <td [attr.colspan]="6" class="loading-cell">
+                        <td [attr.colspan]="5" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>
@@ -129,22 +96,21 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
-            *ngIf="!error"
-            [total]="totalItems"
-            [pageSize]="pageSize"
-            [currentPage]="currentPage"
-            [pageSizeOptions]="pageSizeOptions"
-            (pageChange)="onPageChange($event)"
+        <app-pager *ngIf="!error" [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
         </app-pager>
     </div>
 
-    <!-- Add New Sewa Modal -->
-    <app-add-sewa-modal
-        *ngIf="isAddModalOpen"
-        [isOpen]="isAddModalOpen"
-        (close)="closeAddModal()"
+    <!-- Add/Edit Sewa Modal -->
+    <app-add-sewa-modal *ngIf="isAddModalOpen" [isOpen]="isAddModalOpen"
+        [title]="isEditMode ? 'Edit Sewa' : 'Add New Sewa'" [initialData]="editingSewa" (close)="closeAddModal()"
         (submit)="onAddSewaSubmit($event)">
     </app-add-sewa-modal>
+
+    <!-- Delete Confirmation Dialog -->
+    <app-confirmation-dialog [isOpen]="isDeleteDialogOpen" [title]="'Delete Sewa'"
+        [message]="'Are you sure you want to delete \'' + (sewaToDelete?.name || 'this sewa') + '\'? This action cannot be undone.'"
+        [confirmLabel]="'Delete'" [confirmType]="'danger'" (confirm)="confirmDelete()" (cancel)="cancelDelete()">
+    </app-confirmation-dialog>
 </div>

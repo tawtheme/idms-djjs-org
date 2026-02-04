@@ -1,0 +1,63 @@
+<div class="section allocated-section">
+    <div class="section-header">
+        <h2 class="section-title">Allocated</h2>
+    </div>
+
+    <div class="section-controls">
+        <div class="search-control">
+            <input type="text" class="form-control" [(ngModel)]="searchTerm" placeholder="Search..."
+                (input)="currentPage = 1">
+        </div>
+        <button class="btn btn--secondary btn--sm" type="button" (click)="onUnassign()"
+            [disabled]="selectedIds.size === 0">
+            Unassign
+        </button>
+    </div>
+
+    <!-- Card Listing View -->
+    <div class="cards-container">
+        <div class="cards-grid">
+            <div *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" class="volunteer-card"
+                [class.selected]="selectedIds.has(volunteer.id)" (click)="toggleSelect(volunteer.id, $event)">
+                <div class="card-checkbox">
+                    <input type="checkbox" [checked]="selectedIds.has(volunteer.id)"
+                        (change)="toggleSelect(volunteer.id, $event)" (click)="$event.stopPropagation()">
+                </div>
+                <div class="card-content">
+                    <div class="card-image">
+                        <div class="volunteer-image">
+                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'" [alt]="volunteer.name"
+                                onerror="this.src='/assets/img/placeholder.svg'">
+                        </div>
+                    </div>
+                    <div class="card-details">
+                        <div class="card-id">ID: {{ volunteer.id }}</div>
+                        <div class="card-badge" *ngIf="volunteer.badgeNo">Badge: {{ volunteer.badgeNo }}</div>
+                        <div class="card-name">{{ volunteer.name }}</div>
+                        <div class="card-sewa" *ngIf="volunteer.sewa">
+                            <span class="material-icons">work</span>
+                            {{ volunteer.sewa }}
+                        </div>
+                        <div class="card-regular" *ngIf="volunteer.isRegular">
+                            <span class="regular-badge">Regular</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-data" *ngIf="pagedVolunteers.length === 0">
+            No Allocated Volunteers Found
+        </div>
+    </div>
+
+    <!-- Simple Pagination for the table view -->
+    <div class="simple-pagination" *ngIf="filteredVolunteers.length > pageSize">
+        <button class="btn btn--link" [disabled]="currentPage === 1"
+            (click)="currentPage = currentPage - 1">Previous</button>
+        <span>Page {{currentPage}} of {{ Math.ceil(filteredVolunteers.length / pageSize) }} (Total:
+            {{filteredVolunteers.length}})</span>
+        <button class="btn btn--link" [disabled]="currentPage * pageSize >= filteredVolunteers.length"
+            (click)="currentPage = currentPage + 1">Next</button>
+    </div>
+</div>

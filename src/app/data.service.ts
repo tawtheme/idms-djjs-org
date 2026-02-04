@@ -7,11 +7,11 @@ import { environment } from '../environments/environment';
 export class DataService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // API methods
-  get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
+  get<T>(endpoint: string, options?: any): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, options) as Observable<T>;
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {

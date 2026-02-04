@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -9,15 +9,16 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { AddSewaModalComponent } from './add-sewa-modal/add-sewa-modal.component';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataService } from '../../../data.service';
+import { SearchService, SearchState } from '../../../core/services/search.service';
+import { SortService } from '../../../core/services/sort.service';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
+import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
-export interface Sewa {
-  id: string;
-  name: string;
-  type: string;
-  status: string;
-  createdAt: string;
-}
+import { Sewa } from './sewa.interface';
 
 @Component({
   standalone: true,
@@ -31,24 +32,32 @@ export interface Sewa {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    AddSewaModalComponent
+    AddSewaModalComponent,
+    ConfirmationDialogComponent
   ],
   selector: 'app-all-sewa',
   templateUrl: './all-sewa.component.html',
-  styleUrls: ['./all-sewa.component.scss']
+  styleUrls: ['./all-sewa.component.scss'],
+  providers: [SortService]
 })
-export class AllSewaComponent implements OnInit {
-  @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+export class AllSewaComponent extends BasePaginatedList implements OnInit, OnDestroy {
+
+  private readonly dataService = inject(DataService);
+  private readonly searchService = inject(SearchService);
+  private readonly sortService = inject(SortService);
+  private readonly snackbarService = inject(SnackbarService);
+
+  private searchSubscription?: Subscription;
+  private sortSubscription?: Subscription;
 
   sewas: Sewa[] = [];
-  allSewas: Sewa[] = [];
 
-  // Loading and error states
-  isLoading = true; // Start with true to show loader on initial load
-  error: string | null = null;
-
-  // Modal state
+  // Modal & Dialog state
   isAddModalOpen = false;
+  isEditMode = false;
+  editingSewa: Sewa | null = null;
+  isDeleteDialogOpen = false;
+  sewaToDelete: Sewa | null = null;
 
   // Selection
   selectedSewas = new Set<string>();
@@ -56,95 +65,135 @@ export class AllSewaComponent implements OnInit {
   // Filters
   searchTerm = '';
   selectedType: any[] = [];
-  typeOptions: DropdownOption[] = [];
-  selectedStatus: any[] = [];
-  statusOptions: DropdownOption[] = [];
-
-  // Sorting
-  sortField: string = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
-
-  // Pagination
-  pageSizeOptions: number[] = [20, 50, 100];
-  pageSize = 20;
-  currentPage = 1;
-  totalItems = 0;
+  typeOptions: DropdownOption[] = [
+    { id: '1', label: 'Volunteer', value: 'Volunteer' },
+    { id: '2', label: 'Preacher', value: 'Preacher' },
+    { id: '3', label: 'Desiring Devotee', value: 'Desiring Devotee' }
+  ];
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Sewa', route: '/sewa' },
     { label: 'All Sewa', route: '/sewa/all-sewa' }
   ];
 
-  constructor(private dataService: DataService) {
-    // Build initial filter options (status is static, types will be refined from API data)
-    this.typeOptions = [];
-    this.statusOptions = [
-      { id: '1', label: 'Active', value: 'Active' },
-      { id: '0', label: 'Inactive', value: 'Inactive' }
-    ];
+  constructor() {
+    super();
+    this.pageSize = 20;
   }
 
   ngOnInit(): void {
-    this.loadSewas();
+    this.initSearch();
   }
 
-  /**
-   * Load sewas from the API: /api/v1/sewas
-   * Uses DataService base URL (environment.apiUrl) similar to volunteers list.
-   */
-  loadSewas(): void {
-    this.isLoading = true;
-    this.error = null;
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
+    this.sortSubscription?.unsubscribe();
+  }
 
-    this.dataService.get<any>('v1/sewas?per_page=1000').subscribe({
-      next: (response) => {
-        const sewasData = response.data || response.sewas || response.results || response || [];
+  private initSearch(): void {
+    this.cleanupSubscriptions();
 
-        this.allSewas = (Array.isArray(sewasData) ? sewasData : []).map((item: any) => ({
-          id: String(item.id),
-          name: item.name || '',
-          type: item.type || '',
-          status: item.status === 1 ? 'Active' : 'Inactive',
-          createdAt: item.created_at || ''
-        }));
+    const search$ = this.searchService.createSearch<any>('v1/sewas', {
+      defaultPageSize: this.pageSize,
+      debounceTime: 300,
+      enableCache: true,
+      queryParamName: 'name',
+      sortByParamName: 'sortByColumn',
+      sortDirectionParamName: 'orderBy'
+    });
 
-        this.totalItems = this.allSewas.length;
+    this.searchSubscription = search$.subscribe(state => this.handleSearchUpdate(state));
 
-        // Build type filter options from API data
-        const uniqueTypes = Array.from(
-          new Set(this.allSewas.map((s) => s.type).filter((t) => !!t))
-        );
-        this.typeOptions = uniqueTypes.map((type, index) => ({
-          id: String(index + 1),
-          label: type,
-          value: type
-        }));
+    // Initial search with current filters
+    this.applyFilter();
 
-        this.applyFilter();
-        this.isLoading = false; // Set loading to false after data is processed
-      },
-      error: (error) => {
-        console.error('Failed to load sewas:', error);
-        this.error = error.error?.message || error.message || 'Failed to load sewas. Please try again.';
-        this.allSewas = [];
-        this.sewas = [];
-        this.totalItems = 0;
-        this.isLoading = false; // Set loading to false on error
+    this.sortSubscription = this.sortService.sortState$.subscribe(sort => {
+      if (sort.field) {
+        this.searchService.updateSort(sort.field, sort.direction);
       }
     });
   }
 
-  get filteredSewas(): Sewa[] {
-    return this.sewas;
+  private cleanupSubscriptions(): void {
+    this.searchSubscription?.unsubscribe();
+    this.sortSubscription?.unsubscribe();
   }
 
-  get pagedSewas(): Sewa[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.sewas.slice(start, start + this.pageSize);
+  private handleSearchUpdate(state: SearchState<any>): void {
+    this.isLoading = state.loading;
+    this.error = state.error;
+
+    let results = state.results.map((item: any) => this.mapToSewa(item));
+
+    // Apply client-side sort as a fallback/immediate feedback, matching Master Table logic
+    this.applyClientSideSort(results);
+
+    this.sewas = results;
+    this.totalItems = state.total;
+    this.currentPage = state.currentPage;
+
+    // Collect any new types found in the results to make filters more dynamic
+    state.results.forEach((item: any) => {
+      if (item.type && !this.typeOptions.find(opt => opt.value === item.type)) {
+        this.typeOptions.push({
+          id: String(this.typeOptions.length + 1),
+          label: item.type,
+          value: item.type
+        });
+      }
+    });
   }
 
-  trackById(_: number, s: Sewa): string {
-    return s.id;
+  private mapToSewa(item: any): Sewa {
+    return {
+      id: String(item.id),
+      uuid: item.uuid || item.unique_id,
+      name: item.name || '',
+      type: item.type || '',
+      createdAt: this.parseApiDate(item.created_at || item.createdAt || '')
+    };
+  }
+
+  private applyClientSideSort(results: Sewa[]): void {
+    const currentSort = this.sortService.currentSort;
+    if (!currentSort.field || results.length === 0) return;
+
+    results.sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (currentSort.field === 'createdAt') {
+        aVal = new Date(a.createdAt || 0).getTime();
+        bVal = new Date(b.createdAt || 0).getTime();
+      } else {
+        aVal = String((a as any)[currentSort.field] || '').toLowerCase();
+        bVal = String((b as any)[currentSort.field] || '').toLowerCase();
+      }
+
+      if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  private parseApiDate(dateStr: string): string {
+    if (!dateStr || typeof dateStr !== 'string') return dateStr;
+    if (dateStr.includes('T') || dateStr.includes('-')) return dateStr;
+
+    const parts = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(.*)$/);
+    if (parts) {
+      const [_, day, month, year, rest] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}${rest}`;
+    }
+    return dateStr;
+  }
+
+  loadSewas(): void {
+    this.applyFilter();
+  }
+
+  protected override loadPage(page: number = this.currentPage, pageSize: number = this.pageSize): void {
+    this.searchService.searchWithParams({ page, perPage: pageSize });
   }
 
   onSearchChange(): void {
@@ -154,87 +203,47 @@ export class AllSewaComponent implements OnInit {
   resetFilter(): void {
     this.searchTerm = '';
     this.selectedType = [];
-    this.selectedStatus = [];
-    this.sortField = '';
-    this.sortDirection = 'asc';
+    this.sortService.reset();
     this.applyFilter();
   }
 
   applyFilter(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const type = this.selectedType[0] || '';
-    const status = this.selectedStatus[0] || '';
-
-    // Filter sewas
-    let filtered = this.allSewas.filter((s) => {
-      const matchesTerm = !term || 
-        s.name.toLowerCase().includes(term) ||
-        s.type.toLowerCase().includes(term);
-
-      const matchesType = !type || s.type === type;
-      const matchesStatus = !status || s.status === status;
-
-      return matchesTerm && matchesType && matchesStatus;
-    });
-
-    // Apply sorting
-    if (this.sortField) {
-      filtered.sort((a, b) => {
-        let aVal: any = a[this.sortField as keyof Sewa];
-        let bVal: any = b[this.sortField as keyof Sewa];
-        
-        if (this.sortField === 'createdAt') {
-          aVal = new Date(aVal).getTime();
-          bVal = new Date(bVal).getTime();
-        } else {
-          aVal = String(aVal).toLowerCase();
-          bVal = String(bVal).toLowerCase();
-        }
-        
-        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
+    const filters: Record<string, any> = {};
+    if (this.selectedType?.length > 0) {
+      filters['type'] = this.selectedType[0];
     }
 
-    this.sewas = filtered;
-    this.totalItems = this.sewas.length;
-    this.currentPage = 1;
+    const currentSort = this.sortService.currentSort;
+    this.searchService.searchWithParams({
+      query: this.searchTerm,
+      filters,
+      page: 1,
+      sortBy: currentSort.field || undefined,
+      sortDirection: currentSort.field ? currentSort.direction : undefined
+    });
   }
 
   // Sorting
   sortBy(field: string): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
-    }
-    this.applyFilter();
+    this.sortService.toggleSort(field);
   }
 
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return 'unfold_more';
-    return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
+    return this.sortService.getSortIcon(field);
   }
 
-  // Pagination event handlers
-  onPageChange(page: number): void {
-    this.currentPage = page;
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize = Math.max(20, size);
-    this.currentPage = 1;
+  // trackBy helper
+  trackById(_: number, s: Sewa): string {
+    return s.id;
   }
 
   // Selection handlers
   toggleSelectAll(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.pagedSewas.forEach(s => this.selectedSewas.add(s.id));
+      this.sewas.forEach(s => this.selectedSewas.add(s.id));
     } else {
-      this.pagedSewas.forEach(s => this.selectedSewas.delete(s.id));
+      this.sewas.forEach(s => this.selectedSewas.delete(s.id));
     }
   }
 
@@ -248,43 +257,28 @@ export class AllSewaComponent implements OnInit {
   }
 
   isAllSelected(): boolean {
-    return this.pagedSewas.length > 0 && 
-           this.pagedSewas.every(s => this.selectedSewas.has(s.id));
+    return this.sewas.length > 0 &&
+      this.sewas.every(s => this.selectedSewas.has(s.id));
   }
 
   isIndeterminate(): boolean {
-    const selectedCount = this.pagedSewas.filter(s => this.selectedSewas.has(s.id)).length;
-    return selectedCount > 0 && selectedCount < this.pagedSewas.length;
+    const selectedCount = this.sewas.filter(s => this.selectedSewas.has(s.id)).length;
+    return selectedCount > 0 && selectedCount < this.sewas.length;
   }
 
   // Action handlers
   getActionOptions(sewa: Sewa): MenuOption[] {
     return [
-      {
-        id: 'view',
-        label: 'View',
-        value: 'view',
-        icon: 'visibility'
-      },
-      {
-        id: 'edit',
-        label: 'Edit',
-        value: 'edit',
-        icon: 'edit'
-      },
-      {
-        id: 'delete',
-        label: 'Delete',
-        value: 'delete',
-        icon: 'delete'
-      }
+      { id: 'view', label: 'View', value: 'view', icon: 'visibility' },
+      { id: 'edit', label: 'Edit', value: 'edit', icon: 'edit' },
+      { id: 'delete', label: 'Delete', value: 'delete', icon: 'delete' }
     ];
   }
 
   onAction(sewa: Sewa, action: any): void {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
-    
+
     if (actionId === 'view') {
       this.viewDetails(sewa);
     } else if (actionId === 'edit') {
@@ -295,53 +289,100 @@ export class AllSewaComponent implements OnInit {
   }
 
   viewDetails(sewa: Sewa): void {
-    console.log('View sewa:', sewa);
+    console.log('View sewa details:', sewa);
+    // Future: redirect to details page
   }
 
   editSewa(sewa: Sewa): void {
-    console.log('Edit sewa:', sewa);
+    this.isEditMode = true;
+    this.editingSewa = sewa;
+    this.isAddModalOpen = true;
   }
 
   deleteSewa(sewa: Sewa): void {
-    if (confirm(`Delete ${sewa.name}?`)) {
-      const index = this.allSewas.findIndex(s => s.id === sewa.id);
-      if (index > -1) {
-        this.allSewas.splice(index, 1);
-        this.applyFilter();
-      }
-    }
+    this.sewaToDelete = sewa;
+    this.isDeleteDialogOpen = true;
+  }
+
+  confirmDelete(): void {
+    if (!this.sewaToDelete) return;
+
+    const idToDelete = this.sewaToDelete.uuid || this.sewaToDelete.id;
+    const sewaName = this.sewaToDelete.name;
+
+    // Close dialog immediately for better UX
+    this.isDeleteDialogOpen = false;
+    this.isLoading = true;
+
+    this.dataService.delete(`v1/sewas/${idToDelete}`)
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.sewaToDelete = null;
+      }))
+      .subscribe({
+        next: () => {
+          this.snackbarService.showSuccess(`"${sewaName}" deleted successfully`);
+          this.searchService.refresh();
+        },
+        error: (err) => {
+          console.error('Delete failed:', err);
+          const errorMsg = err.error?.message || err.message || 'Failed to delete sewa.';
+          this.snackbarService.showError(errorMsg);
+          this.error = errorMsg;
+        }
+      });
+  }
+
+  cancelDelete(): void {
+    this.isDeleteDialogOpen = false;
+    this.sewaToDelete = null;
   }
 
   // Modal methods
   openAddModal(): void {
+    this.isEditMode = false;
+    this.editingSewa = null;
     this.isAddModalOpen = true;
   }
 
   closeAddModal(): void {
     this.isAddModalOpen = false;
+    this.isEditMode = false;
+    this.editingSewa = null;
   }
 
-  onAddSewaSubmit(newSewa: { name: string; type: string; status: string }): void {
-    console.log('New Sewa Added:', newSewa);
-    // In a real application, you would send this data to your API
-    // For now, we'll simulate adding it to the list
-    const newId = String(this.allSewas.length + 1);
-    const createdAt = new Date().toISOString();
-    this.allSewas.push({
-      id: newId,
-      name: newSewa.name,
-      type: newSewa.type,
-      status: newSewa.status,
-      createdAt: createdAt
+  onAddSewaSubmit(formData: { name: string; type: string }): void {
+    const isEdit = this.isEditMode;
+    const sewaName = formData.name;
+
+    // Close modal immediately for better UX
+    this.closeAddModal();
+    this.isLoading = true;
+
+    const payload = {
+      name: formData.name,
+      type: formData.type
+    };
+
+    const id = this.editingSewa?.uuid || this.editingSewa?.id;
+    const request = isEdit && id
+      ? this.dataService.patch(`v1/sewas/${id}`, payload)
+      : this.dataService.post('v1/sewas/store', payload);
+
+    request.pipe(finalize(() => {
+      this.isLoading = false;
+    })).subscribe({
+      next: () => {
+        this.snackbarService.showSuccess(`"${sewaName}" ${isEdit ? 'updated' : 'added'} successfully`);
+        this.searchService.refresh();
+      },
+      error: (err) => {
+        console.error('Submit failed:', err);
+        const errorMsg = err.error?.message || err.message || `Failed to ${isEdit ? 'update' : 'add'} sewa.`;
+        this.snackbarService.showError(errorMsg);
+        this.error = errorMsg;
+      }
     });
-    this.applyFilter();
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.exportWrapper && !this.exportWrapper.nativeElement.contains(event.target)) {
-      // Handle any click outside logic if needed
-    }
   }
 }
 

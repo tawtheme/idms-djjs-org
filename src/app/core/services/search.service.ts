@@ -19,6 +19,8 @@ export interface SearchParams {
     sortDirection?: 'asc' | 'desc';
     /** Additional filters */
     filters?: Record<string, any>;
+    /** Internal refresh trigger to bypass distinctUntilChanged */
+    _refreshId?: number;
 }
 
 /**
@@ -72,6 +74,12 @@ export interface SearchConfig {
     cacheTTL?: number;
     /** Default page size (default: 20) */
     defaultPageSize?: number;
+    /** Parameter name for search query (default: 'query') */
+    queryParamName?: string;
+    /** Parameter name for sort field (default: 'sortBy') */
+    sortByParamName?: string;
+    /** Parameter name for sort direction (default: 'sortDirection') */
+    sortDirectionParamName?: string;
 }
 
 /**
@@ -118,7 +126,10 @@ export class SearchService {
         minQueryLength: 0,
         enableCache: true,
         cacheTTL: 5 * 60 * 1000, // 5 minutes
-        defaultPageSize: 20
+        defaultPageSize: 20,
+        queryParamName: 'search',
+        sortByParamName: 'sort_by',
+        sortDirectionParamName: 'sort_direction'
     };
 
     // Current search parameters
@@ -165,7 +176,8 @@ export class SearchService {
                 prev.perPage === curr.perPage &&
                 prev.sortBy === curr.sortBy &&
                 prev.sortDirection === curr.sortDirection &&
-                JSON.stringify(prev.filters) === JSON.stringify(curr.filters)
+                JSON.stringify(prev.filters) === JSON.stringify(curr.filters) &&
+                prev._refreshId === curr._refreshId
             ),
 
             // Update loading state
@@ -240,6 +252,15 @@ export class SearchService {
         };
 
         this.searchSubject.next(this.currentParams);
+    }
+
+    /**
+     * Refresh the current search (force reload from server)
+     */
+    refresh(): void {
+        this.clearCache();
+        // Update _refreshId to bypass distinctUntilChanged
+        this.searchWithParams({ _refreshId: Date.now() });
     }
 
     /**
@@ -350,9 +371,11 @@ export class SearchService {
      */
     private buildQueryParams(params: SearchParams): string {
         const queryParts: string[] = [];
+        const config = this.currentConfig;
 
         if (params.query) {
-            queryParts.push(`search=${encodeURIComponent(params.query)}`);
+            const queryKey = config.queryParamName || 'search';
+            queryParts.push(`${queryKey}=${encodeURIComponent(params.query)}`);
         }
 
         if (params.page) {
@@ -365,14 +388,24 @@ export class SearchService {
 
         if (params.sortBy) {
             const sortBy = params.sortBy === 'createdAt' ? 'created_at' : params.sortBy;
-            queryParts.push(`sort_by=${encodeURIComponent(sortBy)}`);
-            queryParts.push(`order_by=${encodeURIComponent(sortBy)}`);
+            const sortKey = config.sortByParamName || 'sort_by';
+            queryParts.push(`${sortKey}=${encodeURIComponent(sortBy)}`);
+
+            // For backward compatibility/consistency with other APIs
+            if (!config.sortByParamName) {
+                queryParts.push(`order_by=${encodeURIComponent(sortBy)}`);
+            }
         }
 
         if (params.sortDirection) {
-            queryParts.push(`sort_direction=${params.sortDirection}`);
-            queryParts.push(`order=${params.sortDirection}`);
-            queryParts.push(`direction=${params.sortDirection}`);
+            const directionKey = config.sortDirectionParamName || 'sort_direction';
+            queryParts.push(`${directionKey}=${params.sortDirection}`);
+
+            // For backward compatibility/consistency with other APIs
+            if (!config.sortDirectionParamName) {
+                queryParts.push(`order=${params.sortDirection}`);
+                queryParts.push(`direction=${params.sortDirection}`);
+            }
         }
 
         if (params.filters) {
