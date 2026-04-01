@@ -34,11 +34,11 @@
                         <div class="card-id">ID: {{ volunteer.id }}</div>
                         <div class="card-name">{{ volunteer.name }}</div>
                         <div class="card-phone" *ngIf="volunteer.phone">
-                            <span class="material-icons">phone</span>
+                            <app-icon name="phone" />
                             {{ volunteer.phone }}
                         </div>
                         <div class="card-phone" *ngIf="!volunteer.phone">
-                            <span class="material-icons">phone</span>
+                            <app-icon name="phone" />
                             -
                         </div>
                     </div>

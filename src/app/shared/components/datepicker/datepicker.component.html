@@ -12,7 +12,7 @@
 
         <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" class="datepicker-trigger"
             aria-label="Open calendar">
-            <span class="material-icons" aria-hidden="true">event</span>
+            <app-icon name="event" />
         </button>
     </div>
 
@@ -24,7 +24,7 @@
             <!-- Calendar Header -->
             <div class="calendar-header">
                 <button type="button" (click)="navigateMonth(-1)" class="calendar-nav-btn" aria-label="Previous month">
-                    <span class="material-icons" aria-hidden="true">chevron_left</span>
+                    <app-icon name="chevron_left" />
                 </button>
 
                 <div class="calendar-title">
@@ -33,7 +33,7 @@
                 </div>
 
                 <button type="button" (click)="navigateMonth(1)" class="calendar-nav-btn" aria-label="Next month">
-                    <span class="material-icons" aria-hidden="true">chevron_right</span>
+                    <app-icon name="chevron_right" />
                 </button>
             </div>
 
@@ -71,12 +71,12 @@
                 <div class="calendar-actions">
                     @if (showToday) {
                         <button type="button" (click)="selectToday()" class="calendar-action-btn">
-                            <span class="material-icons" aria-hidden="true" style="vertical-align: middle;">today</span> Today
+                            <app-icon name="today" /> Today
                         </button>
                     }
                     @if (showClear) {
                         <button type="button" (click)="clearDate()" class="calendar-action-btn">
-                            <span class="material-icons" aria-hidden="true" style="vertical-align: middle;">close</span> Clear
+                            <app-icon name="close" /> Clear
                         </button>
                     }
                 </div>

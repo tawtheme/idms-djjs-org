@@ -33,7 +33,6 @@
     flex-direction: row;
     justify-content: space-between;
     gap: 24px;
-    margin: 8px 0;
 
     @media (max-width: 1440px) {
         grid-template-columns: 400px 1fr;

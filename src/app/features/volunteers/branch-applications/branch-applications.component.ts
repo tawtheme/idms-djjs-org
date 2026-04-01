@@ -10,9 +10,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { MoreFiltersModalComponent } from '../all-volunteers/more-filters-modal/more-filters-modal.component';
 import { SewaTrackingModalComponent } from '../all-volunteers/sewa-tracking-modal/sewa-tracking-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface BranchApplication {
   id: number;
@@ -55,8 +55,8 @@ export interface BranchApplication {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    MoreFiltersModalComponent,
-    SewaTrackingModalComponent
+    SewaTrackingModalComponent,
+    IconComponent
   ],
   selector: 'app-branch-applications',
   templateUrl: './branch-applications.component.html',
@@ -85,9 +85,27 @@ export class BranchApplicationsComponent implements OnInit {
   taskBranchOptions: DropdownOption[] = [];
   sortOrder: any[] = [];
   sortOrderOptions: DropdownOption[] = [];
-  
-  // More Filters
-  moreFiltersModalOpen = false;
+
+  // Filter panel toggle
+  filtersExpanded = false;
+
+  // Inline filter options
+  correspondingBranchOptions: DropdownOption[] = [];
+  branchSearchTypeOptions: DropdownOption[] = [];
+  sewaOptions: DropdownOption[] = [];
+  sewaInterestOptions: DropdownOption[] = [
+    { id: '1', label: 'Yes', value: 'yes' },
+    { id: '2', label: 'No', value: 'no' }
+  ];
+  sewaAllocatedOptions: DropdownOption[] = [
+    { id: '1', label: 'Yes', value: 'yes' },
+    { id: '2', label: 'No', value: 'no' }
+  ];
+  sewaModeOptions: DropdownOption[] = [
+    { id: '1', label: 'Regular', value: 'regular' },
+    { id: '2', label: 'Occasional', value: 'occasional' }
+  ];
+
   moreFilters: any = {
     correspondingBranch: [],
     branchSearchType: [],
@@ -138,6 +156,25 @@ export class BranchApplicationsComponent implements OnInit {
 
     // Task branch options will be populated from API data if needed
     this.taskBranchOptions = [];
+
+    // Options for expandable filters panel
+    this.correspondingBranchOptions = [
+      { id: '1', label: 'Nurmahal', value: 'Nurmahal' },
+      { id: '2', label: 'Jalandhar', value: 'Jalandhar' },
+      { id: '3', label: 'Ludhiana', value: 'Ludhiana' }
+    ];
+
+    this.branchSearchTypeOptions = [
+      { id: '1', label: 'Exact Match', value: 'exact' },
+      { id: '2', label: 'Contains', value: 'contains' },
+      { id: '3', label: 'Starts With', value: 'startsWith' }
+    ];
+
+    this.sewaOptions = [
+      { id: '1', label: 'Jal Sewa', value: 'Jal Sewa' },
+      { id: '2', label: 'Food Distribution', value: 'Food Distribution' },
+      { id: '3', label: 'Medical Camp', value: 'Medical Camp' }
+    ];
   }
 
   /**
@@ -507,18 +544,33 @@ export class BranchApplicationsComponent implements OnInit {
     return parts.join('\n');
   }
 
-  // More Filters Modal
-  openMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = true;
+  // Filter panel toggle
+  toggleFiltersPanel(): void {
+    this.filtersExpanded = !this.filtersExpanded;
   }
 
-  closeMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = false;
+  totalActiveFiltersCount(): number {
+    let count = 0;
+    if (this.selectedGender.length > 0) count++;
+    if (this.selectedTaskBranch.length > 0) count++;
+    if (this.sortOrder.length > 0 && this.sortOrder[0]?.value) count++;
+    count += this.activeMoreFiltersCount();
+    return count;
   }
 
-  onMoreFiltersApply(filters: any): void {
-    this.moreFilters = filters;
-    this.applyFilter();
+  hasActiveMoreFilters(): boolean {
+    return this.activeMoreFiltersCount() > 0;
+  }
+
+  activeMoreFiltersCount(): number {
+    return Object.values(this.moreFilters).filter((v: any) => Array.isArray(v) && v.length > 0).length;
+  }
+
+  hasAnyActiveFilter(): boolean {
+    return !!this.searchTerm || this.selectedGender.length > 0 ||
+      this.selectedTaskBranch.length > 0 ||
+      (this.sortOrder.length > 0 && !!this.sortOrder[0]?.value) ||
+      this.hasActiveMoreFilters();
   }
 
   // Sewa Tracking Modal

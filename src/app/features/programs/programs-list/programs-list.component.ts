@@ -11,6 +11,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { AddProgramModalComponent } from './add-program-modal/add-program-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -40,7 +41,8 @@ export interface Program {
     MenuDropdownComponent,
     DropdownComponent,
     DatepickerComponent,
-    AddProgramModalComponent
+    AddProgramModalComponent,
+    IconComponent
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',

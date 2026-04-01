@@ -101,11 +101,11 @@
                                     <div class="card-id">ID: {{ volunteer.id }}</div>
                                     <div class="card-name">{{ volunteer.name }}</div>
                                     <div class="card-phone" *ngIf="volunteer.phone">
-                                        <span class="material-icons">phone</span>
+                                        <app-icon name="phone" />
                                         {{ volunteer.phone }}
                                     </div>
                                     <div class="card-phone" *ngIf="!volunteer.phone">
-                                        <span class="material-icons">phone</span>
+                                        <app-icon name="phone" />
                                         -
                                     </div>
                                 </div>
@@ -117,7 +117,6 @@
                         <app-empty-state
                             [title]="unallocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Unallocated Volunteers'"
                             [description]="unallocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no unallocated volunteers available at the moment.'"
-                            [icon]="'people'"
                             [size]="'small'">
                         </app-empty-state>
                     </div>
@@ -203,7 +202,6 @@
                                     <app-empty-state
                                         [title]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Allocated Volunteers'"
                                         [description]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no allocated volunteers available at the moment.'"
-                                        [icon]="'people'"
                                         [size]="'small'">
                                     </app-empty-state>
                                 </td>

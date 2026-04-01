@@ -10,6 +10,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { AddInitiativeModalComponent } from './add-initiative-modal/add-initiative-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -31,7 +32,8 @@ export interface Initiative {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    AddInitiativeModalComponent
+    AddInitiativeModalComponent,
+    IconComponent
   ],
   selector: 'app-initiatives-list',
   templateUrl: './initiatives-list.component.html',

@@ -1,7 +1,9 @@
 <div class="empty-state" [class]="'empty-state--' + size + ' empty-state--' + variant">
     <!-- Icon -->
     <div class="empty-state-icon">
-        <span class="material-icons">{{ icon }}</span>
+        <div class="empty-state-icon-ring">
+            <app-icon [name]="icon" />
+        </div>
     </div>
 
     <!-- Content -->
@@ -13,11 +15,11 @@
     <!-- Action Button -->
     @if (showButton && buttonText) {
         <div class="empty-state-actions">
-            <button 
-                (click)="onButtonClick()" 
+            <button
+                (click)="onButtonClick()"
                 class="btn btn-primary empty-state-button">
                 @if (buttonIcon) {
-                    <span class="material-icons">{{ buttonIcon }}</span>
+                    <app-icon [name]="buttonIcon" />
                 }
                 {{ buttonText }}
             </button>

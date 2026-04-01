@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { Sewa } from './sewa.interface';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   standalone: true,
@@ -33,7 +34,8 @@ import { Sewa } from './sewa.interface';
     MenuDropdownComponent,
     DropdownComponent,
     AddSewaModalComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    IconComponent
   ],
   selector: 'app-all-sewa',
   templateUrl: './all-sewa.component.html',

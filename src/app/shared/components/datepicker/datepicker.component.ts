@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { IconComponent } from '../icon/icon.component';
 
 export interface DatePickerConfig {
   minDate?: Date;
@@ -16,7 +17,7 @@ export interface DatePickerConfig {
 @Component({
   selector: 'app-datepicker',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IconComponent],
   templateUrl: './datepicker.component.html',
   styleUrls: ['./datepicker.component.scss']
 })

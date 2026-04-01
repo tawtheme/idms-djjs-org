@@ -34,20 +34,20 @@
                     </th>
                     <th (click)="sortBy('branchName')" class="sortable">
                         Branch Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('branchName') }}</span>
+                        <app-icon [name]="getSortIcon('branchName')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('areaName')" class="sortable">
                         Area Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('areaName') }}</span>
+                        <app-icon [name]="getSortIcon('areaName')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('city')" class="sortable">
                         City
-                        <span class="material-icons sort-icon">{{ getSortIcon('city') }}</span>
+                        <app-icon [name]="getSortIcon('city')" class="sort-icon" />
                     </th>
                     <th>Status</th>
                     <th (click)="sortBy('createdAt')" class="sortable">
                         Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                     </th>
                     <th class="action-column">Action</th>
                 </tr>
@@ -91,7 +91,6 @@
                             <app-empty-state
                                 [title]="searchTerm ? 'No Results Found' : 'No Branch Areas Found'"
                                 [description]="searchTerm ? 'No branch areas match your search criteria.' : 'There are no branch areas available at the moment.'"
-                                [icon]="'inbox'"
                                 [size]="'small'">
                             </app-empty-state>
                         </td>

@@ -17,7 +17,7 @@
             gap: 6px;
             padding: 8px 12px;
 
-            .material-icons {
+            app-icon {
                 font-size: 18px;
             }
         }
@@ -57,7 +57,7 @@
                     background: $color-gray-50;
                 }
 
-                .material-icons {
+                app-icon {
                     font-size: 18px;
                     width: 20px;
                     text-align: center;
@@ -67,20 +67,24 @@
     }
 }
 
-// Image column
-.image-column {
-    width: 60px;
-    padding: 8px 12px !important;
+// Name with image column
+.name-with-image {
+    font-weight: 500;
+    color: $color-gray-900;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
 
     .visitor-image {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         background: $color-gray-100;
+        flex-shrink: 0;
 
         img {
             width: 100%;
@@ -88,12 +92,6 @@
             object-fit: cover;
         }
     }
-}
-
-// Name column
-.name {
-    font-weight: 500;
-    color: $color-gray-900;
 }
 
 // Contact column (Email and Phone combined)

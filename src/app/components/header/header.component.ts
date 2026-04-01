@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, inject, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

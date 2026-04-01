@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl } from '@angular/forms';
+import { IconComponent } from '../icon/icon.component';
 import { ValidationService, ValidationMessage } from '../../validators/validation.service';
 
 @Component({
   selector: 'app-validation-message',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './validation-message.component.html',
   styleUrls: ['./validation-message.component.scss']
 })

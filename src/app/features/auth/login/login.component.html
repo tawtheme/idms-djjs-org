@@ -1,83 +1,117 @@
 <div class="login-container">
     <div class="login-wrapper">
-        <!-- Left Side - Promotional Section -->
+        <!-- Left Side - Brand Section -->
         <div class="login-visual">
+            <div class="visual-overlay"></div>
             <div class="visual-content">
-                <div class="welcome-heading">Welcome to idms-djjs-org</div>
-                <div class="welcome-description">
-                    Skip repetitive and manual printing tasks. Get highly productive through automation and save tons of time!
+                <div class="brand-logo">
+                    <img src="assets/img/logo.png" alt="DJJS Logo" class="logo-img" />
+                </div>
+                <h1 class="brand-title">Divya Jyoti Jagrati Sansthan</h1>
+                <p class="brand-subtitle">Integrated Data Management System</p>
+                <div class="feature-pills">
+                    <div class="pill">
+                        <app-icon name="groups" />
+                        <span>Volunteer Management</span>
+                    </div>
+                    <div class="pill">
+                        <app-icon name="assignment" />
+                        <span>Sewa Tracking</span>
+                    </div>
+                    <div class="pill">
+                        <app-icon name="insights" />
+                        <span>Reports & Analytics</span>
+                    </div>
                 </div>
             </div>
             <div class="copyright">
-                © 2025 idms-djjs-org. All rights reserved.
+                © 2025 DJJS. All rights reserved.
             </div>
         </div>
 
         <!-- Right Side - Login Form -->
         <div class="login-form-section">
-            <div class="login-card">
-                <div class="welcome-back">Login to your account</div>
+            <div class="form-center">
+                <div class="card-header">
+                    <h2 class="welcome-title">Welcome Back</h2>
+                    <p class="welcome-subtitle">Sign in to continue to IDMS portal</p>
+                </div>
+
                 <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="login-form">
                     <div class="form-group">
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            [(ngModel)]="email" 
-                            required 
-                            email 
+                        <label for="email">
+                            <app-icon name="mail" class="label-icon" />
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            [(ngModel)]="email"
+                            required
+                            email
                             #emailField="ngModel"
-                            class="form-control" 
-                            placeholder="Email"
-                            [class.error]="emailField.invalid && emailField.touched" />
-                        <div class="error-message" *ngIf="emailField.invalid && emailField.touched">
+                            class="form-control"
+                            placeholder="Enter your email"
+                            [class.input-error]="emailField.invalid && emailField.touched" />
+                        <div class="field-error" *ngIf="emailField.invalid && emailField.touched">
+                            <app-icon name="error_outline" />
                             <span *ngIf="emailField.errors?.['required']">Email is required</span>
                             <span *ngIf="emailField.errors?.['email']">Please enter a valid email</span>
                         </div>
                     </div>
 
                     <div class="form-group">
+                        <label for="password">
+                            <app-icon name="lock" class="label-icon" />
+                            Password
+                        </label>
                         <div class="password-input-wrapper">
-                            <input 
+                            <input
                                 [type]="showPassword ? 'text' : 'password'"
-                                id="password" 
-                                name="password" 
-                                [(ngModel)]="password" 
-                                required 
+                                id="password"
+                                name="password"
+                                [(ngModel)]="password"
+                                required
                                 minlength="6"
-                                #passwordField="ngModel" 
+                                #passwordField="ngModel"
                                 class="form-control"
-                                placeholder="Password"
-                                [class.error]="passwordField.invalid && passwordField.touched" />
-                            <button 
-                                type="button" 
+                                placeholder="Enter your password"
+                                [class.input-error]="passwordField.invalid && passwordField.touched" />
+                            <button
+                                type="button"
                                 class="password-toggle"
                                 (click)="togglePasswordVisibility()"
                                 [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
-                                <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                                <app-icon [name]="showPassword ? 'visibility_off' : 'visibility'" />
                             </button>
                         </div>
-                        <div class="error-message" *ngIf="passwordField.invalid && passwordField.touched">
+                        <div class="field-error" *ngIf="passwordField.invalid && passwordField.touched">
+                            <app-icon name="error_outline" />
                             <span *ngIf="passwordField.errors?.['required']">Password is required</span>
                             <span *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters</span>
                         </div>
                     </div>
 
-                    <div class="error-message" *ngIf="errorMessage" style="color: red; margin-bottom: 16px; text-align: center;">
-                        {{ errorMessage }}
+                    <div class="server-error" *ngIf="errorMessage">
+                        <app-icon name="warning" />
+                        <span>{{ errorMessage }}</span>
                     </div>
 
                     <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading">
-                        <span *ngIf="!isLoading">Login Now</span>
-                        <span *ngIf="isLoading">Logging in...</span>
+                        <span *ngIf="!isLoading" class="btn-content">
+                            Sign In
+                            <app-icon name="arrow_forward" />
+                        </span>
+                        <span *ngIf="isLoading" class="btn-content">
+                            <span class="spinner"></span>
+                            Signing in...
+                        </span>
                     </button>
-
-                    <div class="forgot-password">
-                        <span>Forget password</span>
-                        <a routerLink="/forgot-password" class="forgot-link">Click here</a>
-                    </div>
                 </form>
+
             </div>
+
         </div>
     </div>
 </div>

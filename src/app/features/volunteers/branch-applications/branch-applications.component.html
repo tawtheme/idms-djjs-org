@@ -3,24 +3,19 @@
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
     </div>
 
-    <!-- Error state -->
-    <div *ngIf="error && !isLoading" class="error-state">
-        <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadBranchApplications()">Retry</button>
-    </div>
-
-    <!-- Filter Section -->
-    <div class="listing-search" *ngIf="!error">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Relation Name, Mobile No., UID, Badge No"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="onSearchChange()"/>
-        </div>
-        <div class="listing-search-item">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="search-panel__top">
+            <div class="search-input-wrapper">
+                <app-icon name="search" class="search-input-icon" />
+                <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search by Name, Relation Name, Mobile No., UID, Badge No."
+                    [(ngModel)]="searchTerm"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="onSearchChange()"/>
+            </div>
             <app-dropdown
                 [options]="genderOptions"
                 [selectedValues]="selectedGender"
@@ -42,15 +37,90 @@
                 (selectionChange)="sortOrder = $event; onSearchChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
-                <span class="material-icons">tune</span>
-                More Filter
-            </button>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <span class="material-icons">refresh</span>
-                Reset
-            </button>
+            <app-dropdown
+                [options]="sewaOptions"
+                [selectedValues]="moreFilters.sewa"
+                placeholder="Sewa"
+                (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <div class="search-panel__actions">
+                <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
+                    <app-icon name="tune" />
+                    <span>Filters</span>
+                    <span class="filter-count" *ngIf="totalActiveFiltersCount() > 0">{{ totalActiveFiltersCount() }}</span>
+                    <app-icon name="keyboard_arrow_down" class="filter-btn__arrow" [class.filter-btn__arrow--up]="filtersExpanded" />
+                </button>
+                <button class="filter-btn" type="button" (click)="resetFilter()" *ngIf="hasAnyActiveFilter()">
+                    <app-icon name="close" />
+                    <span>Clear All</span>
+                </button>
+            </div>
         </div>
+        @if (filtersExpanded) {
+        <div class="search-panel__filters search-panel__filters--expanded">
+            <div class="search-panel__filters-inner">
+                <div class="filters-grid">
+                    <div class="filter-field">
+                        <label>Corresponding Branch</label>
+                        <app-dropdown
+                            [options]="correspondingBranchOptions"
+                            [selectedValues]="moreFilters.correspondingBranch"
+                            placeholder="Select Branch"
+                            (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Branch Search Type</label>
+                        <app-dropdown
+                            [options]="branchSearchTypeOptions"
+                            [selectedValues]="moreFilters.branchSearchType"
+                            placeholder="Select Type"
+                            (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Interest</label>
+                        <app-dropdown
+                            [options]="sewaInterestOptions"
+                            [selectedValues]="moreFilters.sewaInterest"
+                            placeholder="Select"
+                            (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Allocated</label>
+                        <app-dropdown
+                            [options]="sewaAllocatedOptions"
+                            [selectedValues]="moreFilters.sewaAllocated"
+                            placeholder="Select"
+                            (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Mode</label>
+                        <app-dropdown
+                            [options]="sewaModeOptions"
+                            [selectedValues]="moreFilters.sewaMode"
+                            placeholder="Select Mode"
+                            (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadBranchApplications()">Retry</button>
     </div>
 
     <!-- Applications table -->
@@ -155,7 +225,6 @@
                                 <app-empty-state
                                     [title]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No Results Found' : 'No Applications Found'"
                                     [description]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No applications match your search criteria.' : 'There are no branch applications to display at the moment.'"
-                                    [icon]="'description'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>
@@ -182,15 +251,6 @@
             (pageSizeChange)="onPageSizeChange($event)">
         </app-pager>
     </div>
-
-    <!-- More Filters Modal -->
-    <app-more-filters-modal
-        *ngIf="moreFiltersModalOpen"
-        [isOpen]="moreFiltersModalOpen"
-        [filters]="moreFilters"
-        (close)="closeMoreFiltersModal()"
-        (applyFilters)="onMoreFiltersApply($event)">
-    </app-more-filters-modal>
 
     <!-- Sewa Tracking Modal -->
     <app-sewa-tracking-modal

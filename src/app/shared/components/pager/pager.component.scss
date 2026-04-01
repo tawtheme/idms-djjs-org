@@ -5,7 +5,7 @@
     align-items: center;
     gap: 16px;
     justify-content: space-between;
-    margin: 24px 0px 0px 0px;
+    margin: 8px 0px 0px 0px;
 
     .pager-page-size {
         display: flex;
@@ -52,7 +52,7 @@
             cursor: not-allowed;
         }
 
-        .material-icons { font-size: 20px; }
+        app-icon { font-size: 20px; }
         .label { font-weight: 600; }
     }
 

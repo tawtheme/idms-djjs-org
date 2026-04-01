@@ -59,26 +59,26 @@
                                 (change)="toggleSelectAll($event)"
                                 (click)="$event.stopPropagation()">
                         </th>
-                        <th>Name</th>
-                        <th (click)="sortBy('programCoordinator')" class="sortable">
-                            Program Co-Ordinator
-                            <span class="material-icons sort-icon">{{ getSortIcon('programCoordinator') }}</span>
+                        <th class="col-name">Name</th>
+                        <th class="col-coordinator sortable" (click)="sortBy('programCoordinator')">
+                            Coordinator
+                            <app-icon [name]="getSortIcon('programCoordinator')" class="sort-icon" />
                         </th>
-                        <th>Initiative Name</th>
-                        <th>Project Name</th>
-                        <th>Task Branch</th>
-                        <th (click)="sortBy('startDateTime')" class="sortable">
-                            Start Date Time
-                            <span class="material-icons sort-icon">{{ getSortIcon('startDateTime') }}</span>
+                        <th class="col-default">Initiative</th>
+                        <th class="col-default">Project</th>
+                        <th class="col-default">Branch</th>
+                        <th class="col-date sortable" (click)="sortBy('startDateTime')">
+                            Start Date
+                            <app-icon [name]="getSortIcon('startDateTime')" class="sort-icon" />
                         </th>
-                        <th (click)="sortBy('endDateTime')" class="sortable">
-                            End Date Time
-                            <span class="material-icons sort-icon">{{ getSortIcon('endDateTime') }}</span>
+                        <th class="col-date sortable" (click)="sortBy('endDateTime')">
+                            End Date
+                            <app-icon [name]="getSortIcon('endDateTime')" class="sort-icon" />
                         </th>
-                        <th>Status</th>
-                        <th (click)="sortBy('createdAt')" class="sortable">
+                        <th class="col-status">Status</th>
+                        <th class="col-created sortable" (click)="sortBy('createdAt')">
                             Created At
-                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                         </th>
                         <th class="action-column">Action</th>
                     </tr>
@@ -134,7 +134,6 @@
                                 <app-empty-state
                                     [title]="searchTerm ? 'No Results Found' : 'No Programs Found'"
                                     [description]="searchTerm ? 'No programs match your search criteria.' : 'There are no programs available at the moment.'"
-                                    [icon]="'event'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>

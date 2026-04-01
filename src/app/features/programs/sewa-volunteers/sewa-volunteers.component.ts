@@ -8,6 +8,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface UnallocatedVolunteer {
   id: number;
@@ -38,7 +39,8 @@ export interface AllocatedVolunteer {
     PagerComponent,
     MenuDropdownComponent,
     LoadingComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    IconComponent
   ],
   selector: 'app-sewa-volunteers',
   templateUrl: './sewa-volunteers.component.html',

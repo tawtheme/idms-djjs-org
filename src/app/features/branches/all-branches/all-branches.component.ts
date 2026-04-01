@@ -9,6 +9,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -33,7 +34,8 @@ export interface Branch {
     EmptyStateComponent,
     LoadingComponent,
     MenuDropdownComponent,
-    AddBranchModalComponent
+    AddBranchModalComponent,
+    IconComponent
   ],
   selector: 'app-all-branches',
   templateUrl: './all-branches.component.html',

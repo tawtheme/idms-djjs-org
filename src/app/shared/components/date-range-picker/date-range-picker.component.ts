@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-date-range-picker',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, IconComponent],
   templateUrl: './date-range-picker.component.html',
   styleUrls: ['./date-range-picker.component.scss']
 })

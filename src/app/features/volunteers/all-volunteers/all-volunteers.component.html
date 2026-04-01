@@ -4,18 +4,19 @@
         <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVolunteerModal()">Create Volunteer</button>
     </div>
 
-    <!-- Filter Section -->
-    <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Relation Name, Mobile No., UID, Badge No"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="onSearchChange()"/>
-        </div>
-        <div class="listing-search-item">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="search-panel__top">
+            <div class="search-input-wrapper">
+                <app-icon name="search" class="search-input-icon" />
+                <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search by Name, Relation Name, Mobile No., UID, Badge No."
+                    [(ngModel)]="searchTerm"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="onSearchChange()"/>
+            </div>
             <app-dropdown
                 [options]="genderOptions"
                 [selectedValues]="selectedGender"
@@ -37,15 +38,84 @@
                 (selectionChange)="sortOrder = $event; onSearchChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
-                <span class="material-icons">tune</span>
-                More Filter
-            </button>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <span class="material-icons">refresh</span>
-                Reset
-            </button>
+            <app-dropdown
+                [options]="sewaOptions"
+                [selectedValues]="moreFilters.sewa"
+                placeholder="Sewa"
+                (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <div class="search-panel__actions">
+                <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
+                    <app-icon name="tune" />
+                    <span>Filters</span>
+                    <span class="filter-count" *ngIf="totalActiveFiltersCount() > 0">{{ totalActiveFiltersCount() }}</span>
+                    <app-icon name="keyboard_arrow_down" class="filter-btn__arrow" [class.filter-btn__arrow--up]="filtersExpanded" />
+                </button>
+                <button class="filter-btn" type="button" (click)="resetFilter()" *ngIf="hasAnyActiveFilter()">
+                    <app-icon name="close" />
+                    <span>Clear All</span>
+                </button>
+            </div>
         </div>
+        @if (filtersExpanded) {
+        <div class="search-panel__filters search-panel__filters--expanded">
+            <div class="search-panel__filters-inner">
+                <div class="filters-grid">
+                    <div class="filter-field">
+                        <label>Corresponding Branch</label>
+                        <app-dropdown
+                            [options]="correspondingBranchOptions"
+                            [selectedValues]="moreFilters.correspondingBranch"
+                            placeholder="Select Branch"
+                            (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Branch Search Type</label>
+                        <app-dropdown
+                            [options]="branchSearchTypeOptions"
+                            [selectedValues]="moreFilters.branchSearchType"
+                            placeholder="Select Type"
+                            (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Interest</label>
+                        <app-dropdown
+                            [options]="sewaInterestOptions"
+                            [selectedValues]="moreFilters.sewaInterest"
+                            placeholder="Select"
+                            (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Allocated</label>
+                        <app-dropdown
+                            [options]="sewaAllocatedOptions"
+                            [selectedValues]="moreFilters.sewaAllocated"
+                            placeholder="Select"
+                            (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa Mode</label>
+                        <app-dropdown
+                            [options]="sewaModeOptions"
+                            [selectedValues]="moreFilters.sewaMode"
+                            placeholder="Select Mode"
+                            (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
     </div>
 
     <!-- Error state -->
@@ -60,17 +130,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="checkbox-column">
-                            <input
-                                type="checkbox"
-                                [checked]="isAllSelected()"
-                                [indeterminate]="isIndeterminate()"
-                                (change)="toggleSelectAll($event)"
-                                (click)="$event.stopPropagation()"
-                            />
-                        </th>
                         <th>Id</th>
-                        <th>Image</th>
                         <th>Name</th>
                         <th>Relation Name</th>
                         <th>Address</th>
@@ -83,24 +143,19 @@
                 <tbody>
                     <ng-container *ngIf="!isLoading">
                         <tr *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    [checked]="selectedVolunteers.has(volunteer.id)"
-                                    (change)="toggleSelectVolunteer(volunteer.id, $event)">
-                            </td>
                             <td data-label="Id">
                                 {{ volunteer.id }}
                             </td>
-                            <td data-label="Image" class="image-column">
+                            <td data-label="Name" class="name-with-image">
                                 <div class="volunteer-image">
-                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
+                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                         [alt]="volunteer.name"
                                         onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
-                            </td>
-                            <td data-label="Name" class="name">
-                                {{ volunteer.name }}<span *ngIf="volunteer.age">: Age({{ volunteer.age }})</span>
+                                <div class="name-info">
+                                    <span class="volunteer-name">{{ volunteer.name }}</span>
+                                    <span class="volunteer-age" *ngIf="volunteer.age">Age: {{ volunteer.age }}</span>
+                                </div>
                             </td>
                             <td data-label="Relation Name">
                                 {{ volunteer.relationName }}
@@ -153,11 +208,10 @@
                         </tr>
                         <!-- Empty state -->
                         <tr *ngIf="pagedVolunteers.length === 0">
-                            <td [attr.colspan]="10" class="empty-state-cell">
+                            <td [attr.colspan]="8" class="empty-state-cell">
                                 <app-empty-state
                                     [title]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No Results Found' : 'No Volunteers Found'"
                                     [description]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No volunteers match your search criteria.' : 'There are no volunteers available at the moment.'"
-                                    [icon]="'people'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>
@@ -165,7 +219,7 @@
                     </ng-container>
                     <!-- Loading cell -->
                     <tr *ngIf="isLoading">
-                        <td [attr.colspan]="10" class="loading-cell">
+                        <td [attr.colspan]="8" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>
@@ -191,15 +245,6 @@
         [branchName]="getBranchName()"
         (close)="closeSewaTrackingModal()">
     </app-sewa-tracking-modal>
-
-    <!-- More Filters Modal -->
-    <app-more-filters-modal
-        *ngIf="moreFiltersModalOpen"
-        [isOpen]="moreFiltersModalOpen"
-        [filters]="moreFilters"
-        (close)="closeMoreFiltersModal()"
-        (applyFilters)="onMoreFiltersApply($event)">
-    </app-more-filters-modal>
 
     <!-- Create Volunteer Side Panel -->
     <app-side-panel

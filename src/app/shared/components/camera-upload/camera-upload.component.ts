@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-camera-upload',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './camera-upload.component.html',
   styleUrls: ['./camera-upload.component.scss']
 })

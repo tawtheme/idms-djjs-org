@@ -34,24 +34,24 @@
                     </th>
                     <th (click)="sortBy('name')" class="sortable">
                         Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('code')" class="sortable">
                         Code
-                        <span class="material-icons sort-icon">{{ getSortIcon('code') }}</span>
+                        <app-icon [name]="getSortIcon('code')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('city')" class="sortable">
                         City
-                        <span class="material-icons sort-icon">{{ getSortIcon('city') }}</span>
+                        <app-icon [name]="getSortIcon('city')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('type')" class="sortable">
                         Type
-                        <span class="material-icons sort-icon">{{ getSortIcon('type') }}</span>
+                        <app-icon [name]="getSortIcon('type')" class="sort-icon" />
                     </th>
                     <th>Status</th>
                     <th (click)="sortBy('createdAt')" class="sortable">
                         Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                     </th>
                     <th class="action-column">Action</th>
                 </tr>
@@ -98,7 +98,6 @@
                             <app-empty-state
                                 [title]="searchTerm ? 'No Results Found' : 'No Branches Found'"
                                 [description]="searchTerm ? 'No branches match your search criteria.' : 'There are no branches available at the moment.'"
-                                [icon]="'inbox'"
                                 [size]="'small'">
                             </app-empty-state>
                         </td>

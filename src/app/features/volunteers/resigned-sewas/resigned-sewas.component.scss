@@ -5,14 +5,211 @@
 // Apply shared listing styles
 @include listing.listing('.resigned-sewas');
 
-// Image column
-.image-column {
-    width: 80px;
-    padding: 8px 12px !important;
+// Search Panel
+.search-panel {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &__top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        app-dropdown {
+            min-width: 140px;
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            flex-wrap: wrap;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    &__filters {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+
+        &--expanded {
+            grid-template-rows: 1fr;
+            opacity: 1;
+        }
+    }
+
+    &__filters-inner {
+        overflow: hidden;
+        padding-top: 0;
+        transition: padding-top 0.3s ease;
+
+        .search-panel__filters--expanded & {
+            padding-top: 4px;
+            overflow: visible;
+        }
+    }
+}
+
+// Filters grid layout
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    label {
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0;
+        color: $color-gray-500;
+    }
+}
+
+// Search input with icon
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+
+    .search-input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: $color-gray-400;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 14px 10px 40px;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        font-size: 14px;
+        color: $color-gray-900;
+        background: $color-gray-50;
+        transition: all 0.2s ease;
+        outline: none;
+
+        &::placeholder {
+            color: $color-gray-400;
+        }
+
+        &:hover {
+            border-color: $color-gray-300;
+        }
+
+        &:focus {
+            border-color: $color-primary-400;
+            background: $color-white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        &::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+        }
+    }
+}
+
+// Filter button
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    background: $color-white;
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-gray-700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+
+    app-icon {
+        font-size: 18px;
+    }
+
+    &:hover {
+        background: $color-gray-50;
+        border-color: $color-gray-300;
+    }
+
+    &--active {
+        border-color: $color-primary-200;
+        background: $color-primary-50;
+        color: $color-primary-700;
+
+        &:hover {
+            background: $color-primary-100;
+            border-color: $color-primary-300;
+        }
+    }
+
+    &__arrow {
+        font-size: 18px !important;
+        transition: transform 0.3s ease;
+        margin-left: -2px;
+
+        &--up {
+            transform: rotate(180deg);
+        }
+    }
+
+    .filter-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 10px;
+        background: $color-primary-600;
+        color: $color-white;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+    }
+}
+
+// Name with image column
+.name-with-image {
+    font-weight: 500;
+    color: $color-gray-900;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
 
     .resigned-sewa-image {
         width: 40px;
         height: 40px;
+        min-width: 40px;
         border-radius: 50%;
         overflow: hidden;
         display: flex;
@@ -26,27 +223,6 @@
             object-fit: cover;
         }
     }
-
-    .resigned-sewa-image-placeholder {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: $color-gray-200;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 9px;
-        color: $color-gray-600;
-        text-align: center;
-        padding: 4px;
-        line-height: 1.2;
-    }
-}
-
-// Name column
-.name {
-    font-weight: 500;
-    color: $color-gray-900;
 }
 
 // Badge No badge

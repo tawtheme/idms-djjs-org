@@ -21,7 +21,7 @@
                 (selectionChange)="selectedType = $event; onSearchChange()" [closeOnSelect]="true">
             </app-dropdown>
             <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <span class="material-icons">refresh</span>
+                <app-icon name="refresh" />
                 Reset
             </button>
         </div>
@@ -39,15 +39,15 @@
                         </th>
                         <th (click)="sortBy('name')" class="sortable">
                             Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                            <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('type')" class="sortable">
                             Type
-                            <span class="material-icons sort-icon">{{ getSortIcon('type') }}</span>
+                            <app-icon [name]="getSortIcon('type')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('createdAt')" class="sortable">
                             Created At
-                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                         </th>
                         <th class="action-column">Action</th>
                     </tr>
@@ -80,7 +80,7 @@
                                 <app-empty-state
                                     [title]="searchTerm || selectedType.length > 0 ? 'No Results Found' : 'No Sewa Found'"
                                     [description]="searchTerm || selectedType.length > 0 ? 'No sewa match your search criteria.' : 'There are no sewa to display at the moment.'"
-                                    [icon]="'work'" [size]="'small'">
+                                    [size]="'small'">
                                 </app-empty-state>
                             </td>
                         </tr>

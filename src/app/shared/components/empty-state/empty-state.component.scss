@@ -1,202 +1,236 @@
 @import '../../../../assets/scss/variable';
 
-// Empty State Component Styles
 .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    row-gap: 16px;
+    row-gap: 20px;
     text-align: center;
-    padding: 50px 20px;
+    padding: 60px 24px;
 
     // Icon
     .empty-state-icon {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: $color-primary-50;
-        border-radius: 50%;
-        padding: 10px;
 
-        .material-icons {
-            font-size: 35px;
-            color: $color-primary-500;
+        // Decorative background circle
+        &::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, $color-primary-50 0%, transparent 70%);
+        }
+
+        .empty-state-icon-ring {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: $color-gray-50;
+            border: 2px dashed $color-gray-200;
+
+            app-icon {
+                font-size: 28px;
+                color: $color-gray-400;
+            }
         }
     }
 
     // Content
     .empty-state-content {
-        max-width: 400px;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 6px;
 
         .empty-state-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: $color-gray-700;
+            letter-spacing: -0.01em;
         }
 
         .empty-state-description {
             font-size: 13px;
-            color: $color-gray-600;
+            font-weight: 400;
+            color: $color-gray-400;
+            line-height: 1.5;
         }
     }
 
     // Actions
     .empty-state-actions {
+        margin-top: 4px;
+
         .empty-state-button {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            font-size: 14px;
+            gap: 6px;
+            padding: 8px 20px;
+            font-size: 13px;
             font-weight: 500;
+            border-radius: 8px;
 
-            .material-icons {
-                font-size: 18px;
+            app-icon {
+                font-size: 16px;
             }
         }
     }
 
     // Size Variants
     &--small {
-        padding: 24px 16px;
+        padding: 32px 16px;
+        row-gap: 14px;
 
         .empty-state-icon {
-            margin-bottom: 16px;
+            &::before {
+                width: 80px;
+                height: 80px;
+            }
 
-            .material-icons {
-                font-size: 48px;
+            .empty-state-icon-ring {
+                width: 52px;
+                height: 52px;
+
+                app-icon {
+                    font-size: 22px;
+                }
             }
         }
 
         .empty-state-content {
-            margin-bottom: 20px;
-
             .empty-state-title {
-                font-size: 20px;
-                margin-bottom: 8px;
+                font-size: 13px;
             }
 
             .empty-state-description {
-                font-size: 14px;
+                font-size: 12px;
             }
         }
     }
 
     &--large {
-        padding: 60px 40px;
+        padding: 80px 40px;
+        row-gap: 24px;
 
         .empty-state-icon {
-            margin-bottom: 32px;
+            &::before {
+                width: 160px;
+                height: 160px;
+            }
 
-            .material-icons {
-                font-size: 80px;
+            .empty-state-icon-ring {
+                width: 96px;
+                height: 96px;
+
+                app-icon {
+                    font-size: 38px;
+                }
             }
         }
 
         .empty-state-content {
-            margin-bottom: 40px;
+            max-width: 400px;
 
             .empty-state-title {
-                font-size: 28px;
-                margin-bottom: 16px;
+                font-size: 20px;
             }
 
             .empty-state-description {
-                font-size: 18px;
+                font-size: 15px;
             }
         }
     }
 
     // Style Variants
     &--minimal {
-        background: transparent;
-        box-shadow: none;
-        padding: 32px 16px;
+        padding: 40px 16px;
 
         .empty-state-icon {
-            .material-icons {
-                color: $color-gray-400;
+            &::before {
+                display: none;
+            }
+
+            .empty-state-icon-ring {
+                border: none;
+                background: transparent;
+
+                app-icon {
+                    color: $color-gray-300;
+                }
             }
         }
 
         .empty-state-content {
             .empty-state-title {
-                color: $color-gray-600;
+                color: $color-gray-500;
             }
 
             .empty-state-description {
-                color: $color-gray-500;
+                color: $color-gray-400;
             }
         }
     }
 
     &--illustrated {
-        background: linear-gradient(135deg, $color-primary-50 0%, $color-gray-50 100%);
-        border: 1px solid $color-primary-100;
-
         .empty-state-icon {
-            .material-icons {
-                color: $color-primary-400;
+            &::before {
+                background: radial-gradient(circle, $color-primary-50 0%, transparent 70%);
+            }
+
+            .empty-state-icon-ring {
+                background: $color-primary-50;
+                border-color: $color-primary-200;
+
+                app-icon {
+                    color: $color-primary-400;
+                }
             }
         }
 
         .empty-state-content {
             .empty-state-title {
-                color: $color-primary-700;
+                color: $color-gray-700;
             }
 
             .empty-state-description {
-                color: $color-primary-600;
+                color: $color-gray-400;
             }
         }
     }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-    .empty-state {
-        padding: 32px 16px;
-
-        .empty-state-icon {
-            margin-bottom: 20px;
-
-            .material-icons {
-                font-size: 56px;
-            }
-        }
-
-        .empty-state-content {
-            margin-bottom: 24px;
-
-            .empty-state-title {
-                font-size: 20px;
-            }
-
-            .empty-state-description {
-                font-size: 14px;
-            }
-        }
-    }
-}
-
+// Responsive
 @media (max-width: 480px) {
     .empty-state {
-        padding: 24px 12px;
+        padding: 40px 16px;
 
         .empty-state-icon {
-            .material-icons {
-                font-size: 48px;
+            .empty-state-icon-ring {
+                width: 60px;
+                height: 60px;
+
+                app-icon {
+                    font-size: 24px;
+                }
             }
         }
 
         .empty-state-content {
             .empty-state-title {
-                font-size: 18px;
+                font-size: 14px;
             }
 
             .empty-state-description {
-                font-size: 13px;
+                font-size: 12px;
             }
         }
     }

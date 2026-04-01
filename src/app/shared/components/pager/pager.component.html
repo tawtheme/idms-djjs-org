@@ -13,7 +13,7 @@
 
     <div class="pager-group">
         <button class="nav prev" type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-            <span class="material-icons">chevron_left</span>
+            <app-icon name="chevron_left" />
             <span class="label">Previous</span>
         </button>
 
@@ -27,7 +27,7 @@
 
         <button class="nav next" type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
             <span class="label">Next</span>
-            <span class="material-icons">chevron_right</span>
+            <app-icon name="chevron_right" />
         </button>
     </div>
 </div>

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 export interface FileUploadConfig {
   multiple?: boolean;
@@ -15,7 +16,7 @@ export interface FileUploadConfig {
 @Component({
   selector: 'app-file-upload',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss']
 })

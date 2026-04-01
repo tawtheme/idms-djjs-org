@@ -14,6 +14,7 @@ import { SortService, SortState } from '../../../core/services/sort.service';
 import { finalize } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 type MasterType =
   | 'skills' | 'banks' | 'degrees' | 'professions' | 'languages' | 'dress_codes'
@@ -53,7 +54,8 @@ const ID_FIELD_MAPPINGS: Record<string, string> = {
   imports: [
     CommonModule, FormsModule, BreadcrumbComponent, PagerComponent,
     EmptyStateComponent, MenuDropdownComponent, LoadingComponent,
-    AddMasterEntryModalComponent, ConfirmationDialogComponent
+    AddMasterEntryModalComponent, ConfirmationDialogComponent,
+    IconComponent
   ],
   selector: 'app-master-tables-list',
   templateUrl: './master-tables-list.component.html',

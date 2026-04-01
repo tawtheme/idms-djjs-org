@@ -44,21 +44,21 @@
                         </th>
                         <th (click)="sortBy('name')" class="sortable">
                             Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                            <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('projectHead')" class="sortable">
                             Project Head
-                            <span class="material-icons sort-icon">{{ getSortIcon('projectHead') }}</span>
+                            <app-icon [name]="getSortIcon('projectHead')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('initiativeName')" class="sortable">
                             Initiative Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('initiativeName') }}</span>
+                            <app-icon [name]="getSortIcon('initiativeName')" class="sort-icon" />
                         </th>
                         <th>Description</th>
                         <th>Status</th>
                         <th (click)="sortBy('createdAt')" class="sortable">
                             Created At
-                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                         </th>
                         <th class="action-column">Action</th>
                     </tr>
@@ -105,7 +105,6 @@
                                 <app-empty-state
                                     [title]="searchTerm ? 'No Results Found' : 'No Projects Found'"
                                     [description]="searchTerm ? 'No projects match your search criteria.' : 'There are no projects available at the moment.'"
-                                    [icon]="'inbox'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>

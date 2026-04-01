@@ -35,24 +35,24 @@
                         <th>Action</th>
                         <th (click)="sortBy('name')" class="sortable">
                             Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                            <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('email')" class="sortable">
                             Email
-                            <span class="material-icons sort-icon">{{ getSortIcon('email') }}</span>
+                            <app-icon [name]="getSortIcon('email')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('branchName')" class="sortable">
                             Branch Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('branchName') }}</span>
+                            <app-icon [name]="getSortIcon('branchName')" class="sort-icon" />
                         </th>
                         <th (click)="sortBy('userName')" class="sortable">
                             User Name
-                            <span class="material-icons sort-icon">{{ getSortIcon('userName') }}</span>
+                            <app-icon [name]="getSortIcon('userName')" class="sort-icon" />
                         </th>
                         <th>Status</th>
                         <th (click)="sortBy('createdAt')" class="sortable">
                             Created At
-                            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                         </th>
                     </tr>
                 </thead>

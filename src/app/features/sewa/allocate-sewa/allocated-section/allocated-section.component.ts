@@ -6,11 +6,12 @@ import { AllocatedVolunteer } from '../allocate-sewa.component';
 import { DataService } from '../../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
     selector: 'app-allocated-section',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, IconComponent],
     templateUrl: './allocated-section.component.html',
     styleUrls: ['./allocated-section.component.scss']
 })

@@ -44,7 +44,7 @@
                 transform: scale(1.1);
                 box-shadow: none;
 
-                .material-icons {
+                app-icon {
                     transform: rotate(5deg);
                 }
             }
@@ -79,7 +79,7 @@
                 box-shadow: none;
                 transition: all 0.3s ease;
 
-                .material-icons {
+                app-icon {
                     font-size: 40px;
                     color: $color-primary-700;
                     transition: transform 0.3s ease;
@@ -126,7 +126,7 @@
         font-weight: 500;
         font-size: 14px;
 
-        .material-icons {
+        app-icon {
             font-size: 18px;
             color: $color-green-600;
         }
@@ -211,7 +211,7 @@
                     box-shadow: none;
                 }
 
-                .material-icons {
+                app-icon {
                     font-size: 18px;
                 }
             }

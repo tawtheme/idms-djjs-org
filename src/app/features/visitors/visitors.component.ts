@@ -13,6 +13,7 @@ import { DropdownComponent, DropdownOption } from '../../shared/components/dropd
 import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
 import { CreateVisitorComponent } from './create-visitor/create-visitor.component';
 import { DataService } from '../../data.service';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 
 export interface Visitor {
   id: number; // Display ID (unique_id)
@@ -43,7 +44,8 @@ export interface Visitor {
     MenuDropdownComponent,
     DropdownComponent,
     SidePanelComponent,
-    CreateVisitorComponent
+    CreateVisitorComponent,
+    IconComponent
   ],
   selector: 'app-visitors',
   templateUrl: './visitors.component.html',

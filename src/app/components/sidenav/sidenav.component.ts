@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/ro
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -19,7 +20,7 @@ interface MenuItem {
 @Component({
   standalone: true,
   selector: 'app-sidenav',
-  imports: [RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, IconComponent],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss']
 })

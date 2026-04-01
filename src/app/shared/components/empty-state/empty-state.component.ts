@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 export interface EmptyStateConfig {
   title: string;
@@ -13,14 +14,14 @@ export interface EmptyStateConfig {
 @Component({
   selector: 'app-empty-state',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './empty-state.component.html',
   styleUrls: ['./empty-state.component.scss']
 })
 export class EmptyStateComponent {
   @Input() title: string = 'No data found';
   @Input() description: string = 'There are no items to display at the moment.';
-  @Input() icon: string = 'inbox';
+  @Input() icon: string = 'search_off';
   @Input() buttonText?: string;
   @Input() buttonIcon?: string;
   @Input() showButton: boolean = false;

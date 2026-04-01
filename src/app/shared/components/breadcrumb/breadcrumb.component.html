@@ -5,7 +5,7 @@
                 @if (item.route && !item.disabled && !isLast) {
                     <a [routerLink]="item.route" class="breadcrumb-link">
                         @if (item.icon) {
-                            <span class="material-icons breadcrumb-icon">{{ item.icon }}</span>
+                            <app-icon [name]="item.icon" class="breadcrumb-icon" />
                         }
                         <span class="breadcrumb-text">{{ item.label }}</span>
                     </a>
@@ -14,7 +14,7 @@
                 @else {
                     <span class="breadcrumb-current">
                         @if (item.icon) {
-                            <span class="material-icons breadcrumb-icon">{{ item.icon }}</span>
+                            <app-icon [name]="item.icon" class="breadcrumb-icon" />
                         }
                         <span class="breadcrumb-text">{{ item.label }}</span>
                     </span>

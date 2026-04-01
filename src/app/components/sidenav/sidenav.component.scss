@@ -37,7 +37,7 @@
     background: transparent;
     color: $color-gray-700;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /**
@@ -59,7 +59,7 @@
 /**
  * Icon base styles
  */
-@mixin menu-icon($size: 20px, $width: 24px) {
+@mixin menu-icon($size: 18px, $width: 22px) {
     font-size: $size;
     width: $width;
     text-align: center;
@@ -183,7 +183,7 @@
             gap: 10px;
             flex: 1;
             font-weight: 600;
-            font-size: 18px;
+            font-size: 16px;
             color: $color-gray-900;
             letter-spacing: 0.3px;
             transition: all 0.3s ease;
@@ -240,7 +240,7 @@
 
             .group {
                 .group-title {
-                    font-size: 11px;
+                    font-size: 10px;
                     text-transform: uppercase;
                     color: $color-gray-500;
                     letter-spacing: 0.9px;
@@ -311,7 +311,7 @@
                                 padding: 8px;
                                 border-radius: 6px;
                                 font-weight: 400;
-                                font-size: 13px;
+                                font-size: 12px;
                                 color: $color-gray-600;
 
                                 .icon {
@@ -381,7 +381,7 @@
             background: $color-red-50;
             color: $color-red-700;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
 

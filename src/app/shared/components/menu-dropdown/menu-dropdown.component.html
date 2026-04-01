@@ -8,7 +8,7 @@
         [attr.aria-expanded]="isOpen"
         [attr.aria-haspopup]="true"
         type="button">
-        <span class="menu-dots material-icons">{{ triggerText }}</span>
+        <app-icon [name]="triggerText" class="menu-dots" />
     </button>
 
     <!-- Menu List (hidden, will be cloned and appended to body) -->
@@ -21,7 +21,7 @@
             [disabled]="option.disabled"
             role="menuitem"
             (click)="selectOption(option)">
-            <span class="menu-icon material-icons" *ngIf="!!option.icon">{{ option.icon }}</span>
+            <app-icon [name]="option.icon" class="menu-icon" *ngIf="!!option.icon" />
             <span class="menu-label">{{ option.label }}</span>
         </button>
     </div>

@@ -6,11 +6,12 @@ import { UnallocatedVolunteer } from '../allocate-sewa.component';
 import { DataService } from '../../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
     selector: 'app-unallocated-section',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, IconComponent],
     templateUrl: './unallocated-section.component.html',
     styleUrls: ['./unallocated-section.component.scss']
 })

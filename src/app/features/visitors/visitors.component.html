@@ -34,25 +34,25 @@
                 <button class="btn btn--secondary btn--sm export-trigger" 
                         type="button"
                         (click)="toggleExportMenu()">
-                    <span class="material-icons">file_download</span>
+                    <app-icon name="file_download" />
                     <span>Export</span>
-                    <span class="material-icons">keyboard_arrow_down</span>
+                    <app-icon name="keyboard_arrow_down" />
                 </button>
                 <div class="export-menu" *ngIf="exportMenuOpen">
                     <button class="export-menu-item" 
                             (click)="onExportAction({id: 'export', value: 'export'})">
-                        <span class="material-icons">download</span>
+                        <app-icon name="download" />
                         <span>Export selected records</span>
                     </button>
                     <button class="export-menu-item" 
                             (click)="onExportAction({id: 'print', value: 'print'})">
-                        <span class="material-icons">print</span>
+                        <app-icon name="print" />
                         <span>Print selected records</span>
                     </button>
                 </div>
             </div>
             <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <span class="material-icons">refresh</span>
+                <app-icon name="refresh" />
                 Reset
             </button>
         </div>
@@ -79,7 +79,6 @@
                                 (click)="$event.stopPropagation()">
                         </th>
                         <th>Id</th>
-                        <th>Image</th>
                         <th>Name</th>
                         <th>Contact</th>
                         <th>Date</th>
@@ -101,15 +100,13 @@
                             <td data-label="Id">
                                 {{ visitor.id }}
                             </td>
-                            <td data-label="Image" class="image-column">
+                            <td data-label="Name" class="name-with-image">
                                 <div class="visitor-image">
-                                    <img [src]="visitor.image || '/assets/img/placeholder.svg'" 
+                                    <img [src]="visitor.image || '/assets/img/placeholder.svg'"
                                         [alt]="visitor.name"
                                         onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
-                            </td>
-                            <td data-label="Name" class="name">
-                                {{ visitor.name }}
+                                <span>{{ visitor.name }}</span>
                             </td>
                             <td data-label="Contact" class="contact-column">
                                 <div class="contact-info">
@@ -144,11 +141,10 @@
                         </tr>
                         <!-- Empty state -->
                         <tr *ngIf="pagedVisitors.length === 0">
-                            <td [attr.colspan]="10" class="empty-state-cell">
+                            <td [attr.colspan]="9" class="empty-state-cell">
                                 <app-empty-state
                                     [title]="searchTerm || selectedGender.length > 0 ? 'No Results Found' : 'No Visitors Found'"
                                     [description]="searchTerm || selectedGender.length > 0 ? 'No visitors match your search criteria.' : 'There are no visitors available at the moment.'"
-                                    [icon]="'people'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>
@@ -156,7 +152,7 @@
                     </ng-container>
                     <!-- Loading cell -->
                     <tr *ngIf="isLoading">
-                        <td [attr.colspan]="10" class="loading-cell">
+                        <td [attr.colspan]="9" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>

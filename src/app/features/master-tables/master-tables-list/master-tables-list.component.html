@@ -33,12 +33,12 @@
                         <tr>
                             <th (click)="sortBy('name')" class="sortable">
                                 Name
-                                <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                                <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                             </th>
                             <th>Status</th>
                             <th (click)="sortBy('createdAt')" class="sortable">
                                 Created At
-                                <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                                <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                             </th>
                             <th class="action-column">Action</th>
                         </tr>
@@ -70,7 +70,7 @@
                                 <td [attr.colspan]="4" class="empty-state-cell">
                                     <app-empty-state [title]="searchTerm ? 'No Results Found' : 'No Records Found'"
                                         [description]="searchTerm ? 'No records match your search criteria.' : 'There are no records available for the selected master table.'"
-                                        [icon]="'inbox'" [size]="'small'">
+                                        [size]="'small'">
                                     </app-empty-state>
                                 </td>
                             </tr>

@@ -57,11 +57,11 @@
                     </th>
                     <th (click)="sortBy('name')" class="sortable">
                         Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                     </th>
                     <th (click)="sortBy('createdAt')" class="sortable">
                         Created At
-                        <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+                        <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                     </th>
                     <th class="action-column">Action</th>
                 </tr>
@@ -94,7 +94,6 @@
                             <app-empty-state
                                 [title]="searchTerm ? 'No Results Found' : 'No Initiatives Found'"
                                 [description]="searchTerm ? 'No initiatives match your search criteria.' : 'There are no initiatives available at the moment.'"
-                                [icon]="'inbox'"
                                 [size]="'small'">
                             </app-empty-state>
                         </td>

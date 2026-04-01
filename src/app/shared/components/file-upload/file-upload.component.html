@@ -3,7 +3,7 @@
         (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
         <div class="drop-zone-inner" (click)="openFileDialog(fileInput, $event)">
             <div class="drop-zone-content">
-                <span class="material-icons">cloud_upload</span>
+                <app-icon name="cloud_upload" />
                 <div class="drop-text">
                     {{ config.dropText }}
                     @if (config.accept || config.maxSizeMb) {
@@ -37,7 +37,7 @@
     @if (selectedFiles.length) {
         @if (config.showFileListHeader !== false) {
             <div class="file-list-header">
-                <span class="material-icons">check_circle</span>
+                <app-icon name="check_circle" />
                 <span class="file-count">{{ getFileListHeaderText() }}</span>
             </div>
         }
@@ -45,14 +45,14 @@
             @for (file of selectedFiles; track file.name) {
                 <li class="file-item">
                     <div class="file-icon-container">
-                        <span class="material-icons file-icon">insert_drive_file</span>
+                        <app-icon name="insert_drive_file" class="file-icon" />
                         <div class="file-meta">
                             <div class="file-name">{{ file.name }}</div>
                             <div class="file-size">{{ formatFileSize(file.size) }}</div>
                         </div>
                     </div>
                     <button type="button" class="remove-btn" (click)="removeFile(file)" title="Remove file">
-                        <span class="material-icons">close</span>
+                        <app-icon name="close" />
                     </button>
                 </li>
             }

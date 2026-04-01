@@ -10,8 +10,8 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { MoreFiltersModalComponent } from '../all-volunteers/more-filters-modal/more-filters-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface ResignedSewa {
   id: number;
@@ -39,7 +39,7 @@ export interface ResignedSewa {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    MoreFiltersModalComponent
+    IconComponent
   ],
   selector: 'app-resigned-sewas',
   templateUrl: './resigned-sewas.component.html',
@@ -66,11 +66,29 @@ export class ResignedSewasComponent implements OnInit {
   genderOptions: DropdownOption[] = [];
   selectedTaskBranch: any[] = [];
   taskBranchOptions: DropdownOption[] = [];
-  selectedSewa: any[] = [];
+  sortOrder: any[] = [];
+  sortOrderOptions: DropdownOption[] = [];
+
+  // Filter panel toggle
+  filtersExpanded = false;
+
+  // Inline filter options
+  correspondingBranchOptions: DropdownOption[] = [];
+  branchSearchTypeOptions: DropdownOption[] = [];
   sewaOptions: DropdownOption[] = [];
-  
-  // More Filters
-  moreFiltersModalOpen = false;
+  sewaInterestOptions: DropdownOption[] = [
+    { id: '1', label: 'Yes', value: 'yes' },
+    { id: '2', label: 'No', value: 'no' }
+  ];
+  sewaAllocatedOptions: DropdownOption[] = [
+    { id: '1', label: 'Yes', value: 'yes' },
+    { id: '2', label: 'No', value: 'no' }
+  ];
+  sewaModeOptions: DropdownOption[] = [
+    { id: '1', label: 'Regular', value: 'regular' },
+    { id: '2', label: 'Occasional', value: 'occasional' }
+  ];
+
   moreFilters: any = {
     correspondingBranch: [],
     branchSearchType: [],
@@ -109,8 +127,25 @@ export class ResignedSewasComponent implements OnInit {
       { id: '3', label: 'Other', value: 'Other' }
     ];
 
-    // Task branch and sewa options will be populated from API data
+    this.sortOrderOptions = [
+      { id: '0', label: 'None', value: '' },
+      { id: '1', label: 'Name (ASC)', value: 'name:asc' },
+      { id: '2', label: 'Name (DESC)', value: 'name:desc' },
+      { id: '3', label: 'Id (ASC)', value: 'id:asc' },
+      { id: '4', label: 'Id (DESC)', value: 'id:desc' }
+    ];
+
+    // Task branch options will be populated from API data
     this.taskBranchOptions = [];
+
+    this.correspondingBranchOptions = [];
+
+    this.branchSearchTypeOptions = [
+      { id: '1', label: 'Exact Match', value: 'exact' },
+      { id: '2', label: 'Contains', value: 'contains' },
+      { id: '3', label: 'Starts With', value: 'startsWith' }
+    ];
+
     this.sewaOptions = [];
   }
 
@@ -211,6 +246,18 @@ export class ResignedSewasComponent implements OnInit {
       value: branch
     }));
 
+    // Update corresponding branch options
+    const correspondingBranches = new Set<string>();
+    this.allResignedSewas.forEach(sewa => {
+      if (sewa.correspondingBranch) correspondingBranches.add(sewa.correspondingBranch);
+    });
+
+    this.correspondingBranchOptions = Array.from(correspondingBranches).sort().map((branch, index) => ({
+      id: String(index + 1),
+      label: branch,
+      value: branch
+    }));
+
     // Update sewa options
     const sewas = new Set<string>();
     this.allResignedSewas.forEach(sewa => {
@@ -245,7 +292,7 @@ export class ResignedSewasComponent implements OnInit {
     this.searchTerm = '';
     this.selectedGender = [];
     this.selectedTaskBranch = [];
-    this.selectedSewa = [];
+    this.sortOrder = [];
     this.moreFilters = {
       correspondingBranch: [],
       branchSearchType: [],
@@ -260,12 +307,12 @@ export class ResignedSewasComponent implements OnInit {
   applyFilter(): void {
     const term = this.searchTerm.trim().toLowerCase();
     const taskBranch = this.selectedTaskBranch[0] || '';
-    const sewa = this.selectedSewa[0] || '';
+    const sewa = this.moreFilters.sewa[0] || '';
     const correspondingBranch = this.moreFilters.correspondingBranch[0] || '';
 
     // Filter resigned sewas
     let filtered = this.allResignedSewas.filter((r) => {
-      const matchesTerm = !term || 
+      const matchesTerm = !term ||
         r.userName.toLowerCase().includes(term) ||
         r.badgeNo.toLowerCase().includes(term) ||
         r.reason.toLowerCase().includes(term);
@@ -276,6 +323,36 @@ export class ResignedSewasComponent implements OnInit {
 
       return matchesTerm && matchesTaskBranch && matchesSewa && matchesCorrespondingBranch;
     });
+
+    // Apply sorting
+    const sortOrderValue = this.sortOrder[0]?.value || '';
+
+    if (sortOrderValue) {
+      const [sortField, orderDirection] = sortOrderValue.split(':');
+      const orderByValue = orderDirection || 'asc';
+
+      filtered = [...filtered].sort((a: ResignedSewa, b: ResignedSewa) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortField) {
+          case 'name':
+            aValue = a.userName.toLowerCase();
+            bValue = b.userName.toLowerCase();
+            break;
+          case 'id':
+            aValue = a.id;
+            bValue = b.id;
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) return orderByValue === 'asc' ? -1 : 1;
+        if (aValue > bValue) return orderByValue === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
 
     this.resignedSewas = filtered;
     this.totalItems = this.resignedSewas.length;
@@ -361,18 +438,33 @@ export class ResignedSewasComponent implements OnInit {
     }
   }
 
-  // More Filters Modal
-  openMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = true;
+  // Filter panel
+  toggleFiltersPanel(): void {
+    this.filtersExpanded = !this.filtersExpanded;
   }
 
-  closeMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = false;
+  totalActiveFiltersCount(): number {
+    let count = 0;
+    if (this.selectedGender.length > 0) count++;
+    if (this.selectedTaskBranch.length > 0) count++;
+    if (this.sortOrder.length > 0 && this.sortOrder[0]?.value) count++;
+    count += this.activeMoreFiltersCount();
+    return count;
   }
 
-  onMoreFiltersApply(filters: any): void {
-    this.moreFilters = filters;
-    this.applyFilter();
+  hasActiveMoreFilters(): boolean {
+    return this.activeMoreFiltersCount() > 0;
+  }
+
+  activeMoreFiltersCount(): number {
+    return Object.values(this.moreFilters).filter((v: any) => Array.isArray(v) && v.length > 0).length;
+  }
+
+  hasAnyActiveFilter(): boolean {
+    return !!this.searchTerm || this.selectedGender.length > 0 ||
+      this.selectedTaskBranch.length > 0 ||
+      (this.sortOrder.length > 0 && !!this.sortOrder[0]?.value) ||
+      this.hasActiveMoreFilters();
   }
 
   @HostListener('document:click', ['$event'])

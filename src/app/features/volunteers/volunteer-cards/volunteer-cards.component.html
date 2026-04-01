@@ -3,18 +3,19 @@
         <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
     </div>
 
-    <!-- Filter Section -->
-    <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Relation Name, Mobile No., UID"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="onSearchChange()"/>
-        </div>
-        <div class="listing-search-item">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="search-panel__top">
+            <div class="search-input-wrapper">
+                <app-icon name="search" class="search-input-icon" />
+                <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search by Name, Relation Name, Mobile No., UID"
+                    [(ngModel)]="searchTerm"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="onSearchChange()"/>
+            </div>
             <app-dropdown
                 [options]="sewaOptions"
                 [selectedValues]="selectedSewa"
@@ -35,15 +36,57 @@
                 placeholder="Date Range"
                 (dateRangeChange)="onDateRangeChange($event)">
             </app-date-range-picker>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="openMoreFiltersModal()">
-                <span class="material-icons">tune</span>
-                Filter
-            </button>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <span class="material-icons">refresh</span>
-                Reset Filter
-            </button>
+            <div class="search-panel__actions">
+                <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
+                    <app-icon name="tune" />
+                    <span>Filters</span>
+                    <span class="filter-count" *ngIf="totalActiveFiltersCount() > 0">{{ totalActiveFiltersCount() }}</span>
+                    <app-icon name="keyboard_arrow_down" class="filter-btn__arrow" [class.filter-btn__arrow--up]="filtersExpanded" />
+                </button>
+                <button class="filter-btn" type="button" (click)="resetFilter()" *ngIf="hasAnyActiveFilter()">
+                    <app-icon name="close" />
+                    <span>Clear All</span>
+                </button>
+            </div>
         </div>
+        @if (filtersExpanded) {
+        <div class="search-panel__filters search-panel__filters--expanded">
+            <div class="search-panel__filters-inner">
+                <div class="filters-grid">
+                    <div class="filter-field">
+                        <label>Task Branch</label>
+                        <app-dropdown
+                            [options]="taskBranchOptions"
+                            [selectedValues]="moreFilters.taskBranch"
+                            placeholder="Select Branch"
+                            (selectionChange)="moreFilters.taskBranch = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Corresponding Branch</label>
+                        <app-dropdown
+                            [options]="correspondingBranchOptions"
+                            [selectedValues]="moreFilters.correspondingBranch"
+                            placeholder="Select Branch"
+                            (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Branch Search Type</label>
+                        <app-dropdown
+                            [options]="branchSearchTypeOptions"
+                            [selectedValues]="moreFilters.branchSearchType"
+                            placeholder="Select Type"
+                            (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
     </div>
 
     <!-- Volunteer Cards table -->
@@ -51,23 +94,14 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()">
-                    </th>
                     <th>Action</th>
                     <th (click)="sortBy('id')" class="sortable">
                         Id
-                        <span class="material-icons sort-icon">{{ getSortIcon('id') }}</span>
+                        <app-icon [name]="getSortIcon('id')" class="sort-icon" />
                     </th>
-                    <th>Image</th>
                     <th (click)="sortBy('name')" class="sortable">
                         Name
-                        <span class="material-icons sort-icon">{{ getSortIcon('name') }}</span>
+                        <app-icon [name]="getSortIcon('name')" class="sort-icon" />
                     </th>
                     <th>Father Name</th>
                     <th>Phone</th>
@@ -79,12 +113,6 @@
             </thead>
             <tbody>
                 <tr *ngFor="let card of pagedCards; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
-                        <input
-                            type="checkbox"
-                            [checked]="selectedCards.has(card.id)"
-                            (change)="toggleSelectCard(card.id, $event)">
-                    </td>
                     <td data-label="Action" (click)="$event.stopPropagation()">
                         <app-menu-dropdown
                             [options]="getActionOptions(card)"
@@ -94,15 +122,13 @@
                     <td data-label="Id">
                         {{ card.id }}
                     </td>
-                    <td data-label="Image" class="image-column">
+                    <td data-label="Name" class="name-with-image">
                         <div class="volunteer-image">
-                            <img [src]="card.image || '/assets/img/placeholder.svg'" 
+                            <img [src]="card.image || '/assets/img/placeholder.svg'"
                                  [alt]="card.name"
                                  onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
-                    </td>
-                    <td data-label="Name" class="name">
-                        {{ card.name }}
+                        <span class="volunteer-name">{{ card.name }}</span>
                     </td>
                     <td data-label="Father Name">
                         {{ card.relationName || card.fatherName || '-' }}
@@ -124,7 +150,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="pagedCards.length === 0">
-                    <td [attr.colspan]="11" class="no-data">No data available in table</td>
+                    <td [attr.colspan]="9" class="no-data">No data available in table</td>
                 </tr>
             </tbody>
         </table>
@@ -140,14 +166,6 @@
         (pageSizeChange)="onPageSizeChange($event)">
     </app-pager>
 
-    <!-- Empty state -->
-    <app-empty-state
-        *ngIf="volunteerCards.length === 0"
-        title="No Volunteer Cards Found"
-        description="There are no volunteer cards to display at the moment."
-        icon="badge"
-        [showButton]="false">
-    </app-empty-state>
 
     <!-- More Filters Modal -->
     <app-volunteer-cards-filters-modal

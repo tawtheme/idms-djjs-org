@@ -9,6 +9,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DateRangePickerComponent } from '../../../shared/components/date-range-picker/date-range-picker.component';
 import { VolunteerCardsFiltersModalComponent } from './filters-modal/filters-modal.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface VolunteerCard {
   id: number;
@@ -42,7 +43,8 @@ export interface VolunteerCard {
     MenuDropdownComponent,
     DropdownComponent,
     DateRangePickerComponent,
-    VolunteerCardsFiltersModalComponent
+    VolunteerCardsFiltersModalComponent,
+    IconComponent
   ],
   selector: 'app-volunteer-cards',
   templateUrl: './volunteer-cards.component.html',
@@ -67,6 +69,12 @@ export class VolunteerCardsComponent {
   // Date Range
   dateRangeFrom: Date | null = null;
   dateRangeTo: Date | null = null;
+
+  // Filters panel
+  filtersExpanded = false;
+  taskBranchOptions: DropdownOption[] = [];
+  correspondingBranchOptions: DropdownOption[] = [];
+  branchSearchTypeOptions: DropdownOption[] = [];
 
   // More Filters Modal
   moreFiltersModalOpen = false;
@@ -118,6 +126,31 @@ export class VolunteerCardsComponent {
 
   onSearchChange(): void {
     this.applyFilter();
+  }
+
+  toggleFiltersPanel(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  hasAnyActiveFilter(): boolean {
+    return this.selectedGender.length > 0 ||
+      this.selectedSewa.length > 0 ||
+      this.dateRangeFrom !== null ||
+      this.dateRangeTo !== null ||
+      this.moreFilters.taskBranch.length > 0 ||
+      this.moreFilters.correspondingBranch.length > 0 ||
+      this.moreFilters.branchSearchType.length > 0;
+  }
+
+  totalActiveFiltersCount(): number {
+    let count = 0;
+    if (this.selectedGender.length > 0) count++;
+    if (this.selectedSewa.length > 0) count++;
+    if (this.dateRangeFrom !== null) count++;
+    if (this.moreFilters.taskBranch.length > 0) count++;
+    if (this.moreFilters.correspondingBranch.length > 0) count++;
+    if (this.moreFilters.branchSearchType.length > 0) count++;
+    return count;
   }
 
   resetFilter(): void {

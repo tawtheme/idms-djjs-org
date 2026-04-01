@@ -3,9 +3,7 @@
         @if (showControls) {
             <div class="magnifier-controls">
                 <button type="button" class="control-btn primary" (click)="toggleEnabled()" title="Toggle glass">
-                    <span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">
-                        {{ enabled ? 'zoom_out_map' : 'zoom_in_map' }}
-                    </span>
+                    <app-icon [name]="enabled ? 'zoom_out_map' : 'zoom_in_map'" />
                     {{ enabled ? 'Hide Glass' : 'Get Glass' }}
                 </button>
             </div>

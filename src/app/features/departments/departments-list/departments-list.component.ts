@@ -7,6 +7,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -29,7 +30,8 @@ export interface Department {
     BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    MenuDropdownComponent
+    MenuDropdownComponent,
+    IconComponent
   ],
   selector: 'app-departments-list',
   templateUrl: './departments-list.component.html',

@@ -13,11 +13,10 @@
         border-bottom: 1px solid $color-gray-200;
 
         th {
-            padding: 12px;
+            padding: 8px;
             text-align: left;
             font-weight: 600;
             font-size: 12px;
-            text-transform: uppercase;
             color: $color-gray-700;
             position: sticky;
             top: 0;
@@ -57,11 +56,17 @@
         }
 
         td {
-            padding: 16px 12px;
+            padding: 12px;
             font-size: 14px;
             font-weight: 500;
             color: $color-gray-900;
             text-transform: capitalize;
+            vertical-align: top;
+
+            &[data-label="Email"],
+            .contact-email {
+                text-transform: none;
+            }
         }
     }
 

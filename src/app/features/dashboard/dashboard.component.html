@@ -17,7 +17,7 @@
         <div class="stats-grid">
             <div class="stat-card" *ngFor="let stat of stats" [class]="'stat-card--' + stat.iconColor">
                 <div class="stat-icon" [class]="'stat-icon--' + stat.iconColor">
-                    <span class="material-icons">{{ stat.icon }}</span>
+                    <app-icon [name]="stat.icon" />
                 </div>
                 <div class="stat-content">
                     <div class="stat-title">{{ stat.title }}</div>

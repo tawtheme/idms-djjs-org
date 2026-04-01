@@ -35,7 +35,7 @@
                         <div class="card-badge" *ngIf="volunteer.badgeNo">Badge: {{ volunteer.badgeNo }}</div>
                         <div class="card-name">{{ volunteer.name }}</div>
                         <div class="card-sewa" *ngIf="volunteer.sewa">
-                            <span class="material-icons">work</span>
+                            <app-icon name="work" />
                             {{ volunteer.sewa }}
                         </div>
                         <div class="card-regular" *ngIf="volunteer.isRegular">

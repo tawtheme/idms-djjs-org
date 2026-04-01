@@ -10,13 +10,13 @@
             @if (value && !disabled) {
                 <button type="button" class="clear-button" (click)="clearAddress()"
                     aria-label="Clear address">
-                    <span class="material-icons">close</span>
+                    <app-icon name="close" />
                 </button>
             }
 
             @if (isLoading) {
                 <div class="loading-spinner">
-                    <span class="material-icons">refresh</span>
+                    <app-icon name="refresh" />
                 </div>
             }
         </div>
@@ -32,9 +32,7 @@
 
                     <div class="suggestion-content">
                         <div class="suggestion-main">
-                            <span class="material-icons suggestion-icon">
-                                {{ mode === 'state' ? 'location_on' : 'place' }}
-                            </span>
+                            <app-icon [name]="mode === 'state' ? 'location_on' : 'place'" class="suggestion-icon" />
                             <span class="suggestion-text">{{ suggestion.structured_formatting.main_text }}</span>
                         </div>
                         <div class="suggestion-secondary">
@@ -48,7 +46,7 @@
 
     @if (showSuggestions && suggestions.length === 0 && value.length >= 2 && !isLoading) {
         <div class="no-suggestions">
-            <span class="material-icons">search_off</span>
+            <app-icon name="search_off" />
             <span>No addresses found</span>
         </div>
     }

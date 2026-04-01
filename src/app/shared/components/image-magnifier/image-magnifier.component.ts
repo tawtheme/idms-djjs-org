@@ -1,10 +1,11 @@
 import { Component, Input, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-image-magnifier',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './image-magnifier.component.html',
   styleUrls: ['./image-magnifier.component.scss']
 })

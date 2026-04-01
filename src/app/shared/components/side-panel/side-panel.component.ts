@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, TemplateRef, ViewChild, ViewContainerRef, ViewEncapsulation, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Overlay, OverlayRef, OverlayModule } from '@angular/cdk/overlay';
+import { IconComponent } from '../icon/icon.component';
 import { TemplatePortal, PortalModule } from '@angular/cdk/portal';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -18,7 +19,7 @@ export interface SidePanelConfig {
 @Component({
   selector: 'app-side-panel',
   standalone: true,
-  imports: [CommonModule, OverlayModule, PortalModule],
+  imports: [CommonModule, OverlayModule, PortalModule, IconComponent],
   templateUrl: './side-panel.component.html',
   styleUrls: ['./side-panel.component.scss'],
   encapsulation: ViewEncapsulation.None

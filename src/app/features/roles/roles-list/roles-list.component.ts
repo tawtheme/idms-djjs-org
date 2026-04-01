@@ -9,6 +9,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { AddRoleModalComponent } from './add-role-modal/add-role-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -29,7 +30,8 @@ export interface Role {
     EmptyStateComponent,
     LoadingComponent,
     MenuDropdownComponent,
-    AddRoleModalComponent
+    AddRoleModalComponent,
+    IconComponent
   ],
   selector: 'app-roles-list',
   templateUrl: './roles-list.component.html',

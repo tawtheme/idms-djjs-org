@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 export interface SnackbarConfig {
   message: string;
@@ -14,13 +15,13 @@ export interface SnackbarConfig {
 @Component({
   selector: 'app-snackbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   template: `
     @if (isVisible) {
     <div class="snackbar" [class]="'snackbar-' + config.type">
       <div class="snackbar-content">
         <div class="snackbar-icon">
-          <span class="material-icons">{{ getIcon() }}</span>
+          <app-icon [name]="getIcon()" />
         </div>
         <div class="snackbar-message">
           {{ config.message }}
@@ -31,7 +32,7 @@ export interface SnackbarConfig {
         </button>
         }
         <button class="snackbar-close" (click)="hide()">
-          <span class="material-icons">close</span>
+          <app-icon name="close" />
         </button>
       </div>
     </div>

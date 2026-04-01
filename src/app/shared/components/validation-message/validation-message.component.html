@@ -10,13 +10,13 @@
                     @if (showIcon) {
                         <span class="validation-message-icon">
                             @if (error.type === 'error') {
-                                <span class="material-icons" aria-label="Error">error</span>
+                                <app-icon name="error" />
                             }
                             @if (error.type === 'warning') {
-                                <span class="material-icons" aria-label="Warning">warning</span>
+                                <app-icon name="warning" />
                             }
                             @if (error.type === 'info') {
-                                <span class="material-icons" aria-label="Info">info</span>
+                                <app-icon name="info" />
                             }
                         </span>
                     }

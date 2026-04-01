@@ -10,6 +10,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { AddProjectModalComponent } from './add-project-modal/add-project-modal.component';
 import { DataService } from '../../../data.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -35,7 +36,8 @@ export interface Project {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    AddProjectModalComponent
+    AddProjectModalComponent,
+    IconComponent
   ],
   selector: 'app-projects-list',
   templateUrl: './projects-list.component.html',

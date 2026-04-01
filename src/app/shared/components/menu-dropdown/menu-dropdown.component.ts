@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef, ViewChild, ViewEncapsulation, ChangeDetectorRef, Renderer2, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../icon/icon.component';
 
 export interface MenuOption {
   id: string;
@@ -13,7 +14,7 @@ export interface MenuOption {
 @Component({
   selector: 'app-menu-dropdown',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './menu-dropdown.component.html',
   styleUrls: ['./menu-dropdown.component.scss'],
   encapsulation: ViewEncapsulation.None
