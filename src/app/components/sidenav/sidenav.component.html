@@ -12,13 +12,14 @@
                     <li *ngFor="let item of group.items">
                         <!-- Menu item with children -->
                         <div *ngIf="hasChildren(item)" class="menu-item-with-children">
-                            <button 
+                            <button
                                 type="button"
-                                class="menu-parent" 
+                                class="menu-parent"
                                 [class.expanded]="isExpanded(item.label)"
                                 [attr.aria-expanded]="isExpanded(item.label)"
                                 [attr.aria-label]="item.label"
                                 (click)="toggleExpand(item.label, $event)">
+                                    <app-icon [name]="item.icon" class="icon" />
                                     <span class="text" *ngIf="!isCollapsed">{{ item.label }}</span>
                                 <app-icon [name]="isExpanded(item.label) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" class="arrow" *ngIf="!isCollapsed" />
                             </button>
@@ -39,10 +40,11 @@
                         </div>
                         
                         <!-- Regular menu item without children -->
-                        <a *ngIf="!hasChildren(item)" 
-                           [routerLink]="item.route" 
+                        <a *ngIf="!hasChildren(item)"
+                           [routerLink]="item.route"
                            routerLinkActive="active"
                            (click)="onNavClick()">
+                            <app-icon [name]="item.icon" class="icon" />
                             <span class="text" *ngIf="!isCollapsed">{{ item.label }}</span>
                         </a>
                     </li>

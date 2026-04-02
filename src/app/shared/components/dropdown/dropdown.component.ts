@@ -202,7 +202,7 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onWindowScroll(): void {
     if (this.isOpen) {
       this.checkAvailableSpace();

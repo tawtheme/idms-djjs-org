@@ -1,0 +1,169 @@
+<app-modal
+    [isOpen]="isOpen"
+    [title]="programName || 'Program Attendance'"
+    size="extraLarge"
+    [closable]="true"
+    (close)="onClose()">
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tabs__left">
+            <button class="tabs__btn" [class.tabs__btn--active]="activeTab === 'aggregated'" (click)="switchTab('aggregated')">
+                <app-icon name="bar_chart" />
+                <span>Aggregated Report</span>
+            </button>
+            <button class="tabs__btn" [class.tabs__btn--active]="activeTab === 'details'" (click)="switchTab('details')">
+                <app-icon name="people" />
+                <span>Attendance Details</span>
+            </button>
+        </div>
+        <div class="tabs__right">
+            <button class="btn btn--primary btn--sm" *ngIf="activeTab === 'aggregated' && aggregatedRows.length > 0" (click)="downloadAggregatedCSV()">
+                <app-icon name="download" />
+                <span>Download CSV</span>
+            </button>
+            <ng-container *ngIf="activeTab === 'details'">
+                <button class="btn btn--primary btn--sm" (click)="exportDetailsCSV()">
+                    <app-icon name="download" />
+                    <span>Export to CSV</span>
+                </button>
+                <button class="btn btn--outline btn--sm" (click)="printDetails()">
+                    <app-icon name="print" />
+                    <span>Print</span>
+                </button>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Aggregated Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'aggregated'">
+        <div *ngIf="isLoadingAggregated" class="loading-cell">
+            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+        </div>
+
+        <ng-container *ngIf="!isLoadingAggregated">
+            <div *ngIf="aggregatedRows.length === 0" class="loading-cell">
+                <app-empty-state title="No Data" description="No aggregated attendance data available." size="small"></app-empty-state>
+            </div>
+
+            <div class="agg-list" *ngIf="aggregatedRows.length > 0">
+                <div class="agg-row" *ngFor="let row of aggregatedRows">
+                    <div class="agg-row__name">
+                        <span>{{ row.sewaName }}</span>
+                    </div>
+                    <div class="agg-row__stats">
+                        <div class="agg-pill agg-pill--total">
+                            <span class="agg-pill__val">{{ row.totalVolunteers }}</span>
+                            <span class="agg-pill__lbl">Total</span>
+                        </div>
+                        <div class="agg-pill agg-pill--present">
+                            <span class="agg-pill__val">{{ row.present }}</span>
+                            <span class="agg-pill__lbl">Present</span>
+                        </div>
+                        <div class="agg-pill agg-pill--return">
+                            <span class="agg-pill__val">{{ row.return }}</span>
+                            <span class="agg-pill__lbl">Return</span>
+                        </div>
+                        <div class="agg-pill agg-pill--leaves">
+                            <span class="agg-pill__val">{{ row.leaves }}</span>
+                            <span class="agg-pill__lbl">Leaves</span>
+                        </div>
+                        <div class="agg-pill agg-pill--left">
+                            <span class="agg-pill__val">{{ row.left }}</span>
+                            <span class="agg-pill__lbl">Left</span>
+                        </div>
+                        <div class="agg-pill agg-pill--absent">
+                            <span class="agg-pill__val">{{ row.absent }}</span>
+                            <span class="agg-pill__lbl">Absent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+    <!-- Details Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'details'">
+        <!-- Search & Filters Bar -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <app-icon name="search" class="search-box__icon" />
+                <input type="text" class="search-box__input" placeholder="Search volunteers..."
+                    [(ngModel)]="filterTerm" [ngModelOptions]="{ standalone: true }" (keyup.enter)="applyFilter()" />
+            </div>
+            <app-dropdown [options]="listViewOptions" [selectedValues]="selectedListViewType"
+                placeholder="Select Status" [closeOnSelect]="true"
+                (selectionChange)="selectedListViewType = $event; onListViewChange()">
+            </app-dropdown>
+            <app-dropdown [options]="sewaTypeOptions" [selectedValues]="selectedSewaType"
+                placeholder="Select Sewa" [searchable]="true" [closeOnSelect]="true"
+                (selectionChange)="selectedSewaType = $event; onSewaTypeChange()">
+            </app-dropdown>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Sewa</th>
+                        <th>Badge No.</th>
+                        <th>Donation</th>
+                        <th>Status</th>
+                        <th>CheckIn</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngIf="isLoadingDetails">
+                        <td colspan="9" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                    <ng-container *ngIf="!isLoadingDetails">
+                        <tr *ngFor="let record of volunteerRecords; trackBy: trackById">
+                            <td><span class="id-badge">{{ record.id }}</span></td>
+                            <td><span class="name-text">{{ record.name }}</span></td>
+                            <td>
+                                <div class="volunteer-image">
+                                    <img [src]="record.image || '/assets/img/placeholder.svg'" [alt]="record.name"
+                                        onerror="this.src='/assets/img/placeholder.svg'" />
+                                </div>
+                            </td>
+                            <td>{{ record.sewa }}</td>
+                            <td>{{ record.badgeNo }}</td>
+                            <td>
+                                <span *ngIf="record.donation">{{ record.donation }}</span>
+                                <span *ngIf="!record.donation" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusClass(record.status)" *ngIf="record.status">{{ record.status }}</span>
+                                <span *ngIf="!record.status" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>
+                                <span *ngIf="!record.checkIn" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span *ngIf="record.remarks">{{ record.remarks }}</span>
+                                <span *ngIf="!record.remarks" class="text-muted">-</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="volunteerRecords.length === 0">
+                            <td colspan="9" class="empty-cell">
+                                <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+
+        <app-pager [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
+    </div>
+</app-modal>

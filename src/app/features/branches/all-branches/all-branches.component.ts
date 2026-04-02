@@ -7,6 +7,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -34,6 +35,7 @@ export interface Branch {
     EmptyStateComponent,
     LoadingComponent,
     MenuDropdownComponent,
+    DropdownComponent,
     AddBranchModalComponent,
     IconComponent
   ],
@@ -60,6 +62,8 @@ export class AllBranchesComponent implements OnInit {
 
   // Filters
   searchTerm = '';
+  branchDropdownOptions: DropdownOption[] = [];
+  selectedBranchFilter: any[] = [];
 
   // Sorting
   sortField = '';
@@ -114,12 +118,26 @@ export class AllBranchesComponent implements OnInit {
       });
 
       this.isLoading = false;
+
+      // Build branch dropdown options
+      this.branchDropdownOptions = this.allBranches.map(b => ({
+        id: b.id,
+        label: b.name,
+        value: b.name
+      }));
+
       this.applyFilters();
     });
   }
 
   applyFilters(): void {
     let filtered = [...this.allBranches];
+
+    // Branch dropdown filter
+    const selectedBranch = this.selectedBranchFilter[0]?.value || '';
+    if (selectedBranch) {
+      filtered = filtered.filter(branch => branch.name === selectedBranch);
+    }
 
     if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();

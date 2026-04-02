@@ -23,6 +23,9 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy, OnChanges
   /** Dialog message/question */
   @Input() message: string = 'Are you sure you want to proceed?';
 
+  /** Text within the message to highlight as bold */
+  @Input() highlightText: string = '';
+
   /** Label for the Yes/Confirm button (default: "Yes") */
   @Input() confirmLabel: string = 'Yes';
 

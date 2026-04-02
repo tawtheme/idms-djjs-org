@@ -4,10 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DateRangePickerComponent } from '../../../shared/components/date-range-picker/date-range-picker.component';
 import { VolunteerCardsFiltersModalComponent } from './filters-modal/filters-modal.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
@@ -39,10 +37,8 @@ export interface VolunteerCard {
     FormsModule,
     BreadcrumbComponent,
     PagerComponent,
-    EmptyStateComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    DateRangePickerComponent,
     VolunteerCardsFiltersModalComponent,
     IconComponent
   ],
@@ -66,22 +62,27 @@ export class VolunteerCardsComponent {
   selectedSewa: any[] = [];
   sewaOptions: DropdownOption[] = [];
   
-  // Date Range
-  dateRangeFrom: Date | null = null;
-  dateRangeTo: Date | null = null;
-
   // Filters panel
   filtersExpanded = false;
   taskBranchOptions: DropdownOption[] = [];
   correspondingBranchOptions: DropdownOption[] = [];
   branchSearchTypeOptions: DropdownOption[] = [];
+  filterOptionsDropdown: DropdownOption[] = [];
 
   // More Filters Modal
   moreFiltersModalOpen = false;
   moreFilters: any = {
     taskBranch: [],
     correspondingBranch: [],
-    branchSearchType: []
+    branchSearchType: [],
+    badgeNo: '',
+    name: '',
+    relationName: '',
+    mobileNo: '',
+    uid: '',
+    options: [],
+    startFrom: '',
+    endTo: ''
   };
 
   // Sorting
@@ -135,21 +136,34 @@ export class VolunteerCardsComponent {
   hasAnyActiveFilter(): boolean {
     return this.selectedGender.length > 0 ||
       this.selectedSewa.length > 0 ||
-      this.dateRangeFrom !== null ||
-      this.dateRangeTo !== null ||
       this.moreFilters.taskBranch.length > 0 ||
       this.moreFilters.correspondingBranch.length > 0 ||
-      this.moreFilters.branchSearchType.length > 0;
+      this.moreFilters.branchSearchType.length > 0 ||
+      !!this.moreFilters.badgeNo ||
+      !!this.moreFilters.name ||
+      !!this.moreFilters.relationName ||
+      !!this.moreFilters.mobileNo ||
+      !!this.moreFilters.uid ||
+      this.moreFilters.options.length > 0 ||
+      !!this.moreFilters.startFrom ||
+      !!this.moreFilters.endTo;
   }
 
   totalActiveFiltersCount(): number {
     let count = 0;
     if (this.selectedGender.length > 0) count++;
     if (this.selectedSewa.length > 0) count++;
-    if (this.dateRangeFrom !== null) count++;
     if (this.moreFilters.taskBranch.length > 0) count++;
     if (this.moreFilters.correspondingBranch.length > 0) count++;
     if (this.moreFilters.branchSearchType.length > 0) count++;
+    if (this.moreFilters.badgeNo) count++;
+    if (this.moreFilters.name) count++;
+    if (this.moreFilters.relationName) count++;
+    if (this.moreFilters.mobileNo) count++;
+    if (this.moreFilters.uid) count++;
+    if (this.moreFilters.options.length > 0) count++;
+    if (this.moreFilters.startFrom) count++;
+    if (this.moreFilters.endTo) count++;
     return count;
   }
 
@@ -157,12 +171,18 @@ export class VolunteerCardsComponent {
     this.searchTerm = '';
     this.selectedGender = [];
     this.selectedSewa = [];
-    this.dateRangeFrom = null;
-    this.dateRangeTo = null;
     this.moreFilters = {
       taskBranch: [],
       correspondingBranch: [],
-      branchSearchType: []
+      branchSearchType: [],
+      badgeNo: '',
+      name: '',
+      relationName: '',
+      mobileNo: '',
+      uid: '',
+      options: [],
+      startFrom: '',
+      endTo: ''
     };
     this.sortField = '';
     this.sortDirection = 'asc';
@@ -175,6 +195,13 @@ export class VolunteerCardsComponent {
     const sewa = this.selectedSewa[0]?.value || '';
     const taskBranch = this.moreFilters.taskBranch[0]?.value || '';
     const correspondingBranch = this.moreFilters.correspondingBranch[0]?.value || '';
+    const badgeNo = (this.moreFilters.badgeNo || '').trim().toLowerCase();
+    const filterName = (this.moreFilters.name || '').trim().toLowerCase();
+    const relationName = (this.moreFilters.relationName || '').trim().toLowerCase();
+    const mobileNo = (this.moreFilters.mobileNo || '').trim();
+    const uid = (this.moreFilters.uid || '').trim().toLowerCase();
+    const startFrom = this.moreFilters.startFrom ? new Date(this.moreFilters.startFrom) : null;
+    const endTo = this.moreFilters.endTo ? new Date(this.moreFilters.endTo) : null;
 
     // Filter cards
     let filtered = this.allVolunteerCards.filter((card) => {
@@ -188,19 +215,29 @@ export class VolunteerCardsComponent {
       const matchesGender = !gender || card.gender === gender;
       const matchesSewa = !sewa || card.sewa === sewa;
 
+      // Individual field filters
+      const matchesBadgeNo = !badgeNo || (card.id?.toString().includes(badgeNo));
+      const matchesName = !filterName || card.name.toLowerCase().includes(filterName);
+      const matchesRelationName = !relationName ||
+        (card.relationName && card.relationName.toLowerCase().includes(relationName));
+      const matchesMobileNo = !mobileNo || (card.mobileNo && card.mobileNo.includes(mobileNo));
+      const matchesUid = !uid || (card.uid && card.uid.toLowerCase().includes(uid));
+
       // Date range filter
-      const matchesDateRange = !this.dateRangeFrom || !card.createdAt || 
-        (card.createdAt >= this.dateRangeFrom && 
-         (!this.dateRangeTo || card.createdAt <= this.dateRangeTo));
+      const matchesStartFrom = !startFrom || !card.createdAt || card.createdAt >= startFrom;
+      const matchesEndTo = !endTo || !card.createdAt || card.createdAt <= endTo;
 
       // Branch filters
-      const matchesTaskBranch = !taskBranch || 
+      const matchesTaskBranch = !taskBranch ||
         (card.address?.taskBranch === taskBranch);
-      const matchesCorrespondingBranch = !correspondingBranch || 
+      const matchesCorrespondingBranch = !correspondingBranch ||
         (card.address?.correspondingBranch === correspondingBranch);
 
-      return matchesTerm && matchesGender && matchesSewa && 
-             matchesDateRange && matchesTaskBranch && matchesCorrespondingBranch;
+      return matchesTerm && matchesGender && matchesSewa &&
+             matchesBadgeNo && matchesName && matchesRelationName &&
+             matchesMobileNo && matchesUid &&
+             matchesStartFrom && matchesEndTo &&
+             matchesTaskBranch && matchesCorrespondingBranch;
     });
 
     // Apply sorting (using table header sorting)
@@ -340,13 +377,6 @@ export class VolunteerCardsComponent {
       this.allVolunteerCards = this.allVolunteerCards.filter(c => c.id !== card.id);
       this.applyFilter();
     }
-  }
-
-  // Date Range handlers
-  onDateRangeChange(range: { fromDate: Date | null; toDate: Date | null }): void {
-    this.dateRangeFrom = range.fromDate;
-    this.dateRangeTo = range.toDate;
-    this.applyFilter();
   }
 
   // More Filters Modal

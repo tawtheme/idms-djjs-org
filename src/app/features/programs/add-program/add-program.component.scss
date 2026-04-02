@@ -1,0 +1,55 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+@import '../../../../assets/scss/grid';
+
+@include listing.listing('.add-program');
+
+.add-program-container {
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
+}
+
+.form-card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: visible;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    &__header {
+        padding: 16px 20px;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    &__title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+        margin: 0;
+    }
+
+    &__body {
+        padding: 20px;
+        padding-bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+.form-grid.cols-1 .form-control {
+    max-width: 100%;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid $color-gray-200;
+}

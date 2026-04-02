@@ -6,19 +6,12 @@
     <!-- Filter Section -->
     <div class="listing-search">
         <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Project Head, Initiative Name or Description"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"
-            />
             <app-dropdown
                 [options]="taskBranchOptions"
-                [selectedValues]="taskBranch ? [taskBranch] : []"
+                [selectedValues]="selectedTaskBranch"
+                [searchable]="true"
                 [closeOnSelect]="true"
-                placeholder="Task Branch"
+                placeholder="Branch"
                 (selectionChange)="onTaskBranchChange($event)">
             </app-dropdown>
         </div>
@@ -33,15 +26,6 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="checkbox-column">
-                            <input
-                                type="checkbox"
-                                [checked]="isAllSelected()"
-                                [indeterminate]="isIndeterminate()"
-                                (change)="toggleSelectAll($event)"
-                                (click)="$event.stopPropagation()"
-                            />
-                        </th>
                         <th (click)="sortBy('name')" class="sortable">
                             Name
                             <app-icon [name]="getSortIcon('name')" class="sort-icon" />
@@ -66,12 +50,6 @@
                 <tbody>
                     <ng-container *ngIf="!isLoading">
                         <tr *ngFor="let project of pagedProjects; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    [checked]="selectedProjects.has(project.id)"
-                                    (change)="toggleSelectProject(project.id, $event)">
-                            </td>
                             <td data-label="Name" class="name">
                                 {{ project.name }}
                             </td>
@@ -101,7 +79,7 @@
                         </tr>
                         <!-- Empty state -->
                         <tr *ngIf="pagedProjects.length === 0">
-                            <td [attr.colspan]="8" class="empty-state-cell">
+                            <td [attr.colspan]="7" class="empty-state-cell">
                                 <app-empty-state
                                     [title]="searchTerm ? 'No Results Found' : 'No Projects Found'"
                                     [description]="searchTerm ? 'No projects match your search criteria.' : 'There are no projects available at the moment.'"
@@ -112,7 +90,7 @@
                     </ng-container>
                     <!-- Loading cell -->
                     <tr *ngIf="isLoading">
-                        <td [attr.colspan]="8" class="loading-cell">
+                        <td [attr.colspan]="7" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>
@@ -136,7 +114,7 @@
          *ngIf="isAddModalOpen"
          [isOpen]="isAddModalOpen"
          (close)="closeAddModal()"
-         (submit)="onAddProjectSubmit($event)">
+         (submit)="onAddProjectSubmit()">
      </app-add-project-modal>
  </div>
 

@@ -7,6 +7,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { AddBranchAreaModalComponent } from './add-branch-area-modal/add-branch-area-modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -33,6 +34,7 @@ export interface BranchArea {
     EmptyStateComponent,
     LoadingComponent,
     MenuDropdownComponent,
+    DropdownComponent,
     AddBranchAreaModalComponent,
     IconComponent
   ],
@@ -59,6 +61,8 @@ export class BranchAreasComponent implements OnInit {
 
   // Filters
   searchTerm = '';
+  branchDropdownOptions: DropdownOption[] = [];
+  selectedBranchFilter: any[] = [];
 
   // Sorting
   sortField = '';
@@ -112,12 +116,27 @@ export class BranchAreasComponent implements OnInit {
       });
 
       this.isLoading = false;
+
+      // Build branch dropdown options from unique branch names
+      const uniqueBranches = [...new Set(this.allBranchAreas.map(a => a.branchName).filter(Boolean))];
+      this.branchDropdownOptions = uniqueBranches.map((name, i) => ({
+        id: String(i + 1),
+        label: name,
+        value: name
+      }));
+
       this.applyFilters();
     });
   }
 
   applyFilters(): void {
     let filtered = [...this.allBranchAreas];
+
+    // Branch dropdown filter
+    const selectedBranch = this.selectedBranchFilter[0]?.value || '';
+    if (selectedBranch) {
+      filtered = filtered.filter(area => area.branchName === selectedBranch);
+    }
 
     if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();

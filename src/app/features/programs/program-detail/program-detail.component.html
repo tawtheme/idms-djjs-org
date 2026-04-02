@@ -1,0 +1,115 @@
+<div class="detail-container">
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="page-state">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <div class="detail-header">
+            <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error" class="page-state">
+            <app-icon name="error_outline" class="error-icon" />
+            <p>{{ error }}</p>
+            <button class="btn btn--primary btn--sm" (click)="loadProgramDetails()">Retry</button>
+        </div>
+
+        <!-- Program Details -->
+        <ng-container *ngIf="program">
+        <!-- Top Card -->
+        <div class="top-card">
+            <!-- Row 1: Name + Status -->
+            <div class="top-card__header">
+                <h1 class="top-card__name">{{ program.name }}</h1>
+                <span class="status-badge" [ngClass]="getStatusClass(program.status)">
+                    {{ getStatusLabel(program.status) }}
+                </span>
+            </div>
+
+            <!-- Row 2: Meta info -->
+            <div class="top-card__meta">
+                <span class="meta-tag">
+                    <span class="meta-tag__label">Branch</span>
+                    {{ program.branch?.name || '-' }}
+                </span>
+                <span class="meta-tag">
+                    <span class="meta-tag__label">Initiative</span>
+                    {{ program.initiative?.name || '-' }}
+                </span>
+                <span class="meta-tag">
+                    <span class="meta-tag__label">Project</span>
+                    {{ program.project?.name || '-' }}
+                </span>
+                <span class="meta-tag">
+                    <span class="meta-tag__label">Duration</span>
+                    {{ program.startDateTime || '-' }} — {{ program.endDateTime || '-' }}
+                </span>
+            </div>
+
+            <!-- Row 3: Remarks (if any) -->
+            <p class="top-card__remarks" *ngIf="program.remarks">{{ program.remarks }}</p>
+
+            <!-- Row 4: Stats -->
+            <div class="top-card__stats">
+                <div class="stat-chip stat-chip--blue">
+                    <span class="stat-chip__num">{{ program.programSewas.length }}</span> Sewas
+                </div>
+                <div class="stat-chip stat-chip--green">
+                    <span class="stat-chip__num">{{ getTotalVolunteers() }}</span> Volunteers
+                </div>
+                <div class="stat-chip stat-chip--amber">
+                    <span class="stat-chip__num">{{ getTotalDonations() }}</span> Donations
+                </div>
+            </div>
+        </div>
+
+        <!-- Sewa & Volunteers Section -->
+        <div class="sewa-panel" *ngIf="program.programSewas.length > 0">
+            <div class="sewa-panel__title">
+                <h4>Sewas & Volunteers</h4>
+            </div>
+            <div class="sewa-panel__body">
+                <!-- Left: Vertical tabs -->
+                <div class="sewa-nav">
+                    <button
+                        *ngFor="let ps of program.programSewas; let i = index"
+                        class="sewa-nav__item"
+                        [class.sewa-nav__item--active]="activeSewaTabIndex === i"
+                        (click)="selectSewaTab(i)"
+                        type="button">
+                        <span class="sewa-nav__name">{{ ps.sewa.name }}</span>
+                        <span class="sewa-nav__count">{{ ps.volunteers.length }}</span>
+                    </button>
+                </div>
+
+                <!-- Right: Volunteer list -->
+                <div class="sewa-list" *ngIf="activeSewaTab">
+                    <div class="sewa-list__header">
+                        <span class="sewa-list__title">{{ activeSewaTab.sewa.name }}</span>
+                        <span class="sewa-list__count">{{ activeSewaTab.volunteers.length }} volunteer{{ activeSewaTab.volunteers.length !== 1 ? 's' : '' }}</span>
+                    </div>
+                    <div class="sewa-list__scroll">
+                        <div class="vol-row" *ngFor="let v of activeSewaTab.volunteers">
+                            <div class="vol-row__avatar">
+                                <img [src]="v.user.image || '/assets/img/placeholder.svg'"
+                                     [alt]="v.user.name"
+                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                            </div>
+                            <div class="vol-row__info">
+                                <span class="vol-row__name">{{ v.user.name }}</span>
+                                <span class="vol-row__id">#{{ v.user.uniqueId }}</span>
+                            </div>
+                            <span class="vol-row__badge" *ngIf="v.badgeId">Badge {{ v.badgeId }}</span>
+                        </div>
+                        <div class="sewa-list__empty" *ngIf="activeSewaTab.volunteers.length === 0">
+                            No volunteers assigned to this sewa
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </ng-container>
+    </ng-container>
+</div>

@@ -5,6 +5,14 @@
 
     <!-- Filter Section -->
     <div class="listing-search">
+        <app-dropdown
+            [options]="branchDropdownOptions"
+            [selectedValues]="selectedBranchFilter"
+            placeholder="Select Branch"
+            [searchable]="true"
+            (selectionChange)="selectedBranchFilter = $event; applyFilters()"
+            [closeOnSelect]="true">
+        </app-dropdown>
         <input
             type="search"
             class="form-control"
@@ -23,15 +31,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th class="checkbox-column">
-                        <input
-                            type="checkbox"
-                            [checked]="isAllSelected()"
-                            [indeterminate]="isIndeterminate()"
-                            (change)="toggleSelectAll($event)"
-                            (click)="$event.stopPropagation()"
-                        />
-                    </th>
+                    <th class="action-column">Action</th>
                     <th (click)="sortBy('branchName')" class="sortable">
                         Branch Name
                         <app-icon [name]="getSortIcon('branchName')" class="sort-icon" />
@@ -49,17 +49,16 @@
                         Created At
                         <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
                     </th>
-                    <th class="action-column">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <ng-container *ngIf="!isLoading">
                     <tr *ngFor="let area of pagedBranchAreas; trackBy: trackById" (click)="$event.stopPropagation()">
-                        <td class="checkbox-column" (click)="$event.stopPropagation()">
-                            <input
-                                type="checkbox"
-                                [checked]="selectedBranchAreas.has(area.id)"
-                                (change)="toggleSelectBranchArea(area.id, $event)">
+                        <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
+                            <app-menu-dropdown
+                                [options]="getActionOptions(area)"
+                                (selectionChange)="onAction(area, $event)">
+                            </app-menu-dropdown>
                         </td>
                         <td data-label="Branch Name" class="name">
                             {{ area.branchName }}
@@ -77,12 +76,6 @@
                         </td>
                         <td data-label="Created At" class="date">
                             {{ area.createdAt }}
-                        </td>
-                        <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                            <app-menu-dropdown
-                                [options]="getActionOptions(area)"
-                                (selectionChange)="onAction(area, $event)">
-                            </app-menu-dropdown>
                         </td>
                     </tr>
                     <!-- Empty state -->

@@ -1,0 +1,586 @@
+@use '../../../../../assets/scss/pages' as listing;
+@import '../../../../../assets/scss/variable';
+@import '../../../../../assets/scss/table';
+
+@include listing.listing('.attendance-detail');
+
+.attendance-detail-container {
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
+}
+
+// ========================================
+// Summary Section
+// ========================================
+.summary-section {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    .summary-item--program {
+        background: transparent;
+        padding: 0;
+
+        &:hover {
+            background: transparent;
+        }
+    }
+
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 18px;
+        }
+    }
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+.summary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: $color-gray-50;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: $color-gray-100;
+    }
+
+    &__icon-wrap {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 20px;
+        }
+
+        &--purple {
+            background: rgba(#9333ea, 0.1);
+            color: $color-purple-600;
+        }
+
+        &--blue {
+            background: rgba($color-primary-600, 0.1);
+            color: $color-primary-600;
+        }
+
+        &--green {
+            background: rgba($color-green-600, 0.1);
+            color: $color-green-600;
+        }
+
+        &--orange {
+            background: rgba(#f97316, 0.1);
+            color: #f97316;
+        }
+
+        &--yellow {
+            background: rgba($color-yellow-500, 0.1);
+            color: $color-yellow-600;
+        }
+
+        &--red {
+            background: rgba($color-red-500, 0.1);
+            color: $color-red-500;
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    &__label {
+        font-size: 11px;
+        font-weight: 600;
+        color: $color-gray-500;
+    }
+
+    &__value {
+        font-size: 14px;
+        font-weight: 700;
+        color: $color-gray-900;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    &__sub {
+        font-size: 12px;
+        font-weight: 500;
+        color: $color-gray-400;
+    }
+
+    &__number {
+        font-size: 26px;
+        font-weight: 800;
+        color: $color-gray-900;
+        line-height: 1;
+
+        &--green {
+            color: $color-green-600;
+        }
+
+        &--orange {
+            color: #f97316;
+        }
+
+        &--red {
+            color: $color-red-500;
+        }
+    }
+}
+
+
+// ========================================
+// Enter ID Row (inside table-section)
+// ========================================
+.enter-id-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid $color-gray-200;
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &:focus-within {
+        border-color: $color-primary-400;
+        background: $color-primary-50;
+    }
+
+    &__icon {
+        flex-shrink: 0;
+        color: $color-gray-400;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 24px;
+        }
+    }
+
+    &__input {
+        flex: 1;
+        padding: 8px 0;
+        font-size: 15px;
+        font-weight: 500;
+        color: $color-gray-900;
+        border: none;
+        background: transparent;
+        outline: none;
+
+        &::placeholder {
+            color: $color-gray-400;
+            font-weight: 400;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+        }
+    }
+
+    &__btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 18px;
+        }
+    }
+}
+
+// ========================================
+// Error State
+// ========================================
+.error-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: $color-red-50;
+    border: 1px solid $color-red-200;
+    border-radius: 12px;
+    margin-bottom: 20px;
+
+    &__icon {
+        display: block;
+        margin: 0 auto 8px;
+        color: $color-red-400;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 36px;
+        }
+    }
+
+    p {
+        color: $color-red-600;
+        margin-bottom: 16px;
+        font-weight: 500;
+    }
+}
+
+// ========================================
+// Table Section
+// ========================================
+.table-section {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px $shadow-color-weak;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: $color-gray-800;
+        margin: 0;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 20px;
+            color: $color-primary-600;
+        }
+    }
+
+    &__count {
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-gray-400;
+    }
+
+    .table-container {
+        border: none;
+        border-radius: 0;
+    }
+
+    .table {
+        table-layout: fixed;
+    }
+}
+
+// ========================================
+// Table Cell Styles
+// ========================================
+.id-badge {
+    font-family: 'SF Mono', 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-primary-700;
+    background: $color-primary-50;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.name-cell {
+    vertical-align: middle !important;
+
+    display: table-cell;
+
+    .volunteer-image,
+    .name-info {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .volunteer-image {
+        margin-right: 10px;
+    }
+}
+
+.name-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.name-text {
+    font-weight: 600;
+    color: $color-gray-900;
+}
+
+.badge-text {
+    font-size: 12px;
+    color: $color-gray-500;
+}
+
+.text-muted {
+    color: $color-gray-300;
+}
+
+.checkin-time {
+    font-size: 13px;
+    color: $color-gray-600;
+    white-space: nowrap;
+}
+
+// Volunteer image
+.volunteer-image {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid $color-gray-100;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+// Status badges
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+}
+
+.status-present {
+    background: $color-green-100;
+    color: $color-green-700;
+}
+
+.status-absent {
+    background: $color-red-100;
+    color: $color-red-700;
+}
+
+.status-leave {
+    background: $color-yellow-100;
+    color: $color-yellow-700;
+}
+
+// ========================================
+// Action Buttons
+// ========================================
+.action-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    ::ng-deep .material-symbols-rounded {
+        font-size: 18px;
+    }
+
+    &--view {
+        background: $color-primary-50;
+        color: $color-primary-600;
+
+        &:hover {
+            background: $color-primary-100;
+            color: $color-primary-700;
+        }
+    }
+
+    &--delete {
+        background: $color-red-50;
+        color: $color-red-500;
+
+        &:hover {
+            background: $color-red-100;
+            color: $color-red-700;
+        }
+    }
+}
+
+// ========================================
+// View Detail Modal
+// ========================================
+.view-detail {
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid $color-gray-100;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__name {
+        font-size: 18px;
+        font-weight: 700;
+        color: $color-gray-900;
+        margin: 0;
+    }
+
+    &__id {
+        font-size: 13px;
+        color: $color-gray-500;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    &__value {
+        font-size: 14px;
+        font-weight: 500;
+        color: $color-gray-900;
+    }
+}
+
+.volunteer-image--lg {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+}
+
+// ========================================
+// Inline Editing
+// ========================================
+.editable-cell {
+    cursor: pointer;
+
+    .editable-text {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px dashed transparent;
+        transition: all 0.15s ease;
+    }
+
+    &:hover .editable-text {
+        border-color: $color-primary-300;
+        background: $color-primary-50;
+    }
+}
+
+.inline-input,
+.inline-select {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid $color-primary-400;
+    border-radius: 4px;
+    font-size: 13px;
+    color: $color-gray-900;
+    background: $color-white;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 2px rgba($color-primary-500, 0.12);
+
+    &:disabled {
+        opacity: 0.6;
+    }
+}
+
+.inline-select {
+    cursor: pointer;
+    appearance: auto;
+}
+
+// ========================================
+// Responsive
+// ========================================
+@media (max-width: 1200px) {
+    .summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .enter-id-row {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .enter-id-row {
+        flex-direction: column;
+        align-items: stretch;
+
+        .enter-id-row__btn {
+            justify-content: center;
+        }
+    }
+}

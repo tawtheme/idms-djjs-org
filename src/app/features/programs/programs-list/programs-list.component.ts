@@ -1,17 +1,17 @@
 import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
-import { AddProgramModalComponent } from './add-program-modal/add-program-modal.component';
+import { DateRangePickerComponent } from '../../../shared/components/date-range-picker/date-range-picker.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -40,9 +40,9 @@ export interface Program {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    DatepickerComponent,
-    AddProgramModalComponent,
-    IconComponent
+    DateRangePickerComponent,
+    IconComponent,
+    ConfirmationDialogComponent
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',
@@ -52,16 +52,18 @@ export class ProgramsListComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
 
   private dataService = inject(DataService);
+  private router = inject(Router);
 
   programs: Program[] = [];
   allPrograms: Program[] = [];
 
   // Loading and error states
-  isLoading = true; // Start with true to show loader on initial load
+  isLoading = true;
   error: string | null = null;
 
-  // Modal state
-  isAddModalOpen = false;
+  // Panel state
+  showDeleteConfirm = false;
+  deleteProgramTarget: Program | null = null;
 
   // Selection
   selectedPrograms = new Set<string>();
@@ -70,6 +72,10 @@ export class ProgramsListComponent implements OnInit {
   searchTerm = '';
   selectedTaskBranch: any[] = [];
   taskBranchOptions: DropdownOption[] = [];
+  selectedInitiative: any[] = [];
+  initiativeOptions: DropdownOption[] = [];
+  selectedProject: any[] = [];
+  projectOptions: DropdownOption[] = [];
   startDate: Date | null = null;
   endDate: Date | null = null;
 
@@ -91,6 +97,8 @@ export class ProgramsListComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
+    this.loadBranchOptions();
+    this.loadInitiativeOptions();
     this.loadPrograms();
   }
 
@@ -137,28 +145,59 @@ export class ProgramsListComponent implements OnInit {
         } as Program;
       });
 
-      // Update task branch options from API data
-      this.updateTaskBranchOptions();
-
       this.applyFilters();
-      this.isLoading = false; // Set loading to false after data is processed
+      this.isLoading = false;
     });
   }
 
   /**
-   * Updates task branch options from loaded programs
+   * Load branch options from API
    */
-  private updateTaskBranchOptions(): void {
-    const branches = new Set<string>();
-    this.allPrograms.forEach(program => {
-      if (program.taskBranch) branches.add(program.taskBranch);
+  private loadBranchOptions(): void {
+    this.dataService.get<any>('v1/options/branches').pipe(
+      catchError((err) => {
+        console.error('Error loading branches:', err);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
+      this.taskBranchOptions = (Array.isArray(data) ? data : []).map((branch: any) => ({
+        id: String(branch.id),
+        label: branch.name || branch.label || branch.title || '',
+        value: branch.id
+      }));
     });
+  }
 
-    this.taskBranchOptions = Array.from(branches).sort().map((branch, index) => ({
-      id: String(index + 1),
-      label: branch,
-      value: branch
-    }));
+  private loadInitiativeOptions(): void {
+    this.dataService.get<any>('v1/options/initiatives').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = response.data || response || [];
+      this.initiativeOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: String(item.id),
+        label: item.name,
+        value: item.name
+      }));
+    });
+  }
+
+  private loadProjectOptions(branchId: string): void {
+    this.projectOptions = [];
+    this.selectedProject = [];
+    this.dataService.post<any>(`v1/projects/${branchId}`, {}).pipe(
+      catchError((err) => {
+        console.error('Error loading projects:', err);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
+      this.projectOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: String(item.id),
+        label: item.name || item.label || item.title || '',
+        value: item.id
+      }));
+    });
   }
 
   formatDate(date: Date, includeTime: boolean = false): string {
@@ -194,8 +233,22 @@ export class ProgramsListComponent implements OnInit {
 
     // Task Branch filter
     if (this.selectedTaskBranch && this.selectedTaskBranch.length > 0) {
-      const selectedBranch = this.selectedTaskBranch[0];
-      filtered = filtered.filter(program => program.taskBranch === selectedBranch);
+      const selectedBranchId = this.selectedTaskBranch[0];
+      const selectedBranchOption = this.taskBranchOptions.find(opt => opt.value === selectedBranchId);
+      const selectedBranchName = selectedBranchOption?.label || '';
+      filtered = filtered.filter(program => program.taskBranch === selectedBranchName);
+    }
+
+    // Initiative filter
+    if (this.selectedInitiative && this.selectedInitiative.length > 0) {
+      const selectedInit = this.selectedInitiative[0];
+      filtered = filtered.filter(program => program.initiativeName === selectedInit);
+    }
+
+    // Project filter
+    if (this.selectedProject && this.selectedProject.length > 0) {
+      const selectedProj = this.selectedProject[0];
+      filtered = filtered.filter(program => program.projectName === selectedProj);
     }
 
     // Start Date filter
@@ -264,25 +317,24 @@ export class ProgramsListComponent implements OnInit {
   }
 
   /**
-   * Handle task branch selection change
+   * Handle task branch selection change — loads project options for the selected branch
    */
   onTaskBranchChange(): void {
+    if (this.selectedTaskBranch && this.selectedTaskBranch.length > 0) {
+      this.loadProjectOptions(this.selectedTaskBranch[0]);
+    } else {
+      this.projectOptions = [];
+      this.selectedProject = [];
+    }
     this.applyFilters();
   }
 
   /**
-   * Handle start date change
+   * Handle date range change
    */
-  onStartDateChange(date: Date | null): void {
-    this.startDate = date;
-    this.applyFilters();
-  }
-
-  /**
-   * Handle end date change
-   */
-  onEndDateChange(date: Date | null): void {
-    this.endDate = date;
+  onDateRangeChange(range: { fromDate: Date | null; toDate: Date | null }): void {
+    this.startDate = range.fromDate;
+    this.endDate = range.toDate;
     this.applyFilters();
   }
 
@@ -338,23 +390,40 @@ export class ProgramsListComponent implements OnInit {
   }
 
   viewProgram(program: Program): void {
-    console.log('View program:', program);
-    // Implement view logic (e.g., navigate to detail page or open view modal)
+    this.router.navigate(['/programs/view', program.id]);
   }
 
   duplicateProgram(program: Program): void {
-    console.log('Duplicate program:', program);
-    // Implement duplicate logic (e.g., open add modal with pre-filled data)
+    this.router.navigate(['/programs/add-program'], {
+      queryParams: { duplicateFrom: program.id }
+    });
   }
 
   deleteProgram(program: Program): void {
-    if (confirm(`Delete ${program.name}?`)) {
-      const index = this.allPrograms.findIndex(p => p.id === program.id);
-      if (index > -1) {
-        this.allPrograms.splice(index, 1);
-        this.applyFilters();
-      }
-    }
+    this.deleteProgramTarget = program;
+    this.showDeleteConfirm = true;
+  }
+
+  onDeleteConfirm(): void {
+    if (!this.deleteProgramTarget) return;
+    const programId = this.deleteProgramTarget.id;
+    this.showDeleteConfirm = false;
+    this.deleteProgramTarget = null;
+
+    this.dataService.delete(`v1/programs/${programId}`).pipe(
+      catchError((err) => {
+        console.error('Error deleting program:', err);
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (response === null) return;
+      this.loadPrograms();
+    });
+  }
+
+  onDeleteCancel(): void {
+    this.showDeleteConfirm = false;
+    this.deleteProgramTarget = null;
   }
 
   // Pagination
@@ -371,58 +440,7 @@ export class ProgramsListComponent implements OnInit {
     return program.id;
   }
 
-  // Modal methods
   openAddModal(): void {
-    this.isAddModalOpen = true;
-  }
-
-  closeAddModal(): void {
-    this.isAddModalOpen = false;
-  }
-
-  onAddProgramSubmit(newProgram: { 
-    name: string; 
-    programCoordinator: string; 
-    initiative: string; 
-    project: string; 
-    branch: string; 
-    chooseSewa: string; 
-    startDateTime: Date | null; 
-    endDateTime: Date | null; 
-    status: string; 
-    repeats: string; 
-    remarks: string 
-  }): void {
-    console.log('New Program Added:', newProgram);
-    // In a real application, you would send this data to your API
-    // For now, we'll simulate adding it to the list
-    const newId = String(this.allPrograms.length + 1);
-    const createdAt = new Date().toISOString();
-    
-    // Format dates
-    const formatDateTime = (date: Date | null): string => {
-      if (!date) return '';
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      const hours = String(date.getHours() % 12 || 12).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const ampm = date.getHours() >= 12 ? 'pm' : 'am';
-      return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
-    };
-
-    this.allPrograms.push({
-      id: newId,
-      name: newProgram.name,
-      programCoordinator: newProgram.programCoordinator,
-      initiativeName: newProgram.initiative,
-      projectName: newProgram.project,
-      taskBranch: newProgram.branch,
-      startDateTime: formatDateTime(newProgram.startDateTime),
-      endDateTime: formatDateTime(newProgram.endDateTime),
-      status: newProgram.status as Program['status'],
-      createdAt: createdAt
-    });
-    this.applyFilters();
+    this.router.navigate(['/programs/add-program']);
   }
 }

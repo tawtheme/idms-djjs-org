@@ -1,13 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { DataService } from '../../../../data.service';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
-/**
- * Component for adding new projects
- * Modal-based form with Project Name, Project Head, Initiative, Description, and Status fields
- */
 @Component({
   selector: 'app-add-project-modal',
   standalone: true,
@@ -20,50 +19,62 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
   templateUrl: './add-project-modal.component.html',
   styleUrls: ['./add-project-modal.component.scss']
 })
-export class AddProjectModalComponent {
-  /** Whether the modal is open */
+export class AddProjectModalComponent implements OnInit {
   @Input() isOpen = false;
-
-  /** Event emitted when modal is closed */
   @Output() close = new EventEmitter<void>();
-  
-  /** Event emitted when form is submitted */
-  @Output() submit = new EventEmitter<{ 
-    name: string; 
-    projectHead: string; 
-    initiative: string; 
-    description: string; 
-    status: string 
-  }>();
+  @Output() submit = new EventEmitter<void>();
 
-  /** Form data */
+  private dataService = inject(DataService);
+
+  // Form data
   name = '';
-  projectHead = '';
-  initiative = '';
+  selectedProjectHead: any[] = [];
+  selectedInitiative: any[] = [];
   description = '';
-  status = 'Active'; // Default status
+  status = 1; // Default active
 
-  /** Project Head dropdown options */
-  readonly projectHeadOptions: DropdownOption[] = [
-    { id: '0', label: 'Select Project Head', value: '' }
-    // TODO: Load actual project head options from API
-  ];
-
-  /** Initiative dropdown options */
-  readonly initiativeOptions: DropdownOption[] = [
-    { id: '0', label: 'Select Initiative', value: '' }
-    // TODO: Load actual initiative options from API
-  ];
-
-  /** Status dropdown options */
+  // Dropdown options
+  projectHeadOptions: DropdownOption[] = [];
+  initiativeOptions: DropdownOption[] = [];
   readonly statusOptions: DropdownOption[] = [
-    { id: '1', label: 'Active', value: 'Active' },
-    { id: '2', label: 'Inactive', value: 'Inactive' }
+    { id: '1', label: 'Active', value: 1 },
+    { id: '2', label: 'Inactive', value: 0 }
   ];
 
-  /**
-   * Get footer buttons for modal
-   */
+  // Loading state
+  isSubmitting = false;
+
+  ngOnInit(): void {
+    this.loadProjectHeadOptions();
+    this.loadInitiativeOptions();
+  }
+
+  private loadProjectHeadOptions(): void {
+    this.dataService.get<any>('v1/options/departments/heads').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
+      this.projectHeadOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: String(item.id),
+        label: item.name || item.label || '',
+        value: item.id
+      }));
+    });
+  }
+
+  private loadInitiativeOptions(): void {
+    this.dataService.get<any>('v1/options/initiatives').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
+      this.initiativeOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: String(item.id),
+        label: item.name || item.label || '',
+        value: item.id
+      }));
+    });
+  }
+
   get footerButtons(): Array<{
     text: string;
     type: 'primary' | 'secondary' | 'danger';
@@ -71,51 +82,44 @@ export class AddProjectModalComponent {
     action?: string;
   }> {
     return [
-      {
-        text: 'Cancel',
-        type: 'secondary',
-        action: 'cancel'
-      },
-      {
-        text: 'Submit',
-        type: 'primary',
-        disabled: !this.isFormValid,
-        action: 'submit'
-      }
+      { text: 'Cancel', type: 'secondary', action: 'cancel' },
+      { text: 'Submit', type: 'primary', disabled: !this.isFormValid || this.isSubmitting, action: 'submit' }
     ];
   }
 
-  /**
-   * Handle modal close
-   */
   onClose(): void {
     this.resetForm();
     this.close.emit();
   }
 
-  /**
-   * Handle form submission
-   */
   onSubmit(): void {
-    if (!this.isFormValid) {
-      return; // Basic validation - required fields
-    }
+    if (!this.isFormValid || this.isSubmitting) return;
 
-    this.submit.emit({
+    this.isSubmitting = true;
+
+    const payload = {
       name: this.name.trim(),
-      projectHead: this.projectHead,
-      initiative: this.initiative,
+      user_id: this.selectedProjectHead[0],
+      initiative_id: this.selectedInitiative[0],
       description: this.description.trim(),
       status: this.status
-    });
+    };
 
-    this.resetForm();
-    this.close.emit();
+    this.dataService.post<any>('v1/projects/store', payload).pipe(
+      catchError((err) => {
+        console.error('Error creating project:', err);
+        this.isSubmitting = false;
+        return of(null);
+      })
+    ).subscribe((response) => {
+      this.isSubmitting = false;
+      if (response === null) return;
+      this.resetForm();
+      this.submit.emit();
+      this.close.emit();
+    });
   }
 
-  /**
-   * Handle footer button actions
-   */
   onFooterAction(action: string): void {
     if (action === 'submit') {
       this.onSubmit();
@@ -124,58 +128,34 @@ export class AddProjectModalComponent {
     }
   }
 
-  /**
-   * Handle project head selection change
-   */
   onProjectHeadChange(values: any[] | null): void {
-    if (values && values.length > 0 && values[0] !== '') {
-      this.projectHead = values[0];
-    } else {
-      this.projectHead = '';
-    }
+    this.selectedProjectHead = values || [];
   }
 
-  /**
-   * Handle initiative selection change
-   */
   onInitiativeChange(values: any[] | null): void {
-    if (values && values.length > 0 && values[0] !== '') {
-      this.initiative = values[0];
-    } else {
-      this.initiative = '';
-    }
+    this.selectedInitiative = values || [];
   }
 
-  /**
-   * Handle status selection change
-   */
   onStatusChange(values: any[] | null): void {
     if (values && values.length > 0) {
       this.status = values[0];
     }
   }
 
-  /**
-   * Check if form is valid
-   */
   get isFormValid(): boolean {
     return !!(
-      this.name.trim() && 
-      this.projectHead && 
-      this.initiative && 
+      this.name.trim() &&
+      this.selectedProjectHead.length > 0 &&
+      this.selectedInitiative.length > 0 &&
       this.description.trim()
     );
   }
 
-  /**
-   * Reset form to initial state
-   */
   private resetForm(): void {
     this.name = '';
-    this.projectHead = '';
-    this.initiative = '';
+    this.selectedProjectHead = [];
+    this.selectedInitiative = [];
     this.description = '';
-    this.status = 'Active';
+    this.status = 1;
   }
 }
-

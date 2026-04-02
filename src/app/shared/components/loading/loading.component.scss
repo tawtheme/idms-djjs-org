@@ -79,8 +79,8 @@
 
 // Loading Types
 .spinner {
-    border: 3px solid var(--neutral-50);
-    border-top: 3px solid var(--primary-500);
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #2563eb;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -91,7 +91,7 @@
 }
 
 .dot {
-    background: var(--primary-500);
+    background: #2563eb;
     border-radius: 50%;
     animation: bounce 1.4s ease-in-out infinite both;
 }
@@ -105,7 +105,7 @@
 }
 
 .pulse {
-    background: var(--primary-500);
+    background: #2563eb;
     border-radius: 50%;
     animation: pulse 1.5s ease-in-out infinite;
 }

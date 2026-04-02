@@ -1,123 +1,271 @@
 @use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
 
 // Apply shared listing styles
 @include listing.listing('.programs');
 
-// Column widths
-.col-name {
-    width: 18%;
-    min-width: 140px;
-}
+// Search Panel
+.search-panel {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    padding: 10px 12px;
 
-.col-coordinator {
-    width: 10%;
-    min-width: 100px;
-}
+    &__top {
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
 
-.col-default {
-    width: 9%;
-    min-width: 80px;
-}
+        app-dropdown {
+            min-width: 160px;
+            flex: 0 0 auto;
+        }
 
-.col-date {
-    width: 10%;
-    min-width: 90px;
-    white-space: nowrap;
-}
+        // Normalize height for all controls
+        app-dropdown,
+        app-date-range-picker,
+        .search-input-wrapper {
+            ::ng-deep {
+                input, .dropdown-trigger, .date-range-trigger {
+                    height: 40px;
+                    box-sizing: border-box;
+                }
+            }
+        }
 
-.col-status {
-    width: 8%;
-    min-width: 80px;
-}
+        .btn--outline {
+            height: 40px;
+            border-color: $color-gray-200;
+            color: $color-gray-600;
 
-.col-created {
-    width: 12%;
-    min-width: 110px;
-    white-space: nowrap;
-}
+            &:hover {
+                border-color: $color-gray-300;
+                background: $color-gray-50;
+            }
+        }
 
-// Sortable column headers
-.sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 32px !important;
-
-    &:hover {
-        background-color: $color-gray-100;
+        @media (max-width: 768px) {
+            flex-wrap: wrap;
+        }
     }
+}
 
-    .sort-icon {
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+
+    .search-input-icon {
         position: absolute;
-        right: 8px;
+        left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 18px;
-        color: $color-gray-500;
-        width: 18px;
-        height: 18px;
+        font-size: 20px;
+        color: $color-gray-400;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 40px;
+        padding: 0 14px 0 40px;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        font-size: 14px;
+        color: $color-gray-900;
+        background: $color-white;
+        transition: all 0.2s ease;
+        outline: none;
+
+        &::placeholder {
+            color: $color-gray-400;
+        }
+
+        &:hover {
+            border-color: $color-gray-300;
+        }
+
+        &:focus {
+            border-color: $color-primary-400;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        &::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+        }
     }
 }
 
-// Table layout
-:host ::ng-deep .table {
-    table-layout: fixed;
+// Loading & empty wrappers
+.loading-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    flex: 1;
 }
 
-// Name column
-.name {
-    font-weight: 500;
+.empty-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    flex: 1;
+}
+
+// Program cards grid
+.program-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding-right: 4px;
+    padding-bottom: 8px;
+    align-content: start;
+}
+
+.program-card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 10px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: $color-gray-300;
+    }
+}
+
+.card-top {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid $color-gray-100;
+}
+
+.card-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
     color: $color-gray-900;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin: 0;
+    line-height: 1.4;
+    text-transform: capitalize;
 }
 
-// Date column
-.date {
-    color: $color-gray-700;
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: $color-gray-500;
+        text-transform: capitalize;
+    }
+
+    .meta-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: $color-gray-400;
+    }
+}
+
+.card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+.detail-item {
+    padding: 10px 16px;
+    border-top: 1px solid $color-gray-50;
+
+    &:nth-child(odd) {
+        border-right: 1px solid $color-gray-100;
+    }
+
+    &:nth-child(1),
+    &:nth-child(2) {
+        border-top: none;
+    }
+}
+
+.detail-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: $color-gray-400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.detail-value {
+    display: block;
     font-size: 13px;
-    white-space: nowrap;
+    font-weight: 500;
+    color: $color-gray-700;
+    text-transform: capitalize;
 }
 
 // Status badge
-.status {
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: capitalize;
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
 
-        &.status-completed {
-            background: #fee2e2;
-            color: #dc2626;
-        }
+    &.status-completed {
+        background: #dcfce7;
+        color: #15803d;
+    }
 
-        &.status-pending {
-            background: #fef3c7;
-            color: #d97706;
-        }
+    &.status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
 
-        &.status-in-progress {
-            background: #dbeafe;
-            color: #2563eb;
-        }
+    &.status-in-progress {
+        background: #dbeafe;
+        color: #2563eb;
+    }
 
-        &.status-cancelled {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
+    &.status-cancelled {
+        background: #f3f4f6;
+        color: #6b7280;
     }
 }
 
-// No data row
-.no-data {
-    text-align: center;
-    padding: 40px 20px !important;
-    color: $color-gray-500;
-    font-style: italic;
+// Responsive
+@media (max-width: 900px) {
+    .program-cards {
+        grid-template-columns: 1fr;
+    }
 }

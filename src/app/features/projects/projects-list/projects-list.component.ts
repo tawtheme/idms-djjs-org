@@ -62,13 +62,10 @@ export class ProjectsListComponent implements OnInit {
 
   // Filters
   searchTerm = '';
-  taskBranch: string = '';
+  selectedTaskBranch: any[] = [];
 
   // Filter dropdown options
-  readonly taskBranchOptions: DropdownOption[] = [
-    { id: '0', label: 'Task Branch', value: '' }
-    // TODO: Load actual branch options from API
-  ];
+  taskBranchOptions: DropdownOption[] = [];
 
   // Sorting
   sortField = '';
@@ -88,26 +85,44 @@ export class ProjectsListComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    this.loadProjects();
+    this.loadBranchOptions();
   }
 
   /**
-   * Load projects from /api/v1/projects using POST (API does not allow GET)
+   * Load branch options from /api/v1/options/branches
    */
-  private loadProjects(): void {
+  private loadBranchOptions(): void {
+    this.dataService.get<any>('v1/options/branches').pipe(
+      catchError((err) => {
+        console.error('Error loading branches:', err);
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
+      this.taskBranchOptions = (Array.isArray(data) ? data : []).map((branch: any) => ({
+        id: String(branch.id),
+        label: branch.name || branch.label || branch.title || '',
+        value: branch.id
+      }));
+      this.isLoading = false;
+    });
+  }
+
+  /**
+   * Load projects from /api/v1/projects/{branchId} when a branch is selected
+   */
+  private loadProjects(branchId: string): void {
     this.isLoading = true;
-    // Backend for /api/v1/projects only supports POST, so use post with an empty payload
-    this.dataService.post<any>('v1/projects', {}).pipe(
+    this.dataService.get<any>(`v1/projects/${branchId}`).pipe(
       catchError((error) => {
         console.error('Error loading projects:', error);
         this.isLoading = false;
         return of({ data: [] });
       })
     ).subscribe((response) => {
-      const data = response.data || response.results || response || [];
+      const data = Array.isArray(response) ? response : (response.data || response.results || []);
 
       this.allProjects = (Array.isArray(data) ? data : []).map((item: any) => {
-        // Map status numeric/boolean to label
         let statusLabel = 'Inactive';
         if (item.status === 1 || item.status === true || item.status === 'active') {
           statusLabel = 'Active';
@@ -239,15 +254,16 @@ export class ProjectsListComponent implements OnInit {
   }
 
   /**
-   * Handle task branch selection change
+   * Handle task branch selection change — loads projects for the selected branch
    */
   onTaskBranchChange(values: any[] | null): void {
-    if (values && values.length > 0 && values[0] !== '') {
-      this.taskBranch = values[0];
+    this.selectedTaskBranch = values || [];
+    if (this.selectedTaskBranch.length > 0) {
+      this.loadProjects(this.selectedTaskBranch[0]);
     } else {
-      this.taskBranch = '';
+      this.allProjects = [];
+      this.applyFilters();
     }
-    this.applyFilters();
   }
 
   /**
@@ -265,19 +281,13 @@ export class ProjectsListComponent implements OnInit {
   }
 
   /**
-   * Handle form submission from add project modal
+   * Handle successful project creation — reload projects if a branch is selected
    */
-  onAddProjectSubmit(data: { 
-    name: string; 
-    projectHead: string; 
-    initiative: string; 
-    description: string; 
-    status: string 
-  }): void {
-    console.log('Add project:', data);
-    // TODO: Implement API call to add project
-    // For now, just close the modal
+  onAddProjectSubmit(): void {
     this.closeAddModal();
+    if (this.selectedTaskBranch.length > 0) {
+      this.loadProjects(this.selectedTaskBranch[0]);
+    }
   }
 }
 

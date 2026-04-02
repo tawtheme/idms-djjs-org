@@ -15,7 +15,7 @@
             <label class="form-label" for="project-head">
                 Project Head <span class="required">*</span>
             </label>
-            <app-dropdown [options]="projectHeadOptions" [selectedValues]="projectHead ? [projectHead] : []"
+            <app-dropdown [options]="projectHeadOptions" [selectedValues]="selectedProjectHead"
                 [searchable]="true" [closeOnSelect]="true" placeholder="Select Project Head"
                 (selectionChange)="onProjectHeadChange($event)">
             </app-dropdown>
@@ -25,11 +25,12 @@
             <label class="form-label" for="initiative">
                 Initiative <span class="required">*</span>
             </label>
-            <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []"
+            <app-dropdown [options]="initiativeOptions" [selectedValues]="selectedInitiative"
                 [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative"
                 (selectionChange)="onInitiativeChange($event)">
             </app-dropdown>
         </div>
+
         <div class="form-group">
             <label class="form-label" for="description">
                 Description <span class="required">*</span>
@@ -43,7 +44,7 @@
             <label class="form-label" for="status">
                 Status
             </label>
-            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+            <app-dropdown [options]="statusOptions" [selectedValues]="[status]"
                 [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
             </app-dropdown>
         </div>

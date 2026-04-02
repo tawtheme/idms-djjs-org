@@ -1,152 +1,127 @@
 <div class="programs-container">
-    <div class="programs-header">
-        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
-        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-wrapper">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
     </div>
 
-    <!-- Error state -->
-    <div *ngIf="error && !isLoading" class="error-state">
-        <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadPrograms()">Retry</button>
-    </div>
-
-    <!-- Filter Section -->
-    <div class="listing-search" *ngIf="!error">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Program Co-Ordinator, Initiative Name, Project Name, or Task Branch"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="applyFilters()"
-            />
+    <ng-container *ngIf="!isLoading">
+        <div class="programs-header">
+            <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+            <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
         </div>
-        <div class="listing-search-item">
-            <app-datepicker
-                [value]="startDate"
-                placeholder="Start Date"
-                format="dd/MM/yyyy"
-                (dateChange)="onStartDateChange($event)">
-            </app-datepicker>
-            <app-datepicker
-                [value]="endDate"
-                placeholder="End Date"
-                format="dd/MM/yyyy"
-                (dateChange)="onEndDateChange($event)">
-            </app-datepicker>
+
+        <!-- Error state -->
+        <div *ngIf="error" class="error-state">
+            <p>{{ error }}</p>
+            <button class="btn btn--primary btn--sm" (click)="loadPrograms()">Retry</button>
+        </div>
+
+        <!-- Search & Filter Panel -->
+        <div class="search-panel" *ngIf="!error">
+        <div class="search-panel__top">
             <app-dropdown
                 [options]="taskBranchOptions"
                 [selectedValues]="selectedTaskBranch"
                 placeholder="Task Branch"
+                [searchable]="true"
                 (selectionChange)="selectedTaskBranch = $event; onTaskBranchChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
+            <app-dropdown
+                [options]="initiativeOptions"
+                [selectedValues]="selectedInitiative"
+                placeholder="Initiative"
+                [searchable]="true"
+                (selectionChange)="selectedInitiative = $event; applyFilters()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <app-dropdown
+                [options]="projectOptions"
+                [selectedValues]="selectedProject"
+                placeholder="Project"
+                [searchable]="true"
+                (selectionChange)="selectedProject = $event; applyFilters()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+            <div class="search-input-wrapper">
+                <app-icon name="search" class="search-input-icon" />
+                <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search by Name, Coordinator, Initiative, Project"
+                    [(ngModel)]="searchTerm"
+                    [ngModelOptions]="{ standalone: true }"
+                    (keyup.enter)="applyFilters()" />
+            </div>
+            <app-date-range-picker
+                [fromDate]="startDate"
+                [toDate]="endDate"
+                placeholder="Select Date Range"
+                (dateRangeChange)="onDateRangeChange($event)">
+            </app-date-range-picker>
+            <button class="btn btn--outline btn--sm" type="button" (click)="applyFilters()">
+                Search
+            </button>
         </div>
     </div>
 
-    <!-- Programs table -->
+    <!-- Programs Cards -->
     <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th class="checkbox-column">
-                            <input
-                                type="checkbox"
-                                [checked]="isAllSelected()"
-                                [indeterminate]="isIndeterminate()"
-                                (change)="toggleSelectAll($event)"
-                                (click)="$event.stopPropagation()">
-                        </th>
-                        <th class="col-name">Name</th>
-                        <th class="col-coordinator sortable" (click)="sortBy('programCoordinator')">
-                            Coordinator
-                            <app-icon [name]="getSortIcon('programCoordinator')" class="sort-icon" />
-                        </th>
-                        <th class="col-default">Initiative</th>
-                        <th class="col-default">Project</th>
-                        <th class="col-default">Branch</th>
-                        <th class="col-date sortable" (click)="sortBy('startDateTime')">
-                            Start Date
-                            <app-icon [name]="getSortIcon('startDateTime')" class="sort-icon" />
-                        </th>
-                        <th class="col-date sortable" (click)="sortBy('endDateTime')">
-                            End Date
-                            <app-icon [name]="getSortIcon('endDateTime')" class="sort-icon" />
-                        </th>
-                        <th class="col-status">Status</th>
-                        <th class="col-created sortable" (click)="sortBy('createdAt')">
-                            Created At
-                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
-                        </th>
-                        <th class="action-column">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let program of pagedPrograms; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    [checked]="selectedPrograms.has(program.id)"
-                                    (change)="toggleSelectProgram(program.id, $event)">
-                            </td>
-                            <td data-label="Name" class="name">
-                                {{ program.name }}
-                            </td>
-                            <td data-label="Program Co-Ordinator">
-                                {{ program.programCoordinator }}
-                            </td>
-                            <td data-label="Initiative Name">
-                                {{ program.initiativeName }}
-                            </td>
-                            <td data-label="Project Name">
-                                {{ program.projectName }}
-                            </td>
-                            <td data-label="Task Branch">
-                                {{ program.taskBranch }}
-                            </td>
-                            <td data-label="Start Date Time" class="date">
-                                {{ program.startDateTime }}
-                            </td>
-                            <td data-label="End Date Time" class="date">
-                                {{ program.endDateTime }}
-                            </td>
-                            <td data-label="Status" class="status">
-                                <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
-                                    {{ program.status }}
-                                </span>
-                            </td>
-                            <td data-label="Created At" class="date">
-                                {{ program.createdAt }}
-                            </td>
-                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
-                                    [options]="getActionOptions(program)"
-                                    (selectionChange)="onAction(program, $event)">
-                                </app-menu-dropdown>
-                            </td>
-                        </tr>
-                        <!-- Empty state -->
-                        <tr *ngIf="pagedPrograms.length === 0">
-                            <td [attr.colspan]="11" class="empty-state-cell">
-                                <app-empty-state
-                                    [title]="searchTerm ? 'No Results Found' : 'No Programs Found'"
-                                    [description]="searchTerm ? 'No programs match your search criteria.' : 'There are no programs available at the moment.'"
-                                    [size]="'small'">
-                                </app-empty-state>
-                            </td>
-                        </tr>
-                    </ng-container>
-                    <!-- Loading cell -->
-                    <tr *ngIf="isLoading">
-                        <td [attr.colspan]="11" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Empty state -->
+        <div *ngIf="pagedPrograms.length === 0" class="empty-wrapper">
+            <app-empty-state
+                [title]="searchTerm ? 'No Results Found' : 'No Programs Found'"
+                [description]="searchTerm ? 'No programs match your search criteria.' : 'There are no programs available at the moment.'"
+                [size]="'small'">
+            </app-empty-state>
+        </div>
+
+        <!-- Program Cards -->
+        <div class="program-cards" *ngIf="pagedPrograms.length > 0">
+            <div class="program-card" *ngFor="let program of pagedPrograms; trackBy: trackById">
+                <div class="card-top">
+                    <div class="card-title-row">
+                        <h3 class="card-title">{{ program.name }}</h3>
+                        <div class="card-actions">
+                            <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
+                                {{ program.status }}
+                            </span>
+                            <app-menu-dropdown
+                                [options]="getActionOptions(program)"
+                                (selectionChange)="onAction(program, $event)">
+                            </app-menu-dropdown>
+                        </div>
+                    </div>
+                    <div class="card-meta">
+                        <span class="meta-item">
+                            <app-icon name="person" class="meta-icon" />
+                            {{ program.programCoordinator }}
+                        </span>
+                        <span class="meta-item">
+                            <app-icon name="location_city" class="meta-icon" />
+                            {{ program.taskBranch }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Initiative</span>
+                        <span class="detail-value">{{ program.initiativeName }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Project</span>
+                        <span class="detail-value">{{ program.projectName }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">{{ program.startDateTime }} — {{ program.endDateTime }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Created</span>
+                        <span class="detail-value">{{ program.createdAt }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Pagination -->
@@ -160,12 +135,19 @@
             (pageSizeChange)="onPageSizeChange($event)">
         </app-pager>
     </div>
+    </ng-container>
 
-    <!-- Add New Program Modal -->
-    <app-add-program-modal
-        *ngIf="isAddModalOpen"
-        [isOpen]="isAddModalOpen"
-        (close)="closeAddModal()"
-        (submit)="onAddProgramSubmit($event)">
-    </app-add-program-modal>
+    <!-- Delete Confirmation Dialog -->
+    <app-confirmation-dialog
+        *ngIf="showDeleteConfirm"
+        [isOpen]="showDeleteConfirm"
+        title="Delete Program"
+        [message]="'Are you sure you want to delete' + (deleteProgramTarget?.name || '') + 'This action cannot be undone.'"
+        [highlightText]="deleteProgramTarget?.name || ''"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        confirmType="danger"
+        (confirm)="onDeleteConfirm()"
+        (cancel)="onDeleteCancel()">
+    </app-confirmation-dialog>
 </div>

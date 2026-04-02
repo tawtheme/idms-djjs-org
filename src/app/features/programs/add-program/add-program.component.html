@@ -1,0 +1,138 @@
+<div class="add-program-container">
+    <div class="add-program-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card__header">
+            <h2 class="form-card__title">Add New Program</h2>
+        </div>
+
+        <form class="form-card__body" (ngSubmit)="onSubmit()">
+            <!-- Row 1: Program Name, Start Date Time, End Date Time -->
+            <div class="form-grid cols-3">
+                <div class="form-group">
+                    <label class="form-label" for="program-name">
+                        Program Name <span class="required">*</span>
+                    </label>
+                    <input id="program-name" type="text" class="form-control" [(ngModel)]="name"
+                        [ngModelOptions]="{ standalone: true }" placeholder="Enter program name" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="start-date-time">
+                        Start Date Time <span class="required">*</span>
+                    </label>
+                    <app-datepicker [value]="startDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
+                        (dateChange)="onStartDateTimeChange($event)">
+                    </app-datepicker>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="end-date-time">
+                        End Date Time <span class="required">*</span>
+                    </label>
+                    <app-datepicker [value]="endDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
+                        (dateChange)="onEndDateTimeChange($event)">
+                    </app-datepicker>
+                </div>
+            </div>
+
+            <!-- Row 2: Program Co-ordinator, Initiative, Project -->
+            <div class="form-grid cols-3">
+                <div class="form-group">
+                    <label class="form-label" for="program-coordinator">
+                        Program Co-ordinator <span class="required">*</span>
+                    </label>
+                    <app-dropdown [options]="programCoordinatorOptions"
+                        [selectedValues]="programCoordinator ? [programCoordinator] : []" [searchable]="true"
+                        [closeOnSelect]="true" placeholder="Select Program Co-ordinator"
+                        (selectionChange)="onProgramCoordinatorChange($event)">
+                    </app-dropdown>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="initiative">
+                        Initiative <span class="required">*</span>
+                    </label>
+                    <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []"
+                        [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative"
+                        (selectionChange)="onInitiativeChange($event)">
+                    </app-dropdown>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="project">
+                        Project <span class="required">*</span>
+                    </label>
+                    <app-dropdown [options]="projectOptions" [selectedValues]="project ? [project] : []"
+                        [searchable]="true" [closeOnSelect]="true" placeholder="Select Project"
+                        (selectionChange)="onProjectChange($event)">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <!-- Row 3: Branch, Choose Sewa, Repeats -->
+            <div class="form-grid cols-3">
+                <div class="form-group">
+                    <label class="form-label" for="branch">
+                        Branch <span class="required">*</span>
+                    </label>
+                    <app-dropdown [options]="branchOptions" [selectedValues]="branch ? [branch] : []"
+                        [searchable]="true" [closeOnSelect]="true" placeholder="Select Branch"
+                        (selectionChange)="onBranchChange($event)">
+                    </app-dropdown>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="choose-sewa">
+                        Choose Sewa <span class="required">*</span>
+                    </label>
+                    <input id="choose-sewa" type="text" class="form-control" [(ngModel)]="chooseSewa"
+                        [ngModelOptions]="{ standalone: true }" placeholder="Enter sewa" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="repeats">
+                        Repeats
+                    </label>
+                    <app-dropdown [options]="repeatsOptions" [selectedValues]="[repeats]" [searchable]="true"
+                        [closeOnSelect]="true" placeholder="Select Repeats"
+                        (selectionChange)="onRepeatsChange($event)">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <!-- Row 4: Remarks, Status -->
+            <div class="form-grid cols-1">
+                <div class="form-group">
+                    <label class="form-label" for="remarks">
+                        Remarks
+                    </label>
+                    <textarea id="remarks" class="form-control" [(ngModel)]="remarks"
+                        [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks" rows="4"></textarea>
+                </div>
+            </div>
+
+            <div class="form-grid cols-3">
+                <div class="form-group">
+                    <label class="form-label" for="status">
+                        Status
+                    </label>
+                    <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                        [closeOnSelect]="true" placeholder="Select Status"
+                        (selectionChange)="onStatusChange($event)">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn--secondary btn--sm" (click)="onCancel()">Cancel</button>
+                <button type="submit" class="btn btn--primary btn--sm" [disabled]="!isFormValid || isSubmitting">
+                    {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

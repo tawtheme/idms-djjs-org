@@ -158,11 +158,43 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'programs/add-program',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/add-program/add-program.component').then(
+        (m) => m.AddProgramComponent
+      ),
+  },
+  {
+    path: 'programs/view/:id',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/program-detail/program-detail.component').then(
+        (m) => m.ProgramDetailComponent
+      ),
+  },
+  {
     path: 'programs/sewa-volunteers',
     canMatch: [authOnly],
     loadComponent: () =>
       import('./features/programs/sewa-volunteers/sewa-volunteers.component').then(
         (m) => m.SewaVolunteersComponent
+      ),
+  },
+  {
+    path: 'programs/attendances',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/attendances/attendances.component').then(
+        (m) => m.AttendancesComponent
+      ),
+  },
+  {
+    path: 'programs/attendances/:id',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/attendances/attendance-detail/attendance-detail.component').then(
+        (m) => m.AttendanceDetailComponent
       ),
   },
 

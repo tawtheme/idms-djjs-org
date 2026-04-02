@@ -1,0 +1,278 @@
+<div class="attendance-detail-container">
+    <div class="attendance-detail-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <div class="summary-top">
+            <div class="summary-item summary-item--program">
+                <div class="summary-item__content">
+                    <span class="summary-item__label">Program Name</span>
+                    <strong class="summary-item__value">{{ summary.programName || '-' }}</strong>
+                    <span class="summary-item__sub" *ngIf="summary.programDate">{{ summary.programDate }}</span>
+                </div>
+            </div>
+            <button class="btn btn--primary" type="button" (click)="openAttendanceModal()">
+                <app-icon name="visibility" />
+                <span>View Attendance Details</span>
+            </button>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-item__content">
+                    <strong class="summary-item__number">{{ summary.totalVolunteers }}</strong>
+                    <span class="summary-item__label">Total Volunteers</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__content">
+                    <strong class="summary-item__number summary-item__number--green">{{ summary.totalCheckIns }}</strong>
+                    <span class="summary-item__label">Total Check In's</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__content">
+                    <strong class="summary-item__number summary-item__number--orange">{{ summary.totalCheckOuts }}</strong>
+                    <span class="summary-item__label">Total Check Out's</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__content">
+                    <strong class="summary-item__number">{{ summary.totalLeaves }}</strong>
+                    <span class="summary-item__label">Total Leaves</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__content">
+                    <strong class="summary-item__number summary-item__number--red">{{ summary.totalLeft }}</strong>
+                    <span class="summary-item__label">Total Left</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <app-icon name="error_outline" class="error-state__icon" />
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadAttendanceData()">Retry</button>
+    </div>
+
+    <!-- Table Section with Enter ID -->
+    <div class="table-section">
+        <div class="enter-id-row">
+            <input
+                type="text"
+                class="enter-id-row__input"
+                placeholder="Scan or Enter Volunteer ID..."
+                [(ngModel)]="enterId"
+                [ngModelOptions]="{ standalone: true }"
+                (keydown.enter)="onEnterId()"
+                [disabled]="isSubmitting" />
+        </div>
+        <div class="table-section__header">
+            <h3 class="table-section__title">{{ attendanceMode === 'checkin' ? 'Checked In' : 'Checked Out' }} Volunteers</h3>
+            <span class="table-section__count">{{ totalItems }} records</span>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <colgroup>
+                    <col style="width: 7%;">
+                    <col style="width: 22%;">
+                    <col style="width: 12%;">
+                    <col style="width: 11%;">
+                    <col style="width: 9%;">
+                    <col style="width: 12%;">
+                    <col style="width: 15%;">
+                    <col style="width: 12%;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Sewa</th>
+                        <th>Donation</th>
+                        <th>Status</th>
+                        <th>CheckIn</th>
+                        <th>Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngIf="!isLoading">
+                        <tr *ngFor="let record of pagedRecords; trackBy: trackById">
+                            <td data-label="ID">{{ record.id }}</td>
+                            <td data-label="Name" class="name-cell">
+                                <div class="volunteer-image">
+                                    <img [src]="record.image || '/assets/img/placeholder.svg'"
+                                        [alt]="record.name"
+                                        onerror="this.src='/assets/img/placeholder.svg'" />
+                                </div>
+                                <div class="name-info">
+                                    <span class="name-text">{{ record.name }}</span>
+                                    <span class="badge-text" *ngIf="record.badgeNo">Badge: {{ record.badgeNo }}</span>
+                                </div>
+                            </td>
+                            <td data-label="Sewa">{{ record.sewa }}</td>
+                            <!-- Donation (editable on double-click) -->
+                            <td data-label="Donation" class="editable-cell" (dblclick)="startEditing(record, 'donation')">
+                                <ng-container *ngIf="!isEditing(record.id, 'donation')">
+                                    <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
+                                    <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
+                                </ng-container>
+                                <input *ngIf="isEditing(record.id, 'donation')"
+                                    type="number" class="inline-input"
+                                    [(ngModel)]="editingCell!.value"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keydown)="onEditKeydown($event, record)"
+                                    (blur)="saveEditing(record)"
+                                    [disabled]="isSaving" />
+                            </td>
+                            <!-- Status (editable on double-click) -->
+                            <td data-label="Status" class="editable-cell" (dblclick)="startEditing(record, 'status')">
+                                <ng-container *ngIf="!isEditing(record.id, 'status')">
+                                    <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
+                                        {{ getStatusLabel(record.status) }}
+                                    </span>
+                                    <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted editable-text">-</span>
+                                </ng-container>
+                                <select *ngIf="isEditing(record.id, 'status')"
+                                    class="inline-select"
+                                    [(ngModel)]="editingCell!.value"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keydown)="onEditKeydown($event, record)"
+                                    (blur)="saveEditing(record)"
+                                    (change)="saveEditing(record)"
+                                    [disabled]="isSaving">
+                                    <option value="1">Checkin</option>
+                                    <option value="0">Leave</option>
+                                </select>
+                            </td>
+                            <td data-label="CheckIn">
+                                <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>
+                                <span *ngIf="!record.checkIn" class="text-muted">-</span>
+                            </td>
+                            <!-- Remarks (editable on double-click) -->
+                            <td data-label="Remarks" class="editable-cell" (dblclick)="startEditing(record, 'remarks')">
+                                <ng-container *ngIf="!isEditing(record.id, 'remarks')">
+                                    <span *ngIf="record.remarks" class="editable-text">{{ record.remarks }}</span>
+                                    <span *ngIf="!record.remarks" class="text-muted editable-text">-</span>
+                                </ng-container>
+                                <input *ngIf="isEditing(record.id, 'remarks')"
+                                    type="text" class="inline-input"
+                                    [(ngModel)]="editingCell!.value"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keydown)="onEditKeydown($event, record)"
+                                    (blur)="saveEditing(record)"
+                                    [disabled]="isSaving" />
+                            </td>
+                            <!-- Action -->
+                            <td data-label="Action">
+                                <div class="action-btns">
+                                    <button class="btn-action btn-action--view" (click)="viewVolunteer(record)" title="View Details">
+                                        <app-icon name="visibility" />
+                                    </button>
+                                    <button class="btn-action btn-action--delete" (click)="confirmDelete(record)" title="Delete">
+                                        <app-icon name="delete" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr *ngIf="pagedRecords.length === 0">
+                            <td [attr.colspan]="8" class="empty-state-cell">
+                                <app-empty-state
+                                    [title]="'No Attendance Records'"
+                                    [description]="'Enter a volunteer ID to mark attendance.'"
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <!-- Loading -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="8" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete Confirmation -->
+<app-confirmation-dialog
+    *ngIf="showDeleteConfirm"
+    [isOpen]="showDeleteConfirm"
+    title="Revert Attendance"
+    [message]="'Are you sure you want to revert attendance for ' + (deleteTarget?.name || '') + 'This action cannot be undone.'"
+    [highlightText]="deleteTarget?.name || ''"
+    confirmLabel="Revert"
+    cancelLabel="Cancel"
+    confirmType="danger"
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()">
+</app-confirmation-dialog>
+
+<!-- View Volunteer Detail Modal -->
+<app-modal
+    *ngIf="showViewDetail && viewRecord"
+    [isOpen]="showViewDetail"
+    title="Volunteer Details"
+    size="medium"
+    [closable]="true"
+    (close)="closeViewDetail()">
+    <div class="view-detail">
+        <div class="view-detail__header">
+            <div class="volunteer-image volunteer-image--lg">
+                <img [src]="viewRecord.image || '/assets/img/placeholder.svg'"
+                    [alt]="viewRecord.name"
+                    onerror="this.src='/assets/img/placeholder.svg'" />
+            </div>
+            <div class="view-detail__info">
+                <h3 class="view-detail__name">{{ viewRecord.name }}</h3>
+                <span class="view-detail__id">ID: {{ viewRecord.id }}</span>
+            </div>
+        </div>
+        <div class="view-detail__grid">
+            <div class="view-detail__item">
+                <span class="view-detail__label">Sewa</span>
+                <span class="view-detail__value">{{ viewRecord.sewa || '-' }}</span>
+            </div>
+            <div class="view-detail__item">
+                <span class="view-detail__label">Badge No.</span>
+                <span class="view-detail__value">{{ viewRecord.badgeNo || '-' }}</span>
+            </div>
+            <div class="view-detail__item">
+                <span class="view-detail__label">Donation</span>
+                <span class="view-detail__value">{{ viewRecord.donation || '-' }}</span>
+            </div>
+            <div class="view-detail__item">
+                <span class="view-detail__label">Status</span>
+                <span class="view-detail__value">
+                    <span class="status-badge" [ngClass]="getStatusClass(viewRecord.status)">{{ getStatusLabel(viewRecord.status) }}</span>
+                </span>
+            </div>
+            <div class="view-detail__item">
+                <span class="view-detail__label">Check In</span>
+                <span class="view-detail__value">{{ viewRecord.checkIn || '-' }}</span>
+            </div>
+            <div class="view-detail__item">
+                <span class="view-detail__label">Remarks</span>
+                <span class="view-detail__value">{{ viewRecord.remarks || '-' }}</span>
+            </div>
+        </div>
+    </div>
+</app-modal>
+
+<!-- View Attendance Details Modal -->
+<app-view-attendance-modal
+    *ngIf="showAttendanceModal"
+    [isOpen]="showAttendanceModal"
+    [programId]="programId"
+    [programName]="summary.programName"
+    (closeModal)="closeAttendanceModal()">
+</app-view-attendance-modal>

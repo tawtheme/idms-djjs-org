@@ -1,0 +1,49 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+
+@include listing.listing('.attendances');
+
+.attendances-container {
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
+}
+
+.attendances-card {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+
+    &__header {
+        padding: 16px 20px;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    &__title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+        margin: 0;
+    }
+
+    &__body {
+        padding: 20px;
+    }
+}
+
+.attendances-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+
+    .form-group {
+        flex: 1;
+        max-width: 400px;
+    }
+}
+
+.attendances-actions {
+    display: flex;
+    gap: 10px;
+}

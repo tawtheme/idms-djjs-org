@@ -16,26 +16,6 @@
                     [ngModelOptions]="{ standalone: true }"
                     (input)="onSearchChange()"/>
             </div>
-            <app-dropdown
-                [options]="sewaOptions"
-                [selectedValues]="selectedSewa"
-                placeholder="Sewa"
-                (selectionChange)="selectedSewa = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="genderOptions"
-                [selectedValues]="selectedGender"
-                placeholder="Gender"
-                (selectionChange)="selectedGender = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-date-range-picker
-                [fromDate]="dateRangeFrom"
-                [toDate]="dateRangeTo"
-                placeholder="Date Range"
-                (dateRangeChange)="onDateRangeChange($event)">
-            </app-date-range-picker>
             <div class="search-panel__actions">
                 <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
                     <app-icon name="tune" />
@@ -58,7 +38,8 @@
                         <app-dropdown
                             [options]="taskBranchOptions"
                             [selectedValues]="moreFilters.taskBranch"
-                            placeholder="Select Branch"
+                            placeholder="None"
+                            [searchable]="true"
                             (selectionChange)="moreFilters.taskBranch = $event; onSearchChange()"
                             [closeOnSelect]="true">
                         </app-dropdown>
@@ -68,7 +49,8 @@
                         <app-dropdown
                             [options]="correspondingBranchOptions"
                             [selectedValues]="moreFilters.correspondingBranch"
-                            placeholder="Select Branch"
+                            placeholder="None"
+                            [searchable]="true"
                             (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
                             [closeOnSelect]="true">
                         </app-dropdown>
@@ -78,10 +60,103 @@
                         <app-dropdown
                             [options]="branchSearchTypeOptions"
                             [selectedValues]="moreFilters.branchSearchType"
-                            placeholder="Select Type"
+                            placeholder="Select Branch Search Type"
                             (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
                             [closeOnSelect]="true">
                         </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Sewa</label>
+                        <app-dropdown
+                            [options]="sewaOptions"
+                            [selectedValues]="selectedSewa"
+                            placeholder="None"
+                            (selectionChange)="selectedSewa = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>BadgeNo</label>
+                        <input
+                            type="text"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.badgeNo"
+                            [ngModelOptions]="{ standalone: true }"
+                            (input)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>Gender</label>
+                        <app-dropdown
+                            [options]="genderOptions"
+                            [selectedValues]="selectedGender"
+                            placeholder="None"
+                            (selectionChange)="selectedGender = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Name</label>
+                        <input
+                            type="text"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.name"
+                            [ngModelOptions]="{ standalone: true }"
+                            (input)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>Relation Name</label>
+                        <input
+                            type="text"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.relationName"
+                            [ngModelOptions]="{ standalone: true }"
+                            (input)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>Mobile No.</label>
+                        <input
+                            type="text"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.mobileNo"
+                            [ngModelOptions]="{ standalone: true }"
+                            (input)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>UID</label>
+                        <input
+                            type="text"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.uid"
+                            [ngModelOptions]="{ standalone: true }"
+                            (input)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>Options</label>
+                        <app-dropdown
+                            [options]="filterOptionsDropdown"
+                            [selectedValues]="moreFilters.options"
+                            placeholder="Select Options"
+                            (selectionChange)="moreFilters.options = $event; onSearchChange()"
+                            [closeOnSelect]="true">
+                        </app-dropdown>
+                    </div>
+                    <div class="filter-field">
+                        <label>Start From</label>
+                        <input
+                            type="date"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.startFrom"
+                            [ngModelOptions]="{ standalone: true }"
+                            (change)="onSearchChange()" />
+                    </div>
+                    <div class="filter-field">
+                        <label>End To</label>
+                        <input
+                            type="date"
+                            class="filter-input"
+                            [(ngModel)]="moreFilters.endTo"
+                            [ngModelOptions]="{ standalone: true }"
+                            (change)="onSearchChange()" />
                     </div>
                 </div>
             </div>

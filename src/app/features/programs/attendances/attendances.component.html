@@ -1,0 +1,42 @@
+<div class="attendances-container">
+    <div class="attendances-header">
+        <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+    </div>
+
+    <div class="attendances-card">
+        <div class="attendances-card__header">
+            <h2 class="attendances-card__title">Attendances</h2>
+        </div>
+
+        <div class="attendances-card__body">
+            <div class="attendances-form">
+                <div class="form-group">
+                    <label class="form-label">
+                        Select Program <span class="required">*</span>
+                    </label>
+                    <app-dropdown
+                        [options]="programOptions"
+                        [selectedValues]="selectedProgram"
+                        placeholder="Select Program"
+                        [searchable]="true"
+                        [closeOnSelect]="true"
+                        (selectionChange)="onProgramChange($event)">
+                    </app-dropdown>
+                </div>
+
+                <div class="attendances-actions">
+                    <button class="btn btn--primary btn--sm" type="button"
+                        [disabled]="!selectedProgram.length"
+                        (click)="checkIn()">
+                        Check In
+                    </button>
+                    <button class="btn btn--outline btn--sm" type="button"
+                        [disabled]="!selectedProgram.length"
+                        (click)="checkOut()">
+                        Check Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

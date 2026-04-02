@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -36,8 +34,6 @@ export interface AllocatedVolunteer {
     FormsModule,
     BreadcrumbComponent,
     DropdownComponent,
-    PagerComponent,
-    MenuDropdownComponent,
     LoadingComponent,
     EmptyStateComponent,
     IconComponent
