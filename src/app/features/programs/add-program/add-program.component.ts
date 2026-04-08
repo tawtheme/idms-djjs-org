@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -18,7 +19,8 @@ import { of } from 'rxjs';
     RouterModule,
     BreadcrumbComponent,
     DropdownComponent,
-    DatepickerComponent
+    DatepickerComponent,
+    LoadingComponent
   ],
   templateUrl: './add-program.component.html',
   styleUrls: ['./add-program.component.scss']
@@ -35,6 +37,8 @@ export class AddProgramComponent implements OnInit {
 
   // Duplicate mode
   duplicateFromId: string | null = null;
+  // Edit mode
+  editProgramId: string | null = null;
 
   // Form data
   name = '';
@@ -42,7 +46,7 @@ export class AddProgramComponent implements OnInit {
   initiative = '';
   project = '';
   branch = '';
-  chooseSewa = '';
+  chooseSewa: string[] = [];
   startDateTime: Date | null = null;
   endDateTime: Date | null = null;
   status = 'Active';
@@ -50,12 +54,14 @@ export class AddProgramComponent implements OnInit {
   remarks = '';
 
   isSubmitting = false;
+  isLoading = false;
 
   // Dropdown options
   programCoordinatorOptions: DropdownOption[] = [];
   initiativeOptions: DropdownOption[] = [];
   projectOptions: DropdownOption[] = [];
   branchOptions: DropdownOption[] = [];
+  sewaOptions: DropdownOption[] = [];
 
   readonly statusOptions: DropdownOption[] = [
     { id: '1', label: 'Active', value: 'Active' },
@@ -72,7 +78,13 @@ export class AddProgramComponent implements OnInit {
 
   ngOnInit(): void {
     this.duplicateFromId = this.route.snapshot.queryParamMap.get('duplicateFrom');
-    if (this.duplicateFromId) {
+    this.editProgramId = this.route.snapshot.paramMap.get('id');
+    if (this.editProgramId) {
+      this.breadcrumbs = [
+        { label: 'Programs', route: '/programs/programs-list' },
+        { label: 'Edit Program', route: '/programs/edit-program' }
+      ];
+    } else if (this.duplicateFromId) {
       this.breadcrumbs = [
         { label: 'Programs', route: '/programs/programs-list' },
         { label: 'Duplicate Program', route: '/programs/add-program' }
@@ -87,8 +99,11 @@ export class AddProgramComponent implements OnInit {
 
     const checkAndLoadDuplicate = () => {
       optionsLoaded++;
-      if (optionsLoaded === totalOptions && this.duplicateFromId) {
-        this.loadDuplicateData(this.duplicateFromId);
+      if (optionsLoaded === totalOptions) {
+        const sourceId = this.editProgramId || this.duplicateFromId;
+        if (sourceId) {
+          this.loadDuplicateData(sourceId);
+        }
       }
     };
 
@@ -104,7 +119,7 @@ export class AddProgramComponent implements OnInit {
       checkAndLoadDuplicate();
     });
 
-    this.dataService.get<any>('v1/options/coordinators').pipe(
+    this.dataService.get<any>('v1/options/programCordinators').pipe(
       catchError(() => of({ data: [] }))
     ).subscribe((response) => {
       const data = response.data || response || [];
@@ -142,24 +157,46 @@ export class AddProgramComponent implements OnInit {
   }
 
   private loadDuplicateData(programId: string): void {
-    this.dataService.get<any>(`v1/programs/view/${programId}`).pipe(
+    this.isLoading = true;
+    this.dataService.get<any>(`v1/programs/${programId}`).pipe(
       catchError((err) => {
         console.error('Error loading program for duplication:', err);
         return of(null);
       })
     ).subscribe((response) => {
+      this.isLoading = false;
       if (!response) return;
       const data = response.data || response;
 
-      // Pre-fill all fields except name, startDateTime, and endDateTime
-      this.programCoordinator = data.user?.id ? String(data.user.id) : (data.coordinator_id ? String(data.coordinator_id) : '');
-      this.initiative = data.initiative?.id ? String(data.initiative.id) : '';
-      this.project = data.project?.id ? String(data.project.id) : '';
-      this.branch = data.branch?.id ? String(data.branch.id) : '';
-      this.chooseSewa = data.choose_sewa || '';
+      this.name = data.name || '';
+      this.programCoordinator = data.user_id ? String(data.user_id) : '';
+      this.initiative = data.initiative_id ? String(data.initiative_id) : '';
+      this.project = data.project_id ? String(data.project_id) : '';
+      this.branch = data.branch_id ? String(data.branch_id) : '';
+      this.chooseSewa = Array.isArray(data.program_sewas)
+        ? data.program_sewas.map((s: any) => String(s.sewa_id || s.sewa?.id)).filter(Boolean)
+        : [];
+      if (data.id) {
+        this.loadSewaOptions(String(data.id));
+      }
+      this.startDateTime = data.start_date_time ? new Date(data.start_date_time) : null;
+      this.endDateTime = data.end_date_time ? new Date(data.end_date_time) : null;
       this.status = data.status === 1 ? 'Active' : (data.status === 2 ? 'Inactive' : (data.status || 'Active'));
       this.repeats = data.repeats || 'Once';
       this.remarks = data.remarks || '';
+    });
+  }
+
+  private loadSewaOptions(programId: string): void {
+    this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = response.data || response || [];
+      this.sewaOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: String(item.id),
+        label: item.name,
+        value: String(item.id)
+      }));
     });
   }
 
@@ -170,7 +207,7 @@ export class AddProgramComponent implements OnInit {
       this.initiative &&
       this.project &&
       this.branch &&
-      this.chooseSewa.trim() &&
+      this.chooseSewa.length > 0 &&
       this.startDateTime &&
       this.endDateTime
     );
@@ -181,23 +218,25 @@ export class AddProgramComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    const payload = {
+    const payload: any = {
       name: this.name.trim(),
-      coordinator_id: this.programCoordinator,
+      user_id: this.programCoordinator,
       initiative_id: this.initiative,
       project_id: this.project,
       branch_id: this.branch,
-      choose_sewa: this.chooseSewa.trim(),
-      start_date_time: this.startDateTime?.toISOString(),
-      end_date_time: this.endDateTime?.toISOString(),
-      status: this.status,
+      sewa_id: this.chooseSewa,
+      start_date_time: this.formatDateOnly(this.startDateTime),
+      end_date_time: this.formatDateOnly(this.endDateTime),
+      status: this.status === 'Active' ? 1 : 2,
       repeats: this.repeats,
       remarks: this.remarks.trim()
     };
 
-    const apiCall = this.duplicateFromId
-      ? this.dataService.post(`v1/programs/duplicate/${this.duplicateFromId}`, payload)
-      : this.dataService.post('v1/programs', payload);
+    const apiCall = this.editProgramId
+      ? this.dataService.put(`v1/programs/${this.editProgramId}`, payload)
+      : (this.duplicateFromId
+        ? this.dataService.post(`v1/programs/duplicate/${this.duplicateFromId}`, payload)
+        : this.dataService.post('v1/programs', payload));
 
     apiCall.pipe(
       catchError((err) => {
@@ -210,6 +249,14 @@ export class AddProgramComponent implements OnInit {
       if (response === null) return;
       this.router.navigate(['/programs/programs-list']);
     });
+  }
+
+  private formatDateOnly(date: Date | null): string | null {
+    if (!date) return null;
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   onCancel(): void {
@@ -231,6 +278,10 @@ export class AddProgramComponent implements OnInit {
 
   onBranchChange(values: any[] | null): void {
     this.branch = values && values.length > 0 && values[0] !== '' ? values[0] : '';
+  }
+
+  onChooseSewaChange(values: any[] | null): void {
+    this.chooseSewa = Array.isArray(values) ? values.filter(v => v !== '' && v != null).map(String) : [];
   }
 
   onStatusChange(values: any[] | null): void {

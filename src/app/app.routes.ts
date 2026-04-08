@@ -166,6 +166,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'programs/edit-program/:id',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/programs/add-program/add-program.component').then(
+        (m) => m.AddProgramComponent
+      ),
+  },
+  {
     path: 'programs/view/:id',
     canMatch: [authOnly],
     loadComponent: () =>

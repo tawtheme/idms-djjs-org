@@ -5,10 +5,12 @@
 
     <div class="form-card">
         <div class="form-card__header">
-            <h2 class="form-card__title">Add New Program</h2>
+            <h2 class="form-card__title">{{ editProgramId ? 'Edit Program' : (duplicateFromId ? 'Duplicate Program' : 'Add New Program') }}</h2>
         </div>
 
-        <form class="form-card__body" (ngSubmit)="onSubmit()">
+        <app-loading *ngIf="isLoading" type="spinner" size="medium" message="Loading program..."></app-loading>
+
+        <form class="form-card__body" *ngIf="!isLoading" (ngSubmit)="onSubmit()">
             <!-- Row 1: Program Name, Start Date Time, End Date Time -->
             <div class="form-grid cols-3">
                 <div class="form-group">
@@ -88,8 +90,10 @@
                     <label class="form-label" for="choose-sewa">
                         Choose Sewa <span class="required">*</span>
                     </label>
-                    <input id="choose-sewa" type="text" class="form-control" [(ngModel)]="chooseSewa"
-                        [ngModelOptions]="{ standalone: true }" placeholder="Enter sewa" required>
+                    <app-dropdown [options]="sewaOptions" [selectedValues]="chooseSewa" [searchable]="true"
+                        [multiSelect]="true" [closeOnSelect]="false" placeholder="Select Sewa"
+                        (selectionChange)="onChooseSewaChange($event)">
+                    </app-dropdown>
                 </div>
 
                 <div class="form-group">

@@ -24,7 +24,9 @@ export interface Program {
   taskBranch: string;
   startDateTime: string;
   endDateTime: string;
-  status: 'Completed' | 'Pending' | 'In Progress' | 'Cancelled';
+  status: 'Completed' | 'Running' | 'Upcoming' | 'Scheduled';
+  scheduledDays?: number;
+  activeStatus: 'Active' | 'Inactive';
   createdAt: string;
 }
 
@@ -109,7 +111,11 @@ export class ProgramsListComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.dataService.get<any>('v1/programs').pipe(
+    const params = new URLSearchParams();
+    params.set('page', String(this.currentPage));
+    params.set('per_page', String(this.pageSize));
+
+    this.dataService.get<any>(`v1/programs?${params.toString()}`).pipe(
       catchError((error) => {
         console.error('Error loading programs:', error);
         this.error = error.error?.message || error.message || 'Failed to load programs. Please try again.';
@@ -118,34 +124,35 @@ export class ProgramsListComponent implements OnInit {
       })
     ).subscribe((response) => {
       const data = response.data || response.results || response || [];
+      const meta = response.meta || response.pagination || null;
 
       this.allPrograms = (Array.isArray(data) ? data : []).map((item: any) => {
-        // Map numeric status to label
-        const statusNumber = item.status;
-        let statusLabel: Program['status'] = 'Pending';
-        if (statusNumber === 1) {
-          statusLabel = 'Completed';
-        } else if (statusNumber === 2) {
-          statusLabel = 'In Progress';
-        } else if (statusNumber === 3) {
-          statusLabel = 'Cancelled';
-        }
+        const { status: statusLabel, scheduledDays } = this.computeProgramStatus(item.start_date_time, item.end_date_time);
 
         return {
+          scheduledDays,
           id: String(item.id),
           name: item.name || '',
           programCoordinator: item.user?.name || '',
           initiativeName: item.initiative?.name || '',
           projectName: item.project?.name || '',
           taskBranch: item.branch?.name || '',
-          startDateTime: item.start_date_time || '',
-          endDateTime: item.end_date_time || '',
+          startDateTime: this.formatDisplayDate(item.start_date_time),
+          endDateTime: this.formatDisplayDate(item.end_date_time),
           status: statusLabel,
-          createdAt: item.created_at || ''
+          activeStatus: item.status === 1 ? 'Active' : 'Inactive',
+          createdAt: this.formatDisplayDateTime(item.created_at)
         } as Program;
       });
 
       this.applyFilters();
+      if (meta) {
+        this.totalItems = meta.total ?? meta.total_count ?? this.totalItems;
+        this.currentPage = meta.current_page ?? this.currentPage;
+        this.pageSize = meta.per_page ?? this.pageSize;
+      } else {
+        this.totalItems = this.allPrograms.length;
+      }
       this.isLoading = false;
     });
   }
@@ -198,6 +205,58 @@ export class ProgramsListComponent implements OnInit {
         value: item.id
       }));
     });
+  }
+
+  private formatDisplayDate(value: string | null | undefined): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  private formatDisplayDateTime(value: string | null | undefined): string {
+    if (!value) return '';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    // Handle "DD/MM/YYYY hh:mm am/pm" backend format
+    const m = String(value).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+    if (m) {
+      const [, dd, mm, yyyy, hh, min, ap] = m;
+      return `${dd.padStart(2, '0')} ${months[parseInt(mm, 10) - 1]} ${yyyy} at ${parseInt(hh, 10)}:${min} ${ap.toLowerCase()}`;
+    }
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    const hours24 = d.getHours();
+    const ampm = hours24 >= 12 ? 'pm' : 'am';
+    const hours12 = hours24 % 12 || 12;
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()} at ${hours12}:${min} ${ampm}`;
+  }
+
+  private computeProgramStatus(
+    start: string | null | undefined,
+    end: string | null | undefined
+  ): { status: Program['status']; scheduledDays?: number } {
+    const now = new Date();
+    const startDate = start ? new Date(start) : null;
+    let endDate = end ? new Date(end) : null;
+    if (end && typeof end === 'string' && !end.includes('T') && !end.includes(':')) {
+      endDate = new Date(end + 'T23:59:59');
+    }
+
+    if (!startDate) return { status: 'Upcoming' };
+    if (now < startDate) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const startDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const daysUntil = Math.ceil((startDay.getTime() - today.getTime()) / msPerDay);
+      if (daysUntil > 6) {
+        return { status: 'Scheduled', scheduledDays: daysUntil };
+      }
+      return { status: 'Upcoming' };
+    }
+    if (endDate && now > endDate) return { status: 'Completed' };
+    return { status: 'Running' };
   }
 
   formatDate(date: Date, includeTime: boolean = false): string {
@@ -282,9 +341,6 @@ export class ProgramsListComponent implements OnInit {
     }
 
     this.programs = filtered;
-    this.totalItems = filtered.length;
-    this.currentPage = 1;
-    this.updatePagedData();
   }
 
   sortBy(field: string) {
@@ -304,16 +360,8 @@ export class ProgramsListComponent implements OnInit {
     return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
-  updatePagedData() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    // Return sliced data for display
-  }
-
   get pagedPrograms(): Program[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.programs.slice(start, end);
+    return this.programs;
   }
 
   /**
@@ -369,11 +417,17 @@ export class ProgramsListComponent implements OnInit {
 
   // Actions
   getActionOptions(program: Program): MenuOption[] {
-    return [
-      { id: '1', label: 'View', value: 'view', icon: 'visibility' },
-      { id: '2', label: 'Duplicate', value: 'duplicate', icon: 'content_copy' },
-      { id: '3', label: 'Delete', value: 'delete', icon: 'delete' }
+    const options: MenuOption[] = [
+      { id: '1', label: 'View', value: 'view', icon: 'visibility' }
     ];
+    if (program.status !== 'Completed') {
+      options.push({ id: '2', label: 'Edit', value: 'edit', icon: 'edit' });
+    }
+    options.push(
+      { id: '3', label: 'Duplicate', value: 'duplicate', icon: 'content_copy' },
+      { id: '4', label: 'Delete', value: 'delete', icon: 'delete' }
+    );
+    return options;
   }
 
   onAction(program: Program, option: MenuOption) {
@@ -382,6 +436,8 @@ export class ProgramsListComponent implements OnInit {
     
     if (actionId === 'view') {
       this.viewProgram(program);
+    } else if (actionId === 'edit') {
+      this.editProgram(program);
     } else if (actionId === 'duplicate') {
       this.duplicateProgram(program);
     } else if (actionId === 'delete') {
@@ -391,6 +447,10 @@ export class ProgramsListComponent implements OnInit {
 
   viewProgram(program: Program): void {
     this.router.navigate(['/programs/view', program.id]);
+  }
+
+  editProgram(program: Program): void {
+    this.router.navigate(['/programs/edit-program', program.id]);
   }
 
   duplicateProgram(program: Program): void {
@@ -429,11 +489,13 @@ export class ProgramsListComponent implements OnInit {
   // Pagination
   onPageChange(page: number) {
     this.currentPage = page;
+    this.loadPrograms();
   }
 
   onPageSizeChange(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
+    this.loadPrograms();
   }
 
   trackById(index: number, program: Program): string {

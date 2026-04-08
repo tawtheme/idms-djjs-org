@@ -83,9 +83,6 @@
                     <div class="card-title-row">
                         <h3 class="card-title">{{ program.name }}</h3>
                         <div class="card-actions">
-                            <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
-                                {{ program.status }}
-                            </span>
                             <app-menu-dropdown
                                 [options]="getActionOptions(program)"
                                 (selectionChange)="onAction(program, $event)">
@@ -94,11 +91,6 @@
                     </div>
                     <div class="card-meta">
                         <span class="meta-item">
-                            <app-icon name="person" class="meta-icon" />
-                            {{ program.programCoordinator }}
-                        </span>
-                        <span class="meta-item">
-                            <app-icon name="location_city" class="meta-icon" />
                             {{ program.taskBranch }}
                         </span>
                     </div>
@@ -111,6 +103,16 @@
                     <div class="detail-item">
                         <span class="detail-label">Project</span>
                         <span class="detail-value">{{ program.projectName }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Preacher Name</span>
+                        <span class="detail-value">{{ program.programCoordinator }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="status-badge" [ngClass]="'status-' + (program.status | lowercase)">
+                            {{ program.status === 'Scheduled' ? 'Scheduled in ' + program.scheduledDays + (program.scheduledDays === 1 ? ' day' : ' days') : program.status }}
+                        </span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Duration</span>
