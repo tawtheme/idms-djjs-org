@@ -8,7 +8,6 @@ import { PagerComponent } from '../../../../shared/components/pager/pager.compon
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { DataService } from '../../../../data.service';
-import { HttpParams } from '@angular/common/http';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -75,10 +74,11 @@ export class ViewAttendanceModalComponent implements OnChanges {
 
   listViewOptions: DropdownOption[] = [
     { id: 'none', label: 'None', value: 'none' },
-    { id: 'present', label: 'Present', value: 'present' },
-    { id: 'absent', label: 'Absent', value: 'absent' },
+    { id: 'left', label: 'Left', value: 'left' },
+    { id: 'checkIn', label: 'Present', value: 'checkIn' },
+    { id: 'checkout', label: 'Return', value: 'checkout' },
     { id: 'leave', label: 'Leave', value: 'leave' },
-    { id: 'left', label: 'Left', value: 'left' }
+    { id: 'not_attended', label: 'Absent', value: 'not_attended' }
   ];
 
   sewaTypeOptions: DropdownOption[] = [];
@@ -151,25 +151,26 @@ export class ViewAttendanceModalComponent implements OnChanges {
   loadVolunteerDetails(): void {
     this.isLoadingDetails = true;
 
-    let params = new HttpParams()
-      .set('program_id', this.programId)
-      .set('per_page', this.pageSize.toString())
-      .set('page', this.currentPage.toString());
+    const body: any = {
+      program_id: this.programId,
+      per_page: this.pageSize,
+      page: this.currentPage
+    };
 
     if (this.filterTerm.trim()) {
-      params = params.set('search', this.filterTerm.trim());
+      body.search = this.filterTerm.trim();
     }
 
     const listView = this.selectedListViewType.length > 0 ? this.selectedListViewType[0] : null;
     if (listView && listView !== 'none') {
-      params = params.set('status', listView);
+      body.type = listView;
     }
 
     if (this.selectedSewaType.length > 0) {
-      params = params.set('sewa_id', this.selectedSewaType.join(','));
+      body.sewaIds = this.selectedSewaType.map(v => String(v));
     }
 
-    this.dataService.get<any>(`v1/attendances/checkedin/volunteers/${this.programId}`, { params }).pipe(
+    this.dataService.post<any>(`v1/programs/${this.programId}/volunteers/attendance-details`, body).pipe(
       catchError(() => of({ data: [] })),
       finalize(() => this.isLoadingDetails = false)
     ).subscribe((response) => {

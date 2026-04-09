@@ -349,7 +349,14 @@
     white-space: nowrap;
 }
 
+.name-with-image {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .volunteer-image {
+    flex-shrink: 0;
     width: 32px;
     height: 32px;
     border-radius: 6px;

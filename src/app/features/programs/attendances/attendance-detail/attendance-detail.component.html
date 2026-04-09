@@ -77,7 +77,7 @@
         </div>
         <div class="table-container">
             <table class="table">
-                <colgroup>
+                <colgroup *ngIf="attendanceMode === 'checkin'">
                     <col style="width: 7%;">
                     <col style="width: 22%;">
                     <col style="width: 12%;">
@@ -86,6 +86,15 @@
                     <col style="width: 12%;">
                     <col style="width: 15%;">
                     <col style="width: 12%;">
+                </colgroup>
+                <colgroup *ngIf="attendanceMode !== 'checkin'">
+                    <col style="width: 8%;">
+                    <col style="width: 25%;">
+                    <col style="width: 14%;">
+                    <col style="width: 12%;">
+                    <col style="width: 10%;">
+                    <col style="width: 14%;">
+                    <col style="width: 17%;">
                 </colgroup>
                 <thead>
                     <tr>
@@ -96,7 +105,7 @@
                         <th>Status</th>
                         <th>CheckIn</th>
                         <th>Remarks</th>
-                        <th>Action</th>
+                        <th *ngIf="attendanceMode === 'checkin'">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -115,39 +124,15 @@
                                 </div>
                             </td>
                             <td data-label="Sewa">{{ record.sewa }}</td>
-                            <!-- Donation (editable on double-click) -->
-                            <td data-label="Donation" class="editable-cell" (dblclick)="startEditing(record, 'donation')">
-                                <ng-container *ngIf="!isEditing(record.id, 'donation')">
-                                    <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
-                                    <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
-                                </ng-container>
-                                <input *ngIf="isEditing(record.id, 'donation')"
-                                    type="number" class="inline-input"
-                                    [(ngModel)]="editingCell!.value"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (keydown)="onEditKeydown($event, record)"
-                                    (blur)="saveEditing(record)"
-                                    [disabled]="isSaving" />
+                            <td data-label="Donation">
+                                <span *ngIf="record.donation">{{ record.donation }}</span>
+                                <span *ngIf="!record.donation" class="text-muted">-</span>
                             </td>
-                            <!-- Status (editable on double-click) -->
-                            <td data-label="Status" class="editable-cell" (dblclick)="startEditing(record, 'status')">
-                                <ng-container *ngIf="!isEditing(record.id, 'status')">
-                                    <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
-                                        {{ getStatusLabel(record.status) }}
-                                    </span>
-                                    <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted editable-text">-</span>
-                                </ng-container>
-                                <select *ngIf="isEditing(record.id, 'status')"
-                                    class="inline-select"
-                                    [(ngModel)]="editingCell!.value"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (keydown)="onEditKeydown($event, record)"
-                                    (blur)="saveEditing(record)"
-                                    (change)="saveEditing(record)"
-                                    [disabled]="isSaving">
-                                    <option value="1">Checkin</option>
-                                    <option value="0">Leave</option>
-                                </select>
+                            <td data-label="Status">
+                                <span class="status-badge" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
+                                    {{ getStatusLabel(record.status) }}
+                                </span>
+                                <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted">-</span>
                             </td>
                             <td data-label="CheckIn">
                                 <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>
@@ -168,7 +153,7 @@
                                     [disabled]="isSaving" />
                             </td>
                             <!-- Action -->
-                            <td data-label="Action">
+                            <td data-label="Action" *ngIf="attendanceMode === 'checkin'">
                                 <div class="action-btns">
                                     <button class="btn-action btn-action--view" (click)="viewVolunteer(record)" title="View Details">
                                         <app-icon name="visibility" />
@@ -181,7 +166,7 @@
                         </tr>
                         <!-- Empty state -->
                         <tr *ngIf="pagedRecords.length === 0">
-                            <td [attr.colspan]="8" class="empty-state-cell">
+                            <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="empty-state-cell">
                                 <app-empty-state
                                     [title]="'No Attendance Records'"
                                     [description]="'Enter a volunteer ID to mark attendance.'"
@@ -192,7 +177,7 @@
                     </ng-container>
                     <!-- Loading -->
                     <tr *ngIf="isLoading">
-                        <td [attr.colspan]="8" class="loading-cell">
+                        <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>
@@ -267,6 +252,63 @@
         </div>
     </div>
 </app-modal>
+
+<!-- Fetch User Modal -->
+<div class="fetch-user-notice-wrapper" *ngIf="showFetchUserModal && !fetchedUser && fetchUserWarning">
+    <app-confirmation-dialog
+        [isOpen]="true"
+        title="Notice"
+        [message]="fetchUserWarning"
+        confirmLabel="OK"
+        cancelLabel=""
+        confirmType="primary"
+        [closable]="false"
+        (confirm)="closeFetchUserModal()"
+        (cancel)="closeFetchUserModal()">
+    </app-confirmation-dialog>
+</div>
+
+<div class="fetch-user-modal-wrapper" *ngIf="showFetchUserModal && fetchedUser">
+<app-modal [isOpen]="showFetchUserModal" [title]="fetchUserWarning || 'Volunteer Details'" size="small" (close)="closeFetchUserModal()">
+    <div class="fetch-user-modal">
+        <ng-container *ngIf="fetchedUser">
+            <div class="fetch-user-card">
+                <div class="fetch-user-avatar">
+                    <img [src]="fetchedUser.image || fetchedUser.user_image || '/assets/img/placeholder.svg'"
+                        [alt]="fetchedUser.name" onerror="this.src='/assets/img/placeholder.svg'" />
+                </div>
+                <div class="fetch-user-card__body">
+                    <h3 class="fetch-user-name">{{ fetchedUser.name }}</h3>
+                    <div class="fetch-user-pills">
+                        <span class="pill"><b>Mobile</b> {{ fetchedUser.phone || '-' }}</span>
+                        <span class="pill"><b>ID</b> {{ fetchedUser.unique_id || '-' }}</span>
+                        <span class="pill"><b>Sewa</b> {{ fetchedUser.program_sewa?.name || '-' }}</span>
+                        <span class="pill"><b>Badge</b> {{ fetchedUser.badge_id || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fetch-user-form">
+                <label>Donation Amount</label>
+                <input type="number" class="form-control" [(ngModel)]="fetchUserDonation" placeholder="Enter amount (optional)" />
+                <ng-container *ngIf="leaveMode">
+                    <label>Remarks <span class="required">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="fetchUserRemarks" (ngModelChange)="fetchUserError = null" placeholder="Enter remarks" />
+                </ng-container>
+                <div *ngIf="fetchUserError" class="fetch-user-error">{{ fetchUserError }}</div>
+            </div>
+
+            <div class="fetch-user-actions">
+                <button type="button" class="btn btn--warning" (click)="markLeave()" [disabled]="isSubmitting">{{ leaveMode ? 'Mark Leave' : 'On Leave' }}</button>
+                <button type="button" class="btn btn--success" (click)="markAttendance()" [disabled]="isSubmitting">Mark Attendance</button>
+            </div>
+            <div class="fetch-user-hint">
+                Press <strong>Enter</strong> to mark attendance · Press <strong>Shift</strong> to mark leave
+            </div>
+        </ng-container>
+    </div>
+</app-modal>
+</div>
 
 <!-- View Attendance Details Modal -->
 <app-view-attendance-modal

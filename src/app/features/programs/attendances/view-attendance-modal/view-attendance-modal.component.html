@@ -96,7 +96,7 @@
                 (selectionChange)="selectedListViewType = $event; onListViewChange()">
             </app-dropdown>
             <app-dropdown [options]="sewaTypeOptions" [selectedValues]="selectedSewaType"
-                placeholder="Select Sewa" [searchable]="true" [closeOnSelect]="true"
+                placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" [closeOnSelect]="false"
                 (selectionChange)="selectedSewaType = $event; onSewaTypeChange()">
             </app-dropdown>
         </div>
@@ -108,7 +108,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Image</th>
                         <th>Sewa</th>
                         <th>Badge No.</th>
                         <th>Donation</th>
@@ -119,18 +118,20 @@
                 </thead>
                 <tbody>
                     <tr *ngIf="isLoadingDetails">
-                        <td colspan="9" class="loading-cell">
+                        <td colspan="8" class="loading-cell">
                             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </td>
                     </tr>
                     <ng-container *ngIf="!isLoadingDetails">
                         <tr *ngFor="let record of volunteerRecords; trackBy: trackById">
                             <td><span class="id-badge">{{ record.id }}</span></td>
-                            <td><span class="name-text">{{ record.name }}</span></td>
                             <td>
-                                <div class="volunteer-image">
-                                    <img [src]="record.image || '/assets/img/placeholder.svg'" [alt]="record.name"
-                                        onerror="this.src='/assets/img/placeholder.svg'" />
+                                <div class="name-with-image">
+                                    <div class="volunteer-image">
+                                        <img [src]="record.image || '/assets/img/placeholder.svg'" [alt]="record.name"
+                                            onerror="this.src='/assets/img/placeholder.svg'" />
+                                    </div>
+                                    <span class="name-text">{{ record.name }}</span>
                                 </div>
                             </td>
                             <td>{{ record.sewa }}</td>
@@ -153,7 +154,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="volunteerRecords.length === 0">
-                            <td colspan="9" class="empty-cell">
+                            <td colspan="8" class="empty-cell">
                                 <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>
                             </td>
                         </tr>

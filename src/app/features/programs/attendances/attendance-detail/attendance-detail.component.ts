@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -91,6 +91,14 @@ export class AttendanceDetailComponent implements OnInit {
   showAttendanceModal = false;
   showViewDetail = false;
   viewRecord: AttendanceRecord | null = null;
+  // Fetch-user modal
+  showFetchUserModal = false;
+  fetchedUser: any = null;
+  fetchUserWarning: string | null = null;
+  fetchUserDonation = '';
+  fetchUserRemarks = '';
+  leaveMode = false;
+  fetchUserError: string | null = null;
   showDeleteConfirm = false;
   deleteTarget: AttendanceRecord | null = null;
 
@@ -191,8 +199,8 @@ export class AttendanceDetailComponent implements OnInit {
         sewaId: item.sewa_id || '',
         badgeNo: item.badge_no || item.badge_number || '',
         donation: item.donation || item.donation_amount || 0,
-        status: item.status || '',
-        checkIn: item.check_in || item.checkin_time || '',
+        status: item.status ?? '',
+        checkIn: item.checked_in || item.check_in || item.checkin_time || '',
         remarks: item.remarks || ''
       }));
 
@@ -206,22 +214,109 @@ export class AttendanceDetailComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    const params = new HttpParams()
-      .set('program_id', this.programId)
-      .set('mode', this.attendanceMode)
-      .set('search_column', this.enterId.trim());
+    const body = {
+      unique_id: this.enterId.trim(),
+      program_id: this.programId,
+      action: this.attendanceMode
+    };
 
-    this.dataService.get<any>(`v1/attendances/checkedin/volunteers/${this.programId}`, { params }).pipe(
-      catchError(() => of(null)),
+    this.dataService.post<any>('v1/fetch-user', body).pipe(
+      catchError((err) => {
+        this.fetchUserWarning = err?.error?.message || 'User not found';
+        this.fetchedUser = null;
+        this.showFetchUserModal = true;
+        return of(null);
+      }),
       finalize(() => {
         this.isSubmitting = false;
       })
     ).subscribe((response) => {
-      if (response) {
-        this.enterId = '';
-        this.loadAttendanceData();
+      if (!response) return;
+      const data = response.data || response;
+      this.fetchedUser = data?.user || data;
+      this.fetchUserWarning = data?.show_blocker ? (data?.blocker_message || null) : null;
+      this.fetchUserDonation = '';
+      this.fetchUserRemarks = '';
+      this.leaveMode = false;
+      this.enterId = '';
+
+      // On checkout, skip the volunteer-detail modal and submit directly so the
+      // updated record shows up in the listing the same way check-in does.
+      if (this.attendanceMode === 'checkout' && this.fetchedUser && !this.fetchUserWarning) {
+        this.submitAttendance(2);
+        return;
       }
+
+      this.showFetchUserModal = true;
     });
+  }
+
+  submitAttendance(status: 0 | 1 | 2): void {
+    if (!this.fetchedUser) return;
+    const body = {
+      unique_id: this.fetchedUser.unique_id || this.fetchedUser.id || '',
+      program_id: this.programId,
+      sewa_id: this.fetchedUser.program_sewa?.id || '',
+      amount: Number(this.fetchUserDonation) || 0,
+      remarks: this.fetchUserRemarks || '',
+      status
+    };
+    this.isSubmitting = true;
+    this.dataService.post<any>('v1/attendances/store', body).pipe(
+      catchError((err) => {
+        this.fetchedUser = null;
+        this.fetchUserWarning = err?.error?.message || 'Unable to mark attendance';
+        this.showFetchUserModal = true;
+        return of(null);
+      }),
+      finalize(() => this.isSubmitting = false)
+    ).subscribe((response) => {
+      if (response === null) return;
+      this.closeFetchUserModal();
+      this.loadSummary();
+      this.loadAttendanceData();
+    });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleFetchUserModalKeydown(event: KeyboardEvent): void {
+    if (!this.showFetchUserModal || !this.fetchedUser || this.isSubmitting) {
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.markAttendance();
+    } else if (event.key === 'Shift') {
+      event.preventDefault();
+      this.markLeave();
+    }
+  }
+
+  markAttendance(): void {
+    this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
+  }
+
+  markLeave(): void {
+    if (!this.leaveMode) {
+      this.leaveMode = true;
+      this.fetchUserError = null;
+      return;
+    }
+    if (!this.fetchUserRemarks.trim()) {
+      this.fetchUserError = 'Remarks are required to mark leave.';
+      return;
+    }
+    this.fetchUserError = null;
+    this.submitAttendance(0);
+  }
+
+  closeFetchUserModal(): void {
+    this.showFetchUserModal = false;
+    this.fetchedUser = null;
+    this.fetchUserWarning = null;
+    this.fetchUserError = null;
+    this.fetchUserRemarks = '';
+    this.leaveMode = false;
   }
 
   applyFilter(): void {
@@ -249,20 +344,21 @@ export class AttendanceDetailComponent implements OnInit {
   }
 
   getStatusClass(status: any): string {
-    const s = String(status || '').toLowerCase();
-    switch (s) {
-      case 'present': return 'status-present';
-      case 'absent': return 'status-absent';
-      case 'leave': return 'status-leave';
-      default: return '';
-    }
+    const s = String(status);
+    if (s === '1') return 'status-present';
+    if (s === '0') return 'status-leave';
+    const lower = s.toLowerCase();
+    if (lower === 'present') return 'status-present';
+    if (lower === 'leave') return 'status-leave';
+    if (lower === 'absent') return 'status-absent';
+    return '';
   }
 
   getStatusLabel(status: any): string {
     const s = String(status);
     switch (s) {
       case '0': return 'Leave';
-      case '1': return 'Checkin';
+      case '1': return 'Present';
       default: return s;
     }
   }
