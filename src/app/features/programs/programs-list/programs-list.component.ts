@@ -8,7 +8,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DateRangePickerComponent } from '../../../shared/components/date-range-picker/date-range-picker.component';
+
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -41,7 +41,6 @@ export interface Program {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    DateRangePickerComponent,
     IconComponent,
     ConfirmationDialogComponent
   ],
