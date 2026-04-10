@@ -2,6 +2,127 @@
 @import '../../../../assets/scss/variable';
 @import '../../../../assets/scss/table';
 
+.confirmation-dialog {
+    &__dialog {
+        width: 100%;
+        background: $color-white;
+        color: $color-gray-900;
+        border-radius: 16px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        padding: 32px 28px 24px;
+    }
+
+    &__close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $color-gray-400;
+        padding: 4px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            color: $color-gray-600;
+            background: $color-gray-100;
+        }
+    }
+
+    &__icon-wrapper { margin-bottom: 16px; }
+
+    &__icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+
+        &--danger { background: #fee2e2; color: #dc2626; }
+    }
+
+    &__body {
+        text-align: center;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    &__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: $color-gray-900;
+        margin: 0 0 8px;
+    }
+
+    &__message {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: $color-gray-500;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+
+        .btn {
+            flex: 1;
+            max-width: 160px;
+        }
+    }
+}
+
+.unassign-form {
+    margin-top: 16px;
+    text-align: left;
+
+    .form-group {
+        margin-bottom: 12px;
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+
+            .required { color: #dc2626; }
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+
+            &:focus { border-color: #2563eb; outline: none; }
+        }
+    }
+
+    .unassign-error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+}
+
 // Apply shared listing styles
 @include listing.listing('.sewa-volunteers');
 
@@ -35,12 +156,12 @@
 
 .sewa-volunteers-content {
     display: grid;
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     flex: 1;
     overflow: hidden;
 
-    @media (max-width: 1200px) {
+    @media (max-width: 900px) {
         grid-template-columns: 1fr;
     }
 }
@@ -166,6 +287,17 @@
         border-color: $color-primary-600;
         background: $color-primary-50;
         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    }
+
+    &.disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+
+        &:hover {
+            border-color: $color-gray-200;
+            box-shadow: none;
+            transform: none;
+        }
     }
 
     .card-checkbox {
@@ -304,11 +436,7 @@
 }
 
 // Responsive adjustments
-@media (max-width: 1200px) {
-    .sewa-volunteers-content {
-        grid-template-columns: 1fr;
-    }
-
+@media (max-width: 900px) {
     .section {
         min-height: 400px;
     }

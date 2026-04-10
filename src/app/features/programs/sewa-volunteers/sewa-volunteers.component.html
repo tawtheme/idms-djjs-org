@@ -49,7 +49,7 @@
                         class="form-control"
                         [(ngModel)]="unallocatedSearchTerm"
                         [ngModelOptions]="{ standalone: true }"
-                        (input)="applyUnallocatedFilter()"
+                        (input)="unallocatedCurrentPage = 1; loadUnallocatedFromApi()"
                         placeholder="Search..."
                     />
                 </div>
@@ -78,14 +78,16 @@
                 <!-- Cards Grid -->
                 <ng-container *ngIf="!isLoadingUnallocated && !errorUnallocated">
                     <div class="cards-grid">
-                        <div *ngFor="let volunteer of pagedUnallocated; trackBy: trackById" 
+                        <div *ngFor="let volunteer of pagedUnallocated; trackBy: trackById"
                              class="volunteer-card"
                              [class.selected]="selectedUnallocated.has(volunteer.id)"
-                             (click)="toggleSelectUnallocated(volunteer.id, $event)">
-                            <div class="card-checkbox">
+                             [class.disabled]="volunteer.hasAssignedSewa"
+                             (click)="!volunteer.hasAssignedSewa && toggleSelectUnallocated(volunteer.id, $event)">
+                            <div class="card-checkbox" [title]="volunteer.hasAssignedSewa ? 'We already have assigned sewa' : ''">
                                 <input
                                     type="checkbox"
                                     [checked]="selectedUnallocated.has(volunteer.id)"
+                                    [disabled]="volunteer.hasAssignedSewa"
                                     (change)="toggleSelectUnallocated(volunteer.id, $event)"
                                     (click)="$event.stopPropagation()">
                             </div>
@@ -98,7 +100,7 @@
                                     </div>
                                 </div>
                                 <div class="card-details">
-                                    <div class="card-id">ID: {{ volunteer.id }}</div>
+                                    <div class="card-id">ID: {{ volunteer.uniqueId || volunteer.id }}</div>
                                     <div class="card-name">{{ volunteer.name }}</div>
                                     <div class="card-phone" *ngIf="volunteer.phone">
                                         <app-icon name="phone" />
@@ -137,7 +139,7 @@
                         class="form-control"
                         [(ngModel)]="allocatedSearchTerm"
                         [ngModelOptions]="{ standalone: true }"
-                        (input)="applyAllocatedFilter()"
+                        (input)="allocatedCurrentPage = 1; loadAllocatedFromApi()"
                         placeholder="Search..."
                     />
                 </div>
@@ -160,7 +162,6 @@
                             </th>
                             <th>Head</th>
                             <th>Sub Head</th>
-                            <th>Is Regular</th>
                             <th>Id</th>
                             <th>Badge No</th>
                             <th>Name</th>
@@ -177,14 +178,19 @@
                                         [checked]="selectedAllocated.has(volunteer.id)"
                                         (change)="toggleSelectAllocated(volunteer.id, $event)">
                                 </td>
-                                <td data-label="Head">{{ volunteer.head || '-' }}</td>
-                                <td data-label="Sub Head">{{ volunteer.subHead || '-' }}</td>
-                                <td data-label="Is Regular">
-                                    <span class="regular-badge" [class.regular]="volunteer.isRegular">
-                                        {{ volunteer.isRegular ? 'Yes' : 'No' }}
-                                    </span>
+                                <td data-label="Head" (click)="$event.stopPropagation()">
+                                    <input type="checkbox"
+                                        [checked]="volunteer.headChecked"
+                                        [disabled]="volunteer.subHeadChecked"
+                                        (change)="toggleHead(volunteer, $event)" />
                                 </td>
-                                <td data-label="Id">{{ volunteer.id }}</td>
+                                <td data-label="Sub Head" (click)="$event.stopPropagation()">
+                                    <input type="checkbox"
+                                        [checked]="volunteer.subHeadChecked"
+                                        [disabled]="volunteer.headChecked"
+                                        (change)="toggleSubHead(volunteer, $event)" />
+                                </td>
+                                <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
                                 <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
                                 <td data-label="Name" class="name">{{ volunteer.name }}</td>
                                 <td data-label="Image" class="image-column">
@@ -230,3 +236,42 @@
         </div>
     </div>
 </div>
+
+<ng-container *ngIf="showUnassignModal">
+    <div class="modal-backdrop is-open" (click)="closeUnassignModal()"></div>
+    <div class="modal confirmation-dialog is-open">
+        <div class="confirmation-dialog__dialog modal-small">
+            <button type="button" class="confirmation-dialog__close" (click)="closeUnassignModal()" aria-label="Close dialog">
+                <app-icon name="close" />
+            </button>
+
+            <div class="confirmation-dialog__icon-wrapper">
+                <div class="confirmation-dialog__icon confirmation-dialog__icon--danger">
+                    <app-icon name="help_outline" />
+                </div>
+            </div>
+
+            <div class="confirmation-dialog__body">
+                <h3 class="confirmation-dialog__title">Confirm Unassign</h3>
+                <p class="confirmation-dialog__message">Are you sure you want to do this action?</p>
+
+                <div class="unassign-form">
+                    <div class="form-group">
+                        <label>Reason <span class="required">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="unassignReason" [ngModelOptions]="{ standalone: true }" (ngModelChange)="unassignError = null" placeholder="Enter reason" />
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <textarea class="form-control" [(ngModel)]="unassignRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks" rows="3"></textarea>
+                    </div>
+                    <div *ngIf="unassignError" class="unassign-error">{{ unassignError }}</div>
+                </div>
+            </div>
+
+            <div class="confirmation-dialog__footer">
+                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
+                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
+            </div>
+        </div>
+    </div>
+</ng-container>

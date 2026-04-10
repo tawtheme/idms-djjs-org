@@ -1,5 +1,10 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DataService } from '../../../data.service';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
@@ -10,18 +15,24 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface UnallocatedVolunteer {
   id: number;
+  uniqueId?: string;
   name: string;
   image?: string;
   phone?: string;
+  hasAssignedSewa: boolean;
 }
 
 export interface AllocatedVolunteer {
   id: number;
+  uniqueId?: string;
+  psvId?: string;
   badgeNo?: string;
   name: string;
   image?: string;
   head?: string;
   subHead?: string;
+  headChecked: boolean;
+  subHeadChecked: boolean;
   isRegular: boolean;
   sewa?: string;
 }
@@ -42,14 +53,16 @@ export interface AllocatedVolunteer {
   templateUrl: './sewa-volunteers.component.html',
   styleUrls: ['./sewa-volunteers.component.scss']
 })
-export class SewaVolunteersComponent {
+export class SewaVolunteersComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+  private dataService = inject(DataService);
+  private snackbar = inject(SnackbarService);
 
   // Filters
   selectedProgram: string[] = ['None'];
   selectedSewa: string[] = [];
   selectedGender: string[] = ['None'];
-  selectedSewaAssignment: string[] = ['Unassigned Volunteers'];
+  selectedSewaAssignment: string[] = ['2'];
 
   // Filter options
   programOptions: DropdownOption[] = [
@@ -63,14 +76,14 @@ export class SewaVolunteersComponent {
 
   genderOptions: DropdownOption[] = [
     { id: '0', label: 'None', value: 'None' },
-    { id: '1', label: 'Male', value: 'Male' },
-    { id: '2', label: 'Female', value: 'Female' },
-    { id: '3', label: 'Other', value: 'Other' }
+    { id: '1', label: 'MALE', value: 'MALE' },
+    { id: '2', label: 'FEMALE', value: 'FEMALE' },
+    { id: '3', label: 'OTHER', value: 'OTHER' }
   ];
 
   sewaAssignmentOptions: DropdownOption[] = [
-    { id: '1', label: 'Unassigned Volunteers', value: 'Unassigned Volunteers' },
-    { id: '2', label: 'Assigned Volunteers', value: 'Assigned Volunteers' }
+    { id: '2', label: 'Unassigned Volunteers', value: '2' },
+    { id: '1', label: 'All Volunteers', value: '1' }
   ];
 
   // Unallocated Volunteers
@@ -121,13 +134,53 @@ export class SewaVolunteersComponent {
       value: s
     }));
 
-    this.applyUnallocatedFilter();
-    this.applyAllocatedFilter();
+  }
+
+  ngOnInit(): void {
+    this.loadActivePrograms();
+    this.loadUnallocatedFromApi();
+    this.loadAllocatedFromApi();
+  }
+
+  loadActivePrograms(): void {
+    this.dataService.get<any>('v1/programs/active-for-attendance').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const programs = response?.data?.programs || response?.data || [];
+      const items = (Array.isArray(programs) ? programs : []).map((p: any) => ({
+        id: String(p.id),
+        label: p.name || p.program_name || '',
+        value: String(p.id)
+      }));
+      this.programOptions = [
+        { id: '0', label: 'None', value: 'None' },
+        ...items
+      ];
+    });
   }
 
   // Filter change handlers
   onProgramChange(): void {
+    const programId = this.selectedProgram[0];
+    this.selectedSewa = [];
+    this.sewaOptions = [];
+    if (programId && programId !== 'None') {
+      this.loadProgramSewas(programId);
+    }
     this.applyFilters();
+  }
+
+  loadProgramSewas(programId: string): void {
+    this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || [];
+      this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: String(s.id)
+      }));
+    });
   }
 
   onSewaChange(): void {
@@ -144,8 +197,101 @@ export class SewaVolunteersComponent {
 
   // Apply all filters
   applyFilters(): void {
-    this.applyUnallocatedFilter();
-    this.applyAllocatedFilter();
+    this.unallocatedCurrentPage = 1;
+    this.allocatedCurrentPage = 1;
+    this.loadUnallocatedFromApi();
+    this.loadAllocatedFromApi();
+  }
+
+  private buildFilterParams(pageSize: number, currentPage: number): HttpParams {
+    let params = new HttpParams()
+      .set('per_page', pageSize.toString())
+      .set('page', currentPage.toString());
+
+    const programId = this.selectedProgram[0];
+    if (programId && programId !== 'None') {
+      params = params.set('program_id', programId);
+    }
+
+    if (this.selectedSewa.length > 0) {
+      params = params.set('sewa_id', String(this.selectedSewa[0]));
+    }
+
+    const gender = this.selectedGender[0];
+    if (gender && gender !== 'None') {
+      params = params.set('gender', gender);
+    }
+
+    return params;
+  }
+
+  loadUnallocatedFromApi(): void {
+    this.isLoadingUnallocated = true;
+    this.errorUnallocated = null;
+    const assignmentValue = this.selectedSewaAssignment[0] || '2';
+    let params = this.buildFilterParams(this.unallocatedPageSize, this.unallocatedCurrentPage)
+      .set('filter_by_sewa_assignment', assignmentValue);
+    if (this.unallocatedSearchTerm.trim()) {
+      params = params.set('search', this.unallocatedSearchTerm.trim());
+    }
+
+    this.dataService.get<any>('v1/program_sewa_volunteers/unassign', { params }).pipe(
+      catchError((err) => {
+        this.errorUnallocated = err?.error?.message || 'Failed to load volunteers';
+        return of({ data: [] });
+      }),
+      finalize(() => this.isLoadingUnallocated = false)
+    ).subscribe((response) => {
+      const records = response?.data?.records || response?.data || [];
+      this.unallocatedVolunteers = (Array.isArray(records) ? records : []).map((v: any) => ({
+        id: v.id,
+        uniqueId: v.unique_id || '',
+        name: v.name || v.volunteer_name || '',
+        image: v.image || v.user_image || '',
+        phone: v.phone || v.mobile || '',
+        hasAssignedSewa: Array.isArray(v.user_sewas) && v.user_sewas.length > 0
+      }));
+      this.unallocatedTotalItems = response?.total || response?.meta?.total || this.unallocatedVolunteers.length;
+    });
+  }
+
+  loadAllocatedFromApi(): void {
+    this.isLoadingAllocated = true;
+    this.errorAllocated = null;
+    let params = this.buildFilterParams(this.allocatedPageSize, this.allocatedCurrentPage)
+      .set('filter_by_sewa_assignment', 'assigned');
+    if (this.allocatedSearchTerm.trim()) {
+      params = params.set('search', this.allocatedSearchTerm.trim());
+    }
+
+    this.dataService.get<any>('v1/program-sewa-volunteers/assigned', { params }).pipe(
+      catchError((err) => {
+        this.errorAllocated = err?.error?.message || 'Failed to load volunteers';
+        return of({ data: [] });
+      }),
+      finalize(() => this.isLoadingAllocated = false)
+    ).subscribe((response) => {
+      const records = response?.data?.records || response?.data || [];
+      this.allocatedVolunteers = (Array.isArray(records) ? records : []).map((v: any) => {
+        const psv = (v.user_program_sewa_volunteers && v.user_program_sewa_volunteers[0]) || {};
+        const badgeId = psv.program_sewa_volunteer_badge?.badge_id;
+        return {
+          id: v.id,
+          uniqueId: v.unique_id || '',
+          psvId: psv.id || '',
+          badgeNo: badgeId != null ? String(badgeId) : (v.badge_no || v.badge_number || ''),
+          name: v.name || v.volunteer_name || '',
+          image: v.image || v.user_image || '',
+          head: psv.head != null ? String(psv.head) : (v.head || v.sewa_head || ''),
+          subHead: psv.sub_head != null ? String(psv.sub_head) : (v.sub_head || v.sewa_sub_head || ''),
+          headChecked: Number(psv.head) === 1,
+          subHeadChecked: Number(psv.sub_head) === 1,
+          isRegular: !!v.is_regular,
+          sewa: psv.program_sewa?.sewa?.name || v.sewa || v.sewa_name || ''
+        };
+      });
+      this.allocatedTotalItems = response?.total || response?.meta?.total || this.allocatedVolunteers.length;
+    });
   }
 
   // Unallocated Volunteers Methods
@@ -218,9 +364,7 @@ export class SewaVolunteersComponent {
   }
 
   get pagedUnallocated(): UnallocatedVolunteer[] {
-    const start = (this.unallocatedCurrentPage - 1) * this.unallocatedPageSize;
-    const end = start + this.unallocatedPageSize;
-    return this.unallocatedVolunteers.slice(start, end);
+    return this.unallocatedVolunteers;
   }
 
   toggleSelectUnallocated(id: number, event: Event) {
@@ -232,32 +376,38 @@ export class SewaVolunteersComponent {
     }
   }
 
+  get selectableUnallocated(): UnallocatedVolunteer[] {
+    return this.pagedUnallocated.filter(v => !v.hasAssignedSewa);
+  }
+
   toggleSelectAllUnallocated(event: Event) {
     event.stopPropagation();
     if (this.isAllUnallocatedSelected()) {
       this.selectedUnallocated.clear();
     } else {
-      this.pagedUnallocated.forEach(v => this.selectedUnallocated.add(v.id));
+      this.selectableUnallocated.forEach(v => this.selectedUnallocated.add(v.id));
     }
   }
 
   isAllUnallocatedSelected(): boolean {
-    return this.pagedUnallocated.length > 0 &&
-           this.pagedUnallocated.every(v => this.selectedUnallocated.has(v.id));
+    return this.selectableUnallocated.length > 0 &&
+           this.selectableUnallocated.every(v => this.selectedUnallocated.has(v.id));
   }
 
   isUnallocatedIndeterminate(): boolean {
-    const selectedCount = this.pagedUnallocated.filter(v => this.selectedUnallocated.has(v.id)).length;
-    return selectedCount > 0 && selectedCount < this.pagedUnallocated.length;
+    const selectedCount = this.selectableUnallocated.filter(v => this.selectedUnallocated.has(v.id)).length;
+    return selectedCount > 0 && selectedCount < this.selectableUnallocated.length;
   }
 
   onUnallocatedPageChange(page: number) {
     this.unallocatedCurrentPage = page;
+    this.loadUnallocatedFromApi();
   }
 
   onUnallocatedPageSizeChange(size: number) {
     this.unallocatedPageSize = size;
     this.unallocatedCurrentPage = 1;
+    this.loadUnallocatedFromApi();
   }
 
   getUnallocatedPageSizeSelected(): DropdownOption[] {
@@ -265,9 +415,41 @@ export class SewaVolunteersComponent {
   }
 
   allocateVolunteers() {
-    const selected = Array.from(this.selectedUnallocated);
-    console.log('Allocating volunteers:', selected);
-    // Implement allocation logic
+    const ids = Array.from(this.selectedUnallocated).map(id => String(id));
+    if (ids.length === 0) {
+      alert('Please select at least one volunteer to allocate.');
+      return;
+    }
+
+    const programId = this.selectedProgram[0];
+    if (!programId || programId === 'None') {
+      alert('Please select a program before allocating.');
+      return;
+    }
+
+    const sewaId = this.selectedSewa[0];
+    if (!sewaId) {
+      alert('Please select a sewa before allocating.');
+      return;
+    }
+
+    const body = {
+      program_id: String(programId),
+      sewa_id: String(sewaId),
+      ids
+    };
+
+    this.dataService.post<any>('v1/program-sewa-volunteers/bulk-assign', body).pipe(
+      catchError((err) => {
+        alert(err?.error?.message || 'Failed to allocate volunteers.');
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (response === null) return;
+      this.selectedUnallocated.clear();
+      this.loadUnallocatedFromApi();
+      this.loadAllocatedFromApi();
+    });
   }
 
   // Allocated Volunteers Methods
@@ -322,9 +504,7 @@ export class SewaVolunteersComponent {
   }
 
   get pagedAllocated(): AllocatedVolunteer[] {
-    const start = (this.allocatedCurrentPage - 1) * this.allocatedPageSize;
-    const end = start + this.allocatedPageSize;
-    return this.allocatedVolunteers.slice(start, end);
+    return this.allocatedVolunteers;
   }
 
   toggleSelectAllocated(id: number, event: Event) {
@@ -357,24 +537,131 @@ export class SewaVolunteersComponent {
 
   onAllocatedPageChange(page: number) {
     this.allocatedCurrentPage = page;
+    this.loadAllocatedFromApi();
   }
 
   onAllocatedPageSizeChange(size: number) {
     this.allocatedPageSize = size;
     this.allocatedCurrentPage = 1;
+    this.loadAllocatedFromApi();
   }
 
   getAllocatedPageSizeSelected(): DropdownOption[] {
     return [this.pageSizeDropdownOptions.find(o => o.value === this.allocatedPageSize)!];
   }
 
-  unassignVolunteers() {
-    const selected = Array.from(this.selectedAllocated);
-    console.log('Unassigning volunteers:', selected);
-    // Implement unassign logic
+  // Unassign modal state
+  showUnassignModal = false;
+  unassignReason = '';
+  unassignRemarks = '';
+  unassignError: string | null = null;
+  isUnassigning = false;
+
+  toggleHead(volunteer: AllocatedVolunteer, event: Event): void {
+    event.stopPropagation();
+    this.callHeadApi(volunteer, 'head', !volunteer.headChecked);
   }
 
-  trackById(index: number, item: UnallocatedVolunteer | AllocatedVolunteer): number {
+  toggleSubHead(volunteer: AllocatedVolunteer, event: Event): void {
+    event.stopPropagation();
+    this.callHeadApi(volunteer, 'sub-head', !volunteer.subHeadChecked);
+  }
+
+  private callHeadApi(volunteer: AllocatedVolunteer, type: 'head' | 'sub-head', checked: boolean): void {
+    const programId = this.selectedProgram[0];
+    const sewaId = this.selectedSewa[0];
+    if (!programId || programId === 'None' || !sewaId || !volunteer.psvId) {
+      alert('Program and Sewa must be selected.');
+      return;
+    }
+
+    const body = {
+      program_id: String(programId),
+      sewa_id: String(sewaId),
+      program_sewa_volunteer_id: volunteer.psvId,
+      action: checked ? '1' : '0'
+    };
+
+    const label = type === 'head' ? 'Head' : 'Sub Head';
+    this.dataService.post<any>(`v1/program-sewa-volunteers/${type}`, body).pipe(
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || `Failed to update ${label}.`);
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (response === null) return;
+      if (type === 'head') {
+        volunteer.headChecked = checked;
+        if (checked) volunteer.subHeadChecked = false;
+      } else {
+        volunteer.subHeadChecked = checked;
+        if (checked) volunteer.headChecked = false;
+      }
+      if (checked) {
+        this.snackbar.showSuccess(`${volunteer.name} assigned as ${label}.`);
+      } else {
+        this.snackbar.showWarning(`${volunteer.name} removed from ${label}.`);
+      }
+    });
+  }
+
+  unassignVolunteers() {
+    if (this.selectedAllocated.size === 0) {
+      alert('Please select at least one volunteer to unassign.');
+      return;
+    }
+    this.unassignReason = '';
+    this.unassignRemarks = '';
+    this.unassignError = null;
+    this.showUnassignModal = true;
+  }
+
+  closeUnassignModal(): void {
+    this.showUnassignModal = false;
+  }
+
+  confirmUnassign(): void {
+    if (!this.unassignReason.trim()) {
+      this.unassignError = 'Reason is required.';
+      return;
+    }
+    const programId = this.selectedProgram[0];
+    if (!programId || programId === 'None') {
+      this.unassignError = 'Please select a program.';
+      return;
+    }
+    const sewaId = this.selectedSewa[0];
+    if (!sewaId) {
+      this.unassignError = 'Please select a sewa.';
+      return;
+    }
+
+    const body = {
+      program_id: String(programId),
+      sewa_id: String(sewaId),
+      reason: this.unassignReason.trim(),
+      remarks: this.unassignRemarks.trim(),
+      ids: Array.from(this.selectedAllocated).map(id => String(id))
+    };
+
+    this.isUnassigning = true;
+    this.unassignError = null;
+    this.dataService.post<any>('v1/program-sewa-volunteers/bulk-unassign', body).pipe(
+      catchError((err) => {
+        this.unassignError = err?.error?.message || 'Failed to unassign volunteers.';
+        return of(null);
+      }),
+      finalize(() => this.isUnassigning = false)
+    ).subscribe((response) => {
+      if (response === null) return;
+      this.selectedAllocated.clear();
+      this.showUnassignModal = false;
+      this.loadUnallocatedFromApi();
+      this.loadAllocatedFromApi();
+    });
+  }
+
+  trackById(_index: number, item: UnallocatedVolunteer | AllocatedVolunteer): number {
     return item.id;
   }
 }
