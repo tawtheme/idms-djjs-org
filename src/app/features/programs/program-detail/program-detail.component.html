@@ -5,10 +5,6 @@
     </div>
 
     <ng-container *ngIf="!isLoading">
-        <div class="detail-header">
-            <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
-        </div>
-
         <!-- Error -->
         <div *ngIf="error" class="page-state">
             <app-icon name="error_outline" class="error-icon" />
@@ -18,61 +14,59 @@
 
         <!-- Program Details -->
         <ng-container *ngIf="program">
-        <!-- Top Card -->
+        <!-- Top Card: 2-column layout -->
         <div class="top-card">
-            <!-- Row 1: Name + Status -->
-            <div class="top-card__header">
-                <h1 class="top-card__name">{{ program.name }}</h1>
-                <span class="status-badge" [ngClass]="getStatusClass(program.status)">
-                    {{ getStatusLabel(program.status) }}
-                </span>
-            </div>
-
-            <!-- Row 2: Meta info -->
-            <div class="top-card__meta">
-                <span class="meta-tag">
-                    <span class="meta-tag__label">Branch</span>
-                    {{ program.branch?.name || '-' }}
-                </span>
-                <span class="meta-tag">
-                    <span class="meta-tag__label">Initiative</span>
-                    {{ program.initiative?.name || '-' }}
-                </span>
-                <span class="meta-tag">
-                    <span class="meta-tag__label">Project</span>
-                    {{ program.project?.name || '-' }}
-                </span>
-                <span class="meta-tag">
-                    <span class="meta-tag__label">Duration</span>
-                    {{ program.startDateTime || '-' }} — {{ program.endDateTime || '-' }}
-                </span>
-            </div>
-
-            <!-- Row 3: Remarks (if any) -->
-            <p class="top-card__remarks" *ngIf="program.remarks">{{ program.remarks }}</p>
-
-            <!-- Row 4: Stats -->
-            <div class="top-card__stats">
-                <div class="stat-chip stat-chip--blue">
-                    <span class="stat-chip__num">{{ program.programSewas.length }}</span> Sewas
+            <div class="top-card__left">
+                <div class="top-card__header">
+                    <h1 class="top-card__name">{{ program.name }}</h1>
+                    <span class="status-badge" [ngClass]="getStatusClass(program.status)">
+                        {{ getStatusLabel(program.status) }}
+                    </span>
                 </div>
-                <div class="stat-chip stat-chip--green">
-                    <span class="stat-chip__num">{{ getTotalVolunteers() }}</span> Volunteers
+                <div class="top-card__meta">
+                    <span class="meta-tag">
+                        <span class="meta-tag__label">Branch</span>
+                        {{ program.branch?.name || '-' }}
+                    </span>
+                    <span class="meta-tag">
+                        <span class="meta-tag__label">Initiative</span>
+                        {{ program.initiative?.name || '-' }}
+                    </span>
+                    <span class="meta-tag">
+                        <span class="meta-tag__label">Project</span>
+                        {{ program.project?.name || '-' }}
+                    </span>
+                    <span class="meta-tag">
+                        <span class="meta-tag__label">Duration</span>
+                        {{ program.startDateTime || '-' }} — {{ program.endDateTime || '-' }}
+                    </span>
                 </div>
-                <div class="stat-chip stat-chip--amber">
-                    <span class="stat-chip__num">{{ getTotalDonations() }}</span> Donations
+                <p class="top-card__remarks" *ngIf="program.remarks">{{ program.remarks }}</p>
+            </div>
+            <div class="top-card__right">
+                <div class="stat-block stat-block--blue">
+                    <span class="stat-block__count">{{ program.programSewas.length }}</span>
+                    <span class="stat-block__label">Sewas</span>
+                </div>
+                <div class="stat-block stat-block--green">
+                    <span class="stat-block__count">{{ getTotalVolunteers() }}</span>
+                    <span class="stat-block__label">Volunteers</span>
+                </div>
+                <div class="stat-block stat-block--amber">
+                    <span class="stat-block__count">{{ getTotalDonations() }}</span>
+                    <span class="stat-block__label">Donations</span>
                 </div>
             </div>
         </div>
 
         <!-- Sewa & Volunteers Section -->
         <div class="sewa-panel" *ngIf="program.programSewas.length > 0">
-            <div class="sewa-panel__title">
-                <h4>Sewas & Volunteers</h4>
-            </div>
             <div class="sewa-panel__body">
                 <!-- Left: Vertical tabs -->
                 <div class="sewa-nav">
+                    <div class="sewa-panel__title">
+                        <h4>Sewas & Volunteers</h4>
+                    </div>
                     <button
                         *ngFor="let ps of program.programSewas; let i = index"
                         class="sewa-nav__item"
@@ -88,10 +82,17 @@
                 <div class="sewa-list" *ngIf="activeSewaTab">
                     <div class="sewa-list__header">
                         <span class="sewa-list__title">{{ activeSewaTab.sewa.name }}</span>
-                        <span class="sewa-list__count">{{ activeSewaTab.volunteers.length }} volunteer{{ activeSewaTab.volunteers.length !== 1 ? 's' : '' }}</span>
+                        <input type="text" class="sewa-list__search-input" placeholder="Search..."
+                            [(ngModel)]="volunteerSearchTerm" (ngModelChange)="volCurrentPage = 1" [ngModelOptions]="{ standalone: true }" />
                     </div>
                     <div class="sewa-list__scroll">
-                        <div class="vol-row" *ngFor="let v of activeSewaTab.volunteers">
+                        <div class="vol-row vol-row--header" *ngIf="filteredVolunteers.length > 0">
+                            <span class="vol-row__uid">ID</span>
+                            <div class="vol-row__info"><span class="vol-row__name">Name</span></div>
+                            <span class="vol-row__badge-label">Badge</span>
+                        </div>
+                        <div class="vol-row" *ngFor="let v of pagedVolunteers">
+                            <span class="vol-row__uid">{{ v.user.uniqueId }}</span>
                             <div class="vol-row__avatar">
                                 <img [src]="v.user.image || '/assets/img/placeholder.svg'"
                                      [alt]="v.user.name"
@@ -99,13 +100,25 @@
                             </div>
                             <div class="vol-row__info">
                                 <span class="vol-row__name">{{ v.user.name }}</span>
-                                <span class="vol-row__id">#{{ v.user.uniqueId }}</span>
                             </div>
                             <span class="vol-row__badge" *ngIf="v.badgeId">Badge {{ v.badgeId }}</span>
                         </div>
-                        <div class="sewa-list__empty" *ngIf="activeSewaTab.volunteers.length === 0">
-                            No volunteers assigned to this sewa
+                        <div class="sewa-list__empty" *ngIf="filteredVolunteers.length === 0">
+                            <app-icon name="group_off" class="sewa-list__empty-icon" />
+                            <span class="sewa-list__empty-title">No Volunteers Found</span>
+                            <span class="sewa-list__empty-desc" *ngIf="!volunteerSearchTerm">No volunteers assigned to this sewa</span>
+                            <span class="sewa-list__empty-desc" *ngIf="volunteerSearchTerm">No volunteers match "{{ volunteerSearchTerm }}"</span>
                         </div>
+                    </div>
+                    <div class="sewa-list__footer" *ngIf="filteredVolunteers.length > 0">
+                        <app-pager
+                            [total]="filteredVolunteers.length"
+                            [pageSize]="volPageSize"
+                            [currentPage]="volCurrentPage"
+                            [pageSizeOptions]="volPageSizeOptions"
+                            (pageChange)="volCurrentPage = $event"
+                            (pageSizeChange)="volPageSize = $event; volCurrentPage = 1">
+                        </app-pager>
                     </div>
                 </div>
             </div>

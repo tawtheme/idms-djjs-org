@@ -1,23 +1,23 @@
 <div class="date-range-picker-wrapper">
     <div class="date-range-picker-input-container">
-        <span #measureSpan class="date-range-picker-measure" aria-hidden="true">{{displayValue || placeholder}}</span>
-        <input type="text" 
-            [value]="displayValue || ''" 
-            [class.date-range-picker-input-disabled]="disabled"
-            [class.date-range-picker-input-single]="isSingleDate"
-            [class.date-range-picker-input-range]="!isSingleDate && displayValue"
-            [placeholder]="placeholder" 
-            [disabled]="disabled"
-            [readonly]="true"
-            (click)="toggleCalendar($event)" 
-            class="date-range-picker-input"
-            [style.width.px]="inputWidth"
-        />
-        <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" 
-            class="date-range-picker-trigger"
+        <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled"
+            class="date-range-picker-trigger date-range-picker-trigger--left"
             aria-label="Open calendar">
             <app-icon name="event" />
         </button>
+        <span #measureSpan class="date-range-picker-measure" aria-hidden="true">{{displayValue || placeholder}}</span>
+        <input type="text"
+            [value]="displayValue || ''"
+            [class.date-range-picker-input-disabled]="disabled"
+            [class.date-range-picker-input-single]="isSingleDate"
+            [class.date-range-picker-input-range]="!isSingleDate && displayValue"
+            [placeholder]="placeholder"
+            [disabled]="disabled"
+            [readonly]="true"
+            (click)="toggleCalendar($event)"
+            class="date-range-picker-input"
+            [style.width.px]="inputWidth"
+        />
     </div>
 
     <!-- Date Range Picker Modal -->

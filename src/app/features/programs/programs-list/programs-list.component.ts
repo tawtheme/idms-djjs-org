@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -36,7 +36,6 @@ export interface Program {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
     LoadingComponent,
@@ -81,6 +80,23 @@ export class ProgramsListComponent implements OnInit {
   startDate: Date | null = null;
   endDate: Date | null = null;
 
+  // Date select dropdowns
+  startDay = '';
+  startMonth = '';
+  startYear = '';
+  endDay = '';
+  endMonth = '';
+  endYear = '';
+
+  days = Array.from({ length: 31 }, (_, i) => i + 1);
+  months = [
+    { value: 1, label: 'Jan' }, { value: 2, label: 'Feb' }, { value: 3, label: 'Mar' },
+    { value: 4, label: 'Apr' }, { value: 5, label: 'May' }, { value: 6, label: 'Jun' },
+    { value: 7, label: 'Jul' }, { value: 8, label: 'Aug' }, { value: 9, label: 'Sep' },
+    { value: 10, label: 'Oct' }, { value: 11, label: 'Nov' }, { value: 12, label: 'Dec' }
+  ];
+  years: number[] = [];
+
   // Sorting
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -99,9 +115,24 @@ export class ProgramsListComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
+    const currentYear = new Date().getFullYear();
+    this.years = Array.from({ length: currentYear - 2000 + 3 }, (_, i) => 2000 + i);
     this.loadBranchOptions();
     this.loadInitiativeOptions();
     this.loadPrograms();
+  }
+
+  onDateSelectChange(): void {
+    if (this.startDay && this.startMonth && this.startYear) {
+      this.startDate = new Date(+this.startYear, +this.startMonth - 1, +this.startDay);
+    } else {
+      this.startDate = null;
+    }
+    if (this.endDay && this.endMonth && this.endYear) {
+      this.endDate = new Date(+this.endYear, +this.endMonth - 1, +this.endDay, 23, 59, 59);
+    } else {
+      this.endDate = null;
+    }
   }
 
   /**

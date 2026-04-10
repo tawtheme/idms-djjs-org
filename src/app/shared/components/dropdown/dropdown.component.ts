@@ -61,6 +61,8 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedItemsStyle: 'chips' | 'list' | 'compact' = 'chips';
   // Opening behavior: auto (default), up, down
   @Input() openDirection: 'auto' | 'up' | 'down' = 'auto';
+  // Autocomplete mode: shows as a text input with type-to-filter
+  @Input() autocomplete: boolean = false;
 
   @Output() selectionChange = new EventEmitter<any[]>();
   @Output() searchChange = new EventEmitter<string>();
@@ -419,6 +421,10 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptions = [option];
     this.selectionChange.emit([option.value]);
 
+    if (this.autocomplete) {
+      this.searchQuery = option.label;
+    }
+
     if (this.closeOnSelect) {
       this.closeDropdown();
     }
@@ -565,8 +571,35 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
       'dropdown',
       this.isOpen ? 'dropdown-open' : '',
       this.disabled ? 'dropdown-disabled' : '',
-      this.loading ? 'dropdown-loading' : ''
+      this.loading ? 'dropdown-loading' : '',
+      this.autocomplete ? 'dropdown-autocomplete' : ''
     ].filter(Boolean).join(' ');
+  }
+
+  onAutocompleteInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery = value;
+    this.filteredOptions = this.options.filter(option =>
+      option.label.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
+    this.searchChange.emit(this.searchQuery);
+    if (!this.isOpen) {
+      this.openDropdown();
+    }
+  }
+
+  onAutocompleteFocus(): void {
+    this.openDropdown();
+  }
+
+  clearAutocomplete(event: Event): void {
+    event.stopPropagation();
+    this.searchQuery = '';
+    this.selectedOptions = [];
+    this.selectedValues = [];
+    this.selectionChange.emit([]);
+    this.filteredOptions = [...this.options];
+    this.closeDropdown();
   }
 
   get dropdownListClasses(): string {

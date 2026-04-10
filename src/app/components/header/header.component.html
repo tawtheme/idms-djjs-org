@@ -1,9 +1,46 @@
 <header class="header" #headerElement>
     <div class="header-left">
-        <button class="toggle-btn" (click)="onToggleCollapse()">
+        <button class="menu-btn" (click)="toggleMenu()" type="button">
             <app-icon name="menu" />
+            <span class="menu-label">Menu</span>
         </button>
-        <img src="assets/img/logo.png" alt="Logo" class="header-logo">
-        <div class="header-title">IDMS ADMIN PANEL</div>
+
+        <div class="header-divider"></div>
+        <nav class="header-breadcrumb">
+            <a class="breadcrumb-link" (click)="onClose()">Home</a>
+            <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+                <span class="breadcrumb-sep">/</span>
+                <a *ngIf="crumb.route && !last" class="breadcrumb-link" (click)="navigateTo.emit(crumb.route)">{{ crumb.label }}</a>
+                <span *ngIf="!crumb.route || last" class="breadcrumb-current">{{ crumb.label }}</span>
+            </ng-container>
+        </nav>
+    </div>
+    <div class="header-right">
+        <button class="close-btn" (click)="onClose()" type="button" title="Back to Home">
+            <app-icon name="close" />
+        </button>
     </div>
 </header>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-backdrop" [class.is-open]="isMenuOpen" (click)="closeMenu()"></div>
+<nav class="sidebar" [class.is-open]="isMenuOpen">
+    <div class="sidebar-header">
+        <span class="sidebar-title">Menu</span>
+        <button class="sidebar-close" (click)="closeMenu()" type="button">
+            <app-icon name="close" />
+        </button>
+    </div>
+    <div class="sidebar-body">
+        <div class="menu-group" *ngFor="let group of menuGroups">
+            <div class="menu-group-title">{{ group.title }}</div>
+            <button *ngFor="let item of group.items"
+                class="menu-item"
+                [class.active]="item.route === activeRoute"
+                (click)="onMenuItemClick(item.route)">
+                <app-icon [name]="item.icon" class="menu-item-icon" />
+                <span>{{ item.label }}</span>
+            </button>
+        </div>
+    </div>
+</nav>

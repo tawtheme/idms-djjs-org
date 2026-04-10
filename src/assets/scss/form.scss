@@ -20,6 +20,22 @@ label {
     font-weight: 500;
 }
 
+// Global input consistency
+input, textarea, select {
+    &:focus {
+        outline: none;
+        border-color: $color-primary-500;
+        box-shadow: none;
+    }
+
+    &::placeholder {
+        color: $color-gray-500;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 1;
+    }
+}
+
 // Common class to apply input styles to any custom control
 .form-control {
     width: 100%;
@@ -39,12 +55,12 @@ label {
     }
 
     &:hover {
-        border-color: $color-primary-600;
+        border-color: $color-gray-400;
     }
 
     &:focus {
         border-color: $color-primary-500;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        box-shadow: none;
     }
 
     &:disabled {

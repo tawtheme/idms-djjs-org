@@ -5,11 +5,6 @@
     </div>
 
     <ng-container *ngIf="!isLoading">
-        <div class="programs-header">
-            <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
-            <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
-        </div>
-
         <!-- Error state -->
         <div *ngIf="error" class="error-state">
             <p>{{ error }}</p>
@@ -19,49 +14,76 @@
         <!-- Search & Filter Panel -->
         <div class="search-panel" *ngIf="!error">
         <div class="search-panel__top">
-            <app-dropdown
-                [options]="taskBranchOptions"
-                [selectedValues]="selectedTaskBranch"
-                placeholder="Task Branch"
-                [searchable]="true"
-                (selectionChange)="selectedTaskBranch = $event; onTaskBranchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="initiativeOptions"
-                [selectedValues]="selectedInitiative"
-                placeholder="Initiative"
-                [searchable]="true"
-                (selectionChange)="selectedInitiative = $event; applyFilters()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="projectOptions"
-                [selectedValues]="selectedProject"
-                placeholder="Project"
-                [searchable]="true"
-                (selectionChange)="selectedProject = $event; applyFilters()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <div class="search-input-wrapper">
-                <app-icon name="search" class="search-input-icon" />
-                <input
-                    type="search"
-                    class="search-input"
-                    placeholder="Search by Name, Coordinator, Initiative, Project"
-                    [(ngModel)]="searchTerm"
-                    [ngModelOptions]="{ standalone: true }"
-                    (keyup.enter)="applyFilters()" />
+            <div class="filter-field filter-field--grow">
+                <label class="filter-label">Quick Search</label>
+                <div class="search-input-wrapper">
+                    <app-icon name="search" class="search-input-icon" />
+                    <input
+                        type="search"
+                        class="search-input"
+                        placeholder="Search by Name, Coordinator, Initiative, Project"
+                        [(ngModel)]="searchTerm"
+                        [ngModelOptions]="{ standalone: true }"
+                        (keyup.enter)="applyFilters()" />
+                </div>
             </div>
-            <app-date-range-picker
-                [fromDate]="startDate"
-                [toDate]="endDate"
-                placeholder="Select Date Range"
-                (dateRangeChange)="onDateRangeChange($event)">
-            </app-date-range-picker>
-            <button class="btn btn--outline btn--sm" type="button" (click)="applyFilters()">
-                Search
-            </button>
+            <div class="filter-field">
+                <label class="filter-label">Task Branch</label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="Select"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event; onTaskBranchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">Start Date</label>
+                <div class="date-select-wrapper">
+                    <select class="date-select" [(ngModel)]="startDay" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Day</option>
+                        <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                    </select>
+                    <span class="date-select-sep">/</span>
+                    <select class="date-select" [(ngModel)]="startMonth" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Month</option>
+                        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                    </select>
+                    <span class="date-select-sep">/</span>
+                    <select class="date-select" [(ngModel)]="startYear" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Year</option>
+                        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">End Date</label>
+                <div class="date-select-wrapper">
+                    <select class="date-select" [(ngModel)]="endDay" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Day</option>
+                        <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                    </select>
+                    <span class="date-select-sep">/</span>
+                    <select class="date-select" [(ngModel)]="endMonth" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Month</option>
+                        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                    </select>
+                    <span class="date-select-sep">/</span>
+                    <select class="date-select" [(ngModel)]="endYear" [ngModelOptions]="{ standalone: true }" (change)="onDateSelectChange()">
+                        <option value="">Year</option>
+                        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label class="filter-label">&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--outline btn--sm" type="button" (click)="applyFilters()">Search</button>
+                    <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -95,7 +117,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="card-details">
+                <div class="card-details card-details--3col">
                     <div class="detail-item">
                         <span class="detail-label">Initiative</span>
                         <span class="detail-value">{{ program.initiativeName }}</span>
@@ -104,6 +126,12 @@
                         <span class="detail-label">Project</span>
                         <span class="detail-value">{{ program.projectName }}</span>
                     </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Branch</span>
+                        <span class="detail-value">{{ program.taskBranch || '-' }}</span>
+                    </div>
+                </div>
+                <div class="card-details">
                     <div class="detail-item">
                         <span class="detail-label">Preacher Name</span>
                         <span class="detail-value">{{ program.programCoordinator }}</span>

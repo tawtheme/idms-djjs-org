@@ -17,11 +17,11 @@
 
         &:focus-within {
             border-color: $color-primary-500;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: none;
         }
 
         .date-range-picker-input {
-            padding: 10px 16px 10px 12px; // Right padding: 16px gap before icon
+            padding: 10px 12px 10px 4px;
             border: none;
             border-radius: 6px;
             font-size: 14px;
@@ -65,8 +65,8 @@
         .date-range-picker-trigger {
             background: none;
             border: none;
-            font-size: 18px;
-            color: $color-gray-500;
+            font-size: 16px;
+            color: $color-gray-400;
             cursor: pointer;
             border-radius: 4px;
             transition: all 150ms ease;
@@ -74,6 +74,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            padding: 0 4px 0 8px;
 
             &:hover {
                 background: $color-gray-100;
@@ -86,7 +87,7 @@
             }
 
             app-icon {
-                font-size: 20px;
+                font-size: 16px;
             }
         }
     }

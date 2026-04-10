@@ -1,9 +1,11 @@
 <div class="empty-state" [class]="'empty-state--' + size + ' empty-state--' + variant">
-    <!-- Icon -->
-    <div class="empty-state-icon">
-        <div class="empty-state-icon-ring">
+    <!-- Visual -->
+    <div class="empty-state-visual">
+        <div class="empty-state-icon-box">
             <app-icon [name]="icon" />
         </div>
+        <div class="empty-state-line"></div>
+        <div class="empty-state-line empty-state-line--short"></div>
     </div>
 
     <!-- Content -->

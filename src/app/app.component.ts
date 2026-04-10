@@ -1,285 +1,190 @@
 import { Component, signal, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AuthService } from './services/auth.service';
-import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { HeaderComponent } from './components/header/header.component';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { LauncherComponent } from './components/launcher/launcher.component';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, ScrollingModule, SidenavComponent, HeaderComponent],
+  imports: [RouterOutlet, CommonModule, HeaderComponent, LauncherComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
-  title = signal('idms-djjs-org');
-  isCollapsed = signal(false);
-  contentWrapperHeight = signal('calc(100vh - 64px)');
-  isMobile = signal(false);
-  headerHeight = signal(64); // Default header height
+  title = signal('');
+  showLauncher = signal(true);
+  activeRoute = signal('');
+  breadcrumbs = signal<{ label: string; route?: string }[]>([]);
+  contentWrapperHeight = signal('calc(100vh - 48px)');
 
   @ViewChild('contentWrapper', { static: false }) contentWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild(HeaderComponent, { static: false }) headerComponent!: HeaderComponent;
 
   private auth = inject(AuthService);
-  private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
-  private resizeObserver?: ResizeObserver;
-  private mutationObserver?: MutationObserver;
   private heightCalculationTimeout?: number;
-  
-  // expose signal to template
+
   get isAuthenticated() { return this.auth.isAuthenticated(); }
 
-  ngOnInit() {
-    // Initialize page title based on current route
-    this.updatePageTitle(this.router.url);
-    
-    // Auto-collapse on mobile and track mobile state
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
-      this.isMobile.set(result.matches);
-      if (result.matches) {
-        this.isCollapsed.set(true);
-      }
-    });
+  private routeMap: { [key: string]: string } = {
+    '/dashboard': 'Dashboard',
+    '/visitors': 'Visitors',
+    '/volunteers': 'All Volunteers',
+    '/volunteers/branch-applications': 'Branch Applications',
+    '/volunteers/resigned-sewas': 'Resigned Sewas',
+    '/sewa/all-sewa': 'All Sewa',
+    '/sewa/allocate-sewa': 'Allocate Sewa',
+    '/programs/programs-list': 'Programs List',
+    '/programs/add-program': 'Add Program',
+    '/programs/edit-program': 'Edit Program',
+    '/programs/view': 'Program Details',
+    '/programs/sewa-volunteers': 'Sewa Volunteers',
+    '/programs/attendances': 'Attendances',
+    '/volunteer-cards': 'Volunteer Cards',
+    '/roles': 'Roles',
+    '/initiatives': 'Initiatives',
+    '/projects': 'Projects',
+    '/branches': 'All Branches',
+    '/branches/areas': 'Branch Areas',
+    '/departments': 'Departments',
+    '/master-tables': 'Master Tables'
+  };
 
-    // Listen for route changes to recalculate height and update title
+  private parentMap: { [key: string]: { label: string; route: string } } = {
+    '/programs/view': { label: 'Programs List', route: '/programs/programs-list' },
+    '/programs/edit-program': { label: 'Programs List', route: '/programs/programs-list' },
+    '/programs/add-program': { label: 'Programs List', route: '/programs/programs-list' },
+    '/programs/attendances': { label: 'Programs List', route: '/programs/programs-list' },
+    '/volunteers/branch-applications': { label: 'All Volunteers', route: '/volunteers' },
+    '/volunteers/resigned-sewas': { label: 'All Volunteers', route: '/volunteers' },
+    '/branches/areas': { label: 'All Branches', route: '/branches' },
+  };
+
+  ngOnInit() {
+    // Check if current route is a page (not launcher)
+    this.checkCurrentRoute(this.router.url);
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        // Update page title based on current route
-        this.updatePageTitle(event.url);
-        // Recalculate height after route change
+        this.checkCurrentRoute(event.url);
         setTimeout(() => this.calculateContentHeight(), 100);
       });
-
-    // Listen for window resize events
-    window.addEventListener('resize', this.calculateContentHeight.bind(this));
   }
 
   ngAfterViewInit() {
-    // Calculate initial height after view init with multiple attempts
-    setTimeout(() => this.calculateContentHeight(), 0);
     setTimeout(() => this.calculateContentHeight(), 100);
-    setTimeout(() => this.calculateContentHeight(), 300);
-    
-    // Set up ResizeObserver for more precise height tracking
-    if (window.ResizeObserver) {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.calculateContentHeight();
-      });
-      
-      // Observe the layout area and header
-      const layoutElement = document.querySelector('.layout');
-      const headerElement = document.querySelector('app-header .header');
-      
-      if (layoutElement) {
-        this.resizeObserver.observe(layoutElement);
-      }
-      if (headerElement) {
-        this.resizeObserver.observe(headerElement);
-      }
-    }
-    
-    // Set up MutationObserver to watch for DOM changes
-    this.mutationObserver = new MutationObserver(() => {
-      this.calculateContentHeight();
-    });
-    
-    // Observe the entire document for changes
-    this.mutationObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['style', 'class']
-    });
   }
 
   ngOnDestroy() {
-    // Cleanup event listeners and observers
-    window.removeEventListener('resize', this.calculateContentHeight.bind(this));
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
-    if (this.mutationObserver) {
-      this.mutationObserver.disconnect();
-    }
     if (this.heightCalculationTimeout) {
       clearTimeout(this.heightCalculationTimeout);
     }
   }
 
-  onToggleCollapse() {
-    this.isCollapsed.set(!this.isCollapsed());
-    // Recalculate height after collapse state changes
+  onOpenPage(route: string): void {
+    this.showLauncher.set(false);
+    this.updatePageTitle(route);
+    this.activeRoute.set(route);
+    this.router.navigateByUrl(route);
     setTimeout(() => this.calculateContentHeight(), 100);
+  }
+
+  onClosePage(): void {
+    this.showLauncher.set(true);
+    this.router.navigateByUrl('/dashboard');
+  }
+
+  private checkCurrentRoute(url: string): void {
+    const basePath = url.split('?')[0].split('#')[0];
+
+    // Auth pages — let them render without launcher
+    if (['/login', '/forgot-password', '/reset-password'].includes(basePath)) {
+      return;
+    }
+
+    // If we land on a known page route, show the page view
+    const matchedTitle = this.getPageTitle(basePath);
+    if (matchedTitle && basePath !== '/dashboard') {
+      this.showLauncher.set(false);
+      this.updatePageTitle(basePath);
+    } else if (!this.showLauncher()) {
+      // Already in page view (navigated via menu), update title
+      this.updatePageTitle(basePath);
+    }
   }
 
   private updatePageTitle(url: string): void {
-    // Extract the route path and set appropriate title
-    const routeMap: { [key: string]: string } = {
-      '/dashboard': 'Dashboard',
-      '/visitors': 'Visitors',
-      '/volunteers': 'All Volunteers',
-      '/volunteers/branch-applications': 'Branch Applications',
-      '/volunteers/resigned-sewas': 'Resigned Sewas',
-      '/sewa/all-sewa': 'All Sewa',
-      '/sewa/allocate-sewa': 'Allocate Sewa',
-      '/programs/programs-list': 'Programs List',
-      '/programs/sewa-volunteers': 'Sewa Volunteers',
-      '/volunteer-cards': 'Volunteer Cards'
-    };
-
-    // Get the base path (remove query params and fragments)
     const basePath = url.split('?')[0].split('#')[0];
-    
-    // Set title based on route, fallback to 'idms-djjs-org'
-    const pageTitle = routeMap[basePath] || 'idms-djjs-org';
+    const pageTitle = this.getPageTitle(basePath) || '';
     this.title.set(pageTitle);
+    this.activeRoute.set(basePath);
+    this.buildBreadcrumbs(basePath, pageTitle);
   }
 
-  // Method to force recalculate height (can be called from child components)
-  recalculateHeight() {
-    setTimeout(() => this.calculateContentHeight(), 0);
-    setTimeout(() => this.calculateContentHeight(), 100);
-  }
-
-  // Get the current calculated content height
-  getContentHeight(): number {
-    const contentWrapper = document.querySelector('.content-wrapper') as HTMLElement;
-    if (contentWrapper) {
-      const computedStyle = window.getComputedStyle(contentWrapper);
-      const heightValue = computedStyle.height;
-      return parseInt(heightValue) || 0;
+  private buildBreadcrumbs(basePath: string, pageTitle: string): void {
+    const crumbs: { label: string; route?: string }[] = [];
+    // Find parent by checking each parentMap key
+    for (const key of Object.keys(this.parentMap)) {
+      if (basePath === key || basePath.startsWith(key + '/')) {
+        const parent = this.parentMap[key];
+        crumbs.push({ label: parent.label, route: parent.route });
+        break;
+      }
     }
-    return 0;
+    if (pageTitle) {
+      crumbs.push({ label: pageTitle });
+    }
+    this.breadcrumbs.set(crumbs);
   }
 
-  // Get the current calculated header height
-  getCalculatedHeaderHeight(): number {
-    return this.getHeaderHeight();
+  private getPageTitle(basePath: string): string | null {
+    // Exact match
+    if (this.routeMap[basePath]) {
+      return this.routeMap[basePath];
+    }
+    // Partial match for dynamic routes like /programs/edit-program/:id, /programs/attendances/:id
+    for (const route of Object.keys(this.routeMap)) {
+      if (basePath.startsWith(route + '/')) {
+        return this.routeMap[route];
+      }
+    }
+    return null;
   }
 
-  @HostListener('window:resize', ['$event'])
-  onWindowResize(event: Event) {
+  @HostListener('window:resize')
+  onWindowResize() {
     this.calculateContentHeight();
   }
 
   private calculateContentHeight() {
-    // Clear existing timeout
     if (this.heightCalculationTimeout) {
       clearTimeout(this.heightCalculationTimeout);
     }
-    
-    // Debounce the calculation
     this.heightCalculationTimeout = window.setTimeout(() => {
-      // Step 1: Calculate header height
       const headerHeight = this.getHeaderHeight();
-      // Update header height signal for sidenav
-      this.headerHeight.set(headerHeight);
-      
-      // Step 2: Calculate available height for layout (viewport - header)
-      const layoutHeight = window.innerHeight - headerHeight;
-      
-      // Step 3: Set layout height
-      const layoutElement = document.querySelector('.layout') as HTMLElement;
-      if (layoutElement) {
-        layoutElement.style.height = `${layoutHeight}px`;
-      }
-      
-      // Step 4: Calculate content-wrapper height (same as layout height)
-      const contentWrapperHeight = layoutHeight;
-      
-      // Step 5: Set content-wrapper height
+      const height = window.innerHeight - headerHeight;
       const contentWrapper = document.querySelector('.content-wrapper') as HTMLElement;
       if (contentWrapper) {
-        contentWrapper.style.height = `${contentWrapperHeight}px`;
+        contentWrapper.style.height = `${height}px`;
       }
-      
-      // Update the signal for any components that need it
-      this.contentWrapperHeight.set(`${contentWrapperHeight}px`);
-    }, 50); // 50ms debounce
-  }
-
-
-  private getContentPadding(): number {
-    // Get padding values from CSS custom properties
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (contentWrapper) {
-      const computedStyle = window.getComputedStyle(contentWrapper);
-      
-      // Try to get from CSS custom properties first
-      const paddingTop = computedStyle.getPropertyValue('--padding-top');
-      const paddingBottom = computedStyle.getPropertyValue('--padding-bottom');
-      
-      if (paddingTop && paddingBottom) {
-        const top = parseInt(paddingTop) || 0;
-        const bottom = parseInt(paddingBottom) || 0;
-        return top + bottom;
-      }
-      
-      // Fallback to computed styles
-      const computedPaddingTop = parseInt(computedStyle.paddingTop) || 0;
-      const computedPaddingBottom = parseInt(computedStyle.paddingBottom) || 0;
-      return computedPaddingTop + computedPaddingBottom;
-    }
-    
-    // Fallback values based on current CSS
-    const isMobile = window.innerWidth <= 768;
-    return isMobile ? 0 : 0; // Currently both are 0px based on your current padding
-  }
-
-  private getContentMargin(): number {
-    // Get margin values from CSS custom properties
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (contentWrapper) {
-      const computedStyle = window.getComputedStyle(contentWrapper);
-      
-      // Try to get from CSS custom properties first
-      const marginTop = computedStyle.getPropertyValue('--margin-top');
-      const marginBottom = computedStyle.getPropertyValue('--margin-bottom');
-      
-      if (marginTop && marginBottom) {
-        const top = parseInt(marginTop) || 0;
-        const bottom = parseInt(marginBottom) || 0;
-        return top + bottom;
-      }
-      
-      // Fallback to computed styles
-      const computedMarginTop = parseInt(computedStyle.marginTop) || 0;
-      const computedMarginBottom = parseInt(computedStyle.marginBottom) || 0;
-      return computedMarginTop + computedMarginBottom;
-    }
-    
-    // Fallback values - no margin by default
-    return 0;
+      this.contentWrapperHeight.set(`${height}px`);
+    }, 50);
   }
 
   private getHeaderHeight(): number {
-    // Try to get the actual header element height using ViewChild
     if (this.headerComponent) {
       const height = this.headerComponent.getHeight();
-      if (height > 0) {
-        return height;
-      }
+      if (height > 0) return height;
     }
-    
-    // Fallback: Try to get from DOM query
     const headerElement = document.querySelector('app-header .header') as HTMLElement;
     if (headerElement) {
-      const computedStyle = window.getComputedStyle(headerElement);
-      const height = parseInt(computedStyle.height) || 0;
-      if (height > 0) {
-        return height;
-      }
+      const height = parseInt(window.getComputedStyle(headerElement).height) || 0;
+      if (height > 0) return height;
     }
-    
-    // Final fallback: Check if we're on mobile (breakpoint)
-    const isMobile = window.innerWidth <= 768;
-    return isMobile ? 56 : 64; // Mobile: 56px, Desktop: 64px
+    return 48;
   }
 }

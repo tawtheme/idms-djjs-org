@@ -7,40 +7,41 @@
     justify-content: center;
     row-gap: 20px;
     text-align: center;
-    padding: 60px 24px;
+    padding: 56px 24px;
 
-    // Icon
-    .empty-state-icon {
-        position: relative;
+    // Visual block (icon + skeleton lines)
+    .empty-state-visual {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .empty-state-icon-box {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, $color-gray-50, $color-gray-100);
+        border: 1px solid $color-gray-200;
 
-        // Decorative background circle
-        &::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: radial-gradient(circle, $color-primary-50 0%, transparent 70%);
+        app-icon {
+            font-size: 24px;
+            color: $color-gray-400;
         }
+    }
 
-        .empty-state-icon-ring {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: $color-gray-50;
-            border: 2px dashed $color-gray-200;
+    // Skeleton placeholder lines
+    .empty-state-line {
+        width: 120px;
+        height: 6px;
+        border-radius: 3px;
+        background: $color-gray-100;
 
-            app-icon {
-                font-size: 28px;
-                color: $color-gray-400;
-            }
+        &--short {
+            width: 80px;
         }
     }
 
@@ -49,7 +50,7 @@
         max-width: 320px;
         display: flex;
         flex-direction: column;
-        row-gap: 6px;
+        row-gap: 4px;
 
         .empty-state-title {
             font-size: 15px;
@@ -87,22 +88,25 @@
 
     // Size Variants
     &--small {
-        padding: 32px 16px;
+        padding: 28px 16px;
         row-gap: 14px;
 
-        .empty-state-icon {
-            &::before {
-                width: 80px;
-                height: 80px;
+        .empty-state-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+
+            app-icon {
+                font-size: 20px;
             }
+        }
 
-            .empty-state-icon-ring {
-                width: 52px;
-                height: 52px;
+        .empty-state-line {
+            width: 90px;
+            height: 5px;
 
-                app-icon {
-                    font-size: 22px;
-                }
+            &--short {
+                width: 60px;
             }
         }
 
@@ -121,19 +125,23 @@
         padding: 80px 40px;
         row-gap: 24px;
 
-        .empty-state-icon {
-            &::before {
-                width: 160px;
-                height: 160px;
+        .empty-state-icon-box {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+
+            app-icon {
+                font-size: 32px;
             }
+        }
 
-            .empty-state-icon-ring {
-                width: 96px;
-                height: 96px;
+        .empty-state-line {
+            width: 160px;
+            height: 8px;
+            border-radius: 4px;
 
-                app-icon {
-                    font-size: 38px;
-                }
+            &--short {
+                width: 110px;
             }
         }
 
@@ -154,19 +162,17 @@
     &--minimal {
         padding: 40px 16px;
 
-        .empty-state-icon {
-            &::before {
-                display: none;
-            }
+        .empty-state-icon-box {
+            background: transparent;
+            border: none;
 
-            .empty-state-icon-ring {
-                border: none;
-                background: transparent;
-
-                app-icon {
-                    color: $color-gray-300;
-                }
+            app-icon {
+                color: $color-gray-300;
             }
+        }
+
+        .empty-state-line {
+            display: none;
         }
 
         .empty-state-content {
@@ -181,19 +187,17 @@
     }
 
     &--illustrated {
-        .empty-state-icon {
-            &::before {
-                background: radial-gradient(circle, $color-primary-50 0%, transparent 70%);
-            }
+        .empty-state-icon-box {
+            background: linear-gradient(135deg, $color-primary-50, lighten($color-primary-100, 4%));
+            border-color: $color-primary-200;
 
-            .empty-state-icon-ring {
-                background: $color-primary-50;
-                border-color: $color-primary-200;
-
-                app-icon {
-                    color: $color-primary-400;
-                }
+            app-icon {
+                color: $color-primary-400;
             }
+        }
+
+        .empty-state-line {
+            background: $color-primary-50;
         }
 
         .empty-state-content {
@@ -213,14 +217,12 @@
     .empty-state {
         padding: 40px 16px;
 
-        .empty-state-icon {
-            .empty-state-icon-ring {
-                width: 60px;
-                height: 60px;
+        .empty-state-icon-box {
+            width: 48px;
+            height: 48px;
 
-                app-icon {
-                    font-size: 24px;
-                }
+            app-icon {
+                font-size: 22px;
             }
         }
 

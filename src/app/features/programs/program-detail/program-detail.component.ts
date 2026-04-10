@@ -1,9 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -49,7 +51,7 @@ export interface Donation {
 @Component({
   selector: 'app-program-detail',
   standalone: true,
-  imports: [CommonModule, BreadcrumbComponent, IconComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, PagerComponent],
   templateUrl: './program-detail.component.html',
   styleUrls: ['./program-detail.component.scss']
 })
@@ -164,13 +166,36 @@ export class ProgramDetailComponent implements OnInit {
     return this.program.donations.reduce((sum, d) => sum + d.amount, 0);
   }
 
+  volunteerSearchTerm = '';
+  volCurrentPage = 1;
+  volPageSize = 20;
+  volPageSizeOptions = [10, 20, 50];
+
   selectSewaTab(index: number): void {
     this.activeSewaTabIndex = index;
+    this.volunteerSearchTerm = '';
+    this.volCurrentPage = 1;
   }
 
   get activeSewaTab(): ProgramSewa | null {
     if (!this.program || this.program.programSewas.length === 0) return null;
     return this.program.programSewas[this.activeSewaTabIndex] || null;
+  }
+
+  get filteredVolunteers(): any[] {
+    if (!this.activeSewaTab) return [];
+    const term = this.volunteerSearchTerm.toLowerCase().trim();
+    if (!term) return this.activeSewaTab.volunteers;
+    return this.activeSewaTab.volunteers.filter((v: any) =>
+      (v.user?.name || '').toLowerCase().includes(term) ||
+      (v.user?.uniqueId || '').toString().toLowerCase().includes(term) ||
+      (v.badgeId || '').toString().toLowerCase().includes(term)
+    );
+  }
+
+  get pagedVolunteers(): any[] {
+    const start = (this.volCurrentPage - 1) * this.volPageSize;
+    return this.filteredVolunteers.slice(start, start + this.volPageSize);
   }
 
   goBack(): void {

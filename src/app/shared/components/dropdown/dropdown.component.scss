@@ -7,6 +7,66 @@
     width: 100%;
     min-width: 120px;
 
+    &-trigger--autocomplete {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 1px solid $color-gray-300;
+        border-radius: 6px;
+        background: $color-white;
+        min-height: 40px;
+        transition: border-color 150ms ease;
+        gap: 8px;
+
+        &:hover {
+            border-color: $color-gray-400;
+        }
+
+        &:focus-within {
+            border-color: $color-primary-500;
+        }
+
+        .autocomplete-search-icon {
+            color: $color-gray-400;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .autocomplete-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-gray-900;
+            min-width: 0;
+
+            &::placeholder {
+                color: $color-gray-500;
+                font-weight: 500;
+            }
+        }
+
+        .autocomplete-clear {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border: none;
+            cursor: pointer;
+            color: $color-gray-500;
+            background: transparent;
+            flex-shrink: 0;
+            transition: all 0.12s;
+
+            &:hover {
+                color: $color-gray-900;
+            }
+        }
+    }
+
     &-trigger {
         display: flex;
         align-items: center;
@@ -23,13 +83,13 @@
         text-transform: capitalize;
 
         &:hover {
-            border-color: $color-primary-600;
+            border-color: $color-gray-400;
         }
 
         &:focus-within {
             outline: none;
-            border-color: $color-primary-600;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-color: $color-primary-500;
+            box-shadow: none;
         }
     }
 
@@ -85,7 +145,7 @@
 
     &-arrow {
         color: $color-gray-600;
-        font-size: 18px;
+        font-size: 16px;
         transition: transform 0.2s ease;
 
         &.rotated {
@@ -183,7 +243,7 @@
             &:focus {
                 outline: none;
                 border-color: $color-primary-500;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                box-shadow: none;
             }
         }
     }
@@ -228,7 +288,7 @@
 
             &:focus {
                 outline: none;
-                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+                box-shadow: none;
             }
 
             &.selected {
@@ -312,7 +372,7 @@
     &-open {
         .dropdown-trigger {
             border-color: $color-primary-600;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: none;
         }
     }
 

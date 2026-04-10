@@ -111,7 +111,7 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 20px;
-        color: $color-gray-400;
+        color: $color-gray-500;
         pointer-events: none;
     }
 
@@ -127,7 +127,7 @@
         outline: none;
 
         &::placeholder {
-            color: $color-gray-400;
+            color: $color-gray-500;
         }
 
         &:hover {
@@ -137,7 +137,7 @@
         &:focus {
             border-color: $color-primary-400;
             background: $color-white;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: none;
         }
 
         // Hide native clear button
@@ -241,7 +241,7 @@
         border-radius: 50%;
         cursor: pointer;
         padding: 0;
-        color: $color-gray-400;
+        color: $color-gray-500;
         transition: all 0.15s ease;
 
         app-icon {
@@ -376,7 +376,7 @@
         }
 
         &:focus + .toggle-slider {
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: none;
         }
     }
 
@@ -404,7 +404,7 @@
     }
 
     &:hover .toggle-slider {
-        background-color: $color-gray-400;
+        background-color: $color-gray-500;
     }
 
     input:checked + .toggle-slider:hover {

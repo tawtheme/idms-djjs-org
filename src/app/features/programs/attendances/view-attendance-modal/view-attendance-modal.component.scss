@@ -293,7 +293,7 @@
         top: 50%;
         transform: translateY(-50%);
         pointer-events: none;
-        color: $color-gray-400;
+        color: $color-gray-500;
 
         ::ng-deep .material-symbols-rounded {
             font-size: 18px;
@@ -313,7 +313,7 @@
         transition: border-color 0.15s ease;
 
         &::placeholder {
-            color: $color-gray-400;
+            color: $color-gray-500;
         }
 
         &:focus {

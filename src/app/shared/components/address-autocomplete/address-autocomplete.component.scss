@@ -33,8 +33,8 @@
             height: 40px;
 
             &::placeholder {
-                color: var(--neutral-500);
-                font-weight: normal;
+                color: $color-gray-500;
+                font-weight: 500;
             }
 
             &:disabled {
@@ -57,7 +57,7 @@
                 height: 24px;
                 border: none;
                 background: none;
-                color: var(--neutral-500);
+                color: $color-gray-500;
                 cursor: pointer;
                 border-radius: 50%;
                 transition: all 0.2s ease;
@@ -167,7 +167,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        color: var(--neutral-500);
+        color: $color-gray-500;
         font-size: 14px;
         margin-top: -1px;
 

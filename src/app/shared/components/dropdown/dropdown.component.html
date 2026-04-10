@@ -1,19 +1,39 @@
 <div [class]="dropdownClasses">
+    <!-- Autocomplete Trigger -->
+    @if (autocomplete) {
+        <div class="dropdown-trigger dropdown-trigger--autocomplete">
+            <input type="text"
+                class="autocomplete-input"
+                [placeholder]="placeholder"
+                [value]="searchQuery || (selectedOptions.length > 0 ? selectedOptions[0].label : '')"
+                (input)="onAutocompleteInput($event)"
+                (focus)="onAutocompleteFocus()"
+                [disabled]="disabled"
+                autocomplete="off" />
+            @if (searchQuery || selectedOptions.length > 0) {
+                <button type="button" class="autocomplete-clear" (click)="clearAutocomplete($event)">
+                    <app-icon name="close" />
+                </button>
+            }
+        </div>
+    }
+    @else {
     <!-- Dropdown Trigger -->
     <div class="dropdown-trigger" (click)="toggleDropdown()">
         <div class="dropdown-selection">
             @if (loading) {
                 <app-icon name="refresh" class="dropdown-loading-spinner" />
-            } 
+            }
             @else {
                 <span class="dropdown-text" [class.placeholder]="selectedOptions.length === 0">{{ getDisplayText() }}</span>
             }
         </div>
-        
+
         <div class="dropdown-actions">
             <app-icon name="keyboard_arrow_down" class="dropdown-arrow" [class.rotated]="isOpen" />
         </div>
     </div>
+    }
 
     <!-- Selected Values (Multi-select) -->
     @if (showSelectedItems && multiSelect && selectedOptions.length > 0) {
@@ -41,8 +61,8 @@
         <div [class]="dropdownListClasses" 
              [style.max-height.px]="maxHeight"
              #dropdownList>
-            <!-- Search Input -->
-            @if (searchable) {
+            <!-- Search Input (skip in autocomplete mode — input is in trigger) -->
+            @if (searchable && !autocomplete) {
                 <div class="dropdown-search">
                     <input #searchInput type="text" [(ngModel)]="searchQuery" [ngModelOptions]="{standalone: true}" (input)="onSearchChange($event)"
                         placeholder="Search options..." class="dropdown-search-input" autocomplete="off">

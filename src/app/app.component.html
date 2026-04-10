@@ -1,29 +1,21 @@
-<div class="app-container" *ngIf="isAuthenticated; else authLayout">
-    <!-- Full Width Header -->
-    <app-header 
-        [isCollapsed]="isCollapsed()" 
-        [title]="title()"
-        (toggleCollapse)="onToggleCollapse()"
-        #headerComponent>
-    </app-header>
-    
-    <!-- Backdrop for mobile sidebar -->
-    <div class="sidebar-backdrop" 
-         *ngIf="isMobile() && !isCollapsed()"
-         (click)="onToggleCollapse()"></div>
-    
-    <!-- Main Layout: Sidebar + Content Wrapper -->
-    <div class="layout" [class.collapsed]="isCollapsed()">
-        <app-sidenav 
-            [isCollapsed]="isCollapsed()"
-            [headerHeight]="headerHeight()"
-            (closeSidebar)="onToggleCollapse()"></app-sidenav>
-        <div class="content-wrapper" 
-            #contentWrapper>
+<ng-container *ngIf="isAuthenticated; else authLayout">
+    <!-- Launcher Home Screen -->
+    <app-launcher *ngIf="showLauncher()" (openPage)="onOpenPage($event)"></app-launcher>
+
+    <!-- Page View -->
+    <div class="page-view" *ngIf="!showLauncher()">
+        <app-header
+            [title]="title()"
+            [activeRoute]="activeRoute()"
+            [breadcrumbs]="breadcrumbs()"
+            (navigateTo)="onOpenPage($event)"
+            (closePage)="onClosePage()">
+        </app-header>
+        <div class="content-wrapper" #contentWrapper>
             <router-outlet />
         </div>
     </div>
-</div>
+</ng-container>
 
 <ng-template #authLayout>
     <router-outlet />
