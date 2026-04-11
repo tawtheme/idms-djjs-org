@@ -139,7 +139,8 @@ export class AttendanceDetailComponent implements OnInit {
     this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
       catchError(() => of({ data: [] }))
     ).subscribe((response) => {
-      const items = response.data || [];
+      const data = response.data || {};
+      const items = data.items || [];
       let totalVolunteers = 0;
       let totalCheckIns = 0;
       let totalCheckOuts = 0;
@@ -158,6 +159,7 @@ export class AttendanceDetailComponent implements OnInit {
 
       this.summary = {
         ...this.summary,
+        programName: data.program_name || this.summary.programName,
         totalVolunteers,
         totalCheckIns,
         totalCheckOuts,

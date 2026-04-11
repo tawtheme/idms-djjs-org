@@ -2,15 +2,16 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { DataService } from '../../../data.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
-export interface ProgramDetail {
+export interface ProgramBasic {
   id: string;
   name: string;
   initiative: { id: string; name: string } | null;
@@ -20,17 +21,16 @@ export interface ProgramDetail {
   endDateTime: string;
   status: number;
   remarks: string;
-  programSewas: ProgramSewa[];
   donations: Donation[];
 }
 
-export interface ProgramSewa {
-  id: string;
-  sewa: { id: string; name: string };
-  volunteers: ProgramSewaVolunteer[];
+export interface SewaListItem {
+  sewaId: string;
+  sewaName: string;
+  totalVolunteers: number;
 }
 
-export interface ProgramSewaVolunteer {
+export interface Volunteer {
   id: string;
   user: {
     id: string;
@@ -51,7 +51,7 @@ export interface Donation {
 @Component({
   selector: 'app-program-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, PagerComponent],
+  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, EmptyStateComponent],
   templateUrl: './program-detail.component.html',
   styleUrls: ['./program-detail.component.scss']
 })
@@ -63,14 +63,29 @@ export class ProgramDetailComponent implements OnInit {
   programId = '';
   isLoading = true;
   error: string | null = null;
-  program: ProgramDetail | null = null;
-  activeSewaTabIndex = 0;
+  program: ProgramBasic | null = null;
+
+  sewaList: SewaListItem[] = [];
+  isLoadingSewaList = false;
+
+  currentVolunteers: Volunteer[] = [];
+  isLoadingVolunteers = false;
+  isLoadingMoreVolunteers = false;
+  volunteerPage = 1;
+  volunteerHasMore = false;
+  private currentSewaId = '';
+
+  activeSewaTabIndex = -1;
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Programs', route: '/programs' },
     { label: 'Programs List', route: '/programs/programs-list' },
     { label: 'Details' }
   ];
+
+  volunteerSearchTerm = '';
+  sewaSearchTerm = '';
+  private readonly volPerPage = 50;
 
   ngOnInit(): void {
     this.programId = this.route.snapshot.paramMap.get('id') || '';
@@ -83,7 +98,7 @@ export class ProgramDetailComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.dataService.get<any>(`v1/programs/view/${this.programId}`).pipe(
+    this.dataService.get<any>(`v1/programs/${this.programId}`).pipe(
       catchError((err) => {
         this.error = err.error?.message || 'Failed to load program details.';
         this.isLoading = false;
@@ -91,20 +106,116 @@ export class ProgramDetailComponent implements OnInit {
       })
     ).subscribe((response) => {
       if (!response) return;
-
       const data = response.data || response;
-      this.program = this.mapProgramDetail(data);
-      this.breadcrumbs = [
-        { label: 'Programs', route: '/programs' },
-        { label: 'Programs List', route: '/programs/programs-list' },
-        { label: 'Details' }
-      ];
-      this.activeSewaTabIndex = 0;
+      this.program = this.mapProgramBasic(data);
       this.isLoading = false;
+      this.loadSewaList();
     });
   }
 
-  private mapProgramDetail(data: any): ProgramDetail {
+  loadSewaList(): void {
+    this.isLoadingSewaList = true;
+    this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
+      catchError(() => of(null)),
+      finalize(() => this.isLoadingSewaList = false)
+    ).subscribe((response) => {
+      if (!response) {
+        this.sewaList = [];
+        return;
+      }
+      const data = response.data || {};
+      const items = data.items || [];
+      this.sewaList = (Array.isArray(items) ? items : []).map((item: any) => ({
+        sewaId: item.sewa_id || '',
+        sewaName: item.sewa_name || '',
+        totalVolunteers: item.total_volunteers || 0
+      }));
+      this.activeSewaTabIndex = -1;
+      this.currentVolunteers = [];
+    });
+  }
+
+  loadSewaVolunteers(sewaId: string): void {
+    this.currentSewaId = sewaId;
+    this.currentVolunteers = [];
+    this.volunteerPage = 1;
+    this.volunteerHasMore = false;
+    this.volunteerSearchTerm = '';
+    this.fetchVolunteersPage(true);
+  }
+
+  loadMoreVolunteers(): void {
+    if (this.isLoadingMoreVolunteers || !this.volunteerHasMore) return;
+    this.volunteerPage += 1;
+    this.fetchVolunteersPage(false);
+  }
+
+  private fetchVolunteersPage(isInitial: boolean): void {
+    if (isInitial) {
+      this.isLoadingVolunteers = true;
+    } else {
+      this.isLoadingMoreVolunteers = true;
+    }
+
+    const params = new HttpParams()
+      .set('program_id', this.programId)
+      .set('sewa_id', this.currentSewaId)
+      .set('per_page', this.volPerPage.toString())
+      .set('page', this.volunteerPage.toString());
+
+    this.dataService.get<any>(`v1/programs/view/${this.programId}`, { params }).pipe(
+      catchError(() => of(null)),
+      finalize(() => {
+        if (isInitial) {
+          this.isLoadingVolunteers = false;
+        } else {
+          this.isLoadingMoreVolunteers = false;
+        }
+      })
+    ).subscribe((response) => {
+      if (!response) return;
+      const data = response.data || response;
+
+      let volunteerArr: any[] = [];
+      if (Array.isArray(data)) {
+        volunteerArr = data;
+      } else if (Array.isArray(data.volunteers)) {
+        volunteerArr = data.volunteers;
+      } else if (Array.isArray(data.records)) {
+        volunteerArr = data.records;
+      } else if (Array.isArray(data.program_sewa_volunteers)) {
+        volunteerArr = data.program_sewa_volunteers;
+      } else if (Array.isArray(data.program_sewas)) {
+        const matched = data.program_sewas.find((ps: any) =>
+          String(ps.sewa_id || ps.sewa?.id) === String(this.currentSewaId)
+        ) || data.program_sewas[0];
+        volunteerArr = matched?.program_sewa_volunteers || matched?.volunteers || [];
+      }
+
+      const mapped: Volunteer[] = volunteerArr.map((v: any) => ({
+        id: v.id,
+        user: {
+          id: v.user?.id || '',
+          uniqueId: v.user?.unique_id || 0,
+          name: v.user?.name || '',
+          image: v.user?.user_image?.full_path || v.user?.image || ''
+        },
+        badgeId: v.program_sewa_volunteer_badge?.badge_id || v.badge_id || null
+      }));
+
+      this.currentVolunteers = isInitial ? mapped : [...this.currentVolunteers, ...mapped];
+
+      const meta = response.meta || {};
+      const totalFromMeta = Number(meta.total ?? meta.itemsCount ?? response.total ?? 0);
+      if (totalFromMeta > 0) {
+        this.volunteerHasMore = this.currentVolunteers.length < totalFromMeta;
+      } else {
+        this.volunteerHasMore = mapped.length >= this.volPerPage;
+      }
+    });
+  }
+
+  private mapProgramBasic(data: any): ProgramBasic {
     return {
       id: data.id,
       name: data.name || '',
@@ -115,20 +226,6 @@ export class ProgramDetailComponent implements OnInit {
       endDateTime: data.end_date_time || '',
       status: data.status,
       remarks: data.remarks || '',
-      programSewas: (data.program_sewas || []).map((ps: any) => ({
-        id: ps.id,
-        sewa: ps.sewa || { id: ps.sewa_id, name: '' },
-        volunteers: (ps.program_sewa_volunteers || []).map((v: any) => ({
-          id: v.id,
-          user: {
-            id: v.user?.id || '',
-            uniqueId: v.user?.unique_id || 0,
-            name: v.user?.name || '',
-            image: v.user?.user_image?.full_path || ''
-          },
-          badgeId: v.program_sewa_volunteer_badge?.badge_id || null
-        }))
-      })),
       donations: (data.donations || []).map((d: any) => ({
         id: d.id,
         sewaId: d.sewa_id,
@@ -156,46 +253,55 @@ export class ProgramDetailComponent implements OnInit {
     }
   }
 
-  getTotalVolunteers(): number {
-    if (!this.program) return 0;
-    return this.program.programSewas.reduce((sum, ps) => sum + ps.volunteers.length, 0);
-  }
-
   getTotalDonations(): number {
     if (!this.program) return 0;
     return this.program.donations.reduce((sum, d) => sum + d.amount, 0);
   }
 
-  volunteerSearchTerm = '';
-  volCurrentPage = 1;
-  volPageSize = 20;
-  volPageSizeOptions = [10, 20, 50];
-
   selectSewaTab(index: number): void {
     this.activeSewaTabIndex = index;
-    this.volunteerSearchTerm = '';
-    this.volCurrentPage = 1;
+    const sewa = this.sewaList[index];
+    if (sewa) {
+      this.loadSewaVolunteers(sewa.sewaId);
+    }
   }
 
-  get activeSewaTab(): ProgramSewa | null {
-    if (!this.program || this.program.programSewas.length === 0) return null;
-    return this.program.programSewas[this.activeSewaTabIndex] || null;
+  get activeSewa(): SewaListItem | null {
+    if (this.sewaList.length === 0) return null;
+    return this.sewaList[this.activeSewaTabIndex] || null;
   }
 
-  get filteredVolunteers(): any[] {
-    if (!this.activeSewaTab) return [];
+  get filteredSewaList(): SewaListItem[] {
+    const term = this.sewaSearchTerm.toLowerCase().trim();
+    if (!term) return this.sewaList;
+    return this.sewaList.filter((s) =>
+      (s.sewaName || '').toLowerCase().includes(term)
+    );
+  }
+
+  selectSewa(sewa: SewaListItem): void {
+    const index = this.sewaList.findIndex((s) => s.sewaId === sewa.sewaId);
+    if (index >= 0) {
+      this.selectSewaTab(index);
+    }
+  }
+
+  get filteredVolunteers(): Volunteer[] {
     const term = this.volunteerSearchTerm.toLowerCase().trim();
-    if (!term) return this.activeSewaTab.volunteers;
-    return this.activeSewaTab.volunteers.filter((v: any) =>
+    if (!term) return this.currentVolunteers;
+    return this.currentVolunteers.filter((v) =>
       (v.user?.name || '').toLowerCase().includes(term) ||
       (v.user?.uniqueId || '').toString().toLowerCase().includes(term) ||
       (v.badgeId || '').toString().toLowerCase().includes(term)
     );
   }
 
-  get pagedVolunteers(): any[] {
-    const start = (this.volCurrentPage - 1) * this.volPageSize;
-    return this.filteredVolunteers.slice(start, start + this.volPageSize);
+  get pagedVolunteers(): Volunteer[] {
+    return this.filteredVolunteers;
+  }
+
+  onVolunteerSearchChange(): void {
+    // Search is client-side over already-loaded volunteers
   }
 
   goBack(): void {

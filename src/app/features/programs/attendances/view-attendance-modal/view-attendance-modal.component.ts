@@ -112,7 +112,8 @@ export class ViewAttendanceModalComponent implements OnChanges {
       catchError(() => of({ data: [] })),
       finalize(() => this.isLoadingAggregated = false)
     ).subscribe((response) => {
-      const items = response.data || [];
+      const data = response.data || {};
+      const items = data.items || [];
       this.aggregatedRows = (Array.isArray(items) ? items : []).map((item: any) => ({
         sewaName: item.sewa_name || '',
         totalVolunteers: item.total_volunteers || 0,

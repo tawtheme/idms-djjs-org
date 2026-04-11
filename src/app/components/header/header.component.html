@@ -22,25 +22,22 @@
     </div>
 </header>
 
-<!-- Sidebar Overlay -->
-<div class="sidebar-backdrop" [class.is-open]="isMenuOpen" (click)="closeMenu()"></div>
-<nav class="sidebar" [class.is-open]="isMenuOpen">
-    <div class="sidebar-header">
-        <span class="sidebar-title">Menu</span>
-        <button class="sidebar-close" (click)="closeMenu()" type="button">
-            <app-icon name="close" />
-        </button>
-    </div>
-    <div class="sidebar-body">
-        <div class="menu-group" *ngFor="let group of menuGroups">
-            <div class="menu-group-title">{{ group.title }}</div>
-            <button *ngFor="let item of group.items"
-                class="menu-item"
-                [class.active]="item.route === activeRoute"
-                (click)="onMenuItemClick(item.route)">
-                <app-icon [name]="item.icon" class="menu-item-icon" />
-                <span>{{ item.label }}</span>
-            </button>
+<!-- Mega Menu Modal -->
+<div class="megamenu-backdrop" [class.is-open]="isMenuOpen" (click)="closeMenu()"></div>
+<div class="megamenu" [class.is-open]="isMenuOpen" role="dialog" aria-modal="true">
+    <div class="megamenu__body">
+        <div class="megamenu__grid">
+            <div class="megamenu__group" *ngFor="let group of menuGroups">
+                <div class="megamenu__group-title">{{ group.title }}</div>
+                <button *ngFor="let item of group.items"
+                    class="megamenu__item"
+                    [class.megamenu__item--active]="item.route === activeRoute"
+                    (click)="onMenuItemClick(item.route)"
+                    type="button">
+                    <app-icon [name]="item.icon" class="megamenu__item-icon" />
+                    <span>{{ item.label }}</span>
+                </button>
+            </div>
         </div>
     </div>
-</nav>
+</div>

@@ -44,14 +44,6 @@
                 <p class="top-card__remarks" *ngIf="program.remarks">{{ program.remarks }}</p>
             </div>
             <div class="top-card__right">
-                <div class="stat-block stat-block--blue">
-                    <span class="stat-block__count">{{ program.programSewas.length }}</span>
-                    <span class="stat-block__label">Sewas</span>
-                </div>
-                <div class="stat-block stat-block--green">
-                    <span class="stat-block__count">{{ getTotalVolunteers() }}</span>
-                    <span class="stat-block__label">Volunteers</span>
-                </div>
                 <div class="stat-block stat-block--amber">
                     <span class="stat-block__count">{{ getTotalDonations() }}</span>
                     <span class="stat-block__label">Donations</span>
@@ -60,65 +52,81 @@
         </div>
 
         <!-- Sewa & Volunteers Section -->
-        <div class="sewa-panel" *ngIf="program.programSewas.length > 0">
+        <div class="sewa-panel" *ngIf="sewaList.length > 0">
             <div class="sewa-panel__body">
                 <!-- Left: Vertical tabs -->
                 <div class="sewa-nav">
-                    <div class="sewa-panel__title">
-                        <h4>Sewas & Volunteers</h4>
+                    <div class="sewa-nav__sticky">
+                        <div class="sewa-panel__title">
+                            <h4>Sewas</h4>
+                            <input type="text" class="sewa-nav__search-input" placeholder="Search sewa..."
+                                [(ngModel)]="sewaSearchTerm" [ngModelOptions]="{ standalone: true }" />
+                        </div>
                     </div>
-                    <button
-                        *ngFor="let ps of program.programSewas; let i = index"
-                        class="sewa-nav__item"
-                        [class.sewa-nav__item--active]="activeSewaTabIndex === i"
-                        (click)="selectSewaTab(i)"
-                        type="button">
-                        <span class="sewa-nav__name">{{ ps.sewa.name }}</span>
-                        <span class="sewa-nav__count">{{ ps.volunteers.length }}</span>
-                    </button>
+                    <div class="sewa-nav__list">
+                        <button
+                            *ngFor="let s of filteredSewaList"
+                            class="sewa-nav__item"
+                            [class.sewa-nav__item--active]="activeSewa?.sewaId === s.sewaId"
+                            (click)="selectSewa(s)"
+                            type="button">
+                            <span class="sewa-nav__name">{{ s.sewaName }}</span>
+                            <span class="sewa-nav__count">{{ s.totalVolunteers }}</span>
+                        </button>
+                        <div class="sewa-nav__empty" *ngIf="filteredSewaList.length === 0">
+                            No sewa found
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right: Volunteer list -->
-                <div class="sewa-list" *ngIf="activeSewaTab">
-                    <div class="sewa-list__header">
-                        <span class="sewa-list__title">{{ activeSewaTab.sewa.name }}</span>
-                        <input type="text" class="sewa-list__search-input" placeholder="Search..."
-                            [(ngModel)]="volunteerSearchTerm" (ngModelChange)="volCurrentPage = 1" [ngModelOptions]="{ standalone: true }" />
+                <div class="sewa-list sewa-list--centered" *ngIf="!activeSewa">
+                    <app-empty-state
+                        title="Select a Sewa"
+                        description="Choose a sewa from the list to view its volunteers"
+                        size="medium">
+                    </app-empty-state>
+                </div>
+                <div class="sewa-list" *ngIf="activeSewa">
+                    <div class="sewa-panel__title">
+                        <h4>{{ activeSewa.sewaName }}</h4>
+                        <input type="text" class="sewa-nav__search-input" placeholder="Search volunteer..."
+                            [(ngModel)]="volunteerSearchTerm" (ngModelChange)="onVolunteerSearchChange()" [ngModelOptions]="{ standalone: true }" />
                     </div>
                     <div class="sewa-list__scroll">
-                        <div class="vol-row vol-row--header" *ngIf="filteredVolunteers.length > 0">
-                            <span class="vol-row__uid">ID</span>
-                            <div class="vol-row__info"><span class="vol-row__name">Name</span></div>
-                            <span class="vol-row__badge-label">Badge</span>
+                        <div *ngIf="isLoadingVolunteers" class="loading-cell">
+                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
                         </div>
-                        <div class="vol-row" *ngFor="let v of pagedVolunteers">
-                            <span class="vol-row__uid">{{ v.user.uniqueId }}</span>
-                            <div class="vol-row__avatar">
-                                <img [src]="v.user.image || '/assets/img/placeholder.svg'"
-                                     [alt]="v.user.name"
-                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                        <ng-container *ngIf="!isLoadingVolunteers">
+                            <div class="vol-row vol-row--header" *ngIf="filteredVolunteers.length > 0">
+                                <span class="vol-row__uid">ID</span>
+                                <div class="vol-row__info"><span class="vol-row__name">Name</span></div>
+                                <span class="vol-row__badge-label">Badge</span>
                             </div>
-                            <div class="vol-row__info">
-                                <span class="vol-row__name">{{ v.user.name }}</span>
+                            <div class="vol-row" *ngFor="let v of pagedVolunteers">
+                                <span class="vol-row__uid">{{ v.user.uniqueId }}</span>
+                                <div class="vol-row__avatar">
+                                    <img [src]="v.user.image || '/assets/img/placeholder.svg'"
+                                         [alt]="v.user.name"
+                                         onerror="this.src='/assets/img/placeholder.svg'" />
+                                </div>
+                                <div class="vol-row__info">
+                                    <span class="vol-row__name">{{ v.user.name }}</span>
+                                </div>
+                                <span class="vol-row__badge" *ngIf="v.badgeId">Badge {{ v.badgeId }}</span>
                             </div>
-                            <span class="vol-row__badge" *ngIf="v.badgeId">Badge {{ v.badgeId }}</span>
-                        </div>
-                        <div class="sewa-list__empty" *ngIf="filteredVolunteers.length === 0">
-                            <app-icon name="group_off" class="sewa-list__empty-icon" />
-                            <span class="sewa-list__empty-title">No Volunteers Found</span>
-                            <span class="sewa-list__empty-desc" *ngIf="!volunteerSearchTerm">No volunteers assigned to this sewa</span>
-                            <span class="sewa-list__empty-desc" *ngIf="volunteerSearchTerm">No volunteers match "{{ volunteerSearchTerm }}"</span>
-                        </div>
-                    </div>
-                    <div class="sewa-list__footer" *ngIf="filteredVolunteers.length > 0">
-                        <app-pager
-                            [total]="filteredVolunteers.length"
-                            [pageSize]="volPageSize"
-                            [currentPage]="volCurrentPage"
-                            [pageSizeOptions]="volPageSizeOptions"
-                            (pageChange)="volCurrentPage = $event"
-                            (pageSizeChange)="volPageSize = $event; volCurrentPage = 1">
-                        </app-pager>
+                            <div class="sewa-list__load-more" *ngIf="volunteerHasMore">
+                                <button type="button" (click)="loadMoreVolunteers()" [disabled]="isLoadingMoreVolunteers">
+                                    {{ isLoadingMoreVolunteers ? 'Loading...' : 'Load More' }}
+                                </button>
+                            </div>
+                            <div class="sewa-list__empty" *ngIf="filteredVolunteers.length === 0">
+                                <app-icon name="group_off" class="sewa-list__empty-icon" />
+                                <span class="sewa-list__empty-title">No Volunteers Found</span>
+                                <span class="sewa-list__empty-desc" *ngIf="!volunteerSearchTerm">No volunteers assigned to this sewa</span>
+                                <span class="sewa-list__empty-desc" *ngIf="volunteerSearchTerm">No volunteers match "{{ volunteerSearchTerm }}"</span>
+                            </div>
+                        </ng-container>
                     </div>
                 </div>
             </div>

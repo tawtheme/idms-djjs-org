@@ -111,4 +111,10 @@ export class HeaderComponent {
       this.isMenuOpen = false;
     }
   }
+
+  @HostListener('document:keydown.F2', ['$event'])
+  onF2(event: Event): void {
+    event.preventDefault();
+    this.isMenuOpen = true;
+  }
 }
