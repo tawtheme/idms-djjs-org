@@ -20,6 +20,7 @@ export interface UnallocatedVolunteer {
   image?: string;
   phone?: string;
   hasAssignedSewa: boolean;
+  assignedSewaName?: string;
 }
 
 export interface AllocatedVolunteer {
@@ -91,12 +92,13 @@ export class SewaVolunteersComponent implements OnInit {
   allUnallocatedVolunteers: UnallocatedVolunteer[] = [];
   selectedUnallocated = new Set<number>();
   unallocatedSearchTerm = '';
-  unallocatedPageSize = 10;
+  unallocatedPageSize = 50;
   unallocatedCurrentPage = 1;
   unallocatedTotalItems = 0;
   unallocatedSortField = 'id';
   unallocatedSortDirection: 'asc' | 'desc' = 'asc';
   isLoadingUnallocated = true;
+  isLoadingMoreUnallocated = false;
   errorUnallocated: string | null = null;
 
   // Allocated Volunteers
@@ -104,12 +106,13 @@ export class SewaVolunteersComponent implements OnInit {
   allAllocatedVolunteers: AllocatedVolunteer[] = [];
   selectedAllocated = new Set<number>();
   allocatedSearchTerm = '';
-  allocatedPageSize = 20;
+  allocatedPageSize = 50;
   allocatedCurrentPage = 1;
   allocatedTotalItems = 0;
   allocatedSortField = '';
   allocatedSortDirection: 'asc' | 'desc' = 'asc';
   isLoadingAllocated = true;
+  isLoadingMoreAllocated = false;
   errorAllocated: string | null = null;
 
   pageSizeOptions: number[] = [10, 20, 50, 100];
@@ -225,8 +228,12 @@ export class SewaVolunteersComponent implements OnInit {
     return params;
   }
 
-  loadUnallocatedFromApi(): void {
-    this.isLoadingUnallocated = true;
+  loadUnallocatedFromApi(append = false): void {
+    if (append) {
+      this.isLoadingMoreUnallocated = true;
+    } else {
+      this.isLoadingUnallocated = true;
+    }
     this.errorUnallocated = null;
     const assignmentValue = this.selectedSewaAssignment[0] || '2';
     let params = this.buildFilterParams(this.unallocatedPageSize, this.unallocatedCurrentPage)
@@ -240,23 +247,45 @@ export class SewaVolunteersComponent implements OnInit {
         this.errorUnallocated = err?.error?.message || 'Failed to load volunteers';
         return of({ data: [] });
       }),
-      finalize(() => this.isLoadingUnallocated = false)
+      finalize(() => {
+        this.isLoadingUnallocated = false;
+        this.isLoadingMoreUnallocated = false;
+      })
     ).subscribe((response) => {
       const records = response?.data?.records || response?.data || [];
-      this.unallocatedVolunteers = (Array.isArray(records) ? records : []).map((v: any) => ({
+      const newRecords = (Array.isArray(records) ? records : []).map((v: any) => ({
         id: v.id,
         uniqueId: v.unique_id || '',
         name: v.name || v.volunteer_name || '',
         image: v.image || v.user_image || '',
         phone: v.phone || v.mobile || '',
-        hasAssignedSewa: Array.isArray(v.user_sewas) && v.user_sewas.length > 0
+        hasAssignedSewa: v.is_assigned === true || v.is_assigned === 1,
+        assignedSewaName: v.assigned_sewa?.name || ''
       }));
+      if (append) {
+        this.unallocatedVolunteers = [...this.unallocatedVolunteers, ...newRecords];
+      } else {
+        this.unallocatedVolunteers = newRecords;
+      }
       this.unallocatedTotalItems = response?.total || response?.meta?.total || this.unallocatedVolunteers.length;
     });
   }
 
-  loadAllocatedFromApi(): void {
-    this.isLoadingAllocated = true;
+  loadMoreUnallocated(): void {
+    this.unallocatedCurrentPage++;
+    this.loadUnallocatedFromApi(true);
+  }
+
+  get hasMoreUnallocated(): boolean {
+    return this.unallocatedVolunteers.length < this.unallocatedTotalItems;
+  }
+
+  loadAllocatedFromApi(append = false): void {
+    if (append) {
+      this.isLoadingMoreAllocated = true;
+    } else {
+      this.isLoadingAllocated = true;
+    }
     this.errorAllocated = null;
     let params = this.buildFilterParams(this.allocatedPageSize, this.allocatedCurrentPage)
       .set('filter_by_sewa_assignment', 'assigned');
@@ -269,10 +298,13 @@ export class SewaVolunteersComponent implements OnInit {
         this.errorAllocated = err?.error?.message || 'Failed to load volunteers';
         return of({ data: [] });
       }),
-      finalize(() => this.isLoadingAllocated = false)
+      finalize(() => {
+        this.isLoadingAllocated = false;
+        this.isLoadingMoreAllocated = false;
+      })
     ).subscribe((response) => {
       const records = response?.data?.records || response?.data || [];
-      this.allocatedVolunteers = (Array.isArray(records) ? records : []).map((v: any) => {
+      const newRecords = (Array.isArray(records) ? records : []).map((v: any) => {
         const psv = (v.user_program_sewa_volunteers && v.user_program_sewa_volunteers[0]) || {};
         const badgeId = psv.program_sewa_volunteer_badge?.badge_id;
         return {
@@ -290,8 +322,22 @@ export class SewaVolunteersComponent implements OnInit {
           sewa: psv.program_sewa?.sewa?.name || v.sewa || v.sewa_name || ''
         };
       });
+      if (append) {
+        this.allocatedVolunteers = [...this.allocatedVolunteers, ...newRecords];
+      } else {
+        this.allocatedVolunteers = newRecords;
+      }
       this.allocatedTotalItems = response?.total || response?.meta?.total || this.allocatedVolunteers.length;
     });
+  }
+
+  loadMoreAllocated(): void {
+    this.allocatedCurrentPage++;
+    this.loadAllocatedFromApi(true);
+  }
+
+  get hasMoreAllocated(): boolean {
+    return this.allocatedVolunteers.length < this.allocatedTotalItems;
   }
 
   // Unallocated Volunteers Methods

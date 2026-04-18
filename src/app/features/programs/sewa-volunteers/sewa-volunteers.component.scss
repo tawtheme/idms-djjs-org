@@ -156,7 +156,7 @@
 
 .sewa-volunteers-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 3fr;
     gap: 24px;
     flex: 1;
     overflow: hidden;
@@ -233,6 +233,20 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: auto;
+    border: none;
+    border-radius: 0;
+
+    .table tbody tr {
+        border-top: none;
+    }
+}
+
+.allocated-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
 }
 
 // Card Listing View for Unallocated Section
@@ -267,7 +281,7 @@
 
 .volunteer-card {
     background: $color-white;
-    border: 2px solid $color-gray-200;
+    border: 1px solid $color-gray-200;
     border-radius: 8px;
     padding: 16px;
     cursor: pointer;
@@ -298,6 +312,34 @@
             box-shadow: none;
             transform: none;
         }
+    }
+
+    .card-assigned-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba($color-white, 0.95);
+        color: $color-gray-800;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.5;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.15s ease, visibility 0.15s ease;
+        z-index: 5;
+
+    }
+
+    &.disabled:hover .card-assigned-overlay {
+        opacity: 1;
+        visibility: visible;
     }
 
     .card-checkbox {
@@ -370,6 +412,7 @@
                 font-size: 16px;
             }
         }
+
     }
 }
 
@@ -474,6 +517,45 @@
             width: 100%;
             justify-content: flex-end;
         }
+    }
+}
+
+.load-more {
+    width: 100%;
+    border-top: 1px solid $color-gray-200;
+
+    &__btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 12px;
+        background: rgba($color-primary-500, 0.06);
+        border: none;
+        border-radius: 0 0 8px 8px;
+        color: $color-primary-700;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba($color-primary-500, 0.12);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    &__count {
+        color: $color-primary-700;
+    }
+
+    &__sep {
+        color: $color-primary-700;
     }
 }
 

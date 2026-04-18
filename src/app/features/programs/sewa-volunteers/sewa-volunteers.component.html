@@ -1,7 +1,4 @@
 <div class="sewa-volunteers-container">
-    <div class="sewa-volunteers-header">
-    </div>
-
     <!-- Filter Section -->
     <div class="seaw-volunteers-filter">
         <app-dropdown
@@ -48,7 +45,7 @@
                         class="form-control"
                         [(ngModel)]="unallocatedSearchTerm"
                         [ngModelOptions]="{ standalone: true }"
-                        (input)="unallocatedCurrentPage = 1; loadUnallocatedFromApi()"
+                        (input)="unallocatedCurrentPage = 1; loadUnallocatedFromApi(false)"
                         placeholder="Search..."
                     />
                 </div>
@@ -82,7 +79,10 @@
                              [class.selected]="selectedUnallocated.has(volunteer.id)"
                              [class.disabled]="volunteer.hasAssignedSewa"
                              (click)="!volunteer.hasAssignedSewa && toggleSelectUnallocated(volunteer.id, $event)">
-                            <div class="card-checkbox" [title]="volunteer.hasAssignedSewa ? 'We already have assigned sewa' : ''">
+                            <div class="card-assigned-overlay" *ngIf="volunteer.hasAssignedSewa && volunteer.assignedSewaName">
+                                <span>{{ volunteer.name }} is already assigned to {{ volunteer.assignedSewaName }}</span>
+                            </div>
+                            <div class="card-checkbox">
                                 <input
                                     type="checkbox"
                                     [checked]="selectedUnallocated.has(volunteer.id)"
@@ -93,7 +93,7 @@
                             <div class="card-content">
                                 <div class="card-image">
                                     <div class="volunteer-image">
-                                        <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
+                                        <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                              [alt]="volunteer.name"
                                              onerror="this.src='/assets/img/placeholder.svg'">
                                     </div>
@@ -123,6 +123,14 @@
                     </div>
                 </ng-container>
             </div>
+            <!-- Load More -->
+            <div *ngIf="hasMoreUnallocated && pagedUnallocated.length > 0 && !isLoadingUnallocated" class="load-more">
+                <button class="load-more__btn" type="button" (click)="loadMoreUnallocated()" [disabled]="isLoadingMoreUnallocated">
+                    <span class="load-more__count">Showing {{ unallocatedVolunteers.length }} of {{ unallocatedTotalItems }}</span>
+                    <span class="load-more__sep">-</span>
+                    {{ isLoadingMoreUnallocated ? 'Loading...' : 'Load More' }}
+                </button>
+            </div>
         </div>
 
         <!-- Right Section: Allocated Volunteers -->
@@ -138,7 +146,7 @@
                         class="form-control"
                         [(ngModel)]="allocatedSearchTerm"
                         [ngModelOptions]="{ standalone: true }"
-                        (input)="allocatedCurrentPage = 1; loadAllocatedFromApi()"
+                        (input)="allocatedCurrentPage = 1; loadAllocatedFromApi(false)"
                         placeholder="Search..."
                     />
                 </div>
@@ -147,7 +155,32 @@
                 </button>
             </div>
 
-            <div class="table-container">
+            <!-- Loading State -->
+            <div *ngIf="isLoadingAllocated" class="allocated-state">
+                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="errorAllocated && !isLoadingAllocated" class="allocated-state">
+                <app-empty-state
+                    [title]="'Error Loading Volunteers'"
+                    [description]="errorAllocated"
+                    [icon]="'error_outline'"
+                    [size]="'small'">
+                </app-empty-state>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isLoadingAllocated && !errorAllocated && pagedAllocated.length === 0" class="allocated-state">
+                <app-empty-state
+                    [title]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Allocated Volunteers'"
+                    [description]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no allocated volunteers available at the moment.'"
+                    [size]="'small'">
+                </app-empty-state>
+            </div>
+
+            <!-- Table (only shown when there's data) -->
+            <div *ngIf="!isLoadingAllocated && !errorAllocated && pagedAllocated.length > 0" class="table-container">
                 <table class="table">
                     <thead>
                         <tr>
@@ -169,68 +202,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngIf="!isLoadingAllocated && !errorAllocated">
-                            <tr *ngFor="let volunteer of pagedAllocated; trackBy: trackById" (click)="$event.stopPropagation()">
-                                <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                    <input
-                                        type="checkbox"
-                                        [checked]="selectedAllocated.has(volunteer.id)"
-                                        (change)="toggleSelectAllocated(volunteer.id, $event)">
-                                </td>
-                                <td data-label="Head" (click)="$event.stopPropagation()">
-                                    <input type="checkbox"
-                                        [checked]="volunteer.headChecked"
-                                        [disabled]="volunteer.subHeadChecked"
-                                        (change)="toggleHead(volunteer, $event)" />
-                                </td>
-                                <td data-label="Sub Head" (click)="$event.stopPropagation()">
-                                    <input type="checkbox"
-                                        [checked]="volunteer.subHeadChecked"
-                                        [disabled]="volunteer.headChecked"
-                                        (change)="toggleSubHead(volunteer, $event)" />
-                                </td>
-                                <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
-                                <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
-                                <td data-label="Name" class="name">{{ volunteer.name }}</td>
-                                <td data-label="Image" class="image-column">
-                                    <div class="volunteer-image">
-                                        <img [src]="volunteer.image || '/assets/img/placeholder.svg'" 
-                                             [alt]="volunteer.name"
-                                             onerror="this.src='/assets/img/placeholder.svg'">
-                                    </div>
-                                </td>
-                                <td data-label="Sewa">{{ volunteer.sewa || '-' }}</td>
-                            </tr>
-                            <!-- Empty state -->
-                            <tr *ngIf="pagedAllocated.length === 0">
-                                <td [attr.colspan]="9" class="empty-state-cell">
-                                    <app-empty-state
-                                        [title]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Allocated Volunteers'"
-                                        [description]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no allocated volunteers available at the moment.'"
-                                        [size]="'small'">
-                                    </app-empty-state>
-                                </td>
-                            </tr>
-                        </ng-container>
-                        <!-- Loading cell -->
-                        <tr *ngIf="isLoadingAllocated">
-                            <td [attr.colspan]="9" class="loading-cell">
-                                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+                        <tr *ngFor="let volunteer of pagedAllocated; trackBy: trackById" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    [checked]="selectedAllocated.has(volunteer.id)"
+                                    (change)="toggleSelectAllocated(volunteer.id, $event)">
                             </td>
-                        </tr>
-                        <!-- Error state -->
-                        <tr *ngIf="errorAllocated && !isLoadingAllocated">
-                            <td [attr.colspan]="9" class="empty-state-cell">
-                                <app-empty-state
-                                    [title]="'Error Loading Volunteers'"
-                                    [description]="errorAllocated"
-                                    [icon]="'error_outline'"
-                                    [size]="'small'">
-                                </app-empty-state>
+                            <td data-label="Head" (click)="$event.stopPropagation()">
+                                <input type="checkbox"
+                                    [checked]="volunteer.headChecked"
+                                    [disabled]="volunteer.subHeadChecked"
+                                    (change)="toggleHead(volunteer, $event)" />
                             </td>
+                            <td data-label="Sub Head" (click)="$event.stopPropagation()">
+                                <input type="checkbox"
+                                    [checked]="volunteer.subHeadChecked"
+                                    [disabled]="volunteer.headChecked"
+                                    (change)="toggleSubHead(volunteer, $event)" />
+                            </td>
+                            <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
+                            <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
+                            <td data-label="Name" class="name">{{ volunteer.name }}</td>
+                            <td data-label="Image" class="image-column">
+                                <div class="volunteer-image">
+                                    <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
+                                         [alt]="volunteer.name"
+                                         onerror="this.src='/assets/img/placeholder.svg'">
+                                </div>
+                            </td>
+                            <td data-label="Sewa">{{ volunteer.sewa || '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <!-- Load More -->
+            <div *ngIf="hasMoreAllocated && pagedAllocated.length > 0 && !isLoadingAllocated" class="load-more">
+                <button class="load-more__btn" type="button" (click)="loadMoreAllocated()" [disabled]="isLoadingMoreAllocated">
+                    <span class="load-more__count">Showing {{ allocatedVolunteers.length }} of {{ allocatedTotalItems }}</span>
+                    <span class="load-more__sep">-</span>
+                    {{ isLoadingMoreAllocated ? 'Loading...' : 'Load More' }}
+                </button>
             </div>
         </div>
     </div>
