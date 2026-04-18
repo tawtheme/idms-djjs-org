@@ -1,19 +1,13 @@
 <ng-container *ngIf="isAuthenticated; else authLayout">
-    <!-- Launcher Home Screen -->
-    <app-launcher *ngIf="showLauncher()" (openPage)="onOpenPage($event)"></app-launcher>
-
-    <!-- Page View -->
-    <div class="page-view" *ngIf="!showLauncher()">
-        <app-header
-            [title]="title()"
-            [activeRoute]="activeRoute()"
-            [breadcrumbs]="breadcrumbs()"
-            (navigateTo)="onOpenPage($event)"
-            (closePage)="onClosePage()">
-        </app-header>
-        <div class="content-wrapper" #contentWrapper>
-            <router-outlet />
-        </div>
+    <app-header
+        [title]="title()"
+        [activeRoute]="activeRoute()"
+        [breadcrumbs]="breadcrumbs()"
+        (navigateTo)="onOpenPage($event)"
+        (closePage)="onClosePage()">
+    </app-header>
+    <div class="content-wrapper" #contentWrapper>
+        <router-outlet />
     </div>
 </ng-container>
 

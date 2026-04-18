@@ -33,7 +33,7 @@
     margin: 0;
 }
 
-.program-form {
+.branch-form {
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -71,11 +71,6 @@
 
 .form-field {
     .form-control {
-        max-width: 100%;
-    }
-
-    textarea.form-control {
-        resize: vertical;
         max-width: 100%;
     }
 }

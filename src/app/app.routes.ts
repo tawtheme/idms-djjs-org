@@ -39,11 +39,11 @@ const guestOnly = () => {
  * Routes are organized by feature area for better maintainability
  */
 export const routes: Routes = [
-  // Default route - redirect to login
-  { 
-    path: '', 
-    pathMatch: 'full', 
-    redirectTo: 'login' 
+  // Default route - redirect to dashboard
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'dashboard'
   },
 
   // ============================================
@@ -98,11 +98,27 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'visitors/create',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/visitors/create-visitor/create-visitor.component').then(
+        (m) => m.CreateVisitorComponent
+      ),
+  },
+  {
     path: 'volunteers',
     canMatch: [authOnly],
     loadComponent: () =>
       import('./features/volunteers/all-volunteers/all-volunteers.component').then(
         (m) => m.AllVolunteersComponent
+      ),
+  },
+  {
+    path: 'volunteers/create',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/all-volunteers/create-volunteer/create-volunteer.component').then(
+        (m) => m.CreateVolunteerComponent
       ),
   },
   {
@@ -239,6 +255,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/branches/all-branches/all-branches.component').then(
         (m) => m.AllBranchesComponent
+      ),
+  },
+  {
+    path: 'branches/create',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/branches/create-branch/create-branch.component').then(
+        (m) => m.CreateBranchComponent
       ),
   },
   {

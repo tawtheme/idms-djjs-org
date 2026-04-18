@@ -1,172 +1,299 @@
-<form (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form">
+<div class="page-container" *ngIf="!hideFormActions">
+    <div class="page-header">
+        <h2 class="page-title">Create Visitor</h2>
+        <p class="page-subtitle">Fill in the details below to register a new visitor</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form">
+        <!-- Personal Information -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Personal Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="name"
+                        class="form-control"
+                        [(ngModel)]="form.name"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter name"
+                        required>
+                </div>
+                <div class="form-field">
+                    <label for="phone">Phone <span class="required">*</span></label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        class="form-control"
+                        [(ngModel)]="form.phone"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter phone"
+                        (input)="onPhoneChange()"
+                        required>
+                </div>
+                <div class="form-field">
+                    <label for="gender">Gender <span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="genderOptions"
+                        [selectedValues]="selectedGender"
+                        placeholder="Select Gender"
+                        (selectionChange)="onGenderChange($event)"
+                        [closeOnSelect]="true">
+                    </app-dropdown>
+                </div>
+                <div class="form-field">
+                    <label for="dob">Date of Birth</label>
+                    <app-datepicker
+                        [value]="form.dob"
+                        placeholder="DD/MM/YYYY"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onDobChange($event)">
+                    </app-datepicker>
+                </div>
+                <div class="form-field">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-control"
+                        [(ngModel)]="form.email"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter email">
+                </div>
+                <div class="form-field">
+                    <label for="aadhaarNumber">Aadhaar Number</label>
+                    <input
+                        type="text"
+                        id="aadhaarNumber"
+                        class="form-control"
+                        [(ngModel)]="form.aadhaarNumber"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter aadhaar number"
+                        maxlength="12">
+                </div>
+            </div>
+        </div>
+
+        <!-- Family Details -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Family Details</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="fatherName">Father Name</label>
+                    <input
+                        type="text"
+                        id="fatherName"
+                        class="form-control"
+                        [(ngModel)]="form.fatherName"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter father name">
+                </div>
+                <div class="form-field">
+                    <label for="motherName">Mother Name</label>
+                    <input
+                        type="text"
+                        id="motherName"
+                        class="form-control"
+                        [(ngModel)]="form.motherName"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter mother name">
+                </div>
+                <div class="form-field">
+                    <label for="spouseName">Spouse Name</label>
+                    <input
+                        type="text"
+                        id="spouseName"
+                        class="form-control"
+                        [(ngModel)]="form.spouseName"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter spouse name">
+                </div>
+            </div>
+        </div>
+
+        <!-- Visit Details -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Visit Details</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field form-field--full">
+                    <label for="purposeOfVisit">Purpose of Visit <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="purposeOfVisit"
+                        class="form-control"
+                        [(ngModel)]="form.purposeOfVisit"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter purpose"
+                        required>
+                </div>
+                <div class="form-field">
+                    <label for="startDate">Start Date <span class="required">*</span></label>
+                    <app-datepicker
+                        [value]="form.startDate"
+                        placeholder="DD/MM/YYYY"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onStartDateChange($event)">
+                    </app-datepicker>
+                </div>
+                <div class="form-field">
+                    <label for="validUpto">Valid Upto <span class="required">*</span></label>
+                    <app-datepicker
+                        [value]="form.validUpto"
+                        placeholder="DD/MM/YYYY"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onValidUptoChange($event)">
+                    </app-datepicker>
+                </div>
+                <div class="form-field">
+                    <label for="address">Address</label>
+                    <input
+                        type="text"
+                        id="address"
+                        class="form-control"
+                        [(ngModel)]="form.address"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter address">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Contact Details</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="whatsappNumber">Whatsapp Number</label>
+                    <input
+                        type="tel"
+                        id="whatsappNumber"
+                        class="form-control"
+                        [(ngModel)]="form.whatsappNumber"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter whatsapp number">
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Image -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Profile Image</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label>Upload Method</label>
+                    <app-dropdown
+                        [options]="imageOptions"
+                        [selectedValues]="selectedImage"
+                        placeholder="Select Image"
+                        (selectionChange)="onImageChange($event)"
+                        [closeOnSelect]="true">
+                    </app-dropdown>
+                </div>
+                <div class="form-field" *ngIf="selectedImageType === 'upload'">
+                    <app-file-upload
+                        [config]="fileUploadConfig"
+                        [disabled]="isLoading"
+                        (filesSelected)="onFilesSelected($event)"
+                        (fileRejected)="onFileRejected($event)"
+                        (removed)="onFileRemoved($event)">
+                    </app-file-upload>
+                </div>
+                <div class="form-field" *ngIf="selectedImageType === 'capture'">
+                    <app-camera-upload
+                        [disabled]="isLoading"
+                        (imageCaptured)="onImageCaptured($event)"
+                        (removed)="onCameraImageRemoved()">
+                    </app-camera-upload>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
+            <button type="submit" class="btn btn--primary" [disabled]="isLoading">
+                {{ isLoading ? 'Submitting...' : 'Create Visitor' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Side panel mode (unchanged) -->
+<form *ngIf="hideFormActions" (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form visitor-form--panel">
     <div class="form-field">
         <label for="name">Name </label>
-        <input
-            type="text"
-            id="name"
-            class="form-control"
-            [(ngModel)]="form.name"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter name"
-            required>
+        <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
     </div>
     <div class="form-field">
         <label for="phone">Phone </label>
-        <input
-            type="tel"
-            id="phone"
-            class="form-control"
-            [(ngModel)]="form.phone"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter phone"
-            (input)="onPhoneChange()"
-            required>
+        <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter phone" (input)="onPhoneChange()" required>
     </div>
     <div class="form-field">
         <label for="gender">Gender </label>
-        <app-dropdown
-            [options]="genderOptions"
-            [selectedValues]="selectedGender"
-            placeholder="Select Gender"
-            (selectionChange)="onGenderChange($event)"
-            [closeOnSelect]="true">
-        </app-dropdown>
-    </div>  
+        <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
+    </div>
     <div class="form-field">
         <label for="dob">Date of birth</label>
-        <app-datepicker
-            [value]="form.dob"
-            placeholder="DD/MM/YYYY"
-            format="dd/MM/yyyy"
-            (dateChange)="onDobChange($event)">
-        </app-datepicker>
+        <app-datepicker [value]="form.dob" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
     </div>
     <div class="form-field">
         <label for="fatherName">Father Name</label>
-        <input
-            type="text"
-            id="fatherName"
-            class="form-control"
-            [(ngModel)]="form.fatherName"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter father name">
+        <input type="text" id="fatherName" class="form-control" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
     </div>
-
     <div class="form-field">
         <label for="motherName">Mother Name</label>
-        <input
-            type="text"
-            id="motherName"
-            class="form-control"
-            [(ngModel)]="form.motherName"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter mother name">
+        <input type="text" id="motherName" class="form-control" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name">
     </div>
     <div class="form-field">
         <label for="spouseName">Spouse Name</label>
-        <input
-            type="text"
-            id="spouseName"
-            class="form-control"
-            [(ngModel)]="form.spouseName"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter spouse name">
+        <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
     </div>
     <div class="form-field">
         <label for="address">Address</label>
-        <input
-            type="text"
-            id="address"
-            class="form-control"
-            [(ngModel)]="form.address"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter address">
+        <input type="text" id="address" class="form-control" [(ngModel)]="form.address" [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
     </div>
     <div class="form-field">
         <label for="purposeOfVisit">Purpose of Visit </label>
-        <input
-            type="text"
-            id="purposeOfVisit"
-            class="form-control"
-            [(ngModel)]="form.purposeOfVisit"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter purpose"
-            required>
+        <input type="text" id="purposeOfVisit" class="form-control" [(ngModel)]="form.purposeOfVisit" [ngModelOptions]="{ standalone: true }" placeholder="Enter purpose" required>
     </div>
     <div class="form-field">
         <label for="whatsappNumber">Whatsapp Number</label>
-        <input
-            type="tel"
-            id="whatsappNumber"
-            class="form-control"
-            [(ngModel)]="form.whatsappNumber"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter whatsapp number">
+        <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number">
     </div>
     <div class="form-field">
         <label for="email">Email Address</label>
-        <input
-            type="email"
-            id="email"
-            class="form-control"
-            [(ngModel)]="form.email"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter email">
+        <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
     </div>
     <div class="form-field">
         <label for="aadhaarNumber">Aadhaar Number</label>
-        <input
-            type="text"
-            id="aadhaarNumber"
-            class="form-control"
-            [(ngModel)]="form.aadhaarNumber"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter aadhaar number"
-            maxlength="12">
+        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
     </div>
     <div class="form-field">
         <label for="startDate">Start Date </label>
-        <app-datepicker
-            [value]="form.startDate"
-            placeholder="DD/MM/YYYY"
-            format="dd/MM/yyyy"
-            (dateChange)="onStartDateChange($event)">
-        </app-datepicker>
+        <app-datepicker [value]="form.startDate" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onStartDateChange($event)"></app-datepicker>
     </div>
-
     <div class="form-field">
         <label for="validUpto">Valid Upto </label>
-        <app-datepicker
-            [value]="form.validUpto"
-            placeholder="DD/MM/YYYY"
-            format="dd/MM/yyyy"
-            (dateChange)="onValidUptoChange($event)">
-        </app-datepicker>
+        <app-datepicker [value]="form.validUpto" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onValidUptoChange($event)"></app-datepicker>
     </div>
     <div class="form-field">
         <label>Upload Profile Image</label>
-        <app-dropdown
-            [options]="imageOptions"
-            [selectedValues]="selectedImage"
-            placeholder="Select Image"
-            (selectionChange)="onImageChange($event)"
-            [closeOnSelect]="true">
-        </app-dropdown>
+        <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
     </div>
     <div class="form-field" *ngIf="selectedImageType === 'upload'">
-        <app-file-upload
-            [config]="fileUploadConfig"
-            [disabled]="isLoading"
-            (filesSelected)="onFilesSelected($event)"
-            (fileRejected)="onFileRejected($event)"
-            (removed)="onFileRemoved($event)">
-        </app-file-upload>
+        <app-file-upload [config]="fileUploadConfig" [disabled]="isLoading" (filesSelected)="onFilesSelected($event)" (fileRejected)="onFileRejected($event)" (removed)="onFileRemoved($event)"></app-file-upload>
     </div>
     <div class="form-field" *ngIf="selectedImageType === 'capture'">
-        <app-camera-upload
-            [disabled]="isLoading"
-            (imageCaptured)="onImageCaptured($event)"
-            (removed)="onCameraImageRemoved()">
-        </app-camera-upload>
+        <app-camera-upload [disabled]="isLoading" (imageCaptured)="onImageCaptured($event)" (removed)="onCameraImageRemoved()"></app-camera-upload>
     </div>
 </form>

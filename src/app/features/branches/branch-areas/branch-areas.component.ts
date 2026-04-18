@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -46,6 +46,7 @@ export class BranchAreasComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
 
   private dataService = inject(DataService);
+  private route = inject(ActivatedRoute);
 
   branchAreas: BranchArea[] = [];
   allBranchAreas: BranchArea[] = [];
@@ -83,6 +84,9 @@ export class BranchAreasComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBranchAreas();
+    if (this.route.snapshot.queryParamMap.get('openAdd') === 'true') {
+      this.isAddModalOpen = true;
+    }
   }
 
   /**

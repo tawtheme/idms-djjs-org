@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -66,6 +67,7 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   private readonly dataService = inject(DataService);
   private readonly searchService = inject(SearchService);
   private readonly sortService = inject(SortService);
+  private readonly route = inject(ActivatedRoute);
   private searchSubscription?: Subscription;
   private sortSubscription?: Subscription;
 
@@ -109,6 +111,10 @@ export class MasterTablesListComponent extends BasePaginatedList implements OnIn
   }
 
   ngOnInit(): void {
+    const type = this.route.snapshot.queryParamMap.get('type') as MasterType;
+    if (type && this.masterConfigs.some(c => c.type === type)) {
+      this.selectedMasterType = type;
+    }
     this.initSearch();
   }
 

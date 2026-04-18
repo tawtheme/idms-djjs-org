@@ -39,7 +39,8 @@
         color: $color-gray-500;
         cursor: pointer;
         text-decoration: none;
-        font-weight: 400;
+        font-weight: 500;
+        font-size: 16px;
 
         &:hover {
             color: $color-primary-600;
@@ -48,11 +49,13 @@
 
     .breadcrumb-sep {
         color: $color-gray-300;
+        font-size: 16px;
     }
 
     .breadcrumb-current {
         color: $color-gray-800;
         font-weight: 600;
+        font-size: 16px;
     }
 }
 
@@ -143,15 +146,24 @@
         flex-direction: column;
         align-items: stretch;
         text-align: left;
+
+        &--full {
+            grid-column: span 2;
+        }
+    }
+
+    &__group-items--two-col {
+        columns: 2;
+        column-gap: 40px;
     }
 
     &__group-title {
         font-size: 15px;
         font-weight: 700;
         color: $color-gray-900;
-        margin-bottom: 14px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid $color-gray-200;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid $color-gray-200;
         width: 100%;
         letter-spacing: 0.2px;
     }
@@ -222,25 +234,41 @@
     .megamenu__grid {
         grid-template-columns: 1fr;
     }
+
+    .megamenu__group-items--two-col {
+        columns: 1;
+    }
+
+    .megamenu__group--full {
+        grid-column: span 1;
+    }
 }
 
-// Close button (header)
-.close-btn {
+// Logout button (header)
+.logout-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: none;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid $color-gray-200;
+    background: $color-gray-50;
     border-radius: 6px;
     cursor: pointer;
-    color: $color-gray-400;
+    color: $color-gray-600;
+    font-size: 13px;
+    font-weight: 500;
     transition: all 0.15s ease;
 
     &:hover {
         background: #fee2e2;
+        border-color: #fca5a5;
         color: #dc2626;
+    }
+
+    .logout-label {
+        @media (max-width: 480px) {
+            display: none;
+        }
     }
 }
 

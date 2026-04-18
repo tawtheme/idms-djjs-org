@@ -9,6 +9,7 @@
 import { Component, Input, Output, EventEmitter, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
@@ -61,6 +62,7 @@ export class CreateVolunteerComponent {
 
   private dataService = inject(DataService);
   private snackbarService = inject(SnackbarService);
+  private router = inject(Router);
 
   isLoading = false;
   error: string | null = null;
@@ -402,6 +404,9 @@ export class CreateVolunteerComponent {
     this.snackbarService.showSuccess('Volunteer created successfully!');
     this.volunteerCreated.emit();
     this.onReset();
+    if (!this.hideFormActions) {
+      this.router.navigateByUrl('/volunteers');
+    }
   }
 }
 

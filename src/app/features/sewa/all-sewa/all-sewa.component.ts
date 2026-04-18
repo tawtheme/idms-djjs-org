@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -48,6 +48,7 @@ export class AllSewaComponent extends BasePaginatedList implements OnInit, OnDes
   private readonly searchService = inject(SearchService);
   private readonly sortService = inject(SortService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly route = inject(ActivatedRoute);
 
   private searchSubscription?: Subscription;
   private sortSubscription?: Subscription;
@@ -85,6 +86,9 @@ export class AllSewaComponent extends BasePaginatedList implements OnInit, OnDes
 
   ngOnInit(): void {
     this.initSearch();
+    if (this.route.snapshot.queryParamMap.get('openAdd') === 'true') {
+      this.isAddModalOpen = true;
+    }
   }
 
   ngOnDestroy(): void {

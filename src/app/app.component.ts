@@ -3,19 +3,17 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { HeaderComponent } from './components/header/header.component';
-import { LauncherComponent } from './components/launcher/launcher.component';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, HeaderComponent, LauncherComponent],
+  imports: [RouterOutlet, CommonModule, HeaderComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   title = signal('');
-  showLauncher = signal(true);
   activeRoute = signal('');
   breadcrumbs = signal<{ label: string; route?: string }[]>([]);
   contentWrapperHeight = signal('calc(100vh - 48px)');
@@ -32,7 +30,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private routeMap: { [key: string]: string } = {
     '/dashboard': 'Dashboard',
     '/visitors': 'Visitors',
+    '/visitors/create': 'Create Visitor',
     '/volunteers': 'All Volunteers',
+    '/volunteers/create': 'Create Volunteer',
     '/volunteers/branch-applications': 'Branch Applications',
     '/volunteers/resigned-sewas': 'Resigned Sewas',
     '/sewa/all-sewa': 'All Sewa',
@@ -48,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     '/initiatives': 'Initiatives',
     '/projects': 'Projects',
     '/branches': 'All Branches',
+    '/branches/create': 'Add New Branch',
     '/branches/areas': 'Branch Areas',
     '/departments': 'Departments',
     '/master-tables': 'Master Tables'
@@ -58,8 +59,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     '/programs/edit-program': { label: 'Programs List', route: '/programs/programs-list' },
     '/programs/add-program': { label: 'Programs List', route: '/programs/programs-list' },
     '/programs/attendances': { label: 'Programs List', route: '/programs/programs-list' },
+    '/visitors/create': { label: 'Visitors', route: '/visitors' },
+    '/volunteers/create': { label: 'All Volunteers', route: '/volunteers' },
     '/volunteers/branch-applications': { label: 'All Volunteers', route: '/volunteers' },
     '/volunteers/resigned-sewas': { label: 'All Volunteers', route: '/volunteers' },
+    '/branches/create': { label: 'All Branches', route: '/branches' },
     '/branches/areas': { label: 'All Branches', route: '/branches' },
   };
 
@@ -86,7 +90,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onOpenPage(route: string): void {
-    this.showLauncher.set(false);
     this.updatePageTitle(route);
     this.activeRoute.set(route);
     this.router.navigateByUrl(route);
@@ -94,27 +97,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onClosePage(): void {
-    this.showLauncher.set(true);
     this.router.navigateByUrl('/dashboard');
   }
 
   private checkCurrentRoute(url: string): void {
     const basePath = url.split('?')[0].split('#')[0];
 
-    // Auth pages — let them render without launcher
+    // Auth pages — let them render without header
     if (['/login', '/forgot-password', '/reset-password'].includes(basePath)) {
       return;
     }
 
-    // If we land on a known page route, show the page view
-    const matchedTitle = this.getPageTitle(basePath);
-    if (matchedTitle && basePath !== '/dashboard') {
-      this.showLauncher.set(false);
-      this.updatePageTitle(basePath);
-    } else if (!this.showLauncher()) {
-      // Already in page view (navigated via menu), update title
-      this.updatePageTitle(basePath);
-    }
+    this.updatePageTitle(basePath);
   }
 
   private updatePageTitle(url: string): void {

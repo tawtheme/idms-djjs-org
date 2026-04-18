@@ -7,17 +7,17 @@
 
         <div class="header-divider"></div>
         <nav class="header-breadcrumb">
-            <a class="breadcrumb-link" (click)="onClose()">Home</a>
-            <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
-                <span class="breadcrumb-sep">/</span>
+            <ng-container *ngFor="let crumb of breadcrumbs; let last = last; let first = first">
+                <span *ngIf="!first" class="breadcrumb-sep">/</span>
                 <a *ngIf="crumb.route && !last" class="breadcrumb-link" (click)="navigateTo.emit(crumb.route)">{{ crumb.label }}</a>
                 <span *ngIf="!crumb.route || last" class="breadcrumb-current">{{ crumb.label }}</span>
             </ng-container>
         </nav>
     </div>
     <div class="header-right">
-        <button class="close-btn" (click)="onClose()" type="button" title="Back to Home">
-            <app-icon name="close" />
+        <button class="logout-btn" (click)="onLogout()" type="button" title="Logout">
+            <app-icon name="logout" />
+            <span class="logout-label">Logout</span>
         </button>
     </div>
 </header>
@@ -27,16 +27,18 @@
 <div class="megamenu" [class.is-open]="isMenuOpen" role="dialog" aria-modal="true">
     <div class="megamenu__body">
         <div class="megamenu__grid">
-            <div class="megamenu__group" *ngFor="let group of menuGroups">
-                <div class="megamenu__group-title">{{ group.title }}</div>
-                <button *ngFor="let item of group.items"
-                    class="megamenu__item"
-                    [class.megamenu__item--active]="item.route === activeRoute"
-                    (click)="onMenuItemClick(item.route)"
-                    type="button">
-                    <app-icon [name]="item.icon" class="megamenu__item-icon" />
-                    <span>{{ item.label }}</span>
-                </button>
+            <div class="megamenu__group" *ngFor="let group of menuGroups; let last = last" [class.megamenu__group--full]="last">
+                <div class="megamenu__group-title" *ngIf="group.title">{{ group.title }}</div>
+                <div class="megamenu__group-items" [class.megamenu__group-items--two-col]="last">
+                    <button *ngFor="let item of group.items"
+                        class="megamenu__item"
+                        [class.megamenu__item--active]="item.route === activeRoute"
+                        (click)="onMenuItemClick(item)"
+                        type="button">
+                        <app-icon [name]="item.icon" class="megamenu__item-icon" />
+                        <span>{{ item.label }}</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
