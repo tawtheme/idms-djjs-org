@@ -1,34 +1,46 @@
 <div class="sewa-volunteers-container">
     <!-- Filter Section -->
     <div class="seaw-volunteers-filter">
-        <app-dropdown
-            [options]="programOptions"
-            [selectedValues]="selectedProgram"
-            placeholder="Programs"
-            (selectionChange)="selectedProgram = $event; onProgramChange()"
-            [closeOnSelect]="true">
-        </app-dropdown>
-        <app-dropdown
-            [options]="sewaOptions"
-            [selectedValues]="selectedSewa"
-            placeholder="Sewas"
-            (selectionChange)="selectedSewa = $event; onSewaChange()"
-            [closeOnSelect]="true">
-        </app-dropdown>
-        <app-dropdown
-            [options]="genderOptions"
-            [selectedValues]="selectedGender"
-            placeholder="Gender"
-            (selectionChange)="selectedGender = $event; onGenderChange()"
-            [closeOnSelect]="true">
-        </app-dropdown>
-        <app-dropdown
-            [options]="sewaAssignmentOptions"
-            [selectedValues]="selectedSewaAssignment"
-            placeholder="Filter by Sewa Assignment"
-            (selectionChange)="selectedSewaAssignment = $event; onSewaAssignmentChange()"
-            [closeOnSelect]="true">
-        </app-dropdown>
+        <div class="filter-field">
+            <label class="filter-label">Program</label>
+            <app-dropdown
+                [options]="programOptions"
+                [selectedValues]="selectedProgram"
+                placeholder="Programs"
+                (selectionChange)="selectedProgram = $event; onProgramChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Sewa</label>
+            <app-dropdown
+                [options]="sewaOptions"
+                [selectedValues]="selectedSewa"
+                placeholder="Sewas"
+                (selectionChange)="selectedSewa = $event; onSewaChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Gender</label>
+            <app-dropdown
+                [options]="genderOptions"
+                [selectedValues]="selectedGender"
+                placeholder="Gender"
+                (selectionChange)="selectedGender = $event; onGenderChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Filter by Sewa Assignment</label>
+            <app-dropdown
+                [options]="sewaAssignmentOptions"
+                [selectedValues]="selectedSewaAssignment"
+                placeholder="Filter by Sewa Assignment"
+                (selectionChange)="selectedSewaAssignment = $event; onSewaAssignmentChange()"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
     </div>
 
     <div class="sewa-volunteers-content">
@@ -49,6 +61,13 @@
                         placeholder="Search..."
                     />
                 </div>
+                <app-dropdown
+                    [options]="unallocatedSortOptions"
+                    [selectedValues]="selectedUnallocatedSort"
+                    placeholder="Sort By"
+                    (selectionChange)="onUnallocatedSortChange($event)"
+                    [closeOnSelect]="true">
+                </app-dropdown>
                 <button class="btn btn--primary btn--sm" type="button" (click)="allocateVolunteers()">
                     Allocate
                 </button>

@@ -126,7 +126,7 @@
 // Apply shared listing styles
 @include listing.listing('.sewa-volunteers');
 
-.seaw-volunteers-filter{
+.seaw-volunteers-filter {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -138,6 +138,19 @@
     @media (max-width: 480px) {
         grid-template-columns: 1fr;
     }
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.filter-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-gray-600;
 }
 
 .sewa-volunteers-container {

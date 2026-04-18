@@ -87,6 +87,15 @@ export class SewaVolunteersComponent implements OnInit {
     { id: '1', label: 'All Volunteers', value: '1' }
   ];
 
+  // Unallocated sort
+  unallocatedSortOptions: DropdownOption[] = [
+    { id: '1', label: 'Sort by ID', value: 'id' },
+    { id: '2', label: 'Sort by Name', value: 'name' },
+    { id: '3', label: 'Sort by Badge No.', value: 'badge_no' },
+    { id: '4', label: 'Sort by Phone', value: 'phone' }
+  ];
+  selectedUnallocatedSort: string[] = [];
+
   // Unallocated Volunteers
   unallocatedVolunteers: UnallocatedVolunteer[] = [];
   allUnallocatedVolunteers: UnallocatedVolunteer[] = [];
@@ -97,7 +106,7 @@ export class SewaVolunteersComponent implements OnInit {
   unallocatedTotalItems = 0;
   unallocatedSortField = 'id';
   unallocatedSortDirection: 'asc' | 'desc' = 'asc';
-  isLoadingUnallocated = true;
+  isLoadingUnallocated = false;
   isLoadingMoreUnallocated = false;
   errorUnallocated: string | null = null;
 
@@ -111,7 +120,7 @@ export class SewaVolunteersComponent implements OnInit {
   allocatedTotalItems = 0;
   allocatedSortField = '';
   allocatedSortDirection: 'asc' | 'desc' = 'asc';
-  isLoadingAllocated = true;
+  isLoadingAllocated = false;
   isLoadingMoreAllocated = false;
   errorAllocated: string | null = null;
 
@@ -141,8 +150,6 @@ export class SewaVolunteersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadActivePrograms();
-    this.loadUnallocatedFromApi();
-    this.loadAllocatedFromApi();
   }
 
   loadActivePrograms(): void {
@@ -198,8 +205,24 @@ export class SewaVolunteersComponent implements OnInit {
     this.applyFilters();
   }
 
-  // Apply all filters
+  onUnallocatedSortChange(values: any[]): void {
+    this.selectedUnallocatedSort = values;
+    this.unallocatedSortField = values[0] || 'id';
+    this.unallocatedCurrentPage = 1;
+    if (this.selectedSewa.length) {
+      this.loadUnallocatedFromApi();
+    }
+  }
+
+  // Apply all filters - only load data when sewa is selected
   applyFilters(): void {
+    if (!this.selectedSewa.length) {
+      this.unallocatedVolunteers = [];
+      this.allocatedVolunteers = [];
+      this.unallocatedTotalItems = 0;
+      this.allocatedTotalItems = 0;
+      return;
+    }
     this.unallocatedCurrentPage = 1;
     this.allocatedCurrentPage = 1;
     this.loadUnallocatedFromApi();
@@ -240,6 +263,10 @@ export class SewaVolunteersComponent implements OnInit {
       .set('filter_by_sewa_assignment', assignmentValue);
     if (this.unallocatedSearchTerm.trim()) {
       params = params.set('search', this.unallocatedSearchTerm.trim());
+    }
+    if (this.unallocatedSortField) {
+      params = params.set('sort_by', this.unallocatedSortField);
+      params = params.set('sort_order', this.unallocatedSortDirection);
     }
 
     this.dataService.get<any>('v1/program_sewa_volunteers/unassign', { params }).pipe(
