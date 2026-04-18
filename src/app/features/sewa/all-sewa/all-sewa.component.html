@@ -1,8 +1,4 @@
 <div class="all-sewa-container">
-    <div class="all-sewa-header">
-        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
-    </div>
-
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
@@ -23,6 +19,7 @@
                 <app-icon name="refresh" />
                 Reset
             </button>
+            <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
         </div>
     </div>
 
