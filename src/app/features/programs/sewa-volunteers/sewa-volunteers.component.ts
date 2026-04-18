@@ -146,7 +146,7 @@ export class SewaVolunteersComponent implements OnInit {
   }
 
   loadActivePrograms(): void {
-    this.dataService.get<any>('v1/programs/active-for-attendance').pipe(
+    this.dataService.get<any>('v1/programs/active-for-attendance?action=assign_sewa').pipe(
       catchError(() => of({ data: [] }))
     ).subscribe((response) => {
       const programs = response?.data?.programs || response?.data || [];

@@ -38,7 +38,7 @@ export class AttendancesComponent implements OnInit {
   }
 
   private loadPrograms(): void {
-    this.dataService.get<any>('v1/programs/active-for-attendance').pipe(
+    this.dataService.get<any>('v1/programs/active-for-attendance?action=attendance').pipe(
       catchError(() => of({ data: [] }))
     ).subscribe((response) => {
       const data = response.data || response.results || response || [];
