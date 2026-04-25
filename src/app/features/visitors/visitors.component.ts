@@ -1,7 +1,7 @@
 import { Component, HostListener, ElementRef, ViewChild, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
@@ -11,6 +11,8 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
 import { MenuDropdownComponent, MenuOption } from '../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../shared/components/dropdown/dropdown.component';
 import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { CreateVisitorComponent } from './create-visitor/create-visitor.component';
 import { DataService } from '../../data.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -44,6 +46,8 @@ export interface Visitor {
     MenuDropdownComponent,
     DropdownComponent,
     SidePanelComponent,
+    ModalComponent,
+    ConfirmationDialogComponent,
     CreateVisitorComponent,
     IconComponent
   ],
@@ -56,6 +60,7 @@ export class VisitorsComponent implements OnInit {
   @ViewChild('createVisitorComponent') createVisitorComponent!: CreateVisitorComponent;
 
   private dataService = inject(DataService);
+  private router = inject(Router);
 
   visitors: Visitor[] = [];
   allVisitors: Visitor[] = [];
@@ -66,6 +71,34 @@ export class VisitorsComponent implements OnInit {
 
   // Create Visitor Modal
   createVisitorModalOpen = false;
+
+  // Convert-to-Volunteer confirmation
+  convertConfirmOpen = false;
+  visitorToConvert: Visitor | null = null;
+  isConverting = false;
+
+  // Server-side export
+  isExporting = false;
+
+  // Print Visitor Card modal
+  printCardModalOpen = false;
+  printedCards: any[] = [];
+  isLoadingPrintCards = false;
+  logoPath = 'assets/img/logo.png';
+
+  // Sewa Interest reason modal
+  sewaReasonModalOpen = false;
+  sewaReasonVisitor: Visitor | null = null;
+  sewaReasonForm = { reason: '', remarks: '' };
+  sewaReasonOptions: DropdownOption[] = [
+    { id: 'none', label: 'None', value: 'None' },
+    { id: 'lack_of_time', label: 'Lack of time', value: 'Lack of time' },
+    { id: 'health', label: 'Health reasons', value: 'Health reasons' },
+    { id: 'personal', label: 'Personal reasons', value: 'Personal reasons' },
+    { id: 'other', label: 'Other', value: 'Other' }
+  ];
+  selectedSewaReason: any[] = [];
+  isSubmittingSewaReason = false;
 
   // Selection
   selectedVisitors = new Set<number>();
@@ -131,22 +164,35 @@ export class VisitorsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.dataService.get<any>('v1/visitors').pipe(
+    const params = this.buildVisitorQueryParams();
+
+    this.dataService.get<any>('v1/visitors', { params }).pipe(
       catchError((error) => {
         console.error('Error loading visitors:', error);
         this.error = error.error?.message || error.message || 'Failed to load visitors. Please try again.';
-        // Return empty array on error to prevent breaking the UI
         return of({ data: [], visitors: [], results: [] });
       }),
       finalize(() => {
         this.isLoading = false;
       })
     ).subscribe((response) => {
-      // Handle different response structures
-      const visitorsData = response.data || response.visitors || response.results || response || [];
+      // Pull list + total from common pagination shapes
+      const visitorsData =
+        response?.data?.data ??
+        response?.data ??
+        response?.visitors ??
+        response?.results ??
+        response ??
+        [];
+      const list: any[] = Array.isArray(visitorsData) ? visitorsData : [];
+      this.totalItems =
+        response?.total ??
+        response?.meta?.total ??
+        response?.pagination?.total ??
+        response?.data?.total ??
+        list.length;
 
-      // Map API response to Visitor interface
-      this.allVisitors = (Array.isArray(visitorsData) ? visitorsData : []).map((item: any) => {
+      this.allVisitors = list.map((item: any) => {
         // Get first image from user_images array
         const firstImage = item.user_images && item.user_images.length > 0
           ? item.user_images[0].full_path
@@ -177,9 +223,9 @@ export class VisitorsComponent implements OnInit {
           name: item.name || '',
           email: item.email || '', // Email not in API response
           phone: item.phone || '',
-          date: item.created_at || item.date || '', // Date not in API response
-          validUpto: item.valid_upto || item.valid_until || '', // Not in API response
-          purposeToVisit: item.purpose_to_visit || item.purpose || '', // Not in API response
+          date: item.start_date || item.created_at || '',
+          validUpto: item.valid_upto || '',
+          purposeToVisit: item.remarks || item.purpose_to_visit || '',
           sewaInterest: item.user_profile?.sewa_interest === 1 || false, // Convert number to boolean
           gender: gender,
           relationName: relationName,
@@ -187,8 +233,101 @@ export class VisitorsComponent implements OnInit {
         };
       });
 
-      this.applyFilter();
+      this.visitors = this.allVisitors;
     });
+  }
+
+  private buildVisitorQueryParams(): Record<string, string | number> {
+    const params: Record<string, string | number> = {};
+    const term = this.searchTerm.trim();
+    if (term) {
+      if (/^\d{10}$/.test(term)) {
+        params['mobile_number'] = term;
+      } else if (/^\d+$/.test(term)) {
+        params['unique_id'] = parseInt(term, 10);
+      } else {
+        params['name'] = term;
+      }
+    }
+
+    const gender = this.selectedGender[0];
+    if (gender) {
+      params['gender'] = String(gender).toUpperCase();
+    }
+
+    const sort = this.sortOrder[0];
+    if (sort) {
+      const [col, dir] = String(sort).split(':');
+      if (col) params['sortByColumn'] = col;
+      if (dir) params['orderBy'] = dir;
+    }
+
+    params['page'] = this.currentPage;
+    params['per_page'] = this.pageSize;
+
+    return params;
+  }
+
+  exportVisitors(): void {
+    if (this.isExporting) return;
+    this.isExporting = true;
+
+    const params = this.buildVisitorQueryParams();
+    delete params['page'];
+    delete params['per_page'];
+    params['is_export'] = 1;
+    params['delivery_type'] = 'download';
+
+    this.dataService.get<any>('v1/visitors', { params, responseType: 'blob', observe: 'response' }).pipe(
+      catchError((error) => {
+        console.error('Error exporting visitors:', error);
+        alert(error?.error?.message || 'Failed to export visitors. Please try again.');
+        return of(null);
+      }),
+      finalize(() => { this.isExporting = false; })
+    ).subscribe((response: any) => {
+      if (!response) return;
+
+      const body: Blob | undefined = response.body;
+      const headers = response.headers;
+
+      // Some backends return JSON with a download URL when delivery_type=download isn't supported as binary.
+      if (body && body.type && body.type.includes('application/json')) {
+        body.text().then((txt: string) => {
+          try {
+            const parsed = JSON.parse(txt);
+            const url = parsed?.url || parsed?.data?.url || parsed?.download_url;
+            if (url) {
+              window.open(url, '_blank');
+            } else {
+              alert(parsed?.message || 'Export request submitted.');
+            }
+          } catch {
+            alert('Export response was not a downloadable file.');
+          }
+        });
+        return;
+      }
+
+      if (!body) return;
+
+      const filename = this.extractFilename(headers?.get?.('content-disposition'))
+        || `visitors_${new Date().toISOString().split('T')[0]}.csv`;
+      const url = URL.createObjectURL(body);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  }
+
+  private extractFilename(disposition: string | null | undefined): string | null {
+    if (!disposition) return null;
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+    return match ? decodeURIComponent(match[1]) : null;
   }
 
   get filteredVisitors(): Visitor[] {
@@ -196,114 +335,46 @@ export class VisitorsComponent implements OnInit {
   }
 
   get pagedVisitors(): Visitor[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.visitors.slice(start, start + this.pageSize);
+    return this.visitors;
   }
 
   trackById(_: number, v: Visitor): number {
     return v.id;
   }
 
+  private searchDebounceTimer: any;
+
   onSearchChange(): void {
-    this.applyFilter();
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.currentPage = 1;
+      this.loadVisitors();
+    }, 350);
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.loadVisitors();
   }
 
   resetFilter(): void {
     this.searchTerm = '';
     this.selectedGender = [];
     this.sortOrder = [];
-    this.applyFilter();
-  }
-
-  applyFilter(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const gender = this.selectedGender[0] || '';
-
-    // Filter visitors
-    let filtered = this.allVisitors.filter((v) => {
-      // Search in Name, Mobile No., Relation Name, UID
-      const matchesTerm = !term ||
-        v.name.toLowerCase().includes(term) ||
-        v.phone.includes(term) ||
-        (v.relationName && v.relationName.toLowerCase().includes(term)) ||
-        (v.uid && v.uid.toLowerCase().includes(term));
-
-      const matchesGender = !gender || v.gender === gender;
-
-      return matchesTerm && matchesGender;
-    });
-
-    // Apply sorting
-    const sortOrderValue = this.sortOrder[0]?.value || '';
-
-    if (sortOrderValue) {
-      const [sortField, orderDirection] = sortOrderValue.split(':');
-      const orderByValue = orderDirection || 'asc';
-
-      filtered = [...filtered].sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
-
-        switch (sortField) {
-          case 'name':
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case 'date':
-            aValue = a.date ? new Date(a.date).getTime() : 0;
-            bValue = b.date ? new Date(b.date).getTime() : 0;
-            break;
-          case 'id':
-            aValue = a.id;
-            bValue = b.id;
-            break;
-          case 'phone':
-            aValue = a.phone;
-            bValue = b.phone;
-            break;
-          case 'address':
-            aValue = (a as any).address?.toLowerCase() || '';
-            bValue = (b as any).address?.toLowerCase() || '';
-            break;
-          case 'age':
-            aValue = (a as any).age || 0;
-            bValue = (b as any).age || 0;
-            break;
-          case 'badgeNo':
-            aValue = (a as any).badgeNo || '';
-            bValue = (b as any).badgeNo || '';
-            break;
-          case 'createdDate':
-            aValue = (a as any).createdDate ? new Date((a as any).createdDate).getTime() : 0;
-            bValue = (b as any).createdDate ? new Date((b as any).createdDate).getTime() : 0;
-            break;
-          case 'city':
-            aValue = (a as any).city?.toLowerCase() || '';
-            bValue = (b as any).city?.toLowerCase() || '';
-            break;
-          default:
-            return 0;
-        }
-
-        if (aValue < bValue) return orderByValue === 'asc' ? -1 : 1;
-        if (aValue > bValue) return orderByValue === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    this.visitors = filtered;
-    this.totalItems = this.visitors.length;
     this.currentPage = 1;
+    this.loadVisitors();
   }
 
   // Pagination event handlers
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.loadVisitors();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = Math.max(20, size);
     this.currentPage = 1;
+    this.loadVisitors();
   }
 
   // Selection handlers
@@ -355,17 +426,57 @@ export class VisitorsComponent implements OnInit {
       this.editVisitor(visitor);
     } else if (actionId === 'delete') {
       this.deleteVisitor(visitor);
+    } else if (actionId === 'print') {
+      this.printVisitorCards([visitor.uuid || String(visitor.id)]);
+    } else if (actionId === 'convert') {
+      this.convertToVolunteer(visitor);
     }
   }
 
+  convertToVolunteer(visitor: Visitor): void {
+    this.visitorToConvert = visitor;
+    this.convertConfirmOpen = true;
+  }
+
+  cancelConvertToVolunteer(): void {
+    this.convertConfirmOpen = false;
+    this.visitorToConvert = null;
+  }
+
+  confirmConvertToVolunteer(): void {
+    const visitor = this.visitorToConvert;
+    if (!visitor || this.isConverting) return;
+
+    this.isConverting = true;
+    const visitorId = visitor.uuid || String(visitor.id);
+
+    this.dataService.post(`v1/visitors/convert-to-volunteer/${visitorId}`, {}).pipe(
+      catchError((error) => {
+        console.error('Error converting visitor to volunteer:', error);
+        const apiError = error as { error?: { message?: string } };
+        alert(apiError?.error?.message || 'Failed to convert visitor to volunteer. Please try again.');
+        return of(null);
+      }),
+      finalize(() => {
+        this.isConverting = false;
+        this.convertConfirmOpen = false;
+        this.visitorToConvert = null;
+      })
+    ).subscribe((response) => {
+      if (response) {
+        this.loadVisitors();
+      }
+    });
+  }
+
   viewDetails(visitor: Visitor): void {
-    console.log('View visitor:', visitor);
-    // Implement view details logic
+    const id = visitor.uuid || visitor.id;
+    this.router.navigate(['/visitors', id, 'view']);
   }
 
   editVisitor(visitor: Visitor): void {
-    console.log('Edit visitor:', visitor);
-    // Implement edit logic
+    const id = visitor.uuid || visitor.id;
+    this.router.navigate(['/visitors', id, 'edit']);
   }
 
   deleteVisitor(visitor: Visitor): void {
@@ -378,9 +489,7 @@ export class VisitorsComponent implements OnInit {
           return of(null);
         })
       ).subscribe(() => {
-        // Remove from local array on success
-        this.allVisitors = this.allVisitors.filter(v => v.id !== visitor.id);
-        this.applyFilter();
+        this.loadVisitors();
       });
     }
   }
@@ -388,31 +497,63 @@ export class VisitorsComponent implements OnInit {
   // Toggle Sewa Interest
   toggleSewaInterest(visitor: Visitor, event: Event): void {
     event.stopPropagation();
-    const newValue = !visitor.sewaInterest;
 
-    // Optimistically update UI
-    visitor.sewaInterest = newValue;
+    if (visitor.sewaInterest) {
+      // Turning OFF -> ask for reason; commit happens on modal submit
+      this.openSewaReasonModal(visitor);
+    } else {
+      // Turning ON -> commit immediately
+      this.commitSewaInterest(visitor, 1);
+    }
+  }
 
-    // Use UUID for API call, convert boolean to number (1 or 0)
-    const visitorId = visitor.uuid || visitor.id;
-    const sewaInterestValue = newValue ? 1 : 0;
+  private openSewaReasonModal(visitor: Visitor): void {
+    this.sewaReasonVisitor = visitor;
+    this.sewaReasonForm = { reason: '', remarks: '' };
+    this.selectedSewaReason = [];
+    this.sewaReasonModalOpen = true;
+  }
 
-    // Make API call to update - need to update user_profile
-    this.dataService.patch(`v1/visitors/${visitorId}`, {
-      user_profile: {
-        sewa_interest: sewaInterestValue
-      }
-    }).pipe(
+  closeSewaReasonModal(): void {
+    this.sewaReasonModalOpen = false;
+    this.sewaReasonVisitor = null;
+  }
+
+  onSewaReasonChange(event: string[]): void {
+    this.selectedSewaReason = event;
+    this.sewaReasonForm.reason = event?.[0] || '';
+  }
+
+  submitSewaReason(): void {
+    if (!this.sewaReasonVisitor) return;
+    const visitor = this.sewaReasonVisitor;
+    this.isSubmittingSewaReason = true;
+    this.commitSewaInterest(visitor, 0, this.sewaReasonForm.reason, this.sewaReasonForm.remarks)
+      .add(() => {
+        this.isSubmittingSewaReason = false;
+        this.closeSewaReasonModal();
+      });
+  }
+
+  private commitSewaInterest(visitor: Visitor, value: 0 | 1, reason: string = '', remarks: string = '') {
+    const previous = visitor.sewaInterest;
+    visitor.sewaInterest = value === 1;
+
+    const payload = {
+      user_id: visitor.uuid || String(visitor.id),
+      sewa_interest: value,
+      reason: reason || '',
+      remarks: remarks || ''
+    };
+
+    return this.dataService.put('v1/users/update-sewa-interest', payload).pipe(
       catchError((error) => {
         console.error('Error updating sewa interest:', error);
-        // Revert on error
-        visitor.sewaInterest = !newValue;
+        visitor.sewaInterest = previous;
         alert('Failed to update sewa interest. Please try again.');
         return of(null);
       })
-    ).subscribe(() => {
-      console.log('Sewa interest updated successfully');
-    });
+    ).subscribe();
   }
 
   // Format date
@@ -523,75 +664,98 @@ export class VisitorsComponent implements OnInit {
     }
 
     const selectedData = this.allVisitors.filter(v => this.selectedVisitors.has(v.id));
+    const ids = selectedData.map(v => v.uuid || String(v.id));
+    this.printVisitorCards(ids);
+  }
 
-    // Create print window
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+  printVisitorCards(ids: string[]): void {
+    if (!ids.length) return;
+    this.isLoadingPrintCards = true;
+    this.printedCards = [];
+    this.printCardModalOpen = true;
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Visitors Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; font-weight: bold; }
-            @media print {
-              body { margin: 0; }
-            }
-          </style>
-        </head>
-        <body>
-          <h2>Visitors Report</h2>
-          <p>Generated on: ${new Date().toLocaleString()}</p>
-          <p>Total Records: ${selectedData.length}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Date</th>
-                <th>Valid Upto</th>
-                <th>Purpose To Visit</th>
-                <th>Sewa Interest</th>
-                <th>Gender</th>
-                <th>Relation Name</th>
-                <th>UID</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${selectedData.map(v => `
-                <tr>
-                  <td>${v.id}</td>
-                  <td>${v.name}</td>
-                  <td>${v.email}</td>
-                  <td>${v.phone}</td>
-                  <td>${v.date}</td>
-                  <td>${v.validUpto}</td>
-                  <td>${v.purposeToVisit}</td>
-                  <td>${v.sewaInterest ? 'Yes' : 'No'}</td>
-                  <td>${v.gender || '-'}</td>
-                  <td>${v.relationName || '-'}</td>
-                  <td>${v.uid || '-'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
+    this.dataService.post<any>('v1/users/bulk', { ids }).pipe(
+      catchError((error) => {
+        console.error('Error fetching visitor cards:', error);
+        alert('Failed to load visitor cards. Please try again.');
+        this.printCardModalOpen = false;
+        return of(null);
+      }),
+      finalize(() => {
+        this.isLoadingPrintCards = false;
+      })
+    ).subscribe((response: any) => {
+      const data = response?.data || response?.results || response || [];
+      this.printedCards = Array.isArray(data) ? data : [data];
+    });
+  }
 
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+  closePrintCardModal(): void {
+    this.printCardModalOpen = false;
+    this.printedCards = [];
+  }
+
+  formatRelation(card: any): string {
+    const relationOf = card?.user_profile?.relation_of || card?.relation_of;
+    if (relationOf && typeof relationOf === 'object') {
+      const entries = Object.entries(relationOf).filter(([, v]) => !!v);
+      if (entries.length) {
+        const [key, value] = entries[0];
+        return `${key} ${value}`;
+      }
+    }
+    const father = card?.user_profile?.father_name || card?.father_name;
+    const spouse = card?.user_profile?.spouse_name || card?.spouse_name;
+    const mother = card?.user_profile?.mother_name || card?.mother_name;
+    if (spouse) return `W/O ${spouse}`;
+    if (father) return `S/O ${father}`;
+    if (mother) return `D/O ${mother}`;
+    return '';
+  }
+
+  formatCardAddress(card: any): string {
+    const addr = card?.user_address || card || {};
+    const parts: string[] = [];
+    const line1 = addr.address_1 || card?.address_1 || addr.address || card?.address;
+    if (line1) parts.push(line1);
+    const city = addr.city || card?.city;
+    if (city) parts.push(city);
+    const state = addr.state || card?.state;
+    const pincode = addr.pincode || card?.pincode;
+    const statePincode = [state, pincode].filter(Boolean).join('-');
+    if (statePincode) parts.push(statePincode);
+    return parts.join(', ');
+  }
+
+  cardPurpose(card: any): string {
+    return card?.remarks || card?.purpose_of_visit || card?.purpose || '';
+  }
+
+  cardPhone(card: any): string {
+    return card?.phone || card?.mobile || '';
+  }
+
+  cardGender(card: any): string {
+    const raw = card?.user_profile?.gender || card?.gender;
+    if (!raw) return '';
+    const v = String(raw).toLowerCase();
+    if (v === 'male') return 'Male';
+    if (v === 'female') return 'Female';
+    return 'Other';
+  }
+
+  formatPrintDate(value: any): string {
+    if (!value) return '';
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return String(value);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  printCards(): void {
+    window.print();
   }
 
   // Create Visitor Modal Methods

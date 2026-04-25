@@ -106,6 +106,22 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'visitors/:id/view',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/visitors/view-visitor/view-visitor.component').then(
+        (m) => m.ViewVisitorComponent
+      ),
+  },
+  {
+    path: 'visitors/:id/edit',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/visitors/edit-visitor/edit-visitor.component').then(
+        (m) => m.EditVisitorComponent
+      ),
+  },
+  {
     path: 'volunteers',
     canMatch: [authOnly],
     loadComponent: () =>

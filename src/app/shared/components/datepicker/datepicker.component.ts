@@ -32,7 +32,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() minDate: Date | null = null;
   @Input() maxDate: Date | null = null;
   @Input() disabled: boolean = false;
-  @Input() readonly: boolean = true;
+  @Input() readonly: boolean = false;
   @Input() showToday: boolean = true;
   @Input() showClear: boolean = true;
   @Input() showWeekNumbers: boolean = false;
@@ -44,6 +44,8 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   currentMonth: Date = new Date();
   selectedDate: Date | null = null;
   displayValue: string = '';
+  viewMode: 'days' | 'months' | 'years' = 'days';
+  yearPageStart: number = 0;
 
   ngOnInit(): void {
     this.selectedDate = this.value;
@@ -70,12 +72,23 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
     if (!this.disabled) {
       this.isOpen = !this.isOpen;
       if (this.isOpen) {
+        this.viewMode = 'days';
         // Check available space after a short delay to ensure calendar is rendered
         setTimeout(() => {
           this.checkAvailableSpace();
         }, 0);
       }
     }
+  }
+
+  openCalendar(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.disabled || this.isOpen) return;
+    this.isOpen = true;
+    this.viewMode = 'days';
+    setTimeout(() => this.checkAvailableSpace(), 0);
   }
 
   private checkAvailableSpace(): void {
@@ -172,6 +185,122 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
       this.currentMonth.getMonth() + direction,
       1
     );
+  }
+
+  navigate(direction: number): void {
+    if (this.viewMode === 'days') {
+      this.navigateMonth(direction);
+    } else if (this.viewMode === 'months') {
+      this.currentMonth = new Date(
+        this.currentMonth.getFullYear() + direction,
+        this.currentMonth.getMonth(),
+        1
+      );
+    } else {
+      this.yearPageStart += direction * 12;
+    }
+  }
+
+  showMonthView(): void {
+    this.viewMode = 'months';
+  }
+
+  showYearView(): void {
+    const year = this.currentMonth.getFullYear();
+    this.yearPageStart = year - (year % 12);
+    this.viewMode = 'years';
+  }
+
+  selectMonth(monthIndex: number): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), monthIndex, 1);
+    this.viewMode = 'days';
+  }
+
+  selectYear(year: number): void {
+    this.currentMonth = new Date(year, this.currentMonth.getMonth(), 1);
+    this.viewMode = 'months';
+  }
+
+  get yearGrid(): number[] {
+    const years: number[] = [];
+    for (let i = 0; i < 12; i++) {
+      years.push(this.yearPageStart + i);
+    }
+    return years;
+  }
+
+  get yearRangeLabel(): string {
+    return `${this.yearPageStart} - ${this.yearPageStart + 11}`;
+  }
+
+  onInputType(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.displayValue = value;
+  }
+
+  onInputCommit(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value.trim();
+    if (!raw) {
+      this.clearDate();
+      return;
+    }
+    const parsed = this.parseDate(raw);
+    if (parsed && !this.isDateDisabled(parsed)) {
+      this.selectedDate = parsed;
+      this.value = parsed;
+      this.currentMonth = new Date(parsed);
+      this.updateDisplayValue();
+      this.dateChange.emit(parsed);
+    } else {
+      // Revert to last valid display value
+      this.updateDisplayValue();
+    }
+  }
+
+  onInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      (event.target as HTMLInputElement).blur();
+    }
+  }
+
+  private parseDate(input: string): Date | null {
+    // Build a regex from the configured format
+    const tokens: { token: string; group: 'd' | 'm' | 'y' }[] = [];
+    let pattern = '';
+    let i = 0;
+    while (i < this.format.length) {
+      if (this.format.startsWith('dd', i)) {
+        pattern += '(\\d{1,2})';
+        tokens.push({ token: 'dd', group: 'd' });
+        i += 2;
+      } else if (this.format.startsWith('MM', i)) {
+        pattern += '(\\d{1,2})';
+        tokens.push({ token: 'MM', group: 'm' });
+        i += 2;
+      } else if (this.format.startsWith('yyyy', i)) {
+        pattern += '(\\d{4})';
+        tokens.push({ token: 'yyyy', group: 'y' });
+        i += 4;
+      } else {
+        pattern += this.format[i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        i++;
+      }
+    }
+    const match = new RegExp('^' + pattern + '$').exec(input);
+    if (!match) return null;
+    let day = 1, month = 0, year = 1970;
+    tokens.forEach((t, idx) => {
+      const v = parseInt(match[idx + 1], 10);
+      if (t.group === 'd') day = v;
+      else if (t.group === 'm') month = v - 1;
+      else if (t.group === 'y') year = v;
+    });
+    const d = new Date(year, month, day);
+    if (d.getFullYear() !== year || d.getMonth() !== month || d.getDate() !== day) {
+      return null;
+    }
+    return d;
   }
 
   goToToday(): void {

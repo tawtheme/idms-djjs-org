@@ -1,0 +1,23 @@
+@import '../view-visitor/view-visitor.component.scss';
+@import '../../../../assets/scss/variable';
+
+.repeater {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    &__row {
+        position: relative;
+        border: 1px solid $color-gray-200;
+        border-radius: 10px;
+        padding: 16px 16px 12px;
+        background: $color-gray-50;
+    }
+
+    &__remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+}

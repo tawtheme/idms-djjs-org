@@ -1,0 +1,404 @@
+<div class="view-visitor">
+    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+    <ng-container *ngIf="isLoading">
+        <div class="loading-wrapper">
+            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isLoading && error">
+        <div class="error-state">
+            <p>{{ error }}</p>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back to Listing</button>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isLoading && !error && user">
+        <!-- Header -->
+        <div class="profile-header">
+            <div class="profile-header__avatar">
+                <img [src]="primaryImage" [alt]="user.name" onerror="this.src='/assets/img/placeholder.svg'">
+            </div>
+            <div class="profile-header__info">
+                <div class="profile-header__name-row">
+                    <h2 class="profile-header__name">{{ user.name }}</h2>
+                    <span class="profile-header__chip" *ngIf="user.level">{{ user.level }}</span>
+                </div>
+                <div class="profile-header__meta">
+                    <span class="profile-header__meta-item" *ngIf="user.unique_id"><strong>ID:</strong> {{ user.unique_id }}</span>
+                    <span class="profile-header__meta-item" *ngIf="user.phone"><strong>Phone:</strong> {{ user.phone }}</span>
+                    <span class="profile-header__meta-item" *ngIf="user.personal_email"><strong>Email:</strong> {{ user.personal_email }}</span>
+                </div>
+            </div>
+            <div class="profile-header__actions">
+                <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button *ngFor="let tab of tabs"
+                type="button"
+                class="tab"
+                [class.tab--active]="activeTab === tab.key"
+                (click)="setActiveTab(tab.key)">
+                <app-icon [name]="tab.icon" />
+                <span>{{ tab.label }}</span>
+            </button>
+        </div>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+            <!-- Personal -->
+            <ng-container *ngIf="activeTab === 'personal'">
+                <form class="edit-form" (ngSubmit)="savePersonal()" #personalNgForm="ngForm">
+                    <h3 class="section-title">Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Name</label>
+                            <input type="text" name="name" [(ngModel)]="personalForm.name" />
+                        </div>
+                        <div class="form-field">
+                            <label>Former Name</label>
+                            <input type="text" name="former_name" [(ngModel)]="personalForm.former_name" />
+                        </div>
+                        <div class="form-field">
+                            <label>Nickname</label>
+                            <input type="text" name="nickname" [(ngModel)]="personalForm.nickname" />
+                        </div>
+                        <div class="form-field">
+                            <label>Phone</label>
+                            <input type="tel" name="phone" [(ngModel)]="personalForm.phone" />
+                        </div>
+                        <div class="form-field">
+                            <label>Alternate Phone</label>
+                            <input type="tel" name="alternate_phone" [(ngModel)]="personalForm.alternate_phone" />
+                        </div>
+                        <div class="form-field">
+                            <label>Personal Email</label>
+                            <input type="email" name="personal_email" [(ngModel)]="personalForm.personal_email" />
+                        </div>
+                        <div class="form-field">
+                            <label>Official Email</label>
+                            <input type="email" name="email" [(ngModel)]="personalForm.email" />
+                        </div>
+                        <div class="form-field">
+                            <label>Level</label>
+                            <select name="level" [(ngModel)]="personalForm.level">
+                                <option value="">Select level</option>
+                                <option *ngFor="let opt of levelOptions" [value]="opt">{{ opt }}</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Current Status</label>
+                            <select name="current_status" [(ngModel)]="personalForm.current_status">
+                                <option value="">Select status</option>
+                                <option *ngFor="let opt of statusOptions" [value]="opt">{{ opt }}</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Start Date</label>
+                            <input type="date" name="start_date" [(ngModel)]="personalForm.start_date" />
+                        </div>
+                        <div class="form-field">
+                            <label>Valid Upto</label>
+                            <input type="date" name="valid_upto" [(ngModel)]="personalForm.valid_upto" />
+                        </div>
+                        <div class="form-field form-field--full">
+                            <label>Remarks</label>
+                            <textarea name="remarks" rows="3" [(ngModel)]="personalForm.remarks"></textarea>
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.personal">
+                            {{ isSaving.personal ? 'Saving…' : 'Save Personal' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+
+            <!-- Family -->
+            <ng-container *ngIf="activeTab === 'family'">
+                <form class="edit-form" (ngSubmit)="saveFamily()" #familyNgForm="ngForm">
+                    <h3 class="section-title">Father</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Name</label>
+                            <input type="text" name="father_name" [(ngModel)]="familyForm.father_name" />
+                        </div>
+                        <div class="form-field">
+                            <label>Phone</label>
+                            <input type="tel" name="father_phone" [(ngModel)]="familyForm.father_phone" />
+                        </div>
+                        <div class="form-field">
+                            <label>Email</label>
+                            <input type="email" name="father_email" [(ngModel)]="familyForm.father_email" />
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Mother</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Name</label>
+                            <input type="text" name="mother_name" [(ngModel)]="familyForm.mother_name" />
+                        </div>
+                        <div class="form-field">
+                            <label>Phone</label>
+                            <input type="tel" name="mother_phone" [(ngModel)]="familyForm.mother_phone" />
+                        </div>
+                        <div class="form-field">
+                            <label>Email</label>
+                            <input type="email" name="mother_email" [(ngModel)]="familyForm.mother_email" />
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Spouse & Siblings</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Spouse Name</label>
+                            <input type="text" name="spouse_name" [(ngModel)]="familyForm.spouse_name" />
+                        </div>
+                        <div class="form-field">
+                            <label>Brother Siblings</label>
+                            <input type="number" name="brother_siblings" [(ngModel)]="familyForm.brother_siblings" />
+                        </div>
+                        <div class="form-field">
+                            <label>Sister Siblings</label>
+                            <input type="number" name="sister_siblings" [(ngModel)]="familyForm.sister_siblings" />
+                        </div>
+                        <div class="form-field">
+                            <label>Earning Members</label>
+                            <input type="number" name="earning_members" [(ngModel)]="familyForm.earning_members" />
+                        </div>
+                        <div class="form-field">
+                            <label>Family Devotees</label>
+                            <input type="text" name="family_devotees" [(ngModel)]="familyForm.family_devotees" />
+                        </div>
+                        <div class="form-field form-field--full">
+                            <label>Remarks</label>
+                            <textarea name="family_remarks" rows="3" [(ngModel)]="familyForm.remarks"></textarea>
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.family">
+                            {{ isSaving.family ? 'Saving…' : 'Save Family' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+
+            <!-- Spiritual & Skills -->
+            <ng-container *ngIf="activeTab === 'spiritual'">
+                <form class="edit-form" (ngSubmit)="saveSpiritual()" #spiritualNgForm="ngForm">
+                    <h3 class="section-title">Initiation</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Date of Initiation</label>
+                            <input type="date" name="date_of_initiation" [(ngModel)]="spiritualForm.date_of_initiation" />
+                        </div>
+                        <div class="form-field">
+                            <label>Place of Initiation</label>
+                            <input type="text" name="place_of_initiation" [(ngModel)]="spiritualForm.place_of_initiation" />
+                        </div>
+                        <div class="form-field">
+                            <label>Initiation Branch ID</label>
+                            <input type="text" name="initiation_branch_id" [(ngModel)]="spiritualForm.initiation_branch_id" placeholder="UUID" />
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Joining</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Date of Joining</label>
+                            <input type="date" name="date_of_joining" [(ngModel)]="spiritualForm.date_of_joining" />
+                        </div>
+                        <div class="form-field">
+                            <label>Joining Branch ID</label>
+                            <input type="text" name="joining_branch_id" [(ngModel)]="spiritualForm.joining_branch_id" placeholder="UUID" />
+                        </div>
+                        <div class="form-field">
+                            <label>Date of Registration</label>
+                            <input type="date" name="date_of_registration" [(ngModel)]="spiritualForm.date_of_registration" />
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Dress Code & Other Dates</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Dress Code ID</label>
+                            <input type="text" name="dress_code_id" [(ngModel)]="spiritualForm.dress_code_id" placeholder="UUID" />
+                        </div>
+                        <div class="form-field">
+                            <label>Dress Code Ordained Date</label>
+                            <input type="date" name="dress_code_ordained_date" [(ngModel)]="spiritualForm.dress_code_ordained_date" />
+                        </div>
+                        <div class="form-field">
+                            <label>Gyan Agya Date</label>
+                            <input type="date" name="gyan_agya_date" [(ngModel)]="spiritualForm.gyan_agya_date" />
+                        </div>
+                        <div class="form-field">
+                            <label>Name Changing Date</label>
+                            <input type="date" name="name_changing_date" [(ngModel)]="spiritualForm.name_changing_date" />
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.spiritual">
+                            {{ isSaving.spiritual ? 'Saving…' : 'Save Spiritual' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+
+            <!-- Education -->
+            <ng-container *ngIf="activeTab === 'education'">
+                <form class="edit-form" (ngSubmit)="saveEducation()" #educationNgForm="ngForm">
+                    <div class="section-title-row">
+                        <h3 class="section-title section-title--inline">Education Records</h3>
+                        <button type="button" class="btn btn--secondary btn--sm" (click)="addEducationRow()">
+                            <app-icon name="person_add" /> Add Education
+                        </button>
+                    </div>
+
+                    <div class="repeater">
+                        <div class="repeater__row" *ngFor="let row of educationRows; let i = index">
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Degree ID</label>
+                                    <input type="text" [name]="'degree_id_' + i" [(ngModel)]="row.degree_id" placeholder="UUID" />
+                                </div>
+                                <div class="form-field">
+                                    <label>Institute / Name</label>
+                                    <input type="text" [name]="'name_' + i" [(ngModel)]="row.name" />
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Remarks</label>
+                                    <textarea [name]="'edu_remarks_' + i" rows="2" [(ngModel)]="row.remarks"></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn--secondary btn--sm repeater__remove" (click)="removeEducationRow(i)">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.education">
+                            {{ isSaving.education ? 'Saving…' : 'Save Education' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+
+            <!-- Medical -->
+            <ng-container *ngIf="activeTab === 'medical'">
+                <form class="edit-form" (ngSubmit)="saveMedical()" #medicalNgForm="ngForm">
+                    <h3 class="section-title">Blood Group</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Blood Group</label>
+                            <input type="text" name="blood_group" [(ngModel)]="medicalForm.blood_group" placeholder="e.g. O+" />
+                        </div>
+                    </div>
+
+                    <div class="section-title-row">
+                        <h3 class="section-title section-title--inline">Major Illnesses</h3>
+                        <button type="button" class="btn btn--secondary btn--sm" (click)="addMedicalRow()">
+                            <app-icon name="person_add" /> Add Illness
+                        </button>
+                    </div>
+
+                    <div class="repeater">
+                        <div class="repeater__row" *ngFor="let row of medicalIllnessRows; let i = index">
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Major Illness (ID)</label>
+                                    <input type="number" [name]="'major_illness_' + i" [(ngModel)]="row.major_illness" />
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Note</label>
+                                    <textarea [name]="'med_note_' + i" rows="2" [(ngModel)]="row.note"></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn--secondary btn--sm repeater__remove" (click)="removeMedicalRow(i)">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.medical">
+                            {{ isSaving.medical ? 'Saving…' : 'Save Medical' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+
+            <!-- Address -->
+            <ng-container *ngIf="activeTab === 'address'">
+                <form class="edit-form" (ngSubmit)="saveAddress()" #addressNgForm="ngForm">
+                    <h3 class="section-title">Permanent Address</h3>
+                    <div class="form-grid">
+                        <div class="form-field form-field--full">
+                            <label>Address Line 1</label>
+                            <input type="text" name="address_1" [(ngModel)]="addressForm.address_1" />
+                        </div>
+                        <div class="form-field form-field--full">
+                            <label>Address Line 2</label>
+                            <input type="text" name="address_2" [(ngModel)]="addressForm.address_2" />
+                        </div>
+                        <div class="form-field">
+                            <label>Country</label>
+                            <input type="text" name="country" [(ngModel)]="addressForm.country" />
+                        </div>
+                        <div class="form-field">
+                            <label>State</label>
+                            <input type="text" name="state" [(ngModel)]="addressForm.state" />
+                        </div>
+                        <div class="form-field">
+                            <label>District</label>
+                            <input type="text" name="district" [(ngModel)]="addressForm.district" />
+                        </div>
+                        <div class="form-field">
+                            <label>City</label>
+                            <input type="text" name="city" [(ngModel)]="addressForm.city" />
+                        </div>
+                        <div class="form-field">
+                            <label>Pincode</label>
+                            <input type="text" name="pincode" [(ngModel)]="addressForm.pincode" />
+                        </div>
+                        <div class="form-field">
+                            <label>Tehsil</label>
+                            <input type="text" name="tehsil" [(ngModel)]="addressForm.tehsil" />
+                        </div>
+                        <div class="form-field">
+                            <label>Post Office</label>
+                            <input type="text" name="post_office" [(ngModel)]="addressForm.post_office" />
+                        </div>
+                    </div>
+
+                    <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.address">
+                            {{ isSaving.address ? 'Saving…' : 'Save Address' }}
+                        </button>
+                    </div>
+                </form>
+            </ng-container>
+        </div>
+    </ng-container>
+</div>

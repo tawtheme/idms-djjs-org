@@ -1,8 +1,4 @@
 <div class="volunteers-container">
-    <div class="volunteers-header">
-        <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVolunteerModal()">Create Volunteer</button>
-    </div>
-
     <!-- Search & Filter Panel -->
     <div class="search-panel">
         <div class="search-panel__top">
@@ -27,6 +23,7 @@
                 [options]="taskBranchOptions"
                 [selectedValues]="selectedTaskBranch"
                 placeholder="Task Branch"
+                [searchable]="true"
                 (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
@@ -41,6 +38,7 @@
                 [options]="sewaOptions"
                 [selectedValues]="moreFilters.sewa"
                 placeholder="Sewa"
+                [searchable]="true"
                 (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
@@ -55,6 +53,7 @@
                     <app-icon name="close" />
                     <span>Clear All</span>
                 </button>
+                <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVolunteerModal()">Create Volunteer</button>
             </div>
         </div>
         @if (filtersExpanded) {
@@ -67,6 +66,7 @@
                             [options]="correspondingBranchOptions"
                             [selectedValues]="moreFilters.correspondingBranch"
                             placeholder="Select Branch"
+                            [searchable]="true"
                             (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
                             [closeOnSelect]="true">
                         </app-dropdown>
@@ -129,12 +129,44 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Name</th>
-                        <th>Relation Name</th>
+                        <th class="sortable" (click)="sortBy('id')">
+                            <span class="th-content">
+                                Id
+                                <app-icon
+                                    [name]="getSortDirection('id') === 'asc' ? 'arrow_upward' : getSortDirection('id') === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                    class="sort-icon"
+                                    [class.sort-icon--active]="getSortDirection('id')" />
+                            </span>
+                        </th>
+                        <th class="sortable" (click)="sortBy('name')">
+                            <span class="th-content">
+                                Name
+                                <app-icon
+                                    [name]="getSortDirection('name') === 'asc' ? 'arrow_upward' : getSortDirection('name') === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                    class="sort-icon"
+                                    [class.sort-icon--active]="getSortDirection('name')" />
+                            </span>
+                        </th>
+                        <th class="sortable" (click)="sortBy('relationName')">
+                            <span class="th-content">
+                                Relation Name
+                                <app-icon
+                                    [name]="getSortDirection('relationName') === 'asc' ? 'arrow_upward' : getSortDirection('relationName') === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                    class="sort-icon"
+                                    [class.sort-icon--active]="getSortDirection('relationName')" />
+                            </span>
+                        </th>
                         <th>Address</th>
                         <th>Regular Sewa</th>
-                        <th>Enter By</th>
+                        <th class="sortable" (click)="sortBy('enterBy')">
+                            <span class="th-content">
+                                Enter By
+                                <app-icon
+                                    [name]="getSortDirection('enterBy') === 'asc' ? 'arrow_upward' : getSortDirection('enterBy') === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                    class="sort-icon"
+                                    [class.sort-icon--active]="getSortDirection('enterBy')" />
+                            </span>
+                        </th>
                         <th>Sewa Interest</th>
                         <th class="action-column">Action</th>
                     </tr>
@@ -190,11 +222,11 @@
                                 {{ volunteer.enterBy || '-' }}
                             </td>
                             <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
-                                <span class="toggle-switch">
-                                    <input 
-                                        type="checkbox" 
-                                        [checked]="volunteer.sewaInterest"
-                                        (change)="toggleSewaInterest(volunteer, $event)" />
+                                <span class="toggle-switch" (click)="toggleSewaInterest(volunteer, $event)">
+                                    <input
+                                        type="checkbox"
+                                        tabindex="-1"
+                                        [checked]="volunteer.sewaInterest" />
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
@@ -268,5 +300,43 @@
             #createVolunteerComponent>
         </app-create-volunteer>
     </app-side-panel>
+
+    <!-- Sewa Interest Reason Modal -->
+    <app-modal
+        *ngIf="sewaReasonModalOpen"
+        [isOpen]="sewaReasonModalOpen"
+        title="Why are you not interested in sewa?"
+        [size]="'small'"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="[
+            { text: 'Cancel', type: 'secondary', action: 'cancel' },
+            { text: isSubmittingSewaReason ? 'Submitting...' : 'Submit', type: 'primary', action: 'submit', disabled: isSubmittingSewaReason }
+        ]"
+        (close)="closeSewaReasonModal()"
+        (footerAction)="$event === 'submit' ? submitSewaReason() : closeSewaReasonModal()">
+        <div class="sewa-reason-form">
+            <div class="form-field">
+                <label>Enter Reason</label>
+                <app-dropdown
+                    [options]="sewaReasonOptions"
+                    [selectedValues]="selectedSewaReason"
+                    placeholder="None"
+                    (selectionChange)="onSewaReasonChange($event)"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="form-field">
+                <label for="sewaRemarks">Remarks</label>
+                <textarea
+                    id="sewaRemarks"
+                    class="form-control"
+                    rows="4"
+                    [(ngModel)]="sewaReasonForm.remarks"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Enter remarks"></textarea>
+            </div>
+        </div>
+    </app-modal>
 </div>
 

@@ -19,10 +19,26 @@
         overflow: hidden;
         cursor: pointer;
 
-        &:hover:not(.disabled) {
+        &:hover:not(.disabled):not(.drop-zone--error) {
             border-color: $color-primary-300;
             background: $color-primary-50;
             box-shadow: none;
+        }
+
+        &--error {
+            cursor: default;
+            border-color: $color-red-200;
+            background: $color-red-50;
+
+            .drop-zone-content {
+                app-icon {
+                    color: $color-red-500;
+                }
+
+                .drop-text {
+                    color: $color-red-700;
+                }
+            }
         }
 
         .drop-zone-inner {
@@ -101,30 +117,6 @@
                     cursor: not-allowed;
                 }
             }
-        }
-    }
-
-    .error-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        text-align: center;
-        border: 1px solid $color-red-200;
-        border-radius: 16px;
-        background: $color-red-50;
-
-        .error-icon {
-            font-size: 48px;
-            color: $color-red-500;
-            margin-bottom: 16px;
-        }
-
-        .error-message {
-            color: $color-red-700;
-            font-size: 14px;
-            margin-bottom: 16px;
         }
     }
 

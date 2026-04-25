@@ -141,6 +141,8 @@ const ICON_MAP: Record<string, IconSvgObject> = {
   'error_outline': AlertCircleIcon,
   'warning': AlertCircleIcon,
   'info': InformationCircleIcon,
+  'help_outline': InformationCircleIcon,
+  'help': InformationCircleIcon,
   'visibility': ViewIcon,
   'visibility_off': ViewOffIcon,
 

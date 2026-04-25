@@ -5,6 +5,219 @@
 // Apply shared listing styles
 @include listing.listing('.visitors');
 
+// Visitor card print modal
+$card-red: #b91c1c;
+$card-red-dark: #991b1b;
+$card-red-soft: #fef2f2;
+
+.visitor-cards-loading,
+.visitor-cards-empty {
+    padding: 40px;
+    text-align: center;
+    color: $color-gray-600;
+}
+
+.visitor-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 8px;
+
+    @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
+.visitor-card {
+    background: $color-white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.08), 0 1px 2px rgba(17, 24, 39, 0.06);
+    border: 1px solid rgba(185, 28, 28, 0.12);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    color: $color-gray-900;
+
+    // Subtle accent stripe at top edge
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, $card-red 0%, $card-red-dark 100%);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px 8px;
+    }
+
+    &__badge {
+        display: inline-block;
+        background: $card-red;
+        color: $color-white;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    &__brand {
+        height: 32px;
+        width: auto;
+        object-fit: contain;
+        opacity: 0.95;
+    }
+
+    &__hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 20px 16px;
+        text-align: center;
+    }
+
+    &__photo {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: $color-gray-100;
+        padding: 3px;
+        background: linear-gradient(135deg, $card-red 0%, $card-red-dark 100%);
+        margin-bottom: 12px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid $color-white;
+            box-sizing: border-box;
+        }
+    }
+
+    &__name {
+        font-size: 17px;
+        font-weight: 700;
+        color: $color-gray-900;
+        line-height: 1.25;
+        margin-bottom: 2px;
+    }
+
+    &__relation {
+        font-size: 12px;
+        font-weight: 500;
+        color: $color-gray-600;
+        font-style: italic;
+    }
+
+    &__details {
+        margin: 0;
+        padding: 12px 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border-top: 1px dashed rgba(185, 28, 28, 0.2);
+
+        dt {
+            font-size: 10px;
+            font-weight: 600;
+            color: $color-gray-500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2px;
+        }
+
+        dd {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: $color-gray-900;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+    }
+
+    &__dates,
+    &__contact {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    &__footer {
+        margin-top: auto;
+        background: $card-red-soft;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid rgba(185, 28, 28, 0.15);
+    }
+
+    &__id-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: $card-red-dark;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    &__id {
+        font-size: 14px;
+        font-weight: 700;
+        color: $card-red;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 0.04em;
+    }
+}
+
+// Print-only: when window.print() is called from the modal,
+// hide everything except the cards grid.
+@media print {
+    body * { visibility: hidden; }
+    .printable-cards, .printable-cards * { visibility: visible; }
+    .printable-cards {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 12px;
+    }
+
+    .visitor-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid $card-red;
+    }
+}
+
+// Sewa-interest reason modal layout
+.sewa-reason-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: $color-gray-700;
+    }
+
+    textarea.form-control {
+        width: 100%;
+        resize: vertical;
+    }
+}
+
 // Export button in listing search
 .listing-search {
     .export-button-wrapper {

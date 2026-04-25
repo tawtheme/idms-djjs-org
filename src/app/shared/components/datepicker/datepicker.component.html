@@ -1,12 +1,16 @@
 <div class="datepicker-wrapper">
     <div class="datepicker-input-container">
-        <input type="text" 
-            [value]="displayValue || ''" 
+        <input type="text"
+            [value]="displayValue || ''"
             [class.datepicker-input-disabled]="disabled"
-            [placeholder]="placeholder" 
+            [placeholder]="placeholder"
             [disabled]="disabled"
             [readonly]="readonly"
-            (click)="toggleCalendar($event)" 
+            (focus)="openCalendar($event)"
+            (click)="openCalendar($event)"
+            (input)="onInputType($event)"
+            (blur)="onInputCommit($event)"
+            (keydown)="onInputKeydown($event)"
             class="datepicker-input"
         />
 
@@ -17,57 +21,92 @@
     </div>
 
     @if (isOpen) {
-        <div class="datepicker-calendar" 
+        <div class="datepicker-calendar"
              [class.calendar-upward]="openUpward"
              (click)="$event.stopPropagation()"
              #calendarElement>
             <!-- Calendar Header -->
             <div class="calendar-header">
-                <button type="button" (click)="navigateMonth(-1)" class="calendar-nav-btn" aria-label="Previous month">
+                <button type="button" (click)="navigate(-1)" class="calendar-nav-btn" aria-label="Previous">
                     <app-icon name="chevron_left" />
                 </button>
 
-                <div class="calendar-title">
-                    <span class="month-name">{{ currentMonthName }}</span>
-                    <span class="year">{{ currentYear }}</span>
-                </div>
+                @if (viewMode === 'days') {
+                    <button type="button" class="calendar-title calendar-title-btn" (click)="showYearView()">
+                        <span class="month-name">{{ currentMonthName }}</span>
+                        <span class="year">{{ currentYear }}</span>
+                    </button>
+                } @else if (viewMode === 'months') {
+                    <button type="button" class="calendar-title calendar-title-btn" (click)="showYearView()">
+                        <span class="month-name">{{ currentYear }}</span>
+                    </button>
+                } @else {
+                    <div class="calendar-title">
+                        <span class="month-name">{{ yearRangeLabel }}</span>
+                    </div>
+                }
 
-                <button type="button" (click)="navigateMonth(1)" class="calendar-nav-btn" aria-label="Next month">
+                <button type="button" (click)="navigate(1)" class="calendar-nav-btn" aria-label="Next">
                     <app-icon name="chevron_right" />
                 </button>
             </div>
 
-            <!-- Calendar Grid -->
-            <div class="calendar-grid">
-                <!-- Day Headers -->
-                <div class="calendar-day-headers">
-                    @for (day of dayNames; track day) {
-                        <div class="calendar-day-header">
-                            {{ day }}
-                        </div>
-                    }
+            <!-- Days view -->
+            @if (viewMode === 'days') {
+                <div class="calendar-grid">
+                    <div class="calendar-day-headers">
+                        @for (day of dayNames; track day) {
+                            <div class="calendar-day-header">{{ day }}</div>
+                        }
+                    </div>
+                    <div class="calendar-days">
+                        @for (date of calendarDays; track date.getTime()) {
+                            <button
+                                type="button"
+                                (click)="selectDate(date)"
+                                [disabled]="isDateDisabled(date)"
+                                [class.selected]="isDateSelected(date)"
+                                [class.today]="isToday(date)"
+                                [class.other-month]="!isCurrentMonth(date)"
+                                [class.disabled]="isDateDisabled(date)"
+                                class="calendar-day">
+                                {{ date.getDate() }}
+                            </button>
+                        }
+                    </div>
                 </div>
+            }
 
-                <!-- Calendar Days -->
-                <div class="calendar-days">
-                    @for (date of calendarDays; track date.getTime()) {
-                        <button 
-                            type="button" 
-                            (click)="selectDate(date)" 
-                            [disabled]="isDateDisabled(date)"
-                            [class.selected]="isDateSelected(date)" 
-                            [class.today]="isToday(date)"
-                            [class.other-month]="!isCurrentMonth(date)" 
-                            [class.disabled]="isDateDisabled(date)"
-                            class="calendar-day">
-                            {{ date.getDate() }}
+            <!-- Months view -->
+            @if (viewMode === 'months') {
+                <div class="calendar-month-grid">
+                    @for (m of monthNames; track m; let i = $index) {
+                        <button type="button"
+                                class="calendar-month"
+                                [class.selected]="i === currentMonth.getMonth()"
+                                (click)="selectMonth(i)">
+                            {{ m.substr(0, 3) }}
                         </button>
                     }
                 </div>
-            </div>
+            }
+
+            <!-- Years view -->
+            @if (viewMode === 'years') {
+                <div class="calendar-year-grid">
+                    @for (y of yearGrid; track y) {
+                        <button type="button"
+                                class="calendar-year"
+                                [class.selected]="y === currentYear"
+                                (click)="selectYear(y)">
+                            {{ y }}
+                        </button>
+                    }
+                </div>
+            }
 
             <!-- Calendar Actions -->
-            @if (showToday || showClear) {
+            @if ((showToday || showClear) && viewMode === 'days') {
                 <div class="calendar-actions">
                     @if (showToday) {
                         <button type="button" (click)="selectToday()" class="calendar-action-btn">

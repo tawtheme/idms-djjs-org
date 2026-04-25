@@ -1,8 +1,4 @@
 <div class="visitors-container">
-    <div class="visitors-header">
-        <button class="btn btn--primary btn--sm" type="button" (click)="openCreateVisitorModal()">Create Visitor</button>
-    </div>
-
     <!-- Filter Section -->
     <div class="listing-search">
         <div class="listing-search-item">
@@ -19,18 +15,18 @@
                 [options]="genderOptions"
                 [selectedValues]="selectedGender"
                 placeholder="Gender"
-                (selectionChange)="selectedGender = $event; onSearchChange()"
+                (selectionChange)="selectedGender = $event; onFilterChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
             <app-dropdown
                 [options]="sortOrderOptions"
                 [selectedValues]="sortOrder"
                 placeholder="Sort By"
-                (selectionChange)="sortOrder = $event; onSearchChange()"
+                (selectionChange)="sortOrder = $event; onFilterChange()"
                 [closeOnSelect]="true">
             </app-dropdown>
             <div class="export-button-wrapper" #exportWrapper>
-                <button class="btn btn--secondary btn--sm export-trigger" 
+                <button class="btn btn--secondary btn--sm export-trigger"
                         type="button"
                         (click)="toggleExportMenu()">
                     <app-icon name="file_download" />
@@ -38,12 +34,12 @@
                     <app-icon name="keyboard_arrow_down" />
                 </button>
                 <div class="export-menu" *ngIf="exportMenuOpen">
-                    <button class="export-menu-item" 
+                    <button class="export-menu-item"
                             (click)="onExportAction({id: 'export', value: 'export'})">
                         <app-icon name="download" />
                         <span>Export selected records</span>
                     </button>
-                    <button class="export-menu-item" 
+                    <button class="export-menu-item"
                             (click)="onExportAction({id: 'print', value: 'print'})">
                         <app-icon name="print" />
                         <span>Print selected records</span>
@@ -54,6 +50,11 @@
                 <app-icon name="refresh" />
                 Reset
             </button>
+            <button class="btn btn--secondary btn--sm" type="button" (click)="exportVisitors()" [disabled]="isExporting">
+                <app-icon name="file_download" />
+                {{ isExporting ? 'Exporting…' : 'Export' }}
+            </button>
+            <a class="btn btn--primary btn--sm" routerLink="/visitors/create">Add Visitor</a>
         </div>
     </div>
 
@@ -123,11 +124,11 @@
                                 {{ visitor.purposeToVisit }}
                             </td>
                             <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
-                                <span class="toggle-switch">
-                                    <input 
-                                        type="checkbox" 
-                                        [checked]="visitor.sewaInterest"
-                                        (change)="toggleSewaInterest(visitor, $event)" />
+                                <span class="toggle-switch" (click)="toggleSewaInterest(visitor, $event)">
+                                    <input
+                                        type="checkbox"
+                                        tabindex="-1"
+                                        [checked]="visitor.sewaInterest" />
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
@@ -194,5 +195,129 @@
             #createVisitorComponent>
         </app-create-visitor>
     </app-side-panel>
+
+    <!-- Convert to Volunteer Confirmation -->
+    <app-confirmation-dialog
+        [isOpen]="convertConfirmOpen"
+        title="Confirm"
+        message="Are you sure to Convert To Volunteer !"
+        confirmLabel="Convert"
+        cancelLabel="Cancel"
+        confirmType="primary"
+        cancelType="danger"
+        (confirm)="confirmConvertToVolunteer()"
+        (cancel)="cancelConvertToVolunteer()">
+    </app-confirmation-dialog>
+
+    <!-- Print Visitor Cards Modal -->
+    <app-modal
+        *ngIf="printCardModalOpen"
+        [isOpen]="printCardModalOpen"
+        title="Visitor Cards"
+        [size]="'extraLarge'"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="[
+            { text: 'Close', type: 'secondary', action: 'close' },
+            { text: 'Print', type: 'primary', action: 'print', disabled: isLoadingPrintCards || !printedCards.length }
+        ]"
+        (close)="closePrintCardModal()"
+        (footerAction)="$event === 'print' ? printCards() : closePrintCardModal()">
+        <div class="visitor-cards-loading" *ngIf="isLoadingPrintCards">
+            <app-loading [size]="'medium'" [type]="'spinner'" [message]="'Loading visitor cards...'"></app-loading>
+        </div>
+        <div class="visitor-cards-grid printable-cards" *ngIf="!isLoadingPrintCards && printedCards.length">
+            <div class="visitor-card" *ngFor="let card of printedCards">
+                <div class="visitor-card__header">
+                    <span class="visitor-card__badge">VISITOR PASS</span>
+                    <img class="visitor-card__brand" [src]="logoPath" alt="DJJS" onerror="this.style.display='none'" />
+                </div>
+                <div class="visitor-card__hero">
+                    <div class="visitor-card__photo">
+                        <img [src]="card?.user_image?.full_path || '/assets/img/placeholder.svg'"
+                             [alt]="card?.name || 'Visitor'"
+                             onerror="this.src='/assets/img/placeholder.svg'" />
+                    </div>
+                    <div class="visitor-card__name">{{ card?.name }}</div>
+                    <div class="visitor-card__relation" *ngIf="formatRelation(card)">{{ formatRelation(card) }}</div>
+                </div>
+                <dl class="visitor-card__details">
+                    <div class="visitor-card__contact">
+                        <div *ngIf="cardPhone(card)">
+                            <dt>Phone</dt>
+                            <dd>{{ cardPhone(card) }}</dd>
+                        </div>
+                        <div *ngIf="cardGender(card)">
+                            <dt>Gender</dt>
+                            <dd>{{ cardGender(card) }}</dd>
+                        </div>
+                    </div>
+                    <div>
+                        <dt>Address</dt>
+                        <dd>{{ formatCardAddress(card) || '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Purpose of Visit</dt>
+                        <dd>{{ cardPurpose(card) || '-' }}</dd>
+                    </div>
+                    <div class="visitor-card__dates">
+                        <div>
+                            <dt>Valid Upto</dt>
+                            <dd>{{ formatPrintDate(card?.valid_upto) || '-' }}</dd>
+                        </div>
+                        <div>
+                            <dt>Issue Date</dt>
+                            <dd>{{ formatPrintDate(card?.start_date) || '-' }}</dd>
+                        </div>
+                    </div>
+                </dl>
+                <div class="visitor-card__footer">
+                    <span class="visitor-card__id-label">ID</span>
+                    <span class="visitor-card__id">#{{ card?.unique_id }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="visitor-cards-empty" *ngIf="!isLoadingPrintCards && !printedCards.length">
+            <p>No visitor cards available.</p>
+        </div>
+    </app-modal>
+
+    <!-- Sewa Interest Reason Modal -->
+    <app-modal
+        *ngIf="sewaReasonModalOpen"
+        [isOpen]="sewaReasonModalOpen"
+        title="Why are you not interested in sewa?"
+        [size]="'small'"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="[
+            { text: 'Cancel', type: 'secondary', action: 'cancel' },
+            { text: isSubmittingSewaReason ? 'Submitting...' : 'Submit', type: 'primary', action: 'submit', disabled: isSubmittingSewaReason }
+        ]"
+        (close)="closeSewaReasonModal()"
+        (footerAction)="$event === 'submit' ? submitSewaReason() : closeSewaReasonModal()">
+        <div class="sewa-reason-form">
+            <div class="form-field">
+                <label>Enter Reason</label>
+                <app-dropdown
+                    [options]="sewaReasonOptions"
+                    [selectedValues]="selectedSewaReason"
+                    placeholder="None"
+                    (selectionChange)="onSewaReasonChange($event)"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="form-field">
+                <label for="sewaRemarks">Remarks</label>
+                <textarea
+                    id="sewaRemarks"
+                    class="form-control"
+                    rows="4"
+                    [(ngModel)]="sewaReasonForm.remarks"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Enter remarks"></textarea>
+            </div>
+        </div>
+    </app-modal>
 </div>
 

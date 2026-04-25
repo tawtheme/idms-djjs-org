@@ -19,7 +19,7 @@
             font-weight: 500;
             color: $color-gray-900;
             background: $color-white;
-            cursor: pointer;
+            cursor: text;
             transition: border-color 150ms ease, box-shadow 150ms ease;
 
             &:focus {
@@ -144,6 +144,54 @@
                     font-size: 11px;
                     color: $color-gray-500;
                     line-height: 1.2;
+                }
+            }
+
+            .calendar-title-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px 10px;
+                border-radius: 4px;
+                transition: background 150ms ease;
+
+                &:hover {
+                    background: $color-gray-100;
+                }
+            }
+        }
+
+        // Month / Year grids
+        .calendar-month-grid,
+        .calendar-year-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 4px 0;
+        }
+
+        .calendar-month,
+        .calendar-year {
+            background: none;
+            border: none;
+            padding: 10px 4px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: $color-gray-900;
+            cursor: pointer;
+            transition: all 150ms ease;
+
+            &:hover:not(.selected) {
+                background: $color-gray-100;
+            }
+
+            &.selected {
+                background: $color-primary-600;
+                color: $color-white;
+                font-weight: 600;
+
+                &:hover {
+                    background: $color-primary-700;
                 }
             }
         }

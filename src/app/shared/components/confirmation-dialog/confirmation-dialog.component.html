@@ -19,7 +19,7 @@
 
             <div class="confirmation-dialog__icon-wrapper">
                 <div class="confirmation-dialog__icon" [ngClass]="'confirmation-dialog__icon--' + confirmType">
-                    <app-icon [name]="confirmType === 'danger' ? 'delete' : 'help_outline'" />
+                    <app-icon [name]="displayIcon" [size]="28" />
                 </div>
             </div>
 

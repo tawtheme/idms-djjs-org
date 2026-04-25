@@ -13,6 +13,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { SewaTrackingModalComponent } from './sewa-tracking-modal/sewa-tracking-modal.component';
 import { CreateVolunteerComponent } from './create-volunteer/create-volunteer.component';
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
@@ -61,6 +62,7 @@ export interface Volunteer {
     SewaTrackingModalComponent,
     CreateVolunteerComponent,
     SidePanelComponent,
+    ModalComponent,
     IconComponent
   ],
   selector: 'app-all-volunteers',
@@ -97,6 +99,20 @@ export class AllVolunteersComponent implements OnInit {
 
   // Create Volunteer Modal
   createVolunteerModalOpen = false;
+
+  // Sewa Interest reason modal
+  sewaReasonModalOpen = false;
+  sewaReasonVolunteer: (Volunteer & { uuid?: string }) | null = null;
+  sewaReasonForm = { reason: '', remarks: '' };
+  sewaReasonOptions: DropdownOption[] = [
+    { id: 'none', label: 'None', value: 'None' },
+    { id: 'lack_of_time', label: 'Lack of time', value: 'Lack of time' },
+    { id: 'health', label: 'Health reasons', value: 'Health reasons' },
+    { id: 'personal', label: 'Personal reasons', value: 'Personal reasons' },
+    { id: 'other', label: 'Other', value: 'Other' }
+  ];
+  selectedSewaReason: any[] = [];
+  isSubmittingSewaReason = false;
 
   // Inline filter options (previously in more-filters modal)
   correspondingBranchOptions: DropdownOption[] = [];
@@ -141,6 +157,36 @@ export class AllVolunteersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadVolunteers();
+    this.loadSewaOptions();
+    this.loadBranches();
+  }
+
+  loadSewaOptions(): void {
+    this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'volunteer' } }).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || response || [];
+      this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: s.name || s.sewa_name || ''
+      }));
+    });
+  }
+
+  loadBranches(): void {
+    this.dataService.get<any>('v1/options/branches').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+      const options: DropdownOption[] = (Array.isArray(data) ? data : []).map((branch: any) => ({
+        id: String(branch.id),
+        label: branch.name || branch.label || branch.title || '',
+        value: branch.name || branch.label || branch.title || ''
+      }));
+      this.taskBranchOptions = options;
+      this.correspondingBranchOptions = options;
+    });
   }
 
   /**
@@ -244,15 +290,8 @@ export class AllVolunteersComponent implements OnInit {
       { id: '4', label: 'Id (DESC)', value: 'id:desc' }
     ];
 
-    // Task branch options will be populated from API data if needed
     this.taskBranchOptions = [];
-
-    // Options previously in more-filters modal
-    this.correspondingBranchOptions = [
-      { id: '1', label: 'Nurmahal', value: 'Nurmahal' },
-      { id: '2', label: 'Jalandhar', value: 'Jalandhar' },
-      { id: '3', label: 'Ludhiana', value: 'Ludhiana' }
-    ];
+    this.correspondingBranchOptions = [];
 
     this.branchSearchTypeOptions = [
       { id: '1', label: 'Exact Match', value: 'exact' },
@@ -260,11 +299,7 @@ export class AllVolunteersComponent implements OnInit {
       { id: '3', label: 'Starts With', value: 'startsWith' }
     ];
 
-    this.sewaOptions = [
-      { id: '1', label: 'Jal Sewa', value: 'Jal Sewa' },
-      { id: '2', label: 'Food Distribution', value: 'Food Distribution' },
-      { id: '3', label: 'Medical Camp', value: 'Medical Camp' }
-    ];
+    this.sewaOptions = [];
   }
 
   get filteredVolunteers(): Volunteer[] {
@@ -346,7 +381,7 @@ export class AllVolunteersComponent implements OnInit {
     });
 
     // Apply sorting
-    const sortOrderValue = this.sortOrder[0]?.value || '';
+    const sortOrderValue = this.sortOrder[0] || '';
 
     if (sortOrderValue) {
       const [sortField, orderDirection] = sortOrderValue.split(':');
@@ -365,6 +400,14 @@ export class AllVolunteersComponent implements OnInit {
             aValue = a.id;
             bValue = b.id;
             break;
+          case 'relationName':
+            aValue = (a.relationName || '').toLowerCase();
+            bValue = (b.relationName || '').toLowerCase();
+            break;
+          case 'enterBy':
+            aValue = (a.enterBy || '').toLowerCase();
+            bValue = (b.enterBy || '').toLowerCase();
+            break;
           default:
             return 0;
         }
@@ -378,6 +421,19 @@ export class AllVolunteersComponent implements OnInit {
     this.volunteers = filtered;
     this.totalItems = this.volunteers.length;
     this.currentPage = 1;
+  }
+
+  sortBy(field: string): void {
+    const current = this.sortOrder[0] || '';
+    const [currentField, currentDir] = current.split(':');
+    const nextDir = currentField === field && currentDir === 'asc' ? 'desc' : 'asc';
+    this.sortOrder = [`${field}:${nextDir}`];
+    this.applyFilter();
+  }
+
+  getSortDirection(field: string): 'asc' | 'desc' | null {
+    const [f, d] = (this.sortOrder[0] || '').split(':');
+    return f === field ? ((d as 'asc' | 'desc') || 'asc') : null;
   }
 
   // Pagination event handlers
@@ -487,17 +543,59 @@ export class AllVolunteersComponent implements OnInit {
   // Toggle Sewa Interest
   toggleSewaInterest(volunteer: Volunteer, event: Event): void {
     event.stopPropagation();
-    const newValue = !volunteer.sewaInterest;
-    volunteer.sewaInterest = newValue; // Optimistic update
+    if (volunteer.sewaInterest) {
+      this.openSewaReasonModal(volunteer);
+    } else {
+      this.commitSewaInterest(volunteer, 1);
+    }
+  }
 
-    // Find the original volunteer data to get UUID if available
-    const originalVolunteer = this.allVolunteers.find(v => v.id === volunteer.id);
-    const volunteerUuid = (originalVolunteer as any)?.uuid || volunteer.id;
+  private openSewaReasonModal(volunteer: Volunteer): void {
+    this.sewaReasonVolunteer = volunteer as Volunteer & { uuid?: string };
+    this.sewaReasonForm = { reason: '', remarks: '' };
+    this.selectedSewaReason = [];
+    this.sewaReasonModalOpen = true;
+  }
 
-    this.dataService.patch(`v1/volunteers/${volunteerUuid}`, { sewa_interest: newValue ? 1 : 0 }).pipe(
+  closeSewaReasonModal(): void {
+    this.sewaReasonModalOpen = false;
+    this.sewaReasonVolunteer = null;
+  }
+
+  onSewaReasonChange(event: string[]): void {
+    this.selectedSewaReason = event;
+    this.sewaReasonForm.reason = event?.[0] || '';
+  }
+
+  submitSewaReason(): void {
+    if (!this.sewaReasonVolunteer) return;
+    const volunteer = this.sewaReasonVolunteer;
+    this.isSubmittingSewaReason = true;
+    this.commitSewaInterest(volunteer, 0, this.sewaReasonForm.reason, this.sewaReasonForm.remarks)
+      .add(() => {
+        this.isSubmittingSewaReason = false;
+        this.closeSewaReasonModal();
+      });
+  }
+
+  private commitSewaInterest(volunteer: Volunteer, value: 0 | 1, reason: string = '', remarks: string = '') {
+    const previous = volunteer.sewaInterest;
+    volunteer.sewaInterest = value === 1;
+
+    const original = this.allVolunteers.find(v => v.id === volunteer.id) as (Volunteer & { uuid?: string }) | undefined;
+    const userId = (volunteer as Volunteer & { uuid?: string }).uuid || original?.uuid || String(volunteer.id);
+
+    const payload = {
+      user_id: userId,
+      sewa_interest: value,
+      reason: reason || '',
+      remarks: remarks || ''
+    };
+
+    return this.dataService.put('v1/users/update-sewa-interest', payload).pipe(
       catchError((error) => {
         console.error('Error updating sewa interest:', error);
-        volunteer.sewaInterest = !newValue; // Revert on error
+        volunteer.sewaInterest = previous;
         alert('Failed to update sewa interest. Please try again.');
         return of(null);
       })
@@ -600,7 +698,7 @@ export class AllVolunteersComponent implements OnInit {
     let count = 0;
     if (this.selectedGender.length > 0) count++;
     if (this.selectedTaskBranch.length > 0) count++;
-    if (this.sortOrder.length > 0 && this.sortOrder[0]?.value) count++;
+    if (this.sortOrder.length > 0 && this.sortOrder[0]) count++;
     count += this.activeMoreFiltersCount();
     return count;
   }
@@ -617,7 +715,7 @@ export class AllVolunteersComponent implements OnInit {
   hasAnyActiveFilter(): boolean {
     return !!this.searchTerm || this.selectedGender.length > 0 ||
       this.selectedTaskBranch.length > 0 ||
-      (this.sortOrder.length > 0 && !!this.sortOrder[0]?.value) ||
+      (this.sortOrder.length > 0 && !!this.sortOrder[0]) ||
       this.hasActiveMoreFilters();
   }
 

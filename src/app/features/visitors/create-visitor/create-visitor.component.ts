@@ -15,6 +15,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { FileUploadComponent, FileUploadConfig } from '../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../shared/components/camera-upload/camera-upload.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DataService } from '../../../data.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError, finalize } from 'rxjs/operators';
@@ -51,7 +52,8 @@ export interface CreateVisitorForm {
     DropdownComponent,
     DatepickerComponent,
     FileUploadComponent,
-    CameraUploadComponent
+    CameraUploadComponent,
+    ModalComponent
   ],
   selector: 'app-create-visitor',
   templateUrl: './create-visitor.component.html',
@@ -69,6 +71,26 @@ export class CreateVisitorComponent {
 
   isLoading = false;
   error: string | null = null;
+
+  // Duplicate-user detection
+  existingUsers: { id: string; unique_id: number; level?: string; name?: string }[] = [];
+  showProceedToggle = false;
+  proceedForcefully = false;
+
+  get today(): Date {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  get validUptoMin(): Date {
+    if (this.form.startDate) {
+      const d = new Date(this.form.startDate);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+    return this.today;
+  }
 
   form: CreateVisitorForm = {
     name: '',
@@ -117,6 +139,12 @@ export class CreateVisitorComponent {
 
   selectedImage: any[] = [];
   selectedImageType: 'upload' | 'capture' | null = null;
+  imageModalOpen: boolean = false;
+
+  phoneInputWarning: string = '';
+  whatsappInputWarning: string = '';
+  private phoneWarningTimer?: ReturnType<typeof setTimeout>;
+  private whatsappWarningTimer?: ReturnType<typeof setTimeout>;
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Visitors', route: '/visitors' },
@@ -127,9 +155,9 @@ export class CreateVisitorComponent {
    * Handles gender selection change from dropdown
    * @param event - Selected gender option from dropdown
    */
-  onGenderChange(event: DropdownOption[]): void {
+  onGenderChange(event: string[]): void {
     this.selectedGender = event;
-    this.form.gender = event[0]?.value || '';
+    this.form.gender = event?.[0] || '';
   }
 
   /**
@@ -144,6 +172,9 @@ export class CreateVisitorComponent {
    */
   onStartDateChange(date: Date | null): void {
     this.form.startDate = date;
+    if (date && this.form.validUpto && this.form.validUpto < date) {
+      this.form.validUpto = null;
+    }
   }
 
   /**
@@ -157,9 +188,64 @@ export class CreateVisitorComponent {
    * Syncs WhatsApp number with phone number if copy option is enabled
    */
   onPhoneChange(): void {
+    this.form.phone = this.sanitizeMobile(this.form.phone);
+    this.phoneInputWarning = '';
     if (this.form.copyAsWhatsapp) {
       this.form.whatsappNumber = this.form.phone;
     }
+  }
+
+  onWhatsappChange(): void {
+    this.form.whatsappNumber = this.sanitizeMobile(this.form.whatsappNumber);
+    this.whatsappInputWarning = '';
+  }
+
+  private sanitizeMobile(value: string): string {
+    return (value || '').replace(/\D/g, '').slice(0, 10);
+  }
+
+  blockNonDigit(event: KeyboardEvent, field: 'phone' | 'whatsapp'): void {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key.length === 1 && !/^\d$/.test(event.key)) {
+      event.preventDefault();
+      this.flashNumericWarning(field);
+    }
+  }
+
+  private flashNumericWarning(field: 'phone' | 'whatsapp'): void {
+    const message = 'Only numbers are allowed.';
+    if (field === 'phone') {
+      this.phoneInputWarning = message;
+      clearTimeout(this.phoneWarningTimer);
+      this.phoneWarningTimer = setTimeout(() => (this.phoneInputWarning = ''), 2000);
+    } else {
+      this.whatsappInputWarning = message;
+      clearTimeout(this.whatsappWarningTimer);
+      this.whatsappWarningTimer = setTimeout(() => (this.whatsappInputWarning = ''), 2000);
+    }
+  }
+
+  isMobileValid(value: string): boolean {
+    return /^\d{10}$/.test(value || '');
+  }
+
+  isEmailValid(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value || '');
+  }
+
+  get phoneError(): string {
+    if (!this.form.phone) return '';
+    return this.isMobileValid(this.form.phone) ? '' : 'Enter a valid 10-digit mobile number.';
+  }
+
+  get whatsappError(): string {
+    if (!this.form.whatsappNumber) return '';
+    return this.isMobileValid(this.form.whatsappNumber) ? '' : 'Enter a valid 10-digit mobile number.';
+  }
+
+  get emailError(): string {
+    if (!this.form.email) return '';
+    return this.isEmailValid(this.form.email) ? '' : 'Enter a valid email address.';
   }
 
   /**
@@ -170,6 +256,7 @@ export class CreateVisitorComponent {
     if (files?.length > 0) {
       this.profileImage = files[0];
       this.createImagePreview(this.profileImage);
+      this.imageModalOpen = false;
     }
   }
 
@@ -198,6 +285,8 @@ export class CreateVisitorComponent {
    */
   onCameraImageRemoved(): void {
     this.clearImage();
+    this.selectedImage = [];
+    this.selectedImageType = null;
   }
 
   /**
@@ -213,21 +302,17 @@ export class CreateVisitorComponent {
    * Called from side panel footer button
    */
   submitForm(): void {
-    // Use custom validation instead of form.valid since we're using standalone ngModel
-    if (this.isFormValid()) {
+    const validationError = this.getValidationError();
+    if (!validationError) {
       this.onSubmit();
-    } else {
-      // Show validation error
-      const errorMessage = 'Name, Phone, Gender, Purpose of Visit, Start Date, and Valid Upto are required fields.';
-      this.error = errorMessage;
-      this.snackbarService.showError(errorMessage);
-      
-      // Mark form as touched if it exists
-      if (this.visitorForm) {
-        Object.keys(this.visitorForm.controls).forEach(key => {
-          this.visitorForm.controls[key].markAsTouched();
-        });
-      }
+      return;
+    }
+    this.error = validationError;
+    this.snackbarService.showError(validationError);
+    if (this.visitorForm) {
+      Object.keys(this.visitorForm.controls).forEach(key => {
+        this.visitorForm.controls[key].markAsTouched();
+      });
     }
   }
 
@@ -237,18 +322,28 @@ export class CreateVisitorComponent {
    */
   onImageChange(selection: string[]): void {
     this.selectedImage = selection;
-    
+
     if (selection?.length > 0) {
       const selectedValue = selection[0];
-      // Validate that the selected value is either 'upload' or 'capture'
       if (selectedValue === 'upload' || selectedValue === 'capture') {
         this.selectedImageType = selectedValue;
-        this.clearImage(); // Clear previous image when switching methods
+        this.clearImage();
+        this.imageModalOpen = true;
       } else {
         this.selectedImageType = null;
       }
     } else {
       this.selectedImageType = null;
+    }
+  }
+
+  closeImageModal(): void {
+    this.imageModalOpen = false;
+  }
+
+  reopenImageModal(): void {
+    if (this.selectedImageType) {
+      this.imageModalOpen = true;
     }
   }
 
@@ -259,6 +354,7 @@ export class CreateVisitorComponent {
   onImageCaptured(file: File): void {
     this.profileImage = file;
     this.createImagePreview(file);
+    this.imageModalOpen = false;
   }
 
   /**
@@ -285,6 +381,9 @@ export class CreateVisitorComponent {
     this.selectedImageType = null;
     this.clearImage();
     this.error = null;
+    this.existingUsers = [];
+    this.showProceedToggle = false;
+    this.proceedForcefully = false;
   }
 
   /**
@@ -315,37 +414,68 @@ export class CreateVisitorComponent {
    * Validates and submits the visitor form to the API
    */
   onSubmit(): void {
-    // Validate required fields
-    if (!this.isFormValid()) {
-      const errorMessage = 'Name, Phone, Gender, Purpose of Visit, Start Date, and Valid Upto are required fields.';
-      this.error = errorMessage;
-      this.snackbarService.showError(errorMessage);
+    const validationError = this.getValidationError();
+    if (validationError) {
+      this.error = validationError;
+      this.snackbarService.showError(validationError);
       return;
     }
 
     this.isLoading = true;
     this.error = null;
 
-    // Build and send payload
     const payload = this.buildPayload();
-    
-    this.dataService.post('v1/visitor/create', payload).pipe(
+
+    this.dataService.post<any>('v1/visitor/create', payload).pipe(
       catchError((error) => {
+        const body = (error as any)?.error;
+        if (this.handleDuplicateResponse(body)) {
+          return of(null);
+        }
         this.handleSubmitError(error);
         return of(null);
       }),
       finalize(() => {
         this.isLoading = false;
       })
-    ).subscribe((response) => {
-      if (response) {
-        this.handleSubmitSuccess();
-      } else {
-        // If response is null, error was already handled in catchError
-        // But ensure loading state is cleared
-        this.isLoading = false;
-      }
+    ).subscribe((response: any) => {
+      if (!response) return;
+      if (this.handleDuplicateResponse(response)) return;
+      this.handleSubmitSuccess();
     });
+  }
+
+  private handleDuplicateResponse(response: any): boolean {
+    if (!response || typeof response !== 'object') return false;
+
+    // Search the response (and common nested wrappers) for the two flags.
+    const buckets: any[] = [
+      response,
+      response?.data,
+      response?.data?.data,
+      response?.error,
+      response?.error?.data,
+      response?.errors,
+      response?.error?.errors,
+      response?.data?.errors
+    ];
+    let toggleFlag: any = undefined;
+    let users: any = undefined;
+    for (const b of buckets) {
+      if (!b || typeof b !== 'object') continue;
+      if (toggleFlag === undefined && 'isShowToggel' in b) toggleFlag = b.isShowToggel;
+      if (users === undefined && 'viewExistUsers' in b) users = b.viewExistUsers;
+      if (toggleFlag !== undefined && users !== undefined) break;
+    }
+
+    const showToggle = toggleFlag === 1 || toggleFlag === '1' || toggleFlag === true;
+
+    if (!showToggle || !Array.isArray(users) || !users.length) return false;
+
+    this.existingUsers = users;
+    this.showProceedToggle = true;
+    this.error = null;
+    return true;
   }
 
   /**
@@ -353,14 +483,36 @@ export class CreateVisitorComponent {
    * @returns true if all required fields are filled
    */
   private isFormValid(): boolean {
-    return !!(
-      this.form.name &&
-      this.form.phone &&
-      this.form.gender &&
-      this.form.purposeOfVisit &&
-      this.form.startDate &&
-      this.form.validUpto
-    );
+    return !this.getValidationError();
+  }
+
+  private getValidationError(): string {
+    const missing: string[] = [];
+    if (!this.form.name) missing.push('Name');
+    if (!this.form.phone) missing.push('Phone');
+    if (!this.form.gender) missing.push('Gender');
+    if (!this.form.purposeOfVisit) missing.push('Purpose of Visit');
+    if (!this.form.startDate) missing.push('Start Date');
+    if (!this.form.validUpto) missing.push('Valid Upto');
+    if (missing.length) {
+      return `${this.joinList(missing)} ${missing.length === 1 ? 'is' : 'are'} required.`;
+    }
+    if (!this.isMobileValid(this.form.phone)) {
+      return 'Enter a valid 10-digit phone number.';
+    }
+    if (this.form.whatsappNumber && !this.isMobileValid(this.form.whatsappNumber)) {
+      return 'Enter a valid 10-digit Whatsapp number.';
+    }
+    if (this.form.email && !this.isEmailValid(this.form.email)) {
+      return 'Enter a valid email address.';
+    }
+    return '';
+  }
+
+  private joinList(items: string[]): string {
+    if (items.length <= 1) return items.join('');
+    if (items.length === 2) return items.join(' and ');
+    return items.slice(0, -1).join(', ') + ', and ' + items[items.length - 1];
   }
 
   /**
@@ -383,31 +535,30 @@ export class CreateVisitorComponent {
    * @returns Formatted payload object
    */
   private buildPayload(): Record<string, unknown> {
-    return {
+    const payload: Record<string, unknown> = {
       name: this.form.name,
-      phone: this.form.phone,
+      phone: this.form.phone ? Number(this.form.phone) : null,
+      alternate_phone: this.form.whatsappNumber ? Number(this.form.whatsappNumber) : null,
       email: this.form.email || null,
-      whatsapp_number: this.form.whatsappNumber || null,
       aadhaar_number: this.form.aadhaarNumber || null,
-      purpose_of_visit: this.form.purposeOfVisit,
+      dob: this.formatDate(this.form.dob),
+      father_name: this.form.fatherName || null,
+      mother_name: this.form.motherName || null,
+      spouse_name: this.form.spouseName || null,
+      gender: this.form.gender,
+      address_1: this.form.address || null,
+      remarks: this.form.purposeOfVisit,
       start_date: this.formatDate(this.form.startDate),
       valid_upto: this.formatDate(this.form.validUpto),
-      user_profile: {
-        gender: this.form.gender,
-        sewa_interest: this.form.sewaInterest ? 1 : 0,
-        dob: this.formatDate(this.form.dob),
-        father_name: this.form.fatherName || null,
-        mother_name: this.form.motherName || null,
-        spouse_name: this.form.spouseName || null
-      },
-      user_address: {
-        address_1: this.form.address,
-        city: null,
-        state: null,
-        country: 'India',
-        type: 'correspondence'
-      }
+      proceed_forcefully: this.proceedForcefully ? 1 : 0
     };
+
+    if (this.profileImagePreview) {
+      const key = this.selectedImageType === 'capture' ? 'capture_user_image' : 'user_image';
+      payload[key] = this.profileImagePreview;
+    }
+
+    return payload;
   }
 
   /**

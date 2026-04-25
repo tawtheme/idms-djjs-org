@@ -41,6 +41,15 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy, OnChanges
   /** Whether to close dialog on backdrop click (default: true) */
   @Input() closable: boolean = true;
 
+  /** Optional icon name (overrides the default per confirmType) */
+  @Input() icon: string = '';
+
+  get displayIcon(): string {
+    if (this.icon) return this.icon;
+    if (this.confirmType === 'danger') return 'delete';
+    return 'help_outline';
+  }
+
   /** Event emitted when user clicks Yes/Confirm */
   @Output() confirm = new EventEmitter<void>();
 
