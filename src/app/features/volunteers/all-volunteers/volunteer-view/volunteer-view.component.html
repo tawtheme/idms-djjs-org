@@ -1,0 +1,249 @@
+<div class="volunteer-view">
+    <div class="page-header">
+        <a class="back" routerLink="/volunteers"><app-icon name="chevron_left" /> Back to Volunteers</a>
+        <h2 *ngIf="user">{{ user.name }} <span class="muted">#{{ user.unique_id }}</span></h2>
+    </div>
+
+    <div *ngIf="isLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+    <div *ngIf="!isLoading && error" class="state error">{{ error }}</div>
+
+    <ng-container *ngIf="!isLoading && !error && user">
+        <div class="tabs">
+            <button *ngFor="let t of tabs"
+                type="button"
+                class="tab"
+                [class.tab--active]="activeTab === t.id"
+                (click)="setTab(t.id)">{{ t.label }}</button>
+        </div>
+
+        <div class="tab-body">
+            <!-- Basic Information -->
+            <ng-container *ngIf="activeTab === 'basic'">
+                <div class="image-block" *ngIf="firstImage">
+                    <img [src]="firstImage" [alt]="user?.name" />
+                </div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Unique ID</th><td>{{ user?.unique_id || '' }}</td></tr>
+                        <tr><th>Name</th><td>{{ user?.name || '' }}</td></tr>
+                        <tr><th>Email</th><td>{{ user?.email || '' }}</td></tr>
+                        <tr><th>Personal Email</th><td>{{ user?.personal_email || profile?.personal_email || '' }}</td></tr>
+                        <tr><th>Mobile Number</th><td>{{ user?.phone || '' }}</td></tr>
+                        <tr><th>Level</th><td>{{ user?.level || profile?.level || '' }}</td></tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <!-- Address Details -->
+            <ng-container *ngIf="activeTab === 'address'">
+                <div class="section-title">Permanent Address</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Address 1</th><td>{{ permanentAddress?.address_1 || '' }}</td></tr>
+                        <tr><th>Address 2</th><td>{{ permanentAddress?.address_2 || '' }}</td></tr>
+                        <tr><th>Country</th><td>{{ permanentAddress?.country?.name || permanentAddress?.country || '' }}</td></tr>
+                        <tr><th>State</th><td>{{ permanentAddress?.state?.name || permanentAddress?.state || '' }}</td></tr>
+                        <tr><th>City</th><td>{{ permanentAddress?.city?.name || permanentAddress?.city || '' }}</td></tr>
+                        <tr><th>Pincode</th><td>{{ permanentAddress?.pincode || '' }}</td></tr>
+                        <tr><th>District</th><td>{{ permanentAddress?.district?.name || permanentAddress?.district || '' }}</td></tr>
+                        <tr><th>Home Branch</th><td>{{ permanentAddress?.home_branch?.name || permanentAddress?.corresponding_branch || '' }}</td></tr>
+                        <tr><th>Task Branch</th><td>{{ permanentAddress?.task_branch?.name || permanentAddress?.task_branch || '' }}</td></tr>
+                        <tr><th>Department</th><td>{{ permanentAddress?.department?.name || permanentAddress?.department || '' }}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="section-title">Correspondence Address</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Address 1</th><td>{{ correspondenceAddress?.address_1 || '' }}</td></tr>
+                        <tr><th>Address 2</th><td>{{ correspondenceAddress?.address_2 || '' }}</td></tr>
+                        <tr><th>Country</th><td>{{ correspondenceAddress?.country?.name || correspondenceAddress?.country || '' }}</td></tr>
+                        <tr><th>State</th><td>{{ correspondenceAddress?.state?.name || correspondenceAddress?.state || '' }}</td></tr>
+                        <tr><th>City</th><td>{{ correspondenceAddress?.city?.name || correspondenceAddress?.city || '' }}</td></tr>
+                        <tr><th>Pincode</th><td>{{ correspondenceAddress?.pincode || '' }}</td></tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <!-- Personal & Family Details -->
+            <ng-container *ngIf="activeTab === 'personal'">
+                <div class="section-title">Personal Details</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Gender</th><td>{{ profile?.gender || '' }}</td></tr>
+                        <tr><th>Date of birth</th><td>{{ profile?.dob || profile?.date_of_birth || '' }}</td></tr>
+                        <tr><th>Marital Status</th><td>{{ profile?.marital_status || '' }}</td></tr>
+                        <tr><th>Blood Group</th><td>{{ profile?.blood_group || '' }}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="section-title">Family Details</div>
+                <table class="kv-table" *ngIf="familyMembers.length > 0; else noFamily">
+                    <tbody>
+                        <tr *ngFor="let f of familyMembers">
+                            <th>{{ f?.relation || f?.relation_type || 'Member' }}</th>
+                            <td>{{ f?.name || '' }} <span class="muted" *ngIf="f?.phone">— {{ f.phone }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ng-template #noFamily><div class="empty">No family details available.</div></ng-template>
+
+                <div class="section-title">Emergency Contact</div>
+                <table class="kv-table" *ngIf="userEmergencyContacts.length > 0; else noEmergency">
+                    <tbody>
+                        <tr *ngFor="let c of userEmergencyContacts">
+                            <th>{{ c?.name || 'Contact' }}</th>
+                            <td>{{ c?.phone || c?.mobile || '' }} <span class="muted" *ngIf="c?.relation">— {{ c.relation }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ng-template #noEmergency><div class="empty">No emergency contact available.</div></ng-template>
+            </ng-container>
+
+            <!-- Education & Work -->
+            <ng-container *ngIf="activeTab === 'education'">
+                <div class="section-title">Education</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Highest Degree</th><td>{{ profile?.degree?.name || profile?.qualification || '' }}</td></tr>
+                        <tr><th>Technical Qualification</th><td>{{ profile?.technical_qualification?.name || '' }}</td></tr>
+                        <tr><th>Languages Known</th><td>{{ profile?.languages?.join?.(', ') || '' }}</td></tr>
+                        <tr><th>Skills</th><td>{{ profile?.skills?.join?.(', ') || '' }}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="section-title">Work</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Profession</th><td>{{ profile?.profession?.name || profile?.profession || '' }}</td></tr>
+                        <tr><th>Designation</th><td>{{ profile?.designation || '' }}</td></tr>
+                        <tr><th>Company</th><td>{{ profile?.company || profile?.organization || '' }}</td></tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <!-- Medical -->
+            <ng-container *ngIf="activeTab === 'medical'">
+                <div class="section-title">Medical Details</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Allergies</th><td>{{ profile?.allergies || '' }}</td></tr>
+                        <tr><th>Medical Conditions</th><td>{{ profile?.medical_conditions || '' }}</td></tr>
+                        <tr><th>Medications</th><td>{{ profile?.medications || '' }}</td></tr>
+                        <tr><th>Disability</th><td>{{ profile?.disability || '' }}</td></tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <!-- Spiritual -->
+            <ng-container *ngIf="activeTab === 'spiritual'">
+                <div class="section-title">Spiritual Details</div>
+                <table class="kv-table">
+                    <tbody>
+                        <tr><th>Diksha Date</th><td>{{ profile?.diksha_date || '' }}</td></tr>
+                        <tr><th>Diksha Place</th><td>{{ profile?.diksha_place || '' }}</td></tr>
+                        <tr><th>Sansthak Name</th><td>{{ profile?.sansthak_name || '' }}</td></tr>
+                        <tr><th>Spiritual Journey</th><td>{{ profile?.spiritual_journey || '' }}</td></tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <!-- Sewa Tracking -->
+            <ng-container *ngIf="activeTab === 'sewa'">
+                <div *ngIf="sewaLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                <div *ngIf="!sewaLoading && sewaError" class="state error">{{ sewaError }}</div>
+
+                <ng-container *ngIf="!sewaLoading && !sewaError">
+                    <div class="branch-card" *ngFor="let branch of sewaBranches">
+                        <div class="branch-card__header">
+                            <span class="branch-card__label">Sewas Under Branch</span>
+                            <span class="branch-card__name">{{ branch.branchName }}</span>
+                        </div>
+                        <table class="track-table">
+                            <thead>
+                                <tr>
+                                    <th>Sewa</th>
+                                    <th>Badge No</th>
+                                    <th>Allocated Date</th>
+                                    <th>UnAllocated Date</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <ng-container *ngFor="let group of branch.sewaGroups">
+                                <thead class="group-head">
+                                    <tr><th colspan="5">{{ group.sewaName }}</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of group.rows">
+                                        <td>{{ row.sewaName }}</td>
+                                        <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
+                                        <td>{{ row.allocatedDate || 'N/A' }}</td>
+                                        <td>{{ row.unallocatedDate || 'N/A' }}</td>
+                                        <td>{{ row.reason || 'N/A' }}</td>
+                                    </tr>
+                                </tbody>
+                            </ng-container>
+                        </table>
+                    </div>
+                    <div *ngIf="sewaBranches.length === 0" class="empty">No sewa tracking data.</div>
+                </ng-container>
+            </ng-container>
+
+            <!-- Program Journey -->
+            <ng-container *ngIf="activeTab === 'program'">
+                <div *ngIf="programLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                <div *ngIf="!programLoading && programError" class="state error">{{ programError }}</div>
+
+                <table class="track-table" *ngIf="!programLoading && !programError && programRows.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Sewa Name</th>
+                            <th>Status</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of programRows">
+                            <td>{{ row.programName || 'N/A' }}</td>
+                            <td>{{ row.sewaName || 'N/A' }}</td>
+                            <td>{{ row.status || 'N/A' }}</td>
+                            <td>{{ row.checkIn || 'N/A' }}</td>
+                            <td>{{ row.checkOut || 'N/A' }}</td>
+                            <td>{{ row.startDate || 'N/A' }}</td>
+                            <td>{{ row.endDate || 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div *ngIf="!programLoading && !programError && programRows.length === 0" class="empty">No program journey data.</div>
+            </ng-container>
+
+            <!-- Donations -->
+            <ng-container *ngIf="activeTab === 'donation'">
+                <div *ngIf="donationLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                <div *ngIf="!donationLoading && donationError" class="state error">{{ donationError }}</div>
+
+                <table class="track-table" *ngIf="!donationLoading && !donationError && donationRows.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Donation Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of donationRows">
+                            <td>{{ row.programName || 'N/A' }}</td>
+                            <td>{{ row.amount !== '' ? row.amount : 'N/A' }}</td>
+                            <td>{{ row.date || 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div *ngIf="!donationLoading && !donationError && donationRows.length === 0" class="empty">No Data</div>
+            </ng-container>
+        </div>
+    </ng-container>
+</div>

@@ -108,7 +108,8 @@ $modal-border-radius: 12px;
         min-height: 0;
 
         // Let dropdown/calendar panels overflow beyond the modal body
-        &:has(.sewa-reason-form) {
+        &:has(.sewa-reason-form),
+        &:has(.modal-dropdown-form) {
             overflow: visible;
         }
     }

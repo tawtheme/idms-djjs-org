@@ -1,0 +1,222 @@
+@import '../../../../../assets/scss/variable';
+
+.volunteer-view {
+    padding: 16px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: $color-gray-600;
+        text-decoration: none;
+        cursor: pointer;
+        width: fit-content;
+
+        &:hover { color: $color-primary-600; }
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: $color-gray-900;
+
+        .muted {
+            font-weight: 500;
+            color: $color-gray-500;
+        }
+    }
+}
+
+.state {
+    display: flex;
+    justify-content: center;
+    padding: 32px 0;
+
+    &.error {
+        background: $color-red-50;
+        color: $color-red-700;
+        border-radius: 8px;
+        padding: 16px;
+    }
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid $color-gray-200;
+    padding-bottom: 0;
+}
+
+.tab {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-gray-700;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
+
+    &:hover { color: $color-gray-900; background: $color-gray-100; }
+
+    &--active {
+        background: $color-primary-600;
+        color: $color-white;
+
+        &:hover { background: $color-primary-700; color: $color-white; }
+    }
+}
+
+.tab-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    background: $color-primary-50;
+    color: $color-primary-700;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.image-block {
+    img {
+        width: 96px;
+        height: 96px;
+        border-radius: 4px;
+        object-fit: cover;
+        border: 1px solid $color-gray-200;
+    }
+}
+
+.kv-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: hidden;
+
+    th, td {
+        padding: 12px 16px;
+        font-size: 14px;
+        border-bottom: 1px solid $color-gray-100;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    th {
+        font-weight: 700;
+        color: $color-gray-900;
+        width: 40%;
+    }
+
+    td {
+        color: $color-gray-800;
+    }
+
+    tr:last-child th,
+    tr:last-child td { border-bottom: 0; }
+
+    .muted {
+        color: $color-gray-500;
+        font-size: 12px;
+    }
+}
+
+.empty {
+    color: $color-gray-500;
+    padding: 16px;
+    background: $color-gray-50;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.branch-card {
+    border: 1px solid $color-gray-200;
+    border-radius: 10px;
+    overflow: hidden;
+    background: $color-white;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: $color-primary-50;
+        border-bottom: 1px solid $color-gray-200;
+        font-size: 14px;
+    }
+
+    &__label { color: $color-gray-600; font-weight: 500; }
+    &__name { color: $color-gray-900; font-weight: 700; }
+}
+
+.track-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: $color-white;
+
+    thead.group-head th {
+        background: $color-gray-50;
+        font-size: 12px;
+        font-weight: 700;
+        color: $color-gray-900;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 10px 16px;
+        border-top: 1px solid $color-gray-200;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    thead:first-of-type th {
+        background: $color-white;
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        text-align: left;
+        padding: 10px 16px;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    td {
+        font-size: 13px;
+        color: $color-gray-800;
+        padding: 12px 16px;
+        border-bottom: 1px solid $color-gray-100;
+    }
+
+    .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        padding: 3px 12px;
+        background: $color-gray-800;
+        color: $color-white;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+}

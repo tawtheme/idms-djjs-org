@@ -1,126 +1,132 @@
 <app-modal
     [isOpen]="isOpen"
-    title="Sewa Tracking Details"
+    title="Sewa Tracking"
     size="large"
     [closable]="true"
     [showHeader]="true"
     (close)="onClose()">
-    
+
     <div class="sewa-tracking-modal">
-        <!-- Branch Info -->
-        <div class="branch-info">
-            Sewas Under Branch: <strong>{{ branchName }}</strong>
-        </div>
-
-        <!-- Tabs -->
         <div class="tabs">
-            <button 
-                class="tab-button" 
-                [class.active]="activeTab === 'sewa'"
-                (click)="setActiveTab('sewa')">
-                Sewa Tracking
-            </button>
-            <button 
-                class="tab-button" 
-                [class.active]="activeTab === 'program'"
-                (click)="setActiveTab('program')">
-                Program Journey
-            </button>
-            <button 
-                class="tab-button" 
-                [class.active]="activeTab === 'donation'"
-                (click)="setActiveTab('donation')">
-                Donations
-            </button>
+            <button type="button" class="tab" [class.tab--active]="activeTab === 'sewa'" (click)="setTab('sewa')">Sewa Tracking</button>
+            <button type="button" class="tab" [class.tab--active]="activeTab === 'program'" (click)="setTab('program')">Program Journey</button>
+            <button type="button" class="tab" [class.tab--active]="activeTab === 'donation'" (click)="setTab('donation')">Donation</button>
         </div>
 
-        <!-- Tab Content -->
-        <div class="tab-content">
-            <!-- Sewa Tracking Tab -->
-            <div class="tab-panel" *ngIf="activeTab === 'sewa'">
-                <div class="listing-table">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Sewa Name</th>
-                                <th>Branch</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of sewaTrackingData; trackBy: trackById">
-                                <td>{{ item.sewaName }}</td>
-                                <td>{{ item.branch }}</td>
-                                <td>{{ item.date }}</td>
-                                <td>
-                                    <span class="status-badge" [ngClass]="'status-' + item.status.toLowerCase()">
-                                        {{ item.status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="count-badge" *ngIf="item.count">{{ item.count }}</span>
-                                    <span *ngIf="!item.count">-</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <ng-container *ngIf="activeTab === 'sewa'">
+            <div *ngIf="isLoading" class="loading-wrap">
+                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
             </div>
 
-            <!-- Program Journey Tab -->
-            <div class="tab-panel" *ngIf="activeTab === 'program'">
-                <div class="listing-table">
-                    <table class="table">
-                        <thead>
+            <div *ngIf="!isLoading && error" class="error-state">{{ error }}</div>
+
+            <ng-container *ngIf="!isLoading && !error">
+            <div class="branch-card" *ngFor="let branch of branches">
+                <div class="branch-card__header">
+                    <span class="branch-card__label">Sewas Under Branch</span>
+                    <span class="branch-card__name">{{ branch.branchName }}</span>
+                </div>
+
+                <table class="track-table">
+                    <thead>
+                        <tr>
+                            <th class="col-sewa">Sewa</th>
+                            <th class="col-badge">Badge No</th>
+                            <th>Allocated Date</th>
+                            <th>UnAllocated Date</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <ng-container *ngFor="let group of branch.sewaGroups">
+                        <thead class="group-head">
                             <tr>
-                                <th>Program Name</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Branch</th>
+                                <th colspan="5">{{ group.sewaName }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of programJourneyData; trackBy: trackById">
-                                <td>{{ item.programName }}</td>
-                                <td>{{ item.date }}</td>
-                                <td>
-                                    <span class="status-badge" [ngClass]="'status-' + item.status.toLowerCase()">
-                                        {{ item.status }}
-                                    </span>
-                                </td>
-                                <td>{{ item.branch }}</td>
+                            <tr *ngFor="let row of group.rows">
+                                <td class="col-sewa">{{ row.sewaName }}</td>
+                                <td class="col-badge"><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
+                                <td>{{ row.allocatedDate || 'N/A' }}</td>
+                                <td>{{ row.unallocatedDate || 'N/A' }}</td>
+                                <td>{{ row.reason || 'N/A' }}</td>
+                            </tr>
+                            <tr *ngIf="group.rows.length === 0">
+                                <td colspan="5" class="empty-row">No records</td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
+                    </ng-container>
+                </table>
             </div>
 
-            <!-- Donations Tab -->
-            <div class="tab-panel" *ngIf="activeTab === 'donation'">
-                <div class="listing-table">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Branch</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of donationData; trackBy: trackById">
-                                <td>{{ formatCurrency(item.amount) }}</td>
-                                <td>{{ item.date }}</td>
-                                <td>{{ item.type }}</td>
-                                <td>{{ item.branch }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div *ngIf="branches.length === 0" class="empty-state">No sewa tracking data available.</div>
+            </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="activeTab === 'program'">
+            <div *ngIf="isLoadingProgram" class="loading-wrap">
+                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
             </div>
-        </div>
+
+            <div *ngIf="!isLoadingProgram && programError" class="error-state">{{ programError }}</div>
+
+            <ng-container *ngIf="!isLoadingProgram && !programError">
+                <table class="track-table" *ngIf="programRows.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Sewa Name</th>
+                            <th>Status</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of programRows">
+                            <td>{{ row.programName || 'N/A' }}</td>
+                            <td>{{ row.sewaName || 'N/A' }}</td>
+                            <td>{{ row.status || 'N/A' }}</td>
+                            <td>{{ row.checkIn || 'N/A' }}</td>
+                            <td>{{ row.checkOut || 'N/A' }}</td>
+                            <td>{{ row.startDate || 'N/A' }}</td>
+                            <td>{{ row.endDate || 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div *ngIf="programRows.length === 0" class="empty-state">No program journey data available.</div>
+            </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="activeTab === 'donation'">
+            <div *ngIf="isLoadingDonation" class="loading-wrap">
+                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+            </div>
+
+            <div *ngIf="!isLoadingDonation && donationError" class="error-state">{{ donationError }}</div>
+
+            <ng-container *ngIf="!isLoadingDonation && !donationError">
+                <table class="track-table" *ngIf="donationRows.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Donation Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of donationRows">
+                            <td>{{ row.programName || 'N/A' }}</td>
+                            <td>{{ row.amount !== '' ? row.amount : 'N/A' }}</td>
+                            <td>{{ row.date || 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div *ngIf="donationRows.length === 0" class="empty-state">No Data</div>
+            </ng-container>
+        </ng-container>
     </div>
 </app-modal>
-

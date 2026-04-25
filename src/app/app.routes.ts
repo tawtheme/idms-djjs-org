@@ -130,6 +130,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'volunteers/:id/view',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/all-volunteers/volunteer-view/volunteer-view.component').then(
+        (m) => m.VolunteerViewComponent
+      ),
+  },
+  {
     path: 'volunteers/create',
     canMatch: [authOnly],
     loadComponent: () =>

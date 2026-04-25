@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { AuthService } from '../../services/auth.service';
+import { HeaderActionsService } from '../../services/header-actions.service';
 
 interface MenuGroupItem {
   label: string;
@@ -109,6 +110,7 @@ export class HeaderComponent {
 
   private auth = inject(AuthService);
   private router = inject(Router);
+  protected headerActions = inject(HeaderActionsService);
 
   constructor(private elementRef: ElementRef) {}
 

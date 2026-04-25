@@ -28,6 +28,19 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .pager-total {
+        font-size: 13px;
+        color: $color-gray-600;
+        white-space: nowrap;
+
+        strong {
+            color: $color-gray-900;
+            font-weight: 600;
+        }
     }
 
     .nav {

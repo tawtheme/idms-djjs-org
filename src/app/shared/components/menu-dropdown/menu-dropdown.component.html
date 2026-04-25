@@ -21,7 +21,7 @@
             [disabled]="option.disabled"
             role="menuitem"
             (click)="selectOption(option)">
-            <app-icon [name]="option.icon" class="menu-icon" *ngIf="!!option.icon" />
+            <app-icon [name]="option.icon" [size]="14" class="menu-icon" *ngIf="!!option.icon" />
             <span class="menu-label">{{ option.label }}</span>
         </button>
     </div>

@@ -1,9 +1,9 @@
-import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
+import { catchError, debounceTime, finalize, switchMap, tap } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -16,6 +16,7 @@ import { SidePanelComponent } from '../../../shared/components/side-panel/side-p
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HeaderActionsService } from '../../../services/header-actions.service';
 
 export interface Volunteer {
   id: number;
@@ -41,6 +42,11 @@ export interface Volunteer {
     sewaName?: string;
     count?: number;
   };
+  userSewas?: Array<{
+    sewaName: string;
+    branchName: string;
+    badgeId: number | string;
+  }>;
   enterBy?: string;
   sewaInterest: boolean;
   sewaAllocated?: boolean;
@@ -69,11 +75,13 @@ export interface Volunteer {
   templateUrl: './all-volunteers.component.html',
   styleUrls: ['./all-volunteers.component.scss']
 })
-export class AllVolunteersComponent implements OnInit {
+export class AllVolunteersComponent implements OnInit, OnDestroy {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
   @ViewChild('createVolunteerComponent') createVolunteerComponent!: CreateVolunteerComponent;
 
   private dataService = inject(DataService);
+  private headerActions = inject(HeaderActionsService);
+  private router = inject(Router);
 
   volunteers: Volunteer[] = [];
   allVolunteers: Volunteer[] = [];
@@ -86,7 +94,7 @@ export class AllVolunteersComponent implements OnInit {
   selectedVolunteers = new Set<number>();
 
   // Filters
-  searchTerm = ''; // Name, Relation Name, Mobile No., UID, Badge No
+  searchTerm = ''; // Legacy combined search (still used by some logic)
   selectedGender: any[] = [];
   genderOptions: DropdownOption[] = [];
   selectedTaskBranch: any[] = [];
@@ -94,8 +102,23 @@ export class AllVolunteersComponent implements OnInit {
   sortOrder: any[] = [];
   sortOrderOptions: DropdownOption[] = [];
 
-  // Filter panel toggle
-  filtersExpanded = false;
+  // Individual text filter fields (per design)
+  filterFields = {
+    badgeNo: '',
+    name: '',
+    relationName: '',
+    mobileNo: '',
+    uid: ''
+  };
+
+  // Split sort: Sort By (field) + Order By (direction)
+  sortByField: any[] = [];
+  orderByDirection: any[] = [];
+  sortByOptions: DropdownOption[] = [];
+  orderByOptions: DropdownOption[] = [];
+
+  // Filter panel toggle (open by default)
+  filtersExpanded = true;
 
   // Create Volunteer Modal
   createVolunteerModalOpen = false;
@@ -119,16 +142,19 @@ export class AllVolunteersComponent implements OnInit {
   branchSearchTypeOptions: DropdownOption[] = [];
   sewaOptions: DropdownOption[] = [];
   sewaInterestOptions: DropdownOption[] = [
-    { id: '1', label: 'Yes', value: 'yes' },
-    { id: '2', label: 'No', value: 'no' }
+    { id: 'none', label: 'None', value: 'none' },
+    { id: '1', label: 'Interested', value: '1' },
+    { id: '0', label: 'Not Interested', value: '0' }
   ];
   sewaAllocatedOptions: DropdownOption[] = [
-    { id: '1', label: 'Yes', value: 'yes' },
-    { id: '2', label: 'No', value: 'no' }
+    { id: 'none', label: 'None', value: 'none' },
+    { id: '1', label: 'Allocated', value: '1' },
+    { id: '0', label: 'UnAllocated', value: '0' }
   ];
   sewaModeOptions: DropdownOption[] = [
-    { id: '1', label: 'Regular', value: 'regular' },
-    { id: '2', label: 'Occasional', value: 'occasional' }
+    { id: 'none', label: 'None', value: 'none' },
+    { id: '1', label: 'Regular', value: '1' },
+    { id: '0', label: 'Annual', value: '0' }
   ];
 
   moreFilters: any = {
@@ -146,6 +172,9 @@ export class AllVolunteersComponent implements OnInit {
   currentPage = 1;
   totalItems = 0;
 
+  // Server-side search debounce
+  private search$ = new Subject<void>();
+
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Manage Volunteers', route: '/volunteers' },
     { label: 'All Volunteers', route: '/volunteers' }
@@ -156,9 +185,24 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.search$.pipe(
+      debounceTime(300),
+      switchMap(() => this.fetchVolunteers$())
+    ).subscribe();
+
     this.loadVolunteers();
     this.loadSewaOptions();
     this.loadBranches();
+    this.headerActions.set({
+      label: 'Create Volunteer',
+      icon: 'add',
+      type: 'primary',
+      onClick: () => this.openCreateVolunteerModal()
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.headerActions.clear();
   }
 
   loadSewaOptions(): void {
@@ -169,7 +213,7 @@ export class AllVolunteersComponent implements OnInit {
       this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
         id: String(s.id),
         label: s.name || s.sewa_name || '',
-        value: s.name || s.sewa_name || ''
+        value: String(s.id)
       }));
     });
   }
@@ -182,7 +226,7 @@ export class AllVolunteersComponent implements OnInit {
       const options: DropdownOption[] = (Array.isArray(data) ? data : []).map((branch: any) => ({
         id: String(branch.id),
         label: branch.name || branch.label || branch.title || '',
-        value: branch.name || branch.label || branch.title || ''
+        value: String(branch.id)
       }));
       this.taskBranchOptions = options;
       this.correspondingBranchOptions = options;
@@ -190,86 +234,131 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   /**
-   * Loads volunteers from the API
+   * Loads volunteers from the API using current filter/sort/pagination state.
    */
   loadVolunteers(): void {
+    this.fetchVolunteers$().subscribe();
+  }
+
+  private isMeaningful(v: any): boolean {
+    return v !== undefined && v !== null && v !== '' && v !== 'none';
+  }
+
+  private buildVolunteersQueryParams(): { [key: string]: string | number } {
+    const params: { [key: string]: string | number } = {
+      page: this.currentPage,
+      per_page: this.pageSize
+    };
+
+    const setIfMeaningful = (key: string, value: any) => {
+      if (this.isMeaningful(value)) params[key] = value;
+    };
+
+    setIfMeaningful('branch_id', this.selectedTaskBranch[0]);
+    setIfMeaningful('home_branch', this.moreFilters.correspondingBranch[0]);
+    setIfMeaningful('branch_type', this.moreFilters.branchSearchType[0]);
+    setIfMeaningful('sewa_id', this.moreFilters.sewa[0]);
+    setIfMeaningful('badge_id', (this.filterFields.badgeNo || '').trim());
+    setIfMeaningful('gender', this.selectedGender[0]);
+    setIfMeaningful('name', (this.filterFields.name || '').trim());
+    setIfMeaningful('relation_name', (this.filterFields.relationName || '').trim());
+    setIfMeaningful('mobile_number', (this.filterFields.mobileNo || '').trim());
+    setIfMeaningful('unique_id', (this.filterFields.uid || '').trim());
+    // For these three, 'none' is a valid value the API expects (not skipped).
+    const setIfPresent = (key: string, value: any) => {
+      if (value !== undefined && value !== null && value !== '') params[key] = value;
+    };
+    setIfPresent('sewa_interest', this.moreFilters.sewaInterest[0]);
+    setIfPresent('sewa_assigned', this.moreFilters.sewaAllocated[0]);
+    setIfPresent('sewa_mode', this.moreFilters.sewaMode[0]);
+    setIfMeaningful('sortByColumn', this.sortByField[0]);
+    setIfMeaningful('orderBy', this.orderByDirection[0]);
+
+    return params;
+  }
+
+  private fetchVolunteers$() {
     this.isLoading = true;
     this.error = null;
 
-    this.dataService.get<any>('v1/volunteers').pipe(
+    return this.dataService.get<any>('v1/volunteers', { params: this.buildVolunteersQueryParams() }).pipe(
       catchError((error) => {
         console.error('Error loading volunteers:', error);
         this.error = error.error?.message || error.message || 'Failed to load volunteers. Please try again.';
-        this.isLoading = false;
-        return of({ data: [] }); // Return empty array to prevent breaking
+        return of({ data: [] });
       }),
       finalize(() => {
         this.isLoading = false;
       })
-    ).subscribe((response) => {
-      // Handle different response structures
-      const volunteersData = response.data || response.volunteers || response.results || response || [];
+    ).pipe(
+      tap((response: any) => this.applyVolunteersResponse(response))
+    );
+  }
 
-      // Map API response to Volunteer interface
-      this.allVolunteers = (Array.isArray(volunteersData) ? volunteersData : []).map((item: any) => {
-        // Get first image from user_images array if available
-        const firstImage = item.user_images && item.user_images.length > 0
-          ? item.user_images[0].full_path
-          : null;
+  private applyVolunteersResponse(response: any): void {
+    const volunteersData = response?.data || response?.volunteers || response?.results || response || [];
+    const meta = response?.meta || response?.pagination || {};
+    this.totalItems = Number(meta.total ?? response?.total ?? (Array.isArray(volunteersData) ? volunteersData.length : 0));
 
-        // Extract relation name from user_profile
-        const relationOf = item.user_profile?.relation_of || {};
-        const relationName = Object.values(relationOf)[0] as string || '';
+    this.volunteers = (Array.isArray(volunteersData) ? volunteersData : []).map((item: any) => {
+      const firstImage = item.user_images && item.user_images.length > 0 ? item.user_images[0].full_path : null;
+      const relationOf = item.user_profile?.relation_of || {};
+      const relationName = Object.values(relationOf)[0] as string || '';
 
-        // Extract address information
-        const userAddress = item.user_address || {};
-        const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
-        const primaryAddress = addressArray[0] || {};
+      const userAddress = item.user_address || {};
+      const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
+      const primaryAddress = addressArray[0] || {};
 
-        // Extract sewa information
-        const regularSewa = item.regular_sewa || {};
-        const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
-        const primarySewa = sewaArray[0] || {};
+      const regularSewa = item.regular_sewa || {};
+      const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
+      const primarySewa = sewaArray[0] || {};
 
-        const volunteer: Volunteer & { uuid?: string } = {
-          id: item.unique_id || item.id || 0,
-          uuid: item.id, // Store UUID for API calls
-          image: firstImage,
-          name: item.name || '',
-          age: item.user_profile?.age || null,
-          relationName: relationName || item.user_profile?.relation_name || '',
-          gender: item.user_profile?.gender ?
-            item.user_profile.gender.charAt(0).toUpperCase() + item.user_profile.gender.slice(1).toLowerCase() : '',
-          uid: item.uid || item.user_profile?.uid || '',
-          badgeNo: item.badge_no || item.badge_number || '',
-          address: {
-            street: primaryAddress.address_1 || primaryAddress.street || '',
-            city: primaryAddress.city || '',
-            state: primaryAddress.state || '',
-            pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
-            cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
-            correspondingBranch: primaryAddress.corresponding_branch ?
-              `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
-            taskBranch: primaryAddress.task_branch ?
-              `Task branch : ${primaryAddress.task_branch}` : '',
-            mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
-          },
-          regularSewa: primarySewa.tracking || primarySewa.sewa_name || primarySewa.count ? {
-            tracking: primarySewa.tracking || '',
-            sewaName: primarySewa.sewa_name || primarySewa.name || '',
-            count: primarySewa.count || primarySewa.sewa_count || null
-          } : undefined,
-          enterBy: item.entered_by || item.created_by || '',
-          sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
-          sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
-          sewaMode: item.sewa_mode || primarySewa.mode || ''
-        };
+      const userSewasRaw = Array.isArray(item.user_sewas) ? item.user_sewas : [];
+      const userSewas = userSewasRaw.map((us: any) => ({
+        sewaName: us?.sewa?.name || '',
+        branchName: us?.branch?.name || '',
+        badgeId: us?.badge_id ?? ''
+      }));
 
-        return volunteer;
-      });
+      const volunteer: Volunteer & { uuid?: string } = {
+        id: item.unique_id,
+        uuid: item.id,
+        image: firstImage,
+        name: item.name || '',
+        age: item.user_profile?.age || null,
+        relationName: relationName || item.user_profile?.relation_name || '',
+        gender: item.user_profile?.gender ?
+          item.user_profile.gender.charAt(0).toUpperCase() + item.user_profile.gender.slice(1).toLowerCase() : '',
+        uid: item.uid || item.user_profile?.uid || '',
+        badgeNo: item.badge_no || item.badge_number || '',
+        address: {
+          street: primaryAddress.address_1 || primaryAddress.street || '',
+          city: primaryAddress.city || '',
+          state: primaryAddress.state || '',
+          pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
+          cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
+          correspondingBranch: primaryAddress.corresponding_branch ?
+            `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
+          taskBranch: primaryAddress.task_branch ?
+            `Task branch : ${primaryAddress.task_branch}` : '',
+          mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
+        },
+        regularSewa: primarySewa.tracking || primarySewa.sewa_name || primarySewa.count ? {
+          tracking: primarySewa.tracking || '',
+          sewaName: primarySewa.sewa_name || primarySewa.name || '',
+          count: primarySewa.count || primarySewa.sewa_count || null
+        } : undefined,
+        userSewas,
+        enterBy: item.user_created_by?.name || '',
+        sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
+        sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
+        sewaMode: item.sewa_mode || primarySewa.mode || ''
+      };
 
-      this.applyFilter();
+      return volunteer;
     });
+
+    this.allVolunteers = this.volunteers;
   }
 
   /**
@@ -277,9 +366,9 @@ export class AllVolunteersComponent implements OnInit {
    */
   private buildFilterOptions(): void {
     this.genderOptions = [
-      { id: '1', label: 'Male', value: 'Male' },
-      { id: '2', label: 'Female', value: 'Female' },
-      { id: '3', label: 'Other', value: 'Other' }
+      { id: 'MALE', label: 'MALE', value: 'MALE' },
+      { id: 'FEMALE', label: 'FEMALE', value: 'FEMALE' },
+      { id: 'OTHER', label: 'OTHER', value: 'OTHER' }
     ];
 
     this.sortOrderOptions = [
@@ -290,13 +379,34 @@ export class AllVolunteersComponent implements OnInit {
       { id: '4', label: 'Id (DESC)', value: 'id:desc' }
     ];
 
+    this.sortByOptions = [
+      { id: 'address_1', label: 'Address', value: 'address_1' },
+      { id: 'dob', label: 'Age', value: 'dob' },
+      { id: 'badge_id', label: 'Badge No', value: 'badge_id' },
+      { id: 'created_at', label: 'Created date', value: 'created_at' },
+      { id: 'city', label: 'City', value: 'city' },
+      { id: 'created_by', label: 'Enter By', value: 'created_by' },
+      { id: 'father_name', label: 'Father Name', value: 'father_name' },
+      { id: 'gender', label: 'Gender', value: 'gender' },
+      { id: 'home_branch', label: 'Home Branch', value: 'home_branch' },
+      { id: 'unique_id', label: 'Id', value: 'unique_id' },
+      { id: 'mother_name', label: 'Mother Name', value: 'mother_name' },
+      { id: 'name', label: 'Name', value: 'name' },
+      { id: 'phone', label: 'Mobile', value: 'phone' },
+      { id: 'spouse_name', label: 'Spouse Name', value: 'spouse_name' },
+      { id: 'regular_sewa', label: 'Sewa Name', value: 'regular_sewa' }
+    ];
+
+    this.orderByOptions = [
+      { id: 'ASC', label: 'ASC', value: 'ASC' },
+      { id: 'DESC', label: 'DESC', value: 'DESC' }
+    ];
+
     this.taskBranchOptions = [];
     this.correspondingBranchOptions = [];
 
     this.branchSearchTypeOptions = [
-      { id: '1', label: 'Exact Match', value: 'exact' },
-      { id: '2', label: 'Contains', value: 'contains' },
-      { id: '3', label: 'Starts With', value: 'startsWith' }
+      { id: 'both', label: 'In Both', value: 'both' }
     ];
 
     this.sewaOptions = [];
@@ -307,8 +417,8 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   get pagedVolunteers(): Volunteer[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.volunteers.slice(start, start + this.pageSize);
+    // Server-side pagination — current page is already the response page
+    return this.volunteers;
   }
 
   trackById(_: number, v: Volunteer): number {
@@ -316,11 +426,15 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   onSearchChange(): void {
-    this.applyFilter();
+    this.currentPage = 1;
+    this.search$.next();
   }
 
   resetFilter(): void {
     this.searchTerm = '';
+    this.filterFields = { badgeNo: '', name: '', relationName: '', mobileNo: '', uid: '' };
+    this.sortByField = [];
+    this.orderByDirection = [];
     this.selectedGender = [];
     this.selectedTaskBranch = [];
     this.sortOrder = [];
@@ -332,118 +446,51 @@ export class AllVolunteersComponent implements OnInit {
       sewaAllocated: [],
       sewaMode: []
     };
-    this.applyFilter();
-  }
-
-  applyFilter(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const gender = this.selectedGender[0] || '';
-    const taskBranch = this.selectedTaskBranch[0] || '';
-    const correspondingBranch = this.moreFilters.correspondingBranch[0] || '';
-    const sewa = this.moreFilters.sewa[0] || '';
-    const sewaInterest = this.moreFilters.sewaInterest[0] || '';
-    const sewaAllocated = this.moreFilters.sewaAllocated[0] || '';
-    const sewaMode = this.moreFilters.sewaMode[0] || '';
-
-    // Filter volunteers
-    let filtered = this.allVolunteers.filter((v) => {
-      // Search in Name, Relation Name, Mobile No., UID, Badge No
-      const matchesTerm = !term ||
-        v.name.toLowerCase().includes(term) ||
-        v.relationName.toLowerCase().includes(term) ||
-        v.address.mobileNumber?.includes(term) ||
-        (v.uid && v.uid.toLowerCase().includes(term)) ||
-        (v.badgeNo && v.badgeNo.toLowerCase().includes(term));
-
-      const matchesGender = !gender || v.gender === gender;
-
-      const taskBranchValue = v.address.taskBranch?.replace('Task branch : ', '') || '';
-      const matchesTaskBranch = !taskBranch || taskBranchValue === taskBranch;
-
-      const correspondingBranchValue = v.address.correspondingBranch?.replace('Corresponding branch : ', '') || '';
-      const matchesCorrespondingBranch = !correspondingBranch || correspondingBranchValue === correspondingBranch;
-
-      const matchesSewa = !sewa || v.regularSewa?.sewaName?.includes(sewa);
-
-      const matchesSewaInterest = !sewaInterest ||
-        (sewaInterest === 'yes' && v.sewaInterest) ||
-        (sewaInterest === 'no' && !v.sewaInterest);
-
-      const matchesSewaAllocated = !sewaAllocated ||
-        (sewaAllocated === 'yes' && v.sewaAllocated) ||
-        (sewaAllocated === 'no' && !v.sewaAllocated);
-
-      const matchesSewaMode = !sewaMode || v.sewaMode === sewaMode;
-
-      return matchesTerm && matchesGender && matchesTaskBranch &&
-        matchesCorrespondingBranch && matchesSewa &&
-        matchesSewaInterest && matchesSewaAllocated && matchesSewaMode;
-    });
-
-    // Apply sorting
-    const sortOrderValue = this.sortOrder[0] || '';
-
-    if (sortOrderValue) {
-      const [sortField, orderDirection] = sortOrderValue.split(':');
-      const orderByValue = orderDirection || 'asc';
-
-      filtered = [...filtered].sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
-
-        switch (sortField) {
-          case 'name':
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case 'id':
-            aValue = a.id;
-            bValue = b.id;
-            break;
-          case 'relationName':
-            aValue = (a.relationName || '').toLowerCase();
-            bValue = (b.relationName || '').toLowerCase();
-            break;
-          case 'enterBy':
-            aValue = (a.enterBy || '').toLowerCase();
-            bValue = (b.enterBy || '').toLowerCase();
-            break;
-          default:
-            return 0;
-        }
-
-        if (aValue < bValue) return orderByValue === 'asc' ? -1 : 1;
-        if (aValue > bValue) return orderByValue === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    this.volunteers = filtered;
-    this.totalItems = this.volunteers.length;
     this.currentPage = 1;
+    this.loadVolunteers();
   }
 
   sortBy(field: string): void {
-    const current = this.sortOrder[0] || '';
-    const [currentField, currentDir] = current.split(':');
-    const nextDir = currentField === field && currentDir === 'asc' ? 'desc' : 'asc';
-    this.sortOrder = [`${field}:${nextDir}`];
-    this.applyFilter();
+    // Map UI column ids to API column names
+    const columnMap: { [key: string]: string } = {
+      id: 'unique_id',
+      name: 'name',
+      relationName: 'father_name',
+      enterBy: 'created_by'
+    };
+    const apiField = columnMap[field] || field;
+
+    const currentField = this.sortByField[0];
+    const currentDir = this.orderByDirection[0] || 'ASC';
+    const nextDir = currentField === apiField && currentDir === 'ASC' ? 'DESC' : 'ASC';
+
+    this.sortByField = [apiField];
+    this.orderByDirection = [nextDir];
+    this.onSearchChange();
   }
 
   getSortDirection(field: string): 'asc' | 'desc' | null {
-    const [f, d] = (this.sortOrder[0] || '').split(':');
-    return f === field ? ((d as 'asc' | 'desc') || 'asc') : null;
+    const columnMap: { [key: string]: string } = {
+      id: 'unique_id',
+      name: 'name',
+      relationName: 'father_name',
+      enterBy: 'created_by'
+    };
+    const apiField = columnMap[field] || field;
+    if (this.sortByField[0] !== apiField) return null;
+    return (this.orderByDirection[0] === 'DESC') ? 'desc' : 'asc';
   }
 
   // Pagination event handlers
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.loadVolunteers();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = Math.max(20, size);
     this.currentPage = 1;
+    this.loadVolunteers();
   }
 
   // Selection handlers
@@ -478,25 +525,12 @@ export class AllVolunteersComponent implements OnInit {
   // Action handlers
   getActionOptions(volunteer: Volunteer): MenuOption[] {
     return [
-      {
-        id: 'view',
-        label: 'View',
-        value: 'view',
-        icon: 'visibility'
-      },
-      {
-        id: 'edit',
-        label: 'Edit',
-        value: 'edit',
-        icon: 'edit'
-      },
-      {
-        id: 'delete',
-        label: 'Delete',
-        value: 'delete',
-        icon: 'delete',
-        danger: true
-      }
+      { id: 'view', label: 'View', value: 'view', icon: 'visibility' },
+      { id: 'edit', label: 'Edit', value: 'edit', icon: 'edit' },
+      { id: 'convert_desiring', label: 'Convert to Desiring Devotee', value: 'convert_desiring', icon: 'swap_horiz' },
+      { id: 'change_role', label: 'Change Role', value: 'change_role', icon: 'trending_up' },
+      { id: 'change_branch', label: 'Change Branch', value: 'change_branch', icon: 'trending_up' },
+      { id: 'generate_password', label: 'Generate Password', value: 'generate_password', icon: 'bolt' }
     ];
   }
 
@@ -504,17 +538,257 @@ export class AllVolunteersComponent implements OnInit {
     if (!action) return;
     const actionId = typeof action === 'string' ? action : (action.value || action.id);
 
-    if (actionId === 'view') {
-      this.viewDetails(volunteer);
-    } else if (actionId === 'edit') {
-      this.editVolunteer(volunteer);
-    } else if (actionId === 'delete') {
-      this.deleteVolunteer(volunteer);
+    switch (actionId) {
+      case 'view': this.viewDetails(volunteer); break;
+      case 'edit': this.editVolunteer(volunteer); break;
+      case 'convert_desiring': this.convertToDesiringDevotee(volunteer); break;
+      case 'change_role': this.changeRole(volunteer); break;
+      case 'change_branch': this.changeBranch(volunteer); break;
+      case 'generate_password': this.generatePassword(volunteer); break;
     }
   }
 
+  // Convert to Desiring Devotee confirmation modal state
+  desiringConfirmModalOpen = false;
+  desiringConfirmVolunteer: Volunteer | null = null;
+  isSubmittingDesiring = false;
+
+  convertToDesiringDevotee(volunteer: Volunteer): void {
+    this.desiringConfirmVolunteer = volunteer;
+    this.desiringConfirmModalOpen = true;
+  }
+
+  closeDesiringConfirmModal(): void {
+    this.desiringConfirmModalOpen = false;
+    this.desiringConfirmVolunteer = null;
+  }
+
+  confirmConvertToDesiringDevotee(): void {
+    const volunteer = this.desiringConfirmVolunteer;
+    if (!volunteer || this.isSubmittingDesiring) return;
+
+    const original = this.allVolunteers.find(v => v.id === volunteer.id) as (Volunteer & { uuid?: string }) | undefined;
+    const userId = (volunteer as Volunteer & { uuid?: string }).uuid || original?.uuid || String(volunteer.id);
+
+    const today = new Date().toISOString().split('T')[0];
+    const payload = {
+      user_id: userId,
+      probation_start_date: today,
+      probation_end_date: today
+    };
+
+    this.isSubmittingDesiring = true;
+    this.dataService.put('v1/volunteers/convert-to-desiring-devotees', payload).pipe(
+      catchError((error) => {
+        console.error('Error converting to desiring devotee:', error);
+        alert('Failed to convert to desiring devotee. Please try again.');
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSubmittingDesiring = false;
+      })
+    ).subscribe((response) => {
+      if (response !== null) {
+        this.closeDesiringConfirmModal();
+        this.loadVolunteers();
+      }
+    });
+  }
+
+  // Change Role modal
+  changeRoleModalOpen = false;
+  changeRoleVolunteer: Volunteer | null = null;
+  roleOptions: DropdownOption[] = [];
+  selectedRole: any[] = [];
+  isSubmittingRole = false;
+  changeRoleConfirmOpen = false;
+
+  changeRole(volunteer: Volunteer): void {
+    this.changeRoleVolunteer = volunteer;
+    this.selectedRole = [];
+    this.changeRoleModalOpen = true;
+    if (this.roleOptions.length === 0) {
+      this.loadRoles();
+    }
+  }
+
+  loadRoles(): void {
+    this.dataService.get<any>('v1/options/roles').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+      this.roleOptions = (Array.isArray(data) ? data : []).map((role: any) => ({
+        id: String(role.id),
+        label: role.name || role.label || role.title || '',
+        value: String(role.id)
+      }));
+    });
+  }
+
+  closeChangeRoleModal(): void {
+    this.changeRoleModalOpen = false;
+    this.changeRoleVolunteer = null;
+    this.selectedRole = [];
+  }
+
+  openChangeRoleConfirm(): void {
+    if (!this.selectedRole || this.selectedRole.length === 0) {
+      alert('Please select a role.');
+      return;
+    }
+    this.changeRoleConfirmOpen = true;
+  }
+
+  closeChangeRoleConfirm(): void {
+    this.changeRoleConfirmOpen = false;
+  }
+
+  confirmChangeRole(): void {
+    const volunteer = this.changeRoleVolunteer;
+    if (!volunteer || this.isSubmittingRole) return;
+
+    const original = this.allVolunteers.find(v => v.id === volunteer.id) as (Volunteer & { uuid?: string }) | undefined;
+    const userId = (volunteer as Volunteer & { uuid?: string }).uuid || original?.uuid || String(volunteer.id);
+
+    const payload = {
+      user_id: userId,
+      role_id: this.selectedRole[0]
+    };
+
+    this.isSubmittingRole = true;
+    this.dataService.put('v1/users/update-role', payload).pipe(
+      catchError((error) => {
+        console.error('Error updating role:', error);
+        alert('Failed to update role. Please try again.');
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSubmittingRole = false;
+      })
+    ).subscribe((response) => {
+      if (response !== null) {
+        this.closeChangeRoleConfirm();
+        this.closeChangeRoleModal();
+        this.loadVolunteers();
+      }
+    });
+  }
+
+  // Change Branch modal
+  changeBranchModalOpen = false;
+  changeBranchVolunteer: Volunteer | null = null;
+  selectedBranch: any[] = [];
+  isSubmittingBranch = false;
+  changeBranchConfirmOpen = false;
+
+  changeBranch(volunteer: Volunteer): void {
+    this.changeBranchVolunteer = volunteer;
+    this.selectedBranch = [];
+    this.changeBranchModalOpen = true;
+  }
+
+  closeChangeBranchModal(): void {
+    this.changeBranchModalOpen = false;
+    this.changeBranchVolunteer = null;
+    this.selectedBranch = [];
+  }
+
+  openChangeBranchConfirm(): void {
+    if (!this.selectedBranch || this.selectedBranch.length === 0) {
+      alert('Please select a branch.');
+      return;
+    }
+    this.changeBranchConfirmOpen = true;
+  }
+
+  closeChangeBranchConfirm(): void {
+    this.changeBranchConfirmOpen = false;
+  }
+
+  confirmChangeBranch(): void {
+    const volunteer = this.changeBranchVolunteer;
+    if (!volunteer || this.isSubmittingBranch) return;
+
+    const original = this.allVolunteers.find(v => v.id === volunteer.id) as (Volunteer & { uuid?: string }) | undefined;
+    const userId = (volunteer as Volunteer & { uuid?: string }).uuid || original?.uuid || String(volunteer.id);
+
+    const payload = {
+      user_id: userId,
+      branch_id: this.selectedBranch[0]
+    };
+
+    this.isSubmittingBranch = true;
+    this.dataService.put('v1/users/update-branch', payload).pipe(
+      catchError((error) => {
+        console.error('Error updating branch:', error);
+        alert('Failed to update branch. Please try again.');
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSubmittingBranch = false;
+      })
+    ).subscribe((response) => {
+      if (response !== null) {
+        this.closeChangeBranchConfirm();
+        this.closeChangeBranchModal();
+        this.loadVolunteers();
+      }
+    });
+  }
+
+  getSelectedRoleLabel(): string {
+    if (!this.selectedRole || this.selectedRole.length === 0) return '';
+    const opt = this.roleOptions.find(o => String(o.value) === String(this.selectedRole[0]));
+    return opt?.label || '';
+  }
+
+  getSelectedBranchLabel(): string {
+    if (!this.selectedBranch || this.selectedBranch.length === 0) return '';
+    const opt = this.taskBranchOptions.find(o => String(o.value) === String(this.selectedBranch[0]));
+    return opt?.label || '';
+  }
+
+  // Generate Password modal
+  generatedPasswordModalOpen = false;
+  generatedPassword: string = '';
+  isGeneratingPassword = false;
+
+  generatePassword(volunteer: Volunteer): void {
+    if (this.isGeneratingPassword) return;
+
+    const original = this.allVolunteers.find(v => v.id === volunteer.id) as (Volunteer & { uuid?: string }) | undefined;
+    const userId = (volunteer as Volunteer & { uuid?: string }).uuid || original?.uuid || String(volunteer.id);
+
+    this.isGeneratingPassword = true;
+    this.dataService.put<any>('v1/users/update-password', { user_id: userId }).pipe(
+      catchError((error) => {
+        console.error('Error generating password:', error);
+        alert('Failed to generate password. Please try again.');
+        return of(null);
+      }),
+      finalize(() => {
+        this.isGeneratingPassword = false;
+      })
+    ).subscribe((response) => {
+      if (response === null) return;
+      const password = response?.data?.password
+        || response?.password
+        || response?.data?.new_password
+        || response?.new_password
+        || '';
+      this.generatedPassword = password;
+      this.generatedPasswordModalOpen = true;
+    });
+  }
+
+  closeGeneratedPasswordModal(): void {
+    this.generatedPasswordModalOpen = false;
+    this.generatedPassword = '';
+  }
+
   viewDetails(volunteer: Volunteer): void {
-    console.log('View volunteer:', volunteer);
+    const uuid = (volunteer as any).uuid || volunteer.id;
+    this.router.navigate(['/volunteers', uuid, 'view']);
   }
 
   editVolunteer(volunteer: Volunteer): void {
@@ -534,8 +808,7 @@ export class AllVolunteersComponent implements OnInit {
           return of(null);
         })
       ).subscribe(() => {
-        this.allVolunteers = this.allVolunteers.filter(v => v.id !== volunteer.id);
-        this.applyFilter();
+        this.loadVolunteers();
       });
     }
   }
@@ -684,6 +957,10 @@ export class AllVolunteersComponent implements OnInit {
     this.selectedVolunteerForSewa = null;
   }
 
+  getSelectedUserId(): string | null {
+    return (this.selectedVolunteerForSewa as any)?.uuid || null;
+  }
+
   getBranchName(): string {
     return this.selectedVolunteerForSewa?.address?.correspondingBranch?.replace('Corresponding branch : ', '') ||
       this.selectedVolunteerForSewa?.address?.taskBranch?.replace('Task branch : ', '') ||
@@ -699,6 +976,13 @@ export class AllVolunteersComponent implements OnInit {
     if (this.selectedGender.length > 0) count++;
     if (this.selectedTaskBranch.length > 0) count++;
     if (this.sortOrder.length > 0 && this.sortOrder[0]) count++;
+    if (this.sortByField.length > 0) count++;
+    if (this.orderByDirection.length > 0) count++;
+    if (this.filterFields.badgeNo) count++;
+    if (this.filterFields.name) count++;
+    if (this.filterFields.relationName) count++;
+    if (this.filterFields.mobileNo) count++;
+    if (this.filterFields.uid) count++;
     count += this.activeMoreFiltersCount();
     return count;
   }
@@ -713,7 +997,11 @@ export class AllVolunteersComponent implements OnInit {
   }
 
   hasAnyActiveFilter(): boolean {
-    return !!this.searchTerm || this.selectedGender.length > 0 ||
+    const anyTextField = !!(this.filterFields.badgeNo || this.filterFields.name ||
+      this.filterFields.relationName || this.filterFields.mobileNo || this.filterFields.uid);
+    return !!this.searchTerm || anyTextField ||
+      this.sortByField.length > 0 || this.orderByDirection.length > 0 ||
+      this.selectedGender.length > 0 ||
       this.selectedTaskBranch.length > 0 ||
       (this.sortOrder.length > 0 && !!this.sortOrder[0]) ||
       this.hasActiveMoreFilters();
@@ -728,7 +1016,7 @@ export class AllVolunteersComponent implements OnInit {
       sewaAllocated: [],
       sewaMode: []
     };
-    this.applyFilter();
+    this.onSearchChange();
   }
 
   // Create Volunteer Modal Methods

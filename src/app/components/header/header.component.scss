@@ -21,6 +21,37 @@
 .header-right {
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+.header-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: $color-gray-100;
+    color: $color-gray-800;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    app-icon { font-size: 16px; }
+
+    &:hover {
+        background: $color-gray-200;
+    }
+
+    &--primary {
+        background: $color-primary-600;
+        color: $color-white;
+
+        &:hover {
+            background: $color-primary-700;
+        }
+    }
 }
 
 .header-divider {

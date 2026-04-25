@@ -15,6 +15,15 @@
         </nav>
     </div>
     <div class="header-right">
+        <button
+            *ngIf="headerActions.action() as act"
+            class="header-action-btn"
+            [class.header-action-btn--primary]="(act.type || 'primary') === 'primary'"
+            (click)="act.onClick()"
+            type="button">
+            <app-icon *ngIf="act.icon" [name]="act.icon" />
+            <span>{{ act.label }}</span>
+        </button>
         <button class="logout-btn" (click)="onLogout()" type="button" title="Logout">
             <app-icon name="logout" />
             <span class="logout-label">Logout</span>

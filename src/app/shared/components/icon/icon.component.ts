@@ -87,6 +87,9 @@ import {
   // Misc
   HeartCheckIcon,
   FavouriteIcon,
+  ArrowReloadHorizontalIcon,
+  Exchange01Icon,
+  CirclePasswordIcon,
 } from '@hugeicons/core-free-icons';
 
 // Map Material Icons names to Hugeicons
@@ -190,6 +193,8 @@ const ICON_MAP: Record<string, IconSvgObject> = {
 
   // Misc
   'volunteer_activism': HeartCheckIcon,
+  'swap_horiz': Exchange01Icon,
+  'bolt': CirclePasswordIcon,
   'favorite': FavouriteIcon,
 };
 
