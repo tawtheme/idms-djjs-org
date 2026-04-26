@@ -1,634 +1,730 @@
-<div class="volunteer-edit">
-    <div class="page-header">
-        <a class="back" routerLink="/volunteers"><app-icon name="chevron_left" /> Back to Volunteers</a>
-        <h2>Edit Volunteer <span class="muted" *ngIf="basic.unique_id">#{{ basic.unique_id }}</span></h2>
+<div class="ve-shell">
+    <!-- Saving overlay (section-level) -->
+    <div class="ve-saving-overlay" *ngIf="savingSection">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
     </div>
 
-    <div *ngIf="isLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
-    <div *ngIf="!isLoading && error" class="state error">{{ error }}</div>
-
-    <ng-container *ngIf="!isLoading">
-        <div class="tabs">
-            <button *ngFor="let t of tabs" type="button" class="tab" [class.tab--active]="activeTab === t.id" (click)="setTab(t.id)">{{ t.label }}</button>
+    <!-- Sidebar -->
+    <aside class="ve-sidebar" *ngIf="!isLoading">
+        <div class="ve-profile">
+            <div class="ve-profile__avatar">
+                <img *ngIf="profileImagePreview" [src]="profileImagePreview" alt="Profile" />
+                <span *ngIf="!profileImagePreview">{{ nameInitials }}</span>
+            </div>
+            <div class="ve-profile__name">{{ basic.name || 'New Volunteer' }}</div>
+            <div class="ve-profile__id" *ngIf="basic.unique_id">#{{ basic.unique_id }}</div>
         </div>
 
-        <form (ngSubmit)="onSubmit()" #volunteerForm="ngForm" class="tab-body">
-            <!-- Basic Information -->
-            <ng-container *ngIf="activeTab === 'basic'">
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Unique ID</label>
-                        <input type="text" class="form-control" [value]="basic.unique_id" disabled>
-                    </div>
-                    <div class="form-field">
-                        <label>Name <span class="required">*</span></label>
-                        <input type="text" class="form-control" [(ngModel)]="basic.name" [ngModelOptions]="{ standalone: true }" required>
-                    </div>
-                    <div class="form-field">
-                        <div class="field-label-row">
-                            <label>Mobile Number <span class="required">*</span></label>
-                            <label class="copy-whatsapp">
-                                <input type="checkbox" [(ngModel)]="copyAsWhatsapp" [ngModelOptions]="{ standalone: true }" (change)="onCopyAsWhatsappChange()" />
-                                <span>Same as WhatsApp</span>
-                            </label>
-                        </div>
-                        <input type="tel" class="form-control" [(ngModel)]="basic.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
-                        <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Whatsapp Number</label>
-                        <input type="tel" class="form-control" [(ngModel)]="basic.whatsappNumber" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
-                        <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Email</label>
-                        <input type="email" class="form-control" [(ngModel)]="basic.email" [ngModelOptions]="{ standalone: true }">
-                        <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Level</label>
-                        <app-dropdown [options]="levelOptions" [selectedValues]="selectedLevel" placeholder="Select Level" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedLevel = $event" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Roles</label>
-                        <app-dropdown [options]="rolesOptions" [selectedValues]="selectedRoles" placeholder="Select Roles" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedRoles = $event"></app-dropdown>
-                    </div>
-                </div>
+        <div class="ve-nav-group">
+            <div class="ve-nav-group__label">Profile</div>
+            <nav class="ve-nav">
+                <button *ngFor="let t of profileTabs" type="button" class="ve-nav__item"
+                    [class.ve-nav__item--active]="activeTab === t.id" (click)="setTab(t.id)">
+                    {{ t.label }}
+                </button>
+            </nav>
+        </div>
 
-                <div class="form-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Profile Image</h3>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-field" *ngIf="!profileImagePreview">
-                            <label>Upload Method</label>
-                            <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
-                        </div>
-                        <div class="form-field form-field--full" *ngIf="profileImagePreview">
-                            <div class="profile-image-preview">
-                                <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-                                <div class="profile-image-meta">
-                                    <div class="profile-image-date" *ngIf="profileImageDate">Uploaded on: <strong>{{ profileImageDate }}</strong></div>
-                                    <div class="profile-image-actions">
-                                        <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isSaving">Change</button>
-                                        <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isSaving">Remove</button>
+        <div class="ve-nav-group">
+            <div class="ve-nav-group__label">Activity</div>
+            <nav class="ve-nav">
+                <button *ngFor="let t of activityTabs" type="button" class="ve-nav__item"
+                    [class.ve-nav__item--active]="activeTab === t.id" (click)="setTab(t.id)">
+                    {{ t.label }}
+                </button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main column -->
+    <div class="ve-main">
+        <header class="ve-topbar" *ngIf="!isLoading">
+            <div class="ve-topbar__title">
+                <span class="ve-topbar__crumb">Edit Volunteer</span>
+                <h1>{{ activeTabLabel }}</h1>
+            </div>
+            <div class="ve-topbar__actions">
+                <button type="button" class="ve-topbar__close" (click)="onCancel()" aria-label="Close">
+                    <app-icon name="close" />
+                </button>
+            </div>
+        </header>
+
+        <div *ngIf="isLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+        <div *ngIf="!isLoading && error" class="ve-state ve-state--error">{{ error }}</div>
+
+        <ng-container *ngIf="!isLoading">
+            <form (ngSubmit)="onSubmit()" #volunteerForm="ngForm">
+                <div class="ve-body">
+
+                    <!-- Basic Information -->
+                    <ng-container *ngIf="activeTab === 'basic'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Basic Information</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveBasicSection()" [disabled]="savingSection === 'basic'">{{ savingSection === 'basic' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Unique ID</label>
+                                    <input type="text" class="form-control" [value]="basic.unique_id" disabled>
+                                </div>
+                                <div class="form-field">
+                                    <label>Name <span class="required">*</span></label>
+                                    <input type="text" class="form-control" [(ngModel)]="basic.name" [ngModelOptions]="{ standalone: true }" required>
+                                </div>
+                                <div class="form-field">
+                                    <div class="field-label-row">
+                                        <label>Mobile Number <span class="required">*</span></label>
+                                        <label class="copy-whatsapp">
+                                            <input type="checkbox" [(ngModel)]="copyAsWhatsapp" [ngModelOptions]="{ standalone: true }" (change)="onCopyAsWhatsappChange()" />
+                                            <span>Same as WhatsApp</span>
+                                        </label>
+                                    </div>
+                                    <input type="tel" class="form-control" [(ngModel)]="basic.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
+                                    <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Whatsapp Number</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="basic.whatsappNumber" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
+                                    <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" [(ngModel)]="basic.email" [ngModelOptions]="{ standalone: true }">
+                                    <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Level</label>
+                                    <app-dropdown [options]="levelOptions" [selectedValues]="selectedLevel" placeholder="Select Level" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedLevel = $event" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Roles</label>
+                                    <app-dropdown [options]="rolesOptions" [selectedValues]="selectedRoles" placeholder="Select Roles" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedRoles = $event"></app-dropdown>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head"><h3>Profile Image</h3></div>
+                            <div class="form-grid">
+                                <div class="form-field" *ngIf="!profileImagePreview">
+                                    <label>Upload Method</label>
+                                    <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field" *ngIf="profileImagePreview">
+                                    <label>Profile Image</label>
+                                    <div class="profile-image-preview">
+                                        <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
+                                        <div class="profile-image-meta">
+                                            <div class="profile-image-date" *ngIf="profileImageDate">Uploaded on: <strong>{{ profileImageDate }}</strong></div>
+                                            <div class="profile-image-actions">
+                                                <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isSaving">Change</button>
+                                                <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isSaving">Remove</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </ng-container>
+                        </section>
+                    </ng-container>
 
-            <!-- Address Details -->
-            <ng-container *ngIf="activeTab === 'address'">
-                <div class="section-title">Permanent Address</div>
-                <div class="form-grid">
-                    <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Country</label><input class="form-control" [(ngModel)]="permanent.country" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>State</label><input class="form-control" [(ngModel)]="permanent.state" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>City</label><input class="form-control" [(ngModel)]="permanent.city" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>District</label><input class="form-control" [(ngModel)]="permanent.district" [ngModelOptions]="{ standalone: true }"></div>
-                </div>
-
-                <div class="section-title">
-                    Correspondence Address
-                    <label class="copy-whatsapp" style="margin-left:auto;">
-                        <input type="checkbox" [(ngModel)]="copyAddress" [ngModelOptions]="{ standalone: true }" />
-                        <span>Same as Permanent Address</span>
-                    </label>
-                </div>
-                <div class="form-grid">
-                    <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="correspondence.address_1" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="correspondence.address_2" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Country</label><input class="form-control" [(ngModel)]="correspondence.country" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>State</label><input class="form-control" [(ngModel)]="correspondence.state" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>City</label><input class="form-control" [(ngModel)]="correspondence.city" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="correspondence.pincode" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>District</label><input class="form-control" [(ngModel)]="correspondence.district" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Tehsil</label><input class="form-control" [(ngModel)]="correspondence.tehsil" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field"><label>Post Office</label><input class="form-control" [(ngModel)]="correspondence.post_office" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field">
-                        <label>Branch</label>
-                        <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.branch_id ? [correspondence.branch_id] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.branch_id = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Home Branch</label>
-                        <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.home_branch ? [correspondence.home_branch] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.home_branch = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                </div>
-            </ng-container>
-
-            <!-- Personal & Family -->
-            <ng-container *ngIf="activeTab === 'personal'">
-                <div class="section-title">Personal Details</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Gender</label>
-                        <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Date of Birth</label>
-                        <app-datepicker [value]="basic.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
-                    </div>
-                    <div class="form-field">
-                        <label>Age</label>
-                        <input class="form-control" [value]="computedAge" disabled placeholder="Auto from DOB">
-                    </div>
-                    <div class="form-field">
-                        <label>Marital Status</label>
-                        <app-dropdown [options]="maritalStatusOptions" [selectedValues]="selectedMaritalStatus" placeholder="Select Marital Status" (selectionChange)="selectedMaritalStatus = $event; personal.marital_status = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                </div>
-
-                <div class="section-title">Family Details</div>
-                <div class="form-grid">
-                    <div class="form-field"><label>Father Name</label><input class="form-control" [(ngModel)]="personal.father_name" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field">
-                        <label>Father Email</label>
-                        <input type="email" class="form-control" [(ngModel)]="personal.father_email" [ngModelOptions]="{ standalone: true }">
-                        <small class="field-error" *ngIf="fatherEmailError">{{ fatherEmailError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Father Mobile</label>
-                        <input type="tel" class="form-control" [(ngModel)]="personal.father_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
-                    </div>
-                    <div class="form-field">
-                        <label>Father Occupation</label>
-                        <app-dropdown [options]="occupationOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" (selectionChange)="selectedFatherOccupation = $event; personal.father_occupation = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Father Occupation Location</label>
-                        <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" (selectionChange)="selectedFatherOccupationLocation = $event; personal.father_occupation_location = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Father Occupation Type</label>
-                        <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" (selectionChange)="selectedFatherOccupationType = $event; personal.father_occupation_type = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Father Occupation Status</label>
-                        <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedFatherOccupationStatus = $event; personal.father_occupation_status = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field"><label>Mother Name</label><input class="form-control" [(ngModel)]="personal.mother_name" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field">
-                        <label>Mother Email</label>
-                        <input type="email" class="form-control" [(ngModel)]="personal.mother_email" [ngModelOptions]="{ standalone: true }">
-                        <small class="field-error" *ngIf="motherEmailError">{{ motherEmailError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Mother Mobile</label>
-                        <input type="tel" class="form-control" [(ngModel)]="personal.mother_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
-                    </div>
-                    <div class="form-field">
-                        <label>Mother Occupation</label>
-                        <app-dropdown [options]="occupationOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" (selectionChange)="selectedMotherOccupation = $event; personal.mother_occupation = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Mother Occupation Location</label>
-                        <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" (selectionChange)="selectedMotherOccupationLocation = $event; personal.mother_occupation_location = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Mother Occupation Type</label>
-                        <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" (selectionChange)="selectedMotherOccupationType = $event; personal.mother_occupation_type = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Mother Occupation Status</label>
-                        <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedMotherOccupationStatus = $event; personal.mother_occupation_status = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field"><label>Spouse Name</label><input class="form-control" [(ngModel)]="personal.spouse_name" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field">
-                        <label>Sibling's (Brother)</label>
-                        <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" (selectionChange)="selectedSiblingsBrother = $event; personal.siblings_brother = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Sibling's (Sister)</label>
-                        <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" (selectionChange)="selectedSiblingsSister = $event; personal.siblings_sister = $event?.[0] || ''" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field"><label>Earning Members</label><input class="form-control" [(ngModel)]="personal.earning_members" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field form-field--full">
-                        <label>If married, how many family members live at home?</label>
-                        <textarea class="form-control" rows="3" [(ngModel)]="personal.family_members_at_home" [ngModelOptions]="{ standalone: true }"></textarea>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Samarpit Member (if any)</label>
-                        <textarea class="form-control" rows="3" [(ngModel)]="personal.samarpit_member" [ngModelOptions]="{ standalone: true }"></textarea>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Remarks</label>
-                        <textarea class="form-control" rows="3" [(ngModel)]="personal.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
-                    </div>
-                </div>
-
-                <div class="section-title">Emergency Contact</div>
-                <div class="form-grid">
-                    <div class="form-field"><label>Name</label><input class="form-control" [(ngModel)]="emergency.name" [ngModelOptions]="{ standalone: true }"></div>
-                    <div class="form-field">
-                        <label>Mobile Number</label>
-                        <input type="tel" class="form-control" [(ngModel)]="emergency.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
-                        <small class="field-error" *ngIf="emergencyPhoneError">{{ emergencyPhoneError }}</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Email</label>
-                        <input type="email" class="form-control" [(ngModel)]="emergency.email" [ngModelOptions]="{ standalone: true }">
-                        <small class="field-error" *ngIf="emergencyEmailError">{{ emergencyEmailError }}</small>
-                    </div>
-                </div>
-            </ng-container>
-
-            <!-- Id Proofs -->
-            <ng-container *ngIf="activeTab === 'idproofs'">
-                <div class="section-title">User Aadhaar Details</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Aadhaar Number</label>
-                        <input class="form-control" [(ngModel)]="idProofs.aadhaar.number" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="12">
-                    </div>
-                    <div class="form-field">
-                        <label>Name</label>
-                        <input class="form-control" [(ngModel)]="idProofs.aadhaar.name" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Aadhaar Address</label>
-                        <app-dropdown
-                            [options]="[
-                                { id: 'Ashram', label: 'Ashram', value: 'Ashram' },
-                                { id: 'Home', label: 'Home', value: 'Home' }
-                            ]"
-                            [selectedValues]="idProofs.aadhaar.address ? [idProofs.aadhaar.address] : []"
-                            placeholder="Select Address"
-                            (selectionChange)="idProofs.aadhaar.address = ($event[0] || '')"
-                            [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Home Reason</label>
-                        <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Mobile Linked</label>
-                        <input type="tel" class="form-control" [(ngModel)]="idProofs.aadhaar.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
-                    </div>
-                    <div class="form-field">
-                        <label>Renewal Date</label>
-                        <app-datepicker [value]="idProofs.aadhaar.renewal_date" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="idProofs.aadhaar.renewal_date = $event"></app-datepicker>
-                    </div>
-                    <div class="form-field">
-                        <label>Ashram Area</label>
-                        <input class="form-control" [(ngModel)]="idProofs.aadhaar.ashram_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Area ID">
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Remarks</label>
-                        <textarea class="form-control" rows="2" [(ngModel)]="idProofs.aadhaar.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Aadhaar Document</label>
-                        <div class="id-proof-upload">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('aadhaar')" [disabled]="isSaving">
-                                {{ idProofs.aadhaar.preview ? 'Change Document' : 'Add New Aadhaar Document' }}
-                            </button>
-                            <div class="id-proof-preview" *ngIf="idProofs.aadhaar.preview">
-                                <img [src]="idProofs.aadhaar.preview" alt="Aadhaar preview" class="profile-thumb" />
-                                <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('aadhaar')" [disabled]="isSaving">Remove</button>
+                    <!-- Address Details -->
+                    <ng-container *ngIf="activeTab === 'address'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Permanent Address</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent'">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-title">User Electoral Photo Identity Card Details</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Voter Number</label>
-                        <input class="form-control" [(ngModel)]="idProofs.voter.voter_number" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Name</label>
-                        <input class="form-control" [(ngModel)]="idProofs.voter.name" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Part Number</label>
-                        <input class="form-control" [(ngModel)]="idProofs.voter.port_number" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Serial Number</label>
-                        <input class="form-control" [(ngModel)]="idProofs.voter.serial_number" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Voter Address</label>
-                        <app-dropdown
-                            [options]="[
-                                { id: 'Ashram', label: 'Ashram', value: 'Ashram' },
-                                { id: 'Home', label: 'Home', value: 'Home' }
-                            ]"
-                            [selectedValues]="idProofs.voter.address ? [idProofs.voter.address] : []"
-                            placeholder="Select Address"
-                            (selectionChange)="idProofs.voter.address = ($event[0] || '')"
-                            [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Home Reason</label>
-                        <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Mobile Linked</label>
-                        <input type="tel" class="form-control" [(ngModel)]="idProofs.voter.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
-                    </div>
-                    <div class="form-field">
-                        <label>Ashram Voter Area</label>
-                        <input class="form-control" [(ngModel)]="idProofs.voter.ashram_voter_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Voter Area ID">
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Voter Remarks</label>
-                        <textarea class="form-control" rows="3" [(ngModel)]="idProofs.voter.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Electoral Document</label>
-                        <div class="id-proof-upload">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('voter')" [disabled]="isSaving">
-                                {{ idProofs.voter.preview ? 'Change Document' : 'Add New Electoral Document' }}
-                            </button>
-                            <div class="id-proof-preview" *ngIf="idProofs.voter.preview">
-                                <img [src]="idProofs.voter.preview" alt="Voter ID preview" class="profile-thumb" />
-                                <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('voter')" [disabled]="isSaving">Remove</button>
+                            <div class="form-grid">
+                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Country</label>
+                                    <app-dropdown [options]="countryOptions" [selectedValues]="permanent.country ? [permanent.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>State</label>
+                                    <app-dropdown [options]="permStateOptions" [selectedValues]="permanent.state ? [permanent.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>District</label>
+                                    <app-dropdown [options]="permDistrictOptions" [selectedValues]="permanent.district ? [permanent.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>City</label>
+                                    <app-dropdown [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"></div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                        </section>
 
-                <div class="section-title">User Driving License Details</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>License Number</label>
-                        <input class="form-control" [(ngModel)]="idProofs.license.license_number" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>License Holder Name</label>
-                        <input class="form-control" [(ngModel)]="idProofs.license.holder_name" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>State</label>
-                        <input class="form-control" [(ngModel)]="idProofs.license.state" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>License Type</label>
-                        <app-dropdown
-                            [options]="licenseTypeOptions"
-                            [selectedValues]="idProofs.license.license_type ? [idProofs.license.license_type] : []"
-                            placeholder="Select License Type"
-                            (selectionChange)="idProofs.license.license_type = ($event[0] || '')"
-                            [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Date of Issue</label>
-                        <app-datepicker [value]="idProofs.license.date_of_issue" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('date_of_issue', $event)"></app-datepicker>
-                    </div>
-                    <div class="form-field">
-                        <label>Expiry Date</label>
-                        <app-datepicker [value]="idProofs.license.expiry_date" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('expiry_date', $event)"></app-datepicker>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>License Document</label>
-                        <div class="id-proof-upload">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('license')" [disabled]="isSaving">
-                                {{ idProofs.license.preview ? 'Change Document' : 'Add New License Document' }}
-                            </button>
-                            <div class="id-proof-preview" *ngIf="idProofs.license.preview">
-                                <img [src]="idProofs.license.preview" alt="License preview" class="profile-thumb" />
-                                <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('license')" [disabled]="isSaving">Remove</button>
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Correspondence Address</h3>
+                                <div class="ve-section__head-actions">
+                                    <label class="copy-whatsapp">
+                                        <input type="checkbox" [(ngModel)]="copyAddress" [ngModelOptions]="{ standalone: true }" />
+                                        <span>Same as Permanent Address</span>
+                                    </label>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveCorrespondenceSection()" [disabled]="savingSection === 'correspondence'">{{ savingSection === 'correspondence' ? 'Saving...' : 'Save' }}</button>
+                                </div>
                             </div>
+                            <div class="form-grid">
+                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="correspondence.address_1" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="correspondence.address_2" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Country</label>
+                                    <app-dropdown [options]="countryOptions" [selectedValues]="correspondence.country ? [correspondence.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('correspondence', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>State</label>
+                                    <app-dropdown [options]="corrStateOptions" [selectedValues]="correspondence.state ? [correspondence.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('correspondence', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>District</label>
+                                    <app-dropdown [options]="corrDistrictOptions" [selectedValues]="correspondence.district ? [correspondence.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('correspondence', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>City</label>
+                                    <app-dropdown [options]="corrCityOptions" [selectedValues]="correspondence.city ? [correspondence.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('correspondence', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="correspondence.pincode" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label>Tehsil</label><input class="form-control" [(ngModel)]="correspondence.tehsil" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label>Post Office</label><input class="form-control" [(ngModel)]="correspondence.post_office" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Branch</label>
+                                    <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.branch_id ? [correspondence.branch_id] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.branch_id = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Home Branch</label>
+                                    <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.home_branch ? [correspondence.home_branch] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.home_branch = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                            </div>
+                        </section>
+                    </ng-container>
+
+                    <!-- Personal & Family -->
+                    <ng-container *ngIf="activeTab === 'personal'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Personal Details</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="savePersonalSection()" [disabled]="savingSection === 'personal'">{{ savingSection === 'personal' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Gender</label>
+                                    <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Date of Birth</label>
+                                    <app-datepicker [value]="basic.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+                                </div>
+                                <div class="form-field">
+                                    <label>Age</label>
+                                    <input class="form-control" [value]="computedAge" disabled placeholder="Auto from DOB">
+                                </div>
+                                <div class="form-field">
+                                    <label>Marital Status</label>
+                                    <app-dropdown [options]="maritalStatusOptions" [selectedValues]="selectedMaritalStatus" placeholder="Select Marital Status" (selectionChange)="selectedMaritalStatus = $event; personal.marital_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Family Details</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveFamilySection()" [disabled]="savingSection === 'family'">{{ savingSection === 'family' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field"><label>Father Name</label><input class="form-control" [(ngModel)]="personal.father_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Father Email</label>
+                                    <input type="email" class="form-control" [(ngModel)]="personal.father_email" [ngModelOptions]="{ standalone: true }">
+                                    <small class="field-error" *ngIf="fatherEmailError">{{ fatherEmailError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Father Mobile</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="personal.father_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                </div>
+                                <div class="form-field">
+                                    <label>Father Occupation</label>
+                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupation = $event; personal.father_occupation = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Father Occupation Location</label>
+                                    <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupationLocation = $event; personal.father_occupation_location = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Father Occupation Type</label>
+                                    <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" (selectionChange)="selectedFatherOccupationType = $event; personal.father_occupation_type = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Father Occupation Status</label>
+                                    <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedFatherOccupationStatus = $event; personal.father_occupation_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Mother Name</label><input class="form-control" [(ngModel)]="personal.mother_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Mother Email</label>
+                                    <input type="email" class="form-control" [(ngModel)]="personal.mother_email" [ngModelOptions]="{ standalone: true }">
+                                    <small class="field-error" *ngIf="motherEmailError">{{ motherEmailError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mother Mobile</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="personal.mother_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                </div>
+                                <div class="form-field">
+                                    <label>Mother Occupation</label>
+                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupation = $event; personal.mother_occupation = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mother Occupation Location</label>
+                                    <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupationLocation = $event; personal.mother_occupation_location = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mother Occupation Type</label>
+                                    <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" (selectionChange)="selectedMotherOccupationType = $event; personal.mother_occupation_type = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mother Occupation Status</label>
+                                    <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedMotherOccupationStatus = $event; personal.mother_occupation_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Spouse Name</label><input class="form-control" [(ngModel)]="personal.spouse_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Sibling's (Brother)</label>
+                                    <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" (selectionChange)="selectedSiblingsBrother = $event; personal.siblings_brother = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Sibling's (Sister)</label>
+                                    <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" (selectionChange)="selectedSiblingsSister = $event; personal.siblings_sister = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Earning Members</label><input class="form-control" [(ngModel)]="personal.earning_members" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field form-field--full">
+                                    <label>If married, how many family members live at home?</label>
+                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.family_members_at_home" [ngModelOptions]="{ standalone: true }"></textarea>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Samarpit Member (if any)</label>
+                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.samarpit_member" [ngModelOptions]="{ standalone: true }"></textarea>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Remarks</label>
+                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Emergency Contact</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveEmergencySection()" [disabled]="savingSection === 'emergency'">{{ savingSection === 'emergency' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field"><label>Name</label><input class="form-control" [(ngModel)]="emergency.name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Mobile Number</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="emergency.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <small class="field-error" *ngIf="emergencyPhoneError">{{ emergencyPhoneError }}</small>
+                                </div>
+                                <div class="form-field">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" [(ngModel)]="emergency.email" [ngModelOptions]="{ standalone: true }">
+                                    <small class="field-error" *ngIf="emergencyEmailError">{{ emergencyEmailError }}</small>
+                                </div>
+                            </div>
+                        </section>
+                    </ng-container>
+
+                    <!-- Id Proofs -->
+                    <ng-container *ngIf="activeTab === 'idproofs'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Aadhaar Details</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAadhaarSection()" [disabled]="savingSection === 'aadhaar'">{{ savingSection === 'aadhaar' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Aadhaar Number</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.aadhaar.number" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="12">
+                                </div>
+                                <div class="form-field">
+                                    <label>Name</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.aadhaar.name" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Home Reason</label>
+                                    <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mobile Linked</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="idProofs.aadhaar.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Aadhaar Document</label>
+                                    <div class="id-proof-upload">
+                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('aadhaar')" [disabled]="isSaving">
+                                            {{ idProofs.aadhaar.preview ? 'Change Document' : 'Add New Aadhaar Document' }}
+                                        </button>
+                                        <div class="id-proof-preview" *ngIf="idProofs.aadhaar.preview">
+                                            <img [src]="idProofs.aadhaar.preview" alt="Aadhaar preview" class="profile-thumb" />
+                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('aadhaar')" [disabled]="isSaving">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Electoral Photo Identity Card</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveElectoralSection()" [disabled]="savingSection === 'electoral'">{{ savingSection === 'electoral' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Voter Number</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.voter.voter_number" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Name</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.voter.name" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Part Number</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.voter.port_number" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Serial Number</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.voter.serial_number" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Voter Address</label>
+                                    <app-dropdown
+                                        [options]="[
+                                            { id: 'Ashram', label: 'Ashram', value: 'Ashram' },
+                                            { id: 'Home', label: 'Home', value: 'Home' }
+                                        ]"
+                                        [selectedValues]="idProofs.voter.address ? [idProofs.voter.address] : []"
+                                        placeholder="Select Address"
+                                        (selectionChange)="idProofs.voter.address = ($event[0] || '')"
+                                        [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Home Reason</label>
+                                    <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Mobile Linked</label>
+                                    <input type="tel" class="form-control" [(ngModel)]="idProofs.voter.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                </div>
+                                <div class="form-field">
+                                    <label>Ashram Voter Area</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.voter.ashram_voter_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Voter Area ID">
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Voter Remarks</label>
+                                    <textarea class="form-control" rows="3" [(ngModel)]="idProofs.voter.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Electoral Document</label>
+                                    <div class="id-proof-upload">
+                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('voter')" [disabled]="isSaving">
+                                            {{ idProofs.voter.preview ? 'Change Document' : 'Add New Electoral Document' }}
+                                        </button>
+                                        <div class="id-proof-preview" *ngIf="idProofs.voter.preview">
+                                            <img [src]="idProofs.voter.preview" alt="Voter ID preview" class="profile-thumb" />
+                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('voter')" [disabled]="isSaving">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Driving License</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveLicenseSection()" [disabled]="savingSection === 'license'">{{ savingSection === 'license' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>License Number</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.license.license_number" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>License Holder Name</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.license.holder_name" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>State</label>
+                                    <input class="form-control" [(ngModel)]="idProofs.license.state" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>License Type</label>
+                                    <app-dropdown
+                                        [options]="licenseTypeOptions"
+                                        [selectedValues]="idProofs.license.license_type ? [idProofs.license.license_type] : []"
+                                        placeholder="Select License Type"
+                                        (selectionChange)="idProofs.license.license_type = ($event[0] || '')"
+                                        [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Date of Issue</label>
+                                    <app-datepicker [value]="idProofs.license.date_of_issue" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('date_of_issue', $event)"></app-datepicker>
+                                </div>
+                                <div class="form-field">
+                                    <label>Expiry Date</label>
+                                    <app-datepicker [value]="idProofs.license.expiry_date" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('expiry_date', $event)"></app-datepicker>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>License Document</label>
+                                    <div class="id-proof-upload">
+                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('license')" [disabled]="isSaving">
+                                            {{ idProofs.license.preview ? 'Change Document' : 'Add New License Document' }}
+                                        </button>
+                                        <div class="id-proof-preview" *ngIf="idProofs.license.preview">
+                                            <img [src]="idProofs.license.preview" alt="License preview" class="profile-thumb" />
+                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('license')" [disabled]="isSaving">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </ng-container>
+
+                    <!-- Education & Work -->
+                    <ng-container *ngIf="activeTab === 'education'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Education</h3>
+                                <div class="ve-section__head-actions">
+                                    <button type="button" class="btn btn--secondary btn--sm" (click)="addQualification()">+ Add Qualification</button>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveEducationSection()" [disabled]="savingSection === 'education'">{{ savingSection === 'education' ? 'Saving...' : 'Save' }}</button>
+                                </div>
+                            </div>
+
+                            <div class="qual-table" *ngIf="qualifications.length">
+                                <div class="qual-table__head">
+                                    <div>Degree</div>
+                                    <div>Name</div>
+                                    <div>Remarks</div>
+                                    <div></div>
+                                </div>
+                                <div class="qual-row" *ngFor="let q of qualifications; let i = index">
+                                    <div class="qual-row__cell">
+                                        <app-dropdown [options]="degreeOptions" [selectedValues]="q.selectedDegree" placeholder="Select Degree" [searchable]="true" [autocomplete]="true" (selectionChange)="onQualDegreeChange(i, $event)" [closeOnSelect]="true"></app-dropdown>
+                                    </div>
+                                    <div class="qual-row__cell">
+                                        <input class="form-control" [(ngModel)]="q.name" [ngModelOptions]="{ standalone: true }" placeholder="Qualification name">
+                                    </div>
+                                    <div class="qual-row__cell">
+                                        <input class="form-control" [(ngModel)]="q.remarks" [ngModelOptions]="{ standalone: true }" placeholder="Optional">
+                                    </div>
+                                    <div class="qual-row__actions">
+                                        <button type="button" class="qual-row__delete" (click)="removeQualification(i)" title="Delete" aria-label="Delete qualification">
+                                            <app-icon name="delete" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="qual-empty" *ngIf="!qualifications.length">No qualifications added. Click "+ Add Qualification" to add one.</div>
+                        </section>
+
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Work Experience</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveWorkSection()" [disabled]="savingSection === 'work'">{{ savingSection === 'work' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Profession</label>
+                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedProfession" placeholder="Select Profession" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedProfession = $event" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Work Experience</label>
+                                    <input class="form-control" [(ngModel)]="work.work_experience" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Experience Period</label>
+                                    <input class="form-control" [(ngModel)]="work.experience_period" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Skill</label>
+                                    <app-dropdown [options]="skillOptions" [selectedValues]="selectedSkills" placeholder="Select Skills" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSkills = $event"></app-dropdown>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Remarks</label>
+                                    <input class="form-control" [(ngModel)]="work.remarks" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                            </div>
+                        </section>
+                    </ng-container>
+
+                    <!-- Medical -->
+                    <ng-container *ngIf="activeTab === 'medical'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Medical Details</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical'">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Blood Group</label>
+                                    <app-dropdown [options]="bloodGroupOptions" [selectedValues]="selectedBloodGroup" placeholder="Select Blood Group" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedBloodGroup = $event" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section" *ngFor="let h of medicalHistories; let i = index">
+                            <div class="ve-section__head">
+                                <h3>Medical History #{{ i + 1 }}</h3>
+                                <button type="button" class="btn btn--secondary btn--sm" (click)="removeMedicalHistory(i)">Delete</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Major Illness</label>
+                                    <input class="form-control" [(ngModel)]="h.major_illness" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Note</label>
+                                    <input class="form-control" [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label>Add Medical Docs</label>
+                                    <app-file-upload [config]="medicalDocsConfig" [disabled]="isSaving" (filesSelected)="onHistoryDocsSelected(i, $event)"></app-file-upload>
+                                    <ul class="docs-list" *ngIf="h.docs.length">
+                                        <li *ngFor="let d of h.docs; let di = index">
+                                            <span>{{ d.name }}</span>
+                                            <button type="button" class="btn-link" (click)="removeHistoryDoc(i, di)">Remove</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="ve-row-actions">
+                            <button type="button" class="btn btn--secondary" (click)="addMedicalHistory()">+ Add Medical History</button>
                         </div>
-                    </div>
-                </div>
-            </ng-container>
+                    </ng-container>
 
-            <!-- Education & Work -->
-            <ng-container *ngIf="activeTab === 'education'">
-                <div class="section-title">User Education</div>
+                    <!-- Spiritual -->
+                    <ng-container *ngIf="activeTab === 'spiritual'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Spiritual Detail</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveSpiritualSection()" [disabled]="savingSection === 'spiritual'">{{ savingSection === 'spiritual' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Date of Initiation</label>
+                                    <app-datepicker [value]="spiritual.date_of_initiation" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onSpiritualDateChange('date_of_initiation', $event)"></app-datepicker>
+                                </div>
+                                <div class="form-field">
+                                    <label>Years of Spiritual Initiation</label>
+                                    <input class="form-control" [value]="yearsSinceInitiation" disabled placeholder="Auto from Date of Initiation">
+                                </div>
+                                <div class="form-field">
+                                    <label>Place of Initiation</label>
+                                    <input class="form-control" [(ngModel)]="spiritual.place_of_initiation" [ngModelOptions]="{ standalone: true }">
+                                </div>
+                                <div class="form-field">
+                                    <label>Initiation Branch</label>
+                                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedInitiationBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedInitiationBranch = $event" [closeOnSelect]="true"></app-dropdown>
+                                </div>
+                            </div>
+                        </section>
+                    </ng-container>
 
-                <div class="qual-row" *ngFor="let q of qualifications; let i = index">
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label>Degree</label>
-                            <app-dropdown [options]="degreeOptions" [selectedValues]="q.selectedDegree" placeholder="Select Degree" [searchable]="true" [autocomplete]="true" (selectionChange)="onQualDegreeChange(i, $event)" [closeOnSelect]="true"></app-dropdown>
-                        </div>
-                        <div class="form-field">
-                            <label>Name</label>
-                            <input class="form-control" [(ngModel)]="q.name" [ngModelOptions]="{ standalone: true }">
-                        </div>
-                        <div class="form-field">
-                            <label>Remarks</label>
-                            <input class="form-control" [(ngModel)]="q.remarks" [ngModelOptions]="{ standalone: true }">
-                        </div>
-                    </div>
-                    <div class="qual-row__actions">
-                        <button type="button" class="btn btn--secondary btn--sm" (click)="removeQualification(i)">Delete</button>
-                    </div>
-                </div>
+                    <!-- Sewa Tracking (read-only) -->
+                    <ng-container *ngIf="activeTab === 'sewa'">
+                        <div *ngIf="sewaLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                        <div *ngIf="!sewaLoading && sewaError" class="ve-state ve-state--error">{{ sewaError }}</div>
 
-                <div class="medical-actions">
-                    <button type="button" class="btn btn--secondary" (click)="addQualification()">+ Add New Qualification</button>
-                </div>
+                        <ng-container *ngIf="!sewaLoading && !sewaError">
+                            <div class="track-section" *ngFor="let branch of sewaBranches">
+                                <div class="track-section__title">
+                                    Sewas Under <span class="branch-name">{{ branch.branchName }}</span>
+                                </div>
+                                <table class="track-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sewa</th>
+                                            <th>Badge No</th>
+                                            <th>Allocated Date</th>
+                                            <th>UnAllocated Date</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <ng-container *ngFor="let group of branch.sewaGroups">
+                                        <thead class="group-head"><tr><th colspan="5">{{ group.sewaName }}</th></tr></thead>
+                                        <tbody>
+                                            <tr *ngFor="let row of group.rows">
+                                                <td>{{ row.sewaName }}</td>
+                                                <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
+                                                <td>{{ row.allocatedDate || 'N/A' }}</td>
+                                                <td>{{ row.unallocatedDate || 'N/A' }}</td>
+                                                <td>{{ row.reason || 'N/A' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </ng-container>
+                                </table>
+                            </div>
+                            <div *ngIf="sewaBranches.length === 0" class="empty">No sewa tracking data.</div>
+                        </ng-container>
+                    </ng-container>
 
-                <div class="section-title">User Work Experience</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Profession</label>
-                        <app-dropdown [options]="professionOptions" [selectedValues]="selectedProfession" placeholder="Select Profession" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedProfession = $event" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field">
-                        <label>Work Experience</label>
-                        <input class="form-control" [(ngModel)]="work.work_experience" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Experience Period</label>
-                        <input class="form-control" [(ngModel)]="work.experience_period" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Skill</label>
-                        <app-dropdown [options]="skillOptions" [selectedValues]="selectedSkills" placeholder="Select Skills" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSkills = $event"></app-dropdown>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Remarks</label>
-                        <input class="form-control" [(ngModel)]="work.remarks" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                </div>
-            </ng-container>
+                    <!-- Program Journey (read-only) -->
+                    <ng-container *ngIf="activeTab === 'program'">
+                        <div *ngIf="programLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                        <div *ngIf="!programLoading && programError" class="ve-state ve-state--error">{{ programError }}</div>
 
-            <!-- Medical -->
-            <ng-container *ngIf="activeTab === 'medical'">
-                <div class="section-title">Medical Details</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Blood Group</label>
-                        <app-dropdown [options]="bloodGroupOptions" [selectedValues]="selectedBloodGroup" placeholder="Select Blood Group" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedBloodGroup = $event" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Notes</label>
-                        <textarea class="form-control" rows="3" [(ngModel)]="medical.notes" [ngModelOptions]="{ standalone: true }" placeholder="Enter notes"></textarea>
-                    </div>
-                    <div class="form-field form-field--full">
-                        <label>Add Medical Docs</label>
-                        <app-file-upload [config]="medicalDocsConfig" [disabled]="isSaving" (filesSelected)="onMedicalDocsSelected($event)"></app-file-upload>
-                        <ul class="docs-list" *ngIf="medical.docs.length">
-                            <li *ngFor="let d of medical.docs; let i = index">
-                                <span>{{ d.name }}</span>
-                                <button type="button" class="btn-link" (click)="removeMedicalDoc(i)">Remove</button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="medical-history" *ngFor="let h of medicalHistories; let i = index">
-                    <div class="medical-history__head">
-                        <div class="section-title">Medical History #{{ i + 1 }}</div>
-                        <button type="button" class="btn btn--secondary btn--sm" (click)="removeMedicalHistory(i)">Delete</button>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label>Major Illness</label>
-                            <input class="form-control" [(ngModel)]="h.major_illness" [ngModelOptions]="{ standalone: true }">
-                        </div>
-                        <div class="form-field">
-                            <label>Note</label>
-                            <input class="form-control" [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }">
-                        </div>
-                        <div class="form-field form-field--full">
-                            <label>Add Medical Docs</label>
-                            <app-file-upload [config]="medicalDocsConfig" [disabled]="isSaving" (filesSelected)="onHistoryDocsSelected(i, $event)"></app-file-upload>
-                            <ul class="docs-list" *ngIf="h.docs.length">
-                                <li *ngFor="let d of h.docs; let di = index">
-                                    <span>{{ d.name }}</span>
-                                    <button type="button" class="btn-link" (click)="removeHistoryDoc(i, di)">Remove</button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="medical-actions">
-                    <button type="button" class="btn btn--secondary" (click)="addMedicalHistory()">+ Add Medical History</button>
-                </div>
-            </ng-container>
-
-            <!-- Spiritual -->
-            <ng-container *ngIf="activeTab === 'spiritual'">
-                <div class="section-title">User Spiritual Detail</div>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Date of Initiation</label>
-                        <app-datepicker [value]="spiritual.date_of_initiation" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onSpiritualDateChange('date_of_initiation', $event)"></app-datepicker>
-                    </div>
-                    <div class="form-field">
-                        <label>Years of Spiritual Initiation</label>
-                        <input class="form-control" [(ngModel)]="spiritual.years_of_spiritual_initiation" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Place of Initiation</label>
-                        <input class="form-control" [(ngModel)]="spiritual.place_of_initiation" [ngModelOptions]="{ standalone: true }">
-                    </div>
-                    <div class="form-field">
-                        <label>Initiation Branch</label>
-                        <app-dropdown [options]="branchOptions" [selectedValues]="selectedInitiationBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedInitiationBranch = $event" [closeOnSelect]="true"></app-dropdown>
-                    </div>
-                </div>
-            </ng-container>
-
-            <!-- Sewa Tracking (read-only) -->
-            <ng-container *ngIf="activeTab === 'sewa'">
-                <div *ngIf="sewaLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
-                <div *ngIf="!sewaLoading && sewaError" class="state error">{{ sewaError }}</div>
-
-                <ng-container *ngIf="!sewaLoading && !sewaError">
-                    <div class="branch-card" *ngFor="let branch of sewaBranches">
-                        <div class="branch-card__header">
-                            <span class="branch-card__label">Sewas Under Branch</span>
-                            <span class="branch-card__name">{{ branch.branchName }}</span>
-                        </div>
-                        <table class="track-table">
+                        <table class="track-table" *ngIf="!programLoading && !programError && programRows.length > 0">
                             <thead>
                                 <tr>
-                                    <th>Sewa</th>
-                                    <th>Badge No</th>
-                                    <th>Allocated Date</th>
-                                    <th>UnAllocated Date</th>
-                                    <th>Reason</th>
+                                    <th>Program Name</th>
+                                    <th>Sewa Name</th>
+                                    <th>Status</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
                                 </tr>
                             </thead>
-                            <ng-container *ngFor="let group of branch.sewaGroups">
-                                <thead class="group-head"><tr><th colspan="5">{{ group.sewaName }}</th></tr></thead>
-                                <tbody>
-                                    <tr *ngFor="let row of group.rows">
-                                        <td>{{ row.sewaName }}</td>
-                                        <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
-                                        <td>{{ row.allocatedDate || 'N/A' }}</td>
-                                        <td>{{ row.unallocatedDate || 'N/A' }}</td>
-                                        <td>{{ row.reason || 'N/A' }}</td>
-                                    </tr>
-                                </tbody>
-                            </ng-container>
+                            <tbody>
+                                <tr *ngFor="let row of programRows">
+                                    <td>{{ row.programName || 'N/A' }}</td>
+                                    <td>{{ row.sewaName || 'N/A' }}</td>
+                                    <td>{{ row.status || 'N/A' }}</td>
+                                    <td>{{ row.checkIn || 'N/A' }}</td>
+                                    <td>{{ row.checkOut || 'N/A' }}</td>
+                                    <td>{{ row.startDate || 'N/A' }}</td>
+                                    <td>{{ row.endDate || 'N/A' }}</td>
+                                </tr>
+                            </tbody>
                         </table>
-                    </div>
-                    <div *ngIf="sewaBranches.length === 0" class="empty">No sewa tracking data.</div>
-                </ng-container>
-            </ng-container>
+                        <div *ngIf="!programLoading && !programError && programRows.length === 0" class="empty">No program journey data.</div>
+                    </ng-container>
 
-            <!-- Program Journey (read-only) -->
-            <ng-container *ngIf="activeTab === 'program'">
-                <div *ngIf="programLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
-                <div *ngIf="!programLoading && programError" class="state error">{{ programError }}</div>
+                    <!-- Donations (read-only) -->
+                    <ng-container *ngIf="activeTab === 'donation'">
+                        <div *ngIf="donationLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
+                        <div *ngIf="!donationLoading && donationError" class="ve-state ve-state--error">{{ donationError }}</div>
 
-                <table class="track-table" *ngIf="!programLoading && !programError && programRows.length > 0">
-                    <thead>
-                        <tr>
-                            <th>Program Name</th>
-                            <th>Sewa Name</th>
-                            <th>Status</th>
-                            <th>Check In</th>
-                            <th>Check Out</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let row of programRows">
-                            <td>{{ row.programName || 'N/A' }}</td>
-                            <td>{{ row.sewaName || 'N/A' }}</td>
-                            <td>{{ row.status || 'N/A' }}</td>
-                            <td>{{ row.checkIn || 'N/A' }}</td>
-                            <td>{{ row.checkOut || 'N/A' }}</td>
-                            <td>{{ row.startDate || 'N/A' }}</td>
-                            <td>{{ row.endDate || 'N/A' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div *ngIf="!programLoading && !programError && programRows.length === 0" class="empty">No program journey data.</div>
-            </ng-container>
+                        <table class="track-table" *ngIf="!donationLoading && !donationError && donationRows.length > 0">
+                            <thead><tr><th>Program Name</th><th>Donation Amount</th><th>Date</th></tr></thead>
+                            <tbody>
+                                <tr *ngFor="let row of donationRows">
+                                    <td>{{ row.programName || 'N/A' }}</td>
+                                    <td>{{ row.amount !== '' ? row.amount : 'N/A' }}</td>
+                                    <td>{{ row.date || 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="!donationLoading && !donationError && donationRows.length === 0" class="empty">No Data</div>
+                    </ng-container>
+                </div>
 
-            <!-- Donations (read-only) -->
-            <ng-container *ngIf="activeTab === 'donation'">
-                <div *ngIf="donationLoading" class="state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
-                <div *ngIf="!donationLoading && donationError" class="state error">{{ donationError }}</div>
-
-                <table class="track-table" *ngIf="!donationLoading && !donationError && donationRows.length > 0">
-                    <thead><tr><th>Program Name</th><th>Donation Amount</th><th>Date</th></tr></thead>
-                    <tbody>
-                        <tr *ngFor="let row of donationRows">
-                            <td>{{ row.programName || 'N/A' }}</td>
-                            <td>{{ row.amount !== '' ? row.amount : 'N/A' }}</td>
-                            <td>{{ row.date || 'N/A' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div *ngIf="!donationLoading && !donationError && donationRows.length === 0" class="empty">No Data</div>
-            </ng-container>
-
-            <!-- Form Actions (hide on read-only tabs) -->
-            <div class="form-actions" *ngIf="activeTab === 'basic' || activeTab === 'address' || activeTab === 'personal' || activeTab === 'idproofs' || activeTab === 'education' || activeTab === 'medical' || activeTab === 'spiritual'">
-                <button type="button" class="btn btn--secondary" (click)="onCancel()" [disabled]="isSaving">Cancel</button>
-                <button type="submit" class="btn btn--primary" [disabled]="isSaving">{{ isSaving ? 'Saving...' : 'Update Volunteer' }}</button>
-            </div>
-        </form>
-    </ng-container>
+            </form>
+        </ng-container>
+    </div>
 </div>
 
 <!-- Profile Image Upload Modal -->
@@ -663,9 +759,11 @@
     [title]="idProofUploadType === 'capture' ? 'Capture Live Photo' : 'Upload Document'"
     [size]="'medium'"
     (close)="closeIdProofModal()">
-    <div class="form-field" *ngIf="!idProofUploadType">
-        <label>Upload Method</label>
-        <app-dropdown [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true"></app-dropdown>
+    <div class="modal-dropdown-form">
+        <div class="form-field" *ngIf="!idProofUploadType">
+            <label>Upload Method</label>
+            <app-dropdown [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true" [openDirection]="'down'"></app-dropdown>
+        </div>
     </div>
     <ng-container *ngIf="idProofUploadType === 'upload'">
         <app-file-upload

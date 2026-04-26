@@ -4,7 +4,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
@@ -13,6 +12,7 @@ import { FileUploadComponent, FileUploadConfig } from '../../../../shared/compon
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { DataService } from '../../../../data.service';
+import { LocationService } from '../../../../core/services/location.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
 
@@ -38,7 +38,6 @@ interface TabDef { id: TabId; label: string; }
     CommonModule,
     FormsModule,
     RouterModule,
-    BreadcrumbComponent,
     DropdownComponent,
     DatepickerComponent,
     LoadingComponent,
@@ -55,6 +54,7 @@ export class EditVolunteerComponent implements OnInit {
   @ViewChild('volunteerForm') volunteerForm!: NgForm;
 
   private dataService = inject(DataService);
+  private locationService = inject(LocationService);
   private snackbarService = inject(SnackbarService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -62,10 +62,10 @@ export class EditVolunteerComponent implements OnInit {
   tabs: TabDef[] = [
     { id: 'basic', label: 'Basic Information' },
     { id: 'address', label: 'Address Details' },
-    { id: 'personal', label: 'Personal & Family Details' },
+    { id: 'personal', label: 'Personal & Family' },
     { id: 'idproofs', label: 'Id Proofs' },
-    { id: 'spiritual', label: 'User Spiritual Detail' },
-    { id: 'education', label: 'Education & Work Details' },
+    { id: 'spiritual', label: 'Spiritual Detail' },
+    { id: 'education', label: 'Education & Work' },
     { id: 'medical', label: 'Medical' },
     { id: 'sewa', label: 'Sewa Tracking' },
     { id: 'program', label: 'Program Journey' },
@@ -174,10 +174,10 @@ export class EditVolunteerComponent implements OnInit {
 
   // Static dropdown options (placeholders until APIs are wired)
   maritalStatusOptions: DropdownOption[] = [
-    { id: 'single', label: 'Single', value: 'single' },
-    { id: 'married', label: 'Married', value: 'married' },
-    { id: 'divorced', label: 'Divorced', value: 'divorced' },
-    { id: 'widowed', label: 'Widowed', value: 'widowed' }
+    { id: 'Married', label: 'Married', value: 'Married' },
+    { id: 'Single', label: 'Single', value: 'Single' },
+    { id: 'Divorced', label: 'Divorced', value: 'Divorced' },
+    { id: 'Separated', label: 'Separated', value: 'Separated' }
   ];
   occupationOptions: DropdownOption[] = [
     { id: 'service', label: 'Service', value: 'service' },
@@ -187,29 +187,27 @@ export class EditVolunteerComponent implements OnInit {
     { id: 'retired', label: 'Retired', value: 'retired' },
     { id: 'other', label: 'Other', value: 'other' }
   ];
-  occupationLocationOptions: DropdownOption[] = [
-    { id: 'india', label: 'India', value: 'india' },
-    { id: 'abroad', label: 'Abroad', value: 'abroad' }
-  ];
+  occupationLocationOptions: DropdownOption[] = [];
   occupationTypeOptions: DropdownOption[] = [
-    { id: 'government', label: 'Government', value: 'government' },
-    { id: 'private', label: 'Private', value: 'private' },
-    { id: 'public_sector', label: 'Public Sector', value: 'public_sector' },
-    { id: 'self', label: 'Self', value: 'self' }
+    { id: '1', label: 'Government', value: '1' },
+    { id: '2', label: 'Semi-Government / PSU', value: '2' },
+    { id: '3', label: 'Private', value: '3' },
+    { id: '4', label: 'Contract / Ad-hoc', value: '4' },
+    { id: '5', label: 'Self-Employed / Business', value: '5' },
+    { id: '6', label: 'Unemployed / Others', value: '6' }
   ];
   occupationStatusOptions: DropdownOption[] = [
-    { id: 'working', label: 'Working', value: 'working' },
-    { id: 'not_working', label: 'Not Working', value: 'not_working' },
-    { id: 'retired', label: 'Retired', value: 'retired' }
+    { id: '1', label: 'Working', value: '1' },
+    { id: '2', label: 'Retired', value: '2' },
+    { id: '3', label: 'Pensioner', value: '3' },
+    { id: '4', label: 'Unemployed', value: '4' },
+    { id: '5', label: 'Student', value: '5' },
+    { id: '6', label: 'Expired', value: '6' }
   ];
-  siblingsCountOptions: DropdownOption[] = [
-    { id: '0', label: '0', value: '0' },
-    { id: '1', label: '1', value: '1' },
-    { id: '2', label: '2', value: '2' },
-    { id: '3', label: '3', value: '3' },
-    { id: '4', label: '4', value: '4' },
-    { id: '5+', label: '5+', value: '5+' }
-  ];
+  siblingsCountOptions: DropdownOption[] = Array.from({ length: 10 }, (_, i) => {
+    const v = String(i + 1);
+    return { id: v, label: v, value: v };
+  });
 
   emergency = { name: '', phone: '', email: '' };
 
@@ -259,10 +257,13 @@ export class EditVolunteerComponent implements OnInit {
   };
 
   homeReasonOptions: DropdownOption[] = [
-    { id: 'permanent', label: 'Permanent', value: 'permanent' },
-    { id: 'temporary', label: 'Temporary', value: 'temporary' },
-    { id: 'rented', label: 'Rented', value: 'rented' },
-    { id: 'owned', label: 'Owned', value: 'owned' }
+    { id: 'Pension', label: 'Pension', value: 'Pension' },
+    { id: 'Self Denied', label: 'Self Denied', value: 'Self Denied' },
+    { id: 'Property Issue', label: 'Property Issue', value: 'Property Issue' },
+    { id: 'Abroad', label: 'Abroad', value: 'Abroad' },
+    { id: 'Ration scheme', label: 'Ration scheme', value: 'Ration scheme' },
+    { id: 'Miscellaneous', label: 'Miscellaneous', value: 'Miscellaneous' },
+    { id: 'Pending', label: 'Pending', value: 'Pending' }
   ];
   selectedAadhaarHomeReason: any[] = [];
   selectedVoterHomeReason: any[] = [];
@@ -387,14 +388,7 @@ export class EditVolunteerComponent implements OnInit {
     { id: '', degree: '', name: '', remarks: '', selectedDegree: [] }
   ];
 
-  degreeOptions: DropdownOption[] = [
-    { id: '10', label: '10th', value: '10th' },
-    { id: '12', label: '12th', value: '12th' },
-    { id: 'diploma', label: 'Diploma', value: 'Diploma' },
-    { id: 'graduate', label: 'Graduate', value: 'Graduate' },
-    { id: 'postgraduate', label: 'Post Graduate', value: 'Post Graduate' },
-    { id: 'phd', label: 'PhD', value: 'PhD' }
-  ];
+  degreeOptions: DropdownOption[] = [];
 
   // User Work Experience
   work = {
@@ -477,6 +471,15 @@ export class EditVolunteerComponent implements OnInit {
   // Sewa & Branch dropdowns
   sewaOptions: DropdownOption[] = [];
   branchOptions: DropdownOption[] = [];
+
+  // Location dropdowns (one set per address scope)
+  countryOptions: DropdownOption[] = [];
+  permStateOptions: DropdownOption[] = [];
+  permDistrictOptions: DropdownOption[] = [];
+  permCityOptions: DropdownOption[] = [];
+  corrStateOptions: DropdownOption[] = [];
+  corrDistrictOptions: DropdownOption[] = [];
+  corrCityOptions: DropdownOption[] = [];
   selectedSewas: any[] = [];
   selectedCorrespondingBranch: any[] = [];
   selectedTaskBranch: any[] = [];
@@ -487,11 +490,6 @@ export class EditVolunteerComponent implements OnInit {
     { id: 'OTHER', label: 'OTHER', value: 'OTHER' }
   ];
   selectedGender: any[] = [];
-
-  breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Volunteers', route: '/volunteers' },
-    { label: 'Edit Volunteer', route: '' }
-  ];
 
   /** Tracks which tabs have already triggered their data fetches. */
   private loadedTabs = new Set<TabId>();
@@ -515,10 +513,13 @@ export class EditVolunteerComponent implements OnInit {
         break;
       case 'address':
         this.loadBranches();
+        this.loadCountries();
         this.loadPermanentAddress();
         this.loadCorrespondenceAddress();
         break;
       case 'personal':
+        this.loadProfessions();
+        this.loadOccupationLocationCountries();
         this.loadPersonalDetails();
         this.loadFamilyDetails();
         this.loadEmergencyDetails();
@@ -530,6 +531,7 @@ export class EditVolunteerComponent implements OnInit {
       case 'education':
         this.loadProfessions();
         this.loadSkills();
+        this.loadDegrees();
         this.loadEducationDetails();
         this.loadWorkExperience();
         break;
@@ -583,24 +585,26 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const e = root?.user_electoral_details ?? root?.electoral_details ?? root?.user ?? root;
+      const e = root?.user_electoral ?? root?.user_electoral_details ?? root?.electoral_details ?? root?.user ?? root;
 
       this.idProofs.voter.voter_number = e?.voter_number || this.idProofs.voter.voter_number;
-      this.idProofs.voter.name = e?.voter_name || e?.name || this.idProofs.voter.name;
+      this.idProofs.voter.name = e?.name || e?.voter_name || this.idProofs.voter.name;
       this.idProofs.voter.port_number = e?.part_number || e?.port_number || this.idProofs.voter.port_number;
       this.idProofs.voter.serial_number = e?.serial_number || this.idProofs.voter.serial_number;
-      this.idProofs.voter.address = e?.voter_address || this.idProofs.voter.address;
-      if (e?.voter_home_reason) {
-        this.idProofs.voter.home_reason = e.voter_home_reason;
-        this.selectedVoterHomeReason = [e.voter_home_reason];
+      this.idProofs.voter.address = e?.address || e?.voter_address || this.idProofs.voter.address;
+      const voterHomeReason = e?.home_reason || e?.voter_home_reason;
+      if (voterHomeReason) {
+        this.idProofs.voter.home_reason = voterHomeReason;
+        this.selectedVoterHomeReason = [voterHomeReason];
       }
-      this.idProofs.voter.mobile_linked = e?.voter_mobile_linked || this.idProofs.voter.mobile_linked;
-      this.idProofs.voter.remarks = e?.voter_remarks || this.idProofs.voter.remarks;
-      this.idProofs.voter.ashram_voter_area_id = e?.ashram_voter_area_id || e?.ashram_voter_area?.id || this.idProofs.voter.ashram_voter_area_id;
+      this.idProofs.voter.mobile_linked = e?.mobile_linked || e?.voter_mobile_linked || this.idProofs.voter.mobile_linked;
+      this.idProofs.voter.remarks = e?.remarks || e?.voter_remarks || this.idProofs.voter.remarks;
+      this.idProofs.voter.ashram_voter_area_id = e?.ashram_voter_area_id || e?.area_id || e?.ashram_voter_area?.id || this.idProofs.voter.ashram_voter_area_id;
 
-      const media = Array.isArray(e?.user_electoral_enclosed) ? e.user_electoral_enclosed[0] : e?.media;
+      const docs = e?.user_doc_urls || e?.user_electoral_enclosed || (e?.media ? [e.media] : []);
+      const media = Array.isArray(docs) ? docs[0] : docs;
       if (media) {
-        this.idProofs.voter.preview = media?.full_path || media?.url || media?.path || media || null;
+        this.idProofs.voter.preview = media?.path || media?.full_path || media?.url || media || null;
         this.idProofs.voter.mediaId = String(media?.id || '');
         this.idProofs.voter.mediaIsNew = false;
       }
@@ -613,11 +617,11 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const a = root?.user_aadhaar_details ?? root?.aadhaar_details ?? root?.user ?? root;
+      const a = root?.user_aadhaar ?? root?.user_aadhaar_details ?? root?.aadhaar_details ?? root?.user ?? root;
 
       this.idProofs.aadhaar.number = a?.aadhaar_number || this.idProofs.aadhaar.number;
-      this.idProofs.aadhaar.name = a?.aadhaar_name || this.idProofs.aadhaar.name;
-      this.idProofs.aadhaar.address = a?.aadhaar_address || this.idProofs.aadhaar.address;
+      this.idProofs.aadhaar.name = a?.name || a?.aadhaar_name || this.idProofs.aadhaar.name;
+      this.idProofs.aadhaar.address = a?.address || a?.aadhaar_address || this.idProofs.aadhaar.address;
       if (a?.home_reason) {
         this.idProofs.aadhaar.home_reason = a.home_reason;
         this.selectedAadhaarHomeReason = [a.home_reason];
@@ -625,11 +629,12 @@ export class EditVolunteerComponent implements OnInit {
       this.idProofs.aadhaar.mobile_linked = a?.mobile_linked || this.idProofs.aadhaar.mobile_linked;
       if (a?.renewal_date) this.idProofs.aadhaar.renewal_date = new Date(a.renewal_date);
       this.idProofs.aadhaar.remarks = a?.remarks || this.idProofs.aadhaar.remarks;
-      this.idProofs.aadhaar.ashram_area_id = a?.ashram_area_id || a?.ashram_area?.id || this.idProofs.aadhaar.ashram_area_id;
+      this.idProofs.aadhaar.ashram_area_id = a?.area_id || a?.ashram_area_id || a?.ashram_area?.id || this.idProofs.aadhaar.ashram_area_id;
 
-      const media = Array.isArray(a?.adhaar_media) ? a.adhaar_media[0] : (Array.isArray(a?.aadhaar_media) ? a.aadhaar_media[0] : a?.media);
+      const docs = a?.user_doc_urls || a?.adhaar_media || a?.aadhaar_media || (a?.media ? [a.media] : []);
+      const media = Array.isArray(docs) ? docs[0] : docs;
       if (media) {
-        this.idProofs.aadhaar.preview = media?.full_path || media?.url || media?.path || media || null;
+        this.idProofs.aadhaar.preview = media?.path || media?.full_path || media?.url || media || null;
         this.idProofs.aadhaar.mediaId = String(media?.id || '');
         this.idProofs.aadhaar.mediaIsNew = false;
       }
@@ -642,14 +647,13 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const m = root?.user_medical_details ?? root?.medical_details ?? root?.user ?? root;
+      const m = root?.user_medical ?? root?.user_medical_details ?? root?.medical_details ?? root?.user ?? root;
 
       if (m?.blood_group) {
         this.medical.blood_group = m.blood_group;
         this.selectedBloodGroup = [m.blood_group];
       }
-      if (m?.note) this.medical.notes = m.note;
-      else if (m?.medical_notes) this.medical.notes = m.medical_notes;
+      this.medical.notes = m?.notes ?? m?.note ?? m?.medical_notes ?? m?.remarks ?? this.medical.notes;
 
       const histories = m?.user_medical_histories || m?.medical_histories || [];
       if (Array.isArray(histories) && histories.length) {
@@ -657,7 +661,7 @@ export class EditVolunteerComponent implements OnInit {
           id: String(h?.id || ''),
           major_illness: h?.major_illness !== undefined && h?.major_illness !== null ? String(h.major_illness) : '',
           note: h?.note || h?.notes || '',
-          docs: this.normalizeDocs(h?.docs || h?.medical_history_media || h?.medical_docs)
+          docs: this.normalizeDocs(h?.user_doc_urls || h?.docs || h?.medical_history_media || h?.medical_docs)
         }));
       }
     });
@@ -694,7 +698,7 @@ export class EditVolunteerComponent implements OnInit {
 
       const skills = w?.skills || [];
       if (Array.isArray(skills) && skills.length) {
-        this.selectedSkills = skills.map((s: any) => String(s?.id || s?.name || s)).filter(Boolean);
+        this.selectedSkills = skills.map((s: any) => String(s?.skill_id || s?.id || s?.name || s)).filter(Boolean);
       }
     });
   }
@@ -705,7 +709,8 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const list = root?.user_education_details
+      const list = root?.user_education
+        ?? root?.user_education_details
         ?? root?.education_details
         ?? root?.user_qualifications
         ?? root?.qualifications
@@ -731,7 +736,7 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const s = root?.user_spiritual_details ?? root?.spiritual_details ?? root?.user ?? root;
+      const s = root?.user_spiritual ?? root?.user_spiritual_details ?? root?.spiritual_details ?? root?.user ?? root;
 
       if (s?.date_of_initiation) this.spiritual.date_of_initiation = new Date(s.date_of_initiation);
       if (s?.place_of_initiation) this.spiritual.place_of_initiation = s.place_of_initiation;
@@ -794,8 +799,10 @@ export class EditVolunteerComponent implements OnInit {
       this.personal.mother_email = f?.mother_email || this.personal.mother_email;
       this.personal.mother_mobile = f?.mother_phone || this.personal.mother_mobile;
       this.personal.spouse_name = f?.spouse_name || this.personal.spouse_name;
-      this.personal.siblings_brother = (f?.brother_siblings ?? this.personal.siblings_brother) + '';
-      this.personal.siblings_sister = (f?.sister_siblings ?? this.personal.siblings_sister) + '';
+      this.personal.siblings_brother = (f?.brother_siblings ?? this.personal.siblings_brother ?? '') + '';
+      this.personal.siblings_sister = (f?.sister_siblings ?? this.personal.siblings_sister ?? '') + '';
+      this.selectedSiblingsBrother = this.personal.siblings_brother ? [this.personal.siblings_brother] : [];
+      this.selectedSiblingsSister = this.personal.siblings_sister ? [this.personal.siblings_sister] : [];
       this.personal.earning_members = (f?.earning_members ?? this.personal.earning_members) + '';
       this.personal.samarpit_member = f?.family_devotees || this.personal.samarpit_member;
       this.personal.family_members_at_home = f?.inlaws_members || this.personal.family_members_at_home;
@@ -818,7 +825,7 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const e = root?.user_emergency_contact ?? root?.emergency_contact_details ?? root?.user ?? root;
+      const e = root?.user_emergency_details ?? root?.user_emergency_contact ?? root?.emergency_contact_details ?? root?.user ?? root;
 
       this.emergency.name = e?.emergency_name || e?.name || this.emergency.name;
       this.emergency.phone = e?.emergency_phone || e?.phone || this.emergency.phone;
@@ -841,6 +848,9 @@ export class EditVolunteerComponent implements OnInit {
       this.permanent.city = (a?.permanent_city ?? a?.city?.name ?? a?.city) || this.permanent.city;
       this.permanent.pincode = (a?.permanent_pincode ?? a?.pincode) || this.permanent.pincode;
       this.permanent.district = (a?.permanent_district ?? a?.district?.name ?? a?.district) || this.permanent.district;
+      if (this.permanent.country) this.loadStatesFor('permanent');
+      if (this.permanent.state) this.loadDistrictsFor('permanent');
+      if (this.permanent.state || this.permanent.district) this.loadCitiesFor('permanent');
     });
   }
 
@@ -850,7 +860,7 @@ export class EditVolunteerComponent implements OnInit {
     ).subscribe((response) => {
       if (!response) return;
       const root = response?.data ?? response ?? {};
-      const a = root?.correspondence_address ?? root?.user_correspondence_address ?? root?.address ?? root;
+      const a = root?.correspondence_address ?? root?.user_correspondence_address ?? root?.user_address ?? root?.address ?? root;
 
       this.correspondence.address_1 = (a?.address_1) || this.correspondence.address_1;
       this.correspondence.address_2 = (a?.address_2) || this.correspondence.address_2;
@@ -863,7 +873,11 @@ export class EditVolunteerComponent implements OnInit {
       this.correspondence.home_branch = (a?.home_branch?.id ?? a?.home_branch_id ?? a?.home_branch) || this.correspondence.home_branch;
       this.correspondence.post_office = (a?.post_office) || this.correspondence.post_office;
       this.correspondence.tehsil = (a?.tehsil) || this.correspondence.tehsil;
-      this.copyAddress = a?.copy_address === 1 || a?.copy_address === '1' || a?.copy_address === true;
+      const same = root?.addresses_are_same ?? a?.addresses_are_same ?? a?.copy_address;
+      this.copyAddress = same === 1 || same === '1' || same === true;
+      if (this.correspondence.country) this.loadStatesFor('correspondence');
+      if (this.correspondence.state) this.loadDistrictsFor('correspondence');
+      if (this.correspondence.state || this.correspondence.district) this.loadCitiesFor('correspondence');
     });
   }
 
@@ -955,6 +969,19 @@ export class EditVolunteerComponent implements OnInit {
     });
   }
 
+  private loadDegrees(): void {
+    this.dataService.get<any>('v1/options/degrees').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = response?.data?.degrees || response?.data || response || [];
+      this.degreeOptions = (Array.isArray(data) ? data : []).map((d: any) => ({
+        id: String(d.id ?? d.value ?? d.name),
+        label: d.name || d.label || d.title || '',
+        value: String(d.id ?? d.value ?? d.name)
+      }));
+    });
+  }
+
   addQualification(): void {
     this.qualifications.push({ id: '', degree: '', name: '', remarks: '', selectedDegree: [] });
   }
@@ -1005,6 +1032,47 @@ export class EditVolunteerComponent implements OnInit {
     this.loadTabData(id);
   }
 
+  /** Read-only tabs (sewa/program/donation) hide the Save bar. */
+  get isEditableTab(): boolean {
+    return !['sewa', 'program', 'donation'].includes(this.activeTab);
+  }
+
+  /** First letters of first/last word in the name, avatar fallback. */
+  get nameInitials(): string {
+    const parts = (this.basic.name || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'V';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  get activeTabLabel(): string {
+    return this.tabs.find(t => t.id === this.activeTab)?.label || '';
+  }
+
+  /** Whole years between Date of Initiation and today. */
+  get yearsSinceInitiation(): string {
+    const start = this.spiritual.date_of_initiation;
+    if (!start || isNaN(new Date(start).getTime())) return '';
+    const s = new Date(start);
+    const now = new Date();
+    let years = now.getFullYear() - s.getFullYear();
+    const beforeAnniversary =
+      now.getMonth() < s.getMonth() ||
+      (now.getMonth() === s.getMonth() && now.getDate() < s.getDate());
+    if (beforeAnniversary) years--;
+    return years >= 0 ? String(years) : '';
+  }
+
+  /** Tabs split into nav groups for the sidebar. */
+  get profileTabs(): TabDef[] {
+    const editable: TabId[] = ['basic', 'address', 'personal', 'idproofs', 'spiritual', 'education', 'medical'];
+    return this.tabs.filter(t => editable.includes(t.id));
+  }
+  get activityTabs(): TabDef[] {
+    const activity: TabId[] = ['sewa', 'program', 'donation'];
+    return this.tabs.filter(t => activity.includes(t.id));
+  }
+
   // Address-tab extras
   copyAddress: boolean = false;
 
@@ -1014,6 +1082,105 @@ export class EditVolunteerComponent implements OnInit {
       district: '', home_branch: '', task_branch: '', department: '',
       branch_id: '', post_office: '', tehsil: ''
     };
+  }
+
+  /**
+   * The address API returns names (e.g. "India", "Punjab") rather than ids,
+   * and the save payload also uses names. So we remap LocationService options
+   * (which are id-keyed) to use the label as both id and value — that lets the
+   * dropdown bind directly to the name strings already stored in the model.
+   */
+  private toNameOptions(options: DropdownOption[]): DropdownOption[] {
+    return options.map(o => ({ id: o.label, label: o.label, value: o.label }));
+  }
+
+  private loadCountries(): void {
+    this.locationService.loadCountries().subscribe(opts => {
+      this.countryOptions = this.toNameOptions(opts);
+    });
+  }
+
+  private loadOccupationLocationCountries(): void {
+    this.locationService.loadCountries().subscribe(opts => {
+      this.occupationLocationOptions = opts;
+    });
+  }
+
+  private loadStatesFor(scope: 'permanent' | 'correspondence'): void {
+    const country = this[scope].country;
+    if (!country) {
+      if (scope === 'permanent') this.permStateOptions = []; else this.corrStateOptions = [];
+      return;
+    }
+    this.locationService.loadStates(country).subscribe(opts => {
+      const mapped = this.toNameOptions(opts);
+      if (scope === 'permanent') this.permStateOptions = mapped; else this.corrStateOptions = mapped;
+    });
+  }
+
+  private loadDistrictsFor(scope: 'permanent' | 'correspondence'): void {
+    const state = this[scope].state;
+    const country = this[scope].country;
+    if (!state) {
+      if (scope === 'permanent') this.permDistrictOptions = []; else this.corrDistrictOptions = [];
+      return;
+    }
+    this.locationService.loadDistricts(state, country).subscribe(opts => {
+      const mapped = this.toNameOptions(opts);
+      if (scope === 'permanent') this.permDistrictOptions = mapped; else this.corrDistrictOptions = mapped;
+    });
+  }
+
+  private loadCitiesFor(scope: 'permanent' | 'correspondence'): void {
+    const { state, district, country } = this[scope];
+    if (!state && !district) {
+      if (scope === 'permanent') this.permCityOptions = []; else this.corrCityOptions = [];
+      return;
+    }
+    this.locationService.loadCities({
+      stateName: state,
+      districtName: district,
+      countryName: country
+    }).subscribe(opts => {
+      const mapped = this.toNameOptions(opts);
+      if (scope === 'permanent') this.permCityOptions = mapped; else this.corrCityOptions = mapped;
+    });
+  }
+
+  onCountrySelect(scope: 'permanent' | 'correspondence', value: string): void {
+    this[scope].country = value;
+    this[scope].state = '';
+    this[scope].district = '';
+    this[scope].city = '';
+    if (scope === 'permanent') {
+      this.permStateOptions = []; this.permDistrictOptions = []; this.permCityOptions = [];
+    } else {
+      this.corrStateOptions = []; this.corrDistrictOptions = []; this.corrCityOptions = [];
+    }
+    this.loadStatesFor(scope);
+  }
+
+  onStateSelect(scope: 'permanent' | 'correspondence', value: string): void {
+    this[scope].state = value;
+    this[scope].district = '';
+    this[scope].city = '';
+    if (scope === 'permanent') {
+      this.permDistrictOptions = []; this.permCityOptions = [];
+    } else {
+      this.corrDistrictOptions = []; this.corrCityOptions = [];
+    }
+    this.loadDistrictsFor(scope);
+  }
+
+  onDistrictSelect(scope: 'permanent' | 'correspondence', value: string): void {
+    this[scope].district = value;
+    this[scope].city = '';
+    if (scope === 'permanent') this.permCityOptions = []; else this.corrCityOptions = [];
+    this.loadCitiesFor(scope);
+  }
+
+  onCitySelect(scope: 'permanent' | 'correspondence', value: string): void {
+    this[scope].city = value;
   }
 
   private loadBranches(): void {
@@ -1397,10 +1564,11 @@ export class EditVolunteerComponent implements OnInit {
 
   private normalizeDocs(input: any): Array<{ name: string; data: string }> {
     if (!Array.isArray(input)) return [];
-    return input.map((d: any) => ({
-      name: d?.name || d?.file_name || d?.original_name || 'document',
-      data: d?.full_path || d?.url || d?.data || ''
-    }));
+    return input.map((d: any) => {
+      const url = d?.path || d?.full_path || d?.url || d?.data || '';
+      const name = d?.name || d?.file_name || d?.original_name || (url ? url.split('/').pop() : '') || 'document';
+      return { name, data: url };
+    });
   }
 
   addMedicalHistory(): void {
@@ -1819,6 +1987,245 @@ export class EditVolunteerComponent implements OnInit {
     this.isSaving = false;
     this.snackbarService.showSuccess('Volunteer updated successfully');
     this.router.navigate(['/volunteers']);
+  }
+
+  /** Tracks which inline section save is in flight, so its button can show a spinner. */
+  savingSection: string | null = null;
+
+  /**
+   * Generic per-section PUT helper. Runs the request, manages the section's
+   * loading flag, surfaces a snackbar on success/failure. Does NOT navigate
+   * away — section saves stay on the page so the user can keep editing.
+   */
+  private putSection(sectionKey: string, label: string, url: string, payload: Record<string, unknown>): void {
+    if (this.savingSection) return;
+    this.savingSection = sectionKey;
+    this.dataService.put(url, payload).pipe(
+      catchError((error: any) => {
+        const msg = error?.error?.message || error?.message || `Failed to update ${label}.`;
+        this.snackbarService.showError(msg);
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (response) this.snackbarService.showSuccess(`${label} updated`);
+      this.savingSection = null;
+    });
+  }
+
+  saveBasicSection(): void {
+    if (!this.isFormValid()) {
+      this.snackbarService.showError('Please fix the errors before saving.');
+      return;
+    }
+    this.savingSection = 'basic';
+    this.dataService.put(`v1/users/basic/update/${this.userId}`, this.buildBasicPayload()).pipe(
+      catchError((error: any) => {
+        const msg = error?.error?.message || error?.message || 'Failed to update basic information.';
+        this.snackbarService.showError(msg);
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (!response) { this.savingSection = null; return; }
+      if (this.profileImage && this.userId) {
+        this.uploadProfileImage().subscribe({
+          next: () => { this.snackbarService.showSuccess('Basic information updated'); this.savingSection = null; },
+          error: () => { this.snackbarService.showSuccess('Basic information updated'); this.savingSection = null; }
+        });
+      } else {
+        this.snackbarService.showSuccess('Basic information updated');
+        this.savingSection = null;
+      }
+    });
+  }
+
+  savePermanentSection(): void {
+    this.putSection('permanent', 'Permanent address', 'v1/users/update-permanent/address', {
+      user_id: this.userId,
+      permanent_address: this.permanent.address_1 || '',
+      permanent_address_2: this.permanent.address_2 || '',
+      permanent_country: this.permanent.country || '',
+      permanent_state: this.permanent.state || '',
+      permanent_city: this.permanent.city || '',
+      permanent_pincode: this.permanent.pincode || '',
+      permanent_district: this.permanent.district || ''
+    });
+  }
+
+  saveCorrespondenceSection(): void {
+    this.putSection('correspondence', 'Correspondence address', 'v1/users/update-correspondence/address', {
+      user_id: this.userId,
+      address_1: this.correspondence.address_1 || '',
+      address_2: this.correspondence.address_2 || '',
+      country: this.correspondence.country || '',
+      state: this.correspondence.state || '',
+      city: this.correspondence.city || '',
+      pincode: this.correspondence.pincode || '',
+      district: this.correspondence.district || '',
+      branch_id: this.correspondence.branch_id || '',
+      home_branch: this.correspondence.home_branch || '',
+      post_office: this.correspondence.post_office || '',
+      tehsil: this.correspondence.tehsil || '',
+      copy_address: this.copyAddress ? 1 : 0
+    });
+  }
+
+  savePersonalSection(): void {
+    this.putSection('personal', 'Personal details', 'v1/users/update-personal', {
+      user_id: this.userId,
+      gender: this.personal.gender || null,
+      dob: this.formatDate(this.basic.dob),
+      marital_status: this.personal.marital_status || this.selectedMaritalStatus[0] || null,
+      known_languages: [],
+      birth_place: null,
+      birth_state: null,
+      birth_country: null,
+      height_in_ft: null,
+      height_in_inches: null,
+      weight: null,
+      caste_id: null,
+      identification_mark: null,
+      disablility: null,
+      caste_detail: null,
+      legal_history: null,
+      father_signature: null,
+      mother_signature: null,
+      guardian_signature: null
+    });
+  }
+
+  saveFamilySection(): void {
+    this.putSection('family', 'Family details', 'v1/users/update-family', {
+      user_id: this.userId,
+      father_name: this.personal.father_name || null,
+      father_email: this.personal.father_email || null,
+      father_phone: this.personal.father_mobile ? Number(this.personal.father_mobile) : null,
+      father_occupation_id: this.selectedFatherOccupation[0] || null,
+      mother_name: this.personal.mother_name || null,
+      mother_email: this.personal.mother_email || null,
+      mother_phone: this.personal.mother_mobile ? Number(this.personal.mother_mobile) : null,
+      mother_occupation_id: this.selectedMotherOccupation[0] || null,
+      spouse_name: this.personal.spouse_name || null,
+      brother_siblings: this.personal.siblings_brother ? Number(this.personal.siblings_brother) : null,
+      sister_siblings: this.personal.siblings_sister ? Number(this.personal.siblings_sister) : null,
+      earning_members: this.personal.earning_members ? Number(this.personal.earning_members) : null,
+      family_devotees: this.personal.samarpit_member || null,
+      inlaws_members: this.personal.family_members_at_home || null,
+      mother_occupation_location_id: this.selectedMotherOccupationLocation[0] || null,
+      father_occupation_location_id: this.selectedFatherOccupationLocation[0] || null,
+      father_occupation_type: this.selectedFatherOccupationType[0] ? Number(this.selectedFatherOccupationType[0]) : null,
+      mother_occupation_type: this.selectedMotherOccupationType[0] ? Number(this.selectedMotherOccupationType[0]) : null,
+      father_occupation_status: this.selectedFatherOccupationStatus[0] ? Number(this.selectedFatherOccupationStatus[0]) : null,
+      mother_occupation_status: this.selectedMotherOccupationStatus[0] ? Number(this.selectedMotherOccupationStatus[0]) : null,
+      remarks: this.personal.remarks || null
+    });
+  }
+
+  saveEmergencySection(): void {
+    this.putSection('emergency', 'Emergency contact', 'v1/users/update-emergency', {
+      user_id: this.userId,
+      emergency_name: this.emergency.name || null,
+      emergency_email: this.emergency.email || null,
+      emergency_phone: this.emergency.phone ? Number(this.emergency.phone) : null
+    });
+  }
+
+  saveAadhaarSection(): void {
+    const a = this.idProofs.aadhaar;
+    this.putSection('aadhaar', 'Aadhaar details', 'v1/users/update-aadhaar', {
+      user_id: this.userId,
+      aadhaar_number: a.number || '',
+      aadhaar_name: a.name || '',
+      aadhaar_address: a.address || '',
+      home_reason: a.home_reason || '',
+      mobile_linked: a.mobile_linked || '',
+      renewal_date: this.formatDate(a.renewal_date),
+      remarks: a.remarks || '',
+      ashram_area_id: a.ashram_area_id || '',
+      adhaar_media: [],
+      aadhaar_cropped_image: a.mediaIsNew && a.preview ? a.preview : ''
+    });
+  }
+
+  saveElectoralSection(): void {
+    const v = this.idProofs.voter;
+    this.putSection('electoral', 'Electoral details', 'v1/users/update-electoral', {
+      user_id: this.userId,
+      voter_number: v.voter_number || '',
+      voter_name: v.name || '',
+      part_number: v.port_number || '',
+      serial_number: v.serial_number || '',
+      voter_mobile_linked: v.mobile_linked || '',
+      voter_address: v.address || '',
+      voter_home_reason: v.home_reason || '',
+      voter_remarks: v.remarks || '',
+      ashram_voter_area_id: v.ashram_voter_area_id || '',
+      user_electoral_enclosed: v.mediaIsNew && v.preview ? [v.preview] : []
+    });
+  }
+
+  saveLicenseSection(): void {
+    const l = this.idProofs.license;
+    this.putSection('license', 'Driving license', 'v1/users/update-driving-license', {
+      user_id: this.userId,
+      driving_license_number: l.license_number || '',
+      license_holder_name: l.holder_name || '',
+      license_state: l.state || '',
+      license_type: l.license_type || '',
+      date_of_issue: this.formatDate(l.date_of_issue),
+      expiry_date: this.formatDate(l.expiry_date),
+      user_driving_license_enclosed: l.mediaIsNew && l.preview ? [l.preview] : []
+    });
+  }
+
+  saveEducationSection(): void {
+    this.putSection('education', 'Education', 'v1/users/update-education', {
+      user_id: this.userId,
+      remarks: this.qualifications.map(q => q.remarks || ''),
+      degree_id: this.qualifications.map(q => q.degree || ''),
+      name: this.qualifications.map(q => q.name || ''),
+      education_media: this.qualifications.map(() => ''),
+      delete_education_docs: '',
+      user_education_id: this.qualifications.map(q => q.id || '')
+    });
+  }
+
+  saveWorkSection(): void {
+    this.putSection('work', 'Work experience', 'v1/users/update-work', {
+      user_id: this.userId,
+      profession_id: this.selectedProfession[0] || null,
+      experience: this.work.work_experience || '',
+      experience_period: this.work.experience_period || '',
+      skills: this.selectedSkills || [],
+      profession_skill_remarks: this.work.remarks || ''
+    });
+  }
+
+  saveSpiritualSection(): void {
+    this.putSection('spiritual', 'Spiritual details', 'v1/users/update-spiritual', {
+      user_id: this.userId,
+      date_of_initiation: this.formatDate(this.spiritual.date_of_initiation),
+      place_of_initiation: this.spiritual.place_of_initiation || null,
+      initiation_branch_id: this.selectedInitiationBranch[0] || null,
+      date_of_joining: this.formatDate(this.spiritual.date_of_joining),
+      joining_branch_id: this._joiningBranchId || null,
+      dress_code_id: this._dressCodeId || null,
+      dress_code_ordained_date: this.formatDate(this.spiritual.dress_code_ordained_date),
+      date_of_registration: this.formatDate(this.spiritual.date_of_registration),
+      gyan_agya_date: this.formatDate(this.spiritual.gyan_agya_date),
+      name_changing_date: this.formatDate(this.spiritual.name_changing_date)
+    });
+  }
+
+  saveMedicalSection(): void {
+    this.putSection('medical', 'Medical details', 'v1/users/update-medical', {
+      user_id: this.userId,
+      blood_group: this.selectedBloodGroup[0] || this.medical.blood_group || '',
+      note: this.medicalHistories.map(h => h.note || ''),
+      major_illness: this.medicalHistories.map(h => h.major_illness ? Number(h.major_illness) : null),
+      medical_history_media: this.medicalHistories.map(() => ''),
+      medical_history_id: this.medicalHistories.map(h => h.id || ''),
+      delete_medical_history_docs: ''
+    });
   }
 
   /**

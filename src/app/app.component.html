@@ -1,3 +1,5 @@
+<app-loading *ngIf="loading$ | async" [size]="'medium'" [type]="'spinner'" [overlay]="true"></app-loading>
+
 <ng-container *ngIf="isAuthenticated; else authLayout">
     <app-header
         [title]="title()"

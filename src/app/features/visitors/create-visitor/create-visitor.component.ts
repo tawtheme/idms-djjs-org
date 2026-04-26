@@ -10,7 +10,7 @@ import { Component, Input, Output, EventEmitter, inject, ViewChild } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { FileUploadComponent, FileUploadConfig } from '../../../shared/components/file-upload/file-upload.component';
@@ -49,7 +49,6 @@ export interface CreateVisitorForm {
   imports: [
     CommonModule,
     FormsModule,
-    BreadcrumbComponent,
     DropdownComponent,
     DatepickerComponent,
     FileUploadComponent,

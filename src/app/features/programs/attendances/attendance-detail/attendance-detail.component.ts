@@ -2,7 +2,6 @@ import { Component, inject, OnInit, AfterViewInit, ElementRef, HostListener, Vie
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
@@ -52,7 +51,6 @@ interface AttendanceSummary {
     CommonModule,
     FormsModule,
     RouterModule,
-    BreadcrumbComponent,
     EmptyStateComponent,
     LoadingComponent,
     IconComponent,
@@ -70,12 +68,6 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
-
-  breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Programs', route: '/programs/programs-list' },
-    { label: 'Attendances', route: '/programs/attendances' },
-    { label: 'Attendance Detail' }
-  ];
 
   programId = '';
   attendanceMode: 'checkin' | 'checkout' = 'checkin';

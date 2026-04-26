@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, debounceTime, finalize, switchMap, tap } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -59,7 +59,6 @@ export interface Volunteer {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
     LoadingComponent,

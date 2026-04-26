@@ -414,7 +414,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   // Recalculate position on window resize
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onWindowResize(): void {
     if (this.isOpen) {
       this.checkAvailableSpace();
@@ -422,7 +422,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   // Recalculate position on scroll
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onWindowScroll(): void {
     if (this.isOpen) {
       this.checkAvailableSpace();

@@ -10,7 +10,6 @@ import { Component, Input, Output, EventEmitter, OnInit, inject, ViewChild } fro
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
@@ -42,7 +41,6 @@ export interface CreateVolunteerForm {
   imports: [
     CommonModule,
     FormsModule,
-    BreadcrumbComponent,
     DropdownComponent,
     DatepickerComponent,
     FileUploadComponent,
@@ -111,11 +109,6 @@ export class CreateVolunteerComponent implements OnInit {
   selectedSewas: any[] = [];
   selectedCorrespondingBranch: any[] = [];
   selectedTaskBranch: any[] = [];
-
-  breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Volunteers', route: '/volunteers' },
-    { label: 'Create Volunteer', route: '/volunteers/create' }
-  ];
 
   ngOnInit(): void {
     this.loadBranches();

@@ -50,7 +50,7 @@ export class LocationService {
 
         if (!this.statesCache.has(cacheKey)) {
             const states$ = this.dataService
-                .get<any>(`v1/options/states?country_name=${encodeURIComponent(countryName)}`)
+                .get<any>(`v1/options/states?country=${encodeURIComponent(countryName)}`)
                 .pipe(
                     map(response => this.transformToDropdownOptions(response)),
                     shareReplay(1) // Cache the result
@@ -75,9 +75,9 @@ export class LocationService {
         const cacheKey = `${stateName.toLowerCase()}_${(countryName || '').toLowerCase()}`;
 
         if (!this.districtsCache.has(cacheKey)) {
-            const countryParam = countryName ? `&country_name=${encodeURIComponent(countryName)}` : '';
+            const countryParam = countryName ? `&country=${encodeURIComponent(countryName)}` : '';
             const districts$ = this.dataService
-                .get<any>(`v1/options/districts?state_name=${encodeURIComponent(stateName)}${countryParam}`)
+                .get<any>(`v1/options/districts?state=${encodeURIComponent(stateName)}${countryParam}`)
                 .pipe(
                     map(response => this.transformToDropdownOptions(response)),
                     shareReplay(1) // Cache the result
@@ -110,18 +110,18 @@ export class LocationService {
         if (!this.citiesCache.has(cacheKey)) {
             let queryParams = '';
 
+            if (countryName) {
+                queryParams += `country=${encodeURIComponent(countryName)}`;
+            }
+
             if (stateName) {
-                queryParams += `state_name=${encodeURIComponent(stateName)}`;
+                queryParams += queryParams ? '&' : '';
+                queryParams += `state=${encodeURIComponent(stateName)}`;
             }
 
             if (districtName) {
                 queryParams += queryParams ? '&' : '';
-                queryParams += `district_name=${encodeURIComponent(districtName)}`;
-            }
-
-            if (countryName) {
-                queryParams += queryParams ? '&' : '';
-                queryParams += `country_name=${encodeURIComponent(countryName)}`;
+                queryParams += `district=${encodeURIComponent(districtName)}`;
             }
 
             const cities$ = this.dataService

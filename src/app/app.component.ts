@@ -3,12 +3,14 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { HeaderComponent } from './components/header/header.component';
+import { LoadingComponent } from './shared/components/loading/loading.component';
+import { LoadingService } from './core/services/loading.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, HeaderComponent],
+  imports: [RouterOutlet, CommonModule, HeaderComponent, LoadingComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -23,6 +25,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private auth = inject(AuthService);
   private router = inject(Router);
+  private loadingService = inject(LoadingService);
+  loading$ = this.loadingService.loading$;
   private heightCalculationTimeout?: number;
 
   get isAuthenticated() { return this.auth.isAuthenticated(); }
