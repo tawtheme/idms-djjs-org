@@ -6,7 +6,7 @@
  * The form data is submitted to the API via DataService.
  */
 
-import { Component, Input, Output, EventEmitter, inject, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,8 +15,10 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
 import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { DataService } from '../../../../data.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
+import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -26,17 +28,13 @@ import { of } from 'rxjs';
 export interface CreateVolunteerForm {
   name: string;
   phone: string;
-  gender: string;
   dob: Date | null;
   spouseName: string;
   fatherName: string;
   motherName: string;
-  address: string;
   whatsappNumber: string;
   email: string;
   aadhaarNumber: string;
-  copyAsWhatsapp: boolean;
-  sewaInterest: boolean;
 }
 
 @Component({
@@ -48,13 +46,14 @@ export interface CreateVolunteerForm {
     DropdownComponent,
     DatepickerComponent,
     FileUploadComponent,
-    CameraUploadComponent
+    CameraUploadComponent,
+    ModalComponent
   ],
   selector: 'app-create-volunteer',
   templateUrl: './create-volunteer.component.html',
   styleUrls: ['./create-volunteer.component.scss']
 })
-export class CreateVolunteerComponent {
+export class CreateVolunteerComponent implements OnInit {
   @ViewChild('volunteerForm') volunteerForm!: NgForm;
   @Output() volunteerCreated = new EventEmitter<void>();
   @Input() hideBreadcrumbs: boolean = false;
@@ -70,22 +69,32 @@ export class CreateVolunteerComponent {
   form: CreateVolunteerForm = {
     name: '',
     phone: '',
-    gender: '',
     dob: null,
     spouseName: '',
     fatherName: '',
     motherName: '',
-    address: '',
     whatsappNumber: '',
     email: '',
-    aadhaarNumber: '',
-    copyAsWhatsapp: false,
-    sewaInterest: false
+    aadhaarNumber: ''
   };
 
+  copyAsWhatsapp: boolean = false;
+
+  phoneInputWarning: string = '';
+  whatsappInputWarning: string = '';
+  private phoneWarningTimer?: ReturnType<typeof setTimeout>;
+  private whatsappWarningTimer?: ReturnType<typeof setTimeout>;
+
+  // Profile image
   profileImage: File | null = null;
   profileImagePreview: string | null = null;
-
+  imageOptions: DropdownOption[] = [
+    { id: '1', label: 'Upload from local', value: 'upload' },
+    { id: '2', label: 'Capture live photo', value: 'capture' }
+  ];
+  selectedImage: any[] = [];
+  selectedImageType: 'upload' | 'capture' | null = null;
+  imageModalOpen: boolean = false;
   fileUploadConfig: FileUploadConfig = {
     multiple: false,
     accept: 'image/*',
@@ -96,113 +105,168 @@ export class CreateVolunteerComponent {
     showFileListHeader: false
   };
 
-  genderOptions: DropdownOption[] = [
-    { id: '1', label: 'Male', value: 'MALE' },
-    { id: '2', label: 'Female', value: 'FEMALE' },
-    { id: '3', label: 'Other', value: 'OTHER' }
-  ];
-
-  selectedGender: any[] = [];
-
-  imageOptions: DropdownOption[] = [
-    { id: '1', label: 'Upload from local', value: 'upload' },
-    { id: '2', label: 'Capture live photo', value: 'capture' }
-  ];
-
-  selectedImage: any[] = [];
-  selectedImageType: 'upload' | 'capture' | null = null;
+  // Sewa & Branch
+  sewaOptions: DropdownOption[] = [];
+  branchOptions: DropdownOption[] = [];
+  selectedSewas: any[] = [];
+  selectedCorrespondingBranch: any[] = [];
+  selectedTaskBranch: any[] = [];
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Volunteers', route: '/volunteers' },
     { label: 'Create Volunteer', route: '/volunteers/create' }
   ];
 
-  /**
-   * Handles gender selection change from dropdown
-   * @param event - Selected gender option from dropdown
-   */
-  onGenderChange(event: DropdownOption[]): void {
-    this.selectedGender = event;
-    this.form.gender = event[0]?.value || '';
+  ngOnInit(): void {
+    this.loadBranches();
+    this.loadSewas();
   }
 
-  /**
-   * Updates date of birth field
-   */
+  private loadBranches(): void {
+    this.dataService.get<any>('v1/options/branches').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+      this.branchOptions = (Array.isArray(data) ? data : []).map((b: any) => ({
+        id: String(b.id),
+        label: b.name || b.label || b.title || '',
+        value: String(b.id)
+      }));
+    });
+  }
+
+  private loadSewas(): void {
+    this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'volunteer' } }).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || response || [];
+      this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: String(s.id)
+      }));
+    });
+  }
+
   onDobChange(date: Date | null): void {
     this.form.dob = date;
   }
 
-  /**
-   * Syncs WhatsApp number with phone number if copy option is enabled
-   */
   onPhoneChange(): void {
-    if (this.form.copyAsWhatsapp) {
+    this.form.phone = sanitizeMobile(this.form.phone);
+    this.phoneInputWarning = '';
+    if (this.copyAsWhatsapp) {
       this.form.whatsappNumber = this.form.phone;
     }
   }
 
-  /**
-   * Handles file selection from file upload component
-   * @param files - Array of selected files
-   */
+  onWhatsappChange(): void {
+    this.form.whatsappNumber = sanitizeMobile(this.form.whatsappNumber);
+    this.whatsappInputWarning = '';
+  }
+
+  onCopyAsWhatsappChange(): void {
+    if (this.copyAsWhatsapp) {
+      this.form.whatsappNumber = this.form.phone;
+    }
+  }
+
+  onImageChange(selection: string[]): void {
+    this.selectedImage = selection;
+    if (selection?.length > 0) {
+      const v = selection[0];
+      if (v === 'upload' || v === 'capture') {
+        this.selectedImageType = v;
+        this.clearImage();
+        this.imageModalOpen = true;
+      } else {
+        this.selectedImageType = null;
+      }
+    } else {
+      this.selectedImageType = null;
+    }
+  }
+
+  closeImageModal(): void { this.imageModalOpen = false; }
+
+  reopenImageModal(): void {
+    if (this.selectedImageType) this.imageModalOpen = true;
+  }
+
   onFilesSelected(files: File[]): void {
     if (files?.length > 0) {
       this.profileImage = files[0];
       this.createImagePreview(this.profileImage);
+      this.imageModalOpen = false;
     }
   }
 
-  /**
-   * Handles file rejection (e.g., file too large, wrong type)
-   * @param rejection - Rejection details with file and reason
-   */
   onFileRejected(rejection: { file: File; reason: string }): void {
-    const errorMessage = `File rejected: ${rejection.reason}`;
-    this.error = errorMessage;
-    this.snackbarService.showError(errorMessage);
+    this.snackbarService.showError(`File rejected: ${rejection.reason}`);
   }
 
-  /**
-   * Handles file removal from file upload component
-   * @param file - The file that was removed
-   */
   onFileRemoved(file: File): void {
-    if (this.profileImage === file) {
-      this.clearImage();
-    }
+    if (this.profileImage === file) this.clearImage();
   }
 
-  /**
-   * Handles image removal from camera capture component
-   */
   onCameraImageRemoved(): void {
     this.clearImage();
+    this.selectedImage = [];
+    this.selectedImageType = null;
   }
 
-  /**
-   * Clears the selected profile image and preview
-   */
+  onImageCaptured(file: File): void {
+    this.profileImage = file;
+    this.createImagePreview(file);
+    this.imageModalOpen = false;
+  }
+
+  private createImagePreview(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) this.profileImagePreview = e.target.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
   private clearImage(): void {
     this.profileImage = null;
     this.profileImagePreview = null;
   }
 
-  /**
-   * Validates and submits the form
-   * Called from side panel footer button
-   */
+  blockNonDigit(event: KeyboardEvent, field: 'phone' | 'whatsapp'): void {
+    const blocked = blockNonDigitKey(event);
+    if (!blocked) return;
+    if (field === 'phone') {
+      this.phoneInputWarning = blocked;
+      clearTimeout(this.phoneWarningTimer);
+      this.phoneWarningTimer = setTimeout(() => (this.phoneInputWarning = ''), 2000);
+    } else {
+      this.whatsappInputWarning = blocked;
+      clearTimeout(this.whatsappWarningTimer);
+      this.whatsappWarningTimer = setTimeout(() => (this.whatsappInputWarning = ''), 2000);
+    }
+  }
+
+  get phoneError(): string {
+    return mobileError(this.form.phone);
+  }
+
+  get whatsappError(): string {
+    return mobileError(this.form.whatsappNumber);
+  }
+
+  get emailError(): string {
+    return emailError(this.form.email);
+  }
+
   submitForm(): void {
-    // Use custom validation instead of form.valid since we're using standalone ngModel
     if (this.isFormValid()) {
       this.onSubmit();
     } else {
-      // Show validation error
-      const errorMessage = 'Name, Phone, and Gender are required fields.';
+      const errorMessage = 'Name and Mobile Number are required fields.';
       this.error = errorMessage;
       this.snackbarService.showError(errorMessage);
-      
-      // Mark form as touched if it exists
       if (this.volunteerForm) {
         Object.keys(this.volunteerForm.controls).forEach(key => {
           this.volunteerForm.controls[key].markAsTouched();
@@ -212,79 +276,30 @@ export class CreateVolunteerComponent {
   }
 
   /**
-   * Handles image upload method selection (upload from local or capture live)
-   * @param selection - Selected option from dropdown
-   */
-  onImageChange(selection: string[]): void {
-    this.selectedImage = selection;
-    
-    if (selection?.length > 0) {
-      const selectedValue = selection[0];
-      // Validate that the selected value is either 'upload' or 'capture'
-      if (selectedValue === 'upload' || selectedValue === 'capture') {
-        this.selectedImageType = selectedValue;
-        this.clearImage(); // Clear previous image when switching methods
-      } else {
-        this.selectedImageType = null;
-      }
-    } else {
-      this.selectedImageType = null;
-    }
-  }
-
-  /**
-   * Handles image captured from camera component
-   * @param file - The captured image file
-   */
-  onImageCaptured(file: File): void {
-    this.profileImage = file;
-    this.createImagePreview(file);
-  }
-
-  /**
-   * Creates a preview of the selected image file
-   * @param file - The image file to preview
-   */
-  private createImagePreview(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      if (e.target?.result) {
-        this.profileImagePreview = e.target.result as string;
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  /**
    * Resets the entire form to initial state
    */
   onReset(): void {
     this.resetForm();
-    this.selectedGender = [];
+    this.selectedSewas = [];
+    this.selectedCorrespondingBranch = [];
+    this.selectedTaskBranch = [];
     this.selectedImage = [];
     this.selectedImageType = null;
     this.clearImage();
     this.error = null;
   }
 
-  /**
-   * Resets form fields to empty/default values
-   */
   private resetForm(): void {
     this.form = {
       name: '',
       phone: '',
-      gender: '',
       dob: null,
       spouseName: '',
       fatherName: '',
       motherName: '',
-      address: '',
       whatsappNumber: '',
       email: '',
-      aadhaarNumber: '',
-      copyAsWhatsapp: false,
-      sewaInterest: false
+      aadhaarNumber: ''
     };
   }
 
@@ -294,7 +309,7 @@ export class CreateVolunteerComponent {
   onSubmit(): void {
     // Validate required fields
     if (!this.isFormValid()) {
-      const errorMessage = 'Name, Phone, and Gender are required fields.';
+      const errorMessage = 'Name and Mobile Number are required fields.';
       this.error = errorMessage;
       this.snackbarService.showError(errorMessage);
       return;
@@ -330,11 +345,11 @@ export class CreateVolunteerComponent {
    * @returns true if all required fields are filled
    */
   private isFormValid(): boolean {
-    return !!(
-      this.form.name &&
-      this.form.phone &&
-      this.form.gender
-    );
+    if (!this.form.name || !this.form.phone) return false;
+    if (this.phoneError) return false;
+    if (this.form.whatsappNumber && this.whatsappError) return false;
+    if (this.form.email && this.emailError) return false;
+    return true;
   }
 
   /**
@@ -357,28 +372,27 @@ export class CreateVolunteerComponent {
    * @returns Formatted payload object
    */
   private buildPayload(): Record<string, unknown> {
-    return {
+    const payload: Record<string, unknown> = {
       name: this.form.name,
       phone: this.form.phone,
-      email: this.form.email || null,
-      whatsapp_number: this.form.whatsappNumber || null,
-      aadhaar_number: this.form.aadhaarNumber || null,
-      user_profile: {
-        gender: this.form.gender,
-        sewa_interest: this.form.sewaInterest ? 1 : 0,
-        dob: this.formatDate(this.form.dob),
-        father_name: this.form.fatherName || null,
-        mother_name: this.form.motherName || null,
-        spouse_name: this.form.spouseName || null
-      },
-      user_address: {
-        address_1: this.form.address,
-        city: null,
-        state: null,
-        country: 'India',
-        type: 'correspondence'
-      }
+      alternate_phone: this.form.whatsappNumber || '',
+      email: this.form.email || '',
+      home_branch: this.selectedCorrespondingBranch[0] || '',
+      working_branch: this.selectedTaskBranch[0] || '',
+      aadhaar_number: this.form.aadhaarNumber || '',
+      dob: this.formatDate(this.form.dob),
+      father_name: this.form.fatherName || '',
+      mother_name: this.form.motherName || '',
+      spouse_name: this.form.spouseName || '',
+      sewas: this.selectedSewas || []
     };
+
+    if (this.profileImage && this.profileImagePreview) {
+      const key = this.selectedImageType === 'capture' ? 'capture_user_image' : 'user_image';
+      payload[key] = this.profileImagePreview;
+    }
+
+    return payload;
   }
 
   /**

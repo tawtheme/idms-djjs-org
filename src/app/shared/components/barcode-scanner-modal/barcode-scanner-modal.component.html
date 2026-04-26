@@ -1,0 +1,39 @@
+<app-modal
+    *ngIf="isOpen"
+    [isOpen]="isOpen"
+    title="Scan Volunteer ID"
+    [size]="'medium'"
+    [showFooter]="true"
+    [footerAlign]="'right'"
+    [footerButtons]="[
+        { text: 'Cancel', type: 'secondary', action: 'cancel' }
+    ]"
+    (close)="onClose()"
+    (footerAction)="onClose()">
+    <div class="barcode-scanner">
+        <div class="barcode-scanner__viewport" *ngIf="!errorMessage">
+            <video #videoEl playsinline muted autoplay></video>
+            <div class="barcode-scanner__overlay">
+                <div class="barcode-scanner__guide"></div>
+            </div>
+        </div>
+
+        <div class="barcode-scanner__error" *ngIf="errorMessage">
+            <app-icon name="alert_circle" />
+            <p>{{ errorMessage }}</p>
+            <button type="button" class="btn btn--primary btn--md" (click)="retry()">Retry</button>
+        </div>
+
+        <p class="barcode-scanner__hint" *ngIf="!errorMessage">
+            Point the camera at the volunteer's barcode.
+        </p>
+
+        <button
+            *ngIf="!errorMessage && devices.length > 1"
+            type="button"
+            class="btn btn--secondary btn--md barcode-scanner__switch"
+            (click)="switchCamera()">
+            Switch Camera
+        </button>
+    </div>
+</app-modal>

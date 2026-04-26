@@ -16,24 +16,36 @@
                     <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
                 </div>
                 <div class="form-field">
-                    <label for="phone">Phone <span class="required">*</span></label>
-                    <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter phone" (input)="onPhoneChange()" required>
+                    <div class="field-label-row">
+                        <label for="phone">Mobile Number <span class="required">*</span></label>
+                        <label class="copy-whatsapp">
+                            <input type="checkbox"
+                                   [(ngModel)]="copyAsWhatsapp"
+                                   [ngModelOptions]="{ standalone: true }"
+                                   (change)="onCopyAsWhatsappChange()" />
+                            <span>Same as WhatsApp</span>
+                        </label>
+                    </div>
+                    <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
+                    <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
                 </div>
                 <div class="form-field">
-                    <label for="gender">Gender <span class="required">*</span></label>
-                    <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label for="dob">Date of Birth</label>
-                    <app-datepicker [value]="form.dob" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+                    <label for="whatsappNumber">Whatsapp Number</label>
+                    <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
+                    <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
                 </div>
                 <div class="form-field">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
+                    <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
                 </div>
                 <div class="form-field">
                     <label for="aadhaarNumber">Aadhaar Number</label>
                     <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
+                </div>
+                <div class="form-field">
+                    <label for="dob">Date of Birth</label>
+                    <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
                 </div>
             </div>
         </div>
@@ -59,19 +71,23 @@
             </div>
         </div>
 
-        <!-- Contact Details -->
+        <!-- Sewa & Branch -->
         <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">Contact Details</h3>
+                <h3 class="section-title">Sewa &amp; Branch</h3>
             </div>
             <div class="form-grid">
                 <div class="form-field">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" class="form-control" [(ngModel)]="form.address" [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
+                    <label>Corresponding Branch</label>
+                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
                 </div>
                 <div class="form-field">
-                    <label for="whatsappNumber">Whatsapp Number</label>
-                    <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number">
+                    <label>Task Branch</label>
+                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
+                </div>
+                <div class="form-field form-field--full">
+                    <label>Allocate Sewa</label>
+                    <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSewas = $event"></app-dropdown>
                 </div>
             </div>
         </div>
@@ -82,15 +98,18 @@
                 <h3 class="section-title">Profile Image</h3>
             </div>
             <div class="form-grid">
-                <div class="form-field">
+                <div class="form-field" *ngIf="!profileImagePreview">
                     <label>Upload Method</label>
                     <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
                 </div>
-                <div class="form-field" *ngIf="selectedImageType === 'upload'">
-                    <app-file-upload [config]="fileUploadConfig" [disabled]="isLoading" (filesSelected)="onFilesSelected($event)" (fileRejected)="onFileRejected($event)" (removed)="onFileRemoved($event)"></app-file-upload>
-                </div>
-                <div class="form-field" *ngIf="selectedImageType === 'capture'">
-                    <app-camera-upload [disabled]="isLoading" (imageCaptured)="onImageCaptured($event)" (removed)="onCameraImageRemoved()"></app-camera-upload>
+                <div class="form-field form-field--full" *ngIf="selectedImageType && profileImagePreview">
+                    <div class="profile-image-preview">
+                        <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
+                        <div class="profile-image-actions">
+                            <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
+                            <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -112,16 +131,36 @@
         <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
     </div>
     <div class="form-field">
-        <label for="phone">Phone <span class="required">*</span></label>
-        <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter phone" (input)="onPhoneChange()" required>
+        <div class="field-label-row">
+            <label for="phone">Mobile Number <span class="required">*</span></label>
+            <label class="copy-whatsapp">
+                <input type="checkbox"
+                       [(ngModel)]="copyAsWhatsapp"
+                       [ngModelOptions]="{ standalone: true }"
+                       (change)="onCopyAsWhatsappChange()" />
+                <span>Same as WhatsApp</span>
+            </label>
+        </div>
+        <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
+        <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
     </div>
     <div class="form-field">
-        <label for="gender">Gender <span class="required">*</span></label>
-        <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
+        <label for="whatsappNumber">Whatsapp Number</label>
+        <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
+        <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+    </div>
+    <div class="form-field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
+        <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+    </div>
+    <div class="form-field">
+        <label for="aadhaarNumber">Aadhaar Number</label>
+        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
     </div>
     <div class="form-field">
         <label for="dob">Date of birth</label>
-        <app-datepicker [value]="form.dob" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
     </div>
     <div class="form-field">
         <label for="fatherName">Father Name</label>
@@ -136,29 +175,54 @@
         <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
     </div>
     <div class="form-field">
-        <label for="address">Address</label>
-        <input type="text" id="address" class="form-control" [(ngModel)]="form.address" [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
+        <label>Allocate Sewa</label>
+        <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSewas = $event"></app-dropdown>
     </div>
     <div class="form-field">
-        <label for="whatsappNumber">Whatsapp Number</label>
-        <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number">
+        <label>Corresponding Branch</label>
+        <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
     </div>
     <div class="form-field">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
+        <label>Task Branch</label>
+        <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
     </div>
-    <div class="form-field">
-        <label for="aadhaarNumber">Aadhaar Number</label>
-        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
-    </div>
-    <div class="form-field">
+    <div class="form-field" *ngIf="!profileImagePreview">
         <label>Upload Profile Image</label>
         <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
     </div>
-    <div class="form-field" *ngIf="selectedImageType === 'upload'">
-        <app-file-upload [config]="fileUploadConfig" [disabled]="isLoading" (filesSelected)="onFilesSelected($event)" (fileRejected)="onFileRejected($event)" (removed)="onFileRemoved($event)"></app-file-upload>
+    <div class="form-field" *ngIf="selectedImageType && profileImagePreview">
+        <div class="profile-image-preview">
+            <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
+            <div class="profile-image-actions">
+                <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
+                <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
+            </div>
+        </div>
     </div>
-    <div class="form-field" *ngIf="selectedImageType === 'capture'">
-        <app-camera-upload [disabled]="isLoading" (imageCaptured)="onImageCaptured($event)" (removed)="onCameraImageRemoved()"></app-camera-upload>
-    </div>
+
 </form>
+
+<!-- Profile Image Upload Modal -->
+<app-modal
+    *ngIf="imageModalOpen"
+    [isOpen]="imageModalOpen"
+    [title]="selectedImageType === 'capture' ? 'Capture Live Photo' : 'Upload Profile Image'"
+    [size]="'medium'"
+    (close)="closeImageModal()">
+    <ng-container *ngIf="selectedImageType === 'upload'">
+        <app-file-upload
+            [config]="fileUploadConfig"
+            [disabled]="isLoading"
+            (filesSelected)="onFilesSelected($event)"
+            (fileRejected)="onFileRejected($event)"
+            (removed)="onFileRemoved($event)">
+        </app-file-upload>
+    </ng-container>
+    <ng-container *ngIf="selectedImageType === 'capture'">
+        <app-camera-upload
+            [disabled]="isLoading"
+            (imageCaptured)="onImageCaptured($event)"
+            (removed)="onCameraImageRemoved()">
+        </app-camera-upload>
+    </ng-container>
+</app-modal>

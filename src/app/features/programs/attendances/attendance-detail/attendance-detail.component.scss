@@ -187,6 +187,32 @@
         }
     }
 
+    &__scan-btn {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid $color-gray-300;
+        background: #fff;
+        border-radius: 6px;
+        color: $color-gray-600;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+        &:hover:not(:disabled) {
+            background: $color-primary-50;
+            border-color: $color-primary-400;
+            color: $color-primary-600;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
     &__input {
         flex: 1;
         padding: 8px 0;

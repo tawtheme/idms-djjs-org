@@ -62,6 +62,7 @@
     <div class="table-section">
         <div class="enter-id-row">
             <input
+                #enterIdInput
                 type="text"
                 class="enter-id-row__input"
                 placeholder="Scan or Enter Volunteer ID..."
@@ -69,6 +70,14 @@
                 [ngModelOptions]="{ standalone: true }"
                 (keydown.enter)="onEnterId()"
                 [disabled]="isSubmitting" />
+            <button
+                type="button"
+                class="enter-id-row__scan-btn"
+                title="Scan with camera"
+                (click)="openScannerModal()"
+                [disabled]="isSubmitting">
+                <app-icon name="camera_alt" />
+            </button>
         </div>
         <div class="table-section__header">
             <h3 class="table-section__title">{{ attendanceMode === 'checkin' ? 'Checked In' : 'Checked Out' }} Volunteers</h3>
@@ -317,3 +326,10 @@
     [programName]="summary.programName"
     (closeModal)="closeAttendanceModal()">
 </app-view-attendance-modal>
+
+<app-barcode-scanner-modal
+    *ngIf="scannerModalOpen"
+    [isOpen]="scannerModalOpen"
+    (scanned)="onBarcodeScanned($event)"
+    (close)="closeScannerModal()">
+</app-barcode-scanner-modal>

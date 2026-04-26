@@ -61,6 +61,10 @@
                         <tr><th>State</th><td>{{ correspondenceAddress?.state?.name || correspondenceAddress?.state || '' }}</td></tr>
                         <tr><th>City</th><td>{{ correspondenceAddress?.city?.name || correspondenceAddress?.city || '' }}</td></tr>
                         <tr><th>Pincode</th><td>{{ correspondenceAddress?.pincode || '' }}</td></tr>
+                        <tr><th>District</th><td>{{ correspondenceAddress?.district?.name || correspondenceAddress?.district || '' }}</td></tr>
+                        <tr><th>Home Branch</th><td>{{ correspondenceAddress?.home_branch?.name || correspondenceAddress?.corresponding_branch || '' }}</td></tr>
+                        <tr><th>Task Branch</th><td>{{ correspondenceAddress?.task_branch?.name || correspondenceAddress?.task_branch || '' }}</td></tr>
+                        <tr><th>Department</th><td>{{ correspondenceAddress?.department?.name || correspondenceAddress?.department || '' }}</td></tr>
                     </tbody>
                 </table>
             </ng-container>
@@ -72,32 +76,43 @@
                     <tbody>
                         <tr><th>Gender</th><td>{{ profile?.gender || '' }}</td></tr>
                         <tr><th>Date of birth</th><td>{{ profile?.dob || profile?.date_of_birth || '' }}</td></tr>
-                        <tr><th>Marital Status</th><td>{{ profile?.marital_status || '' }}</td></tr>
-                        <tr><th>Blood Group</th><td>{{ profile?.blood_group || '' }}</td></tr>
                     </tbody>
                 </table>
 
                 <div class="section-title">Family Details</div>
-                <table class="kv-table" *ngIf="familyMembers.length > 0; else noFamily">
+                <table class="kv-table">
                     <tbody>
-                        <tr *ngFor="let f of familyMembers">
-                            <th>{{ f?.relation || f?.relation_type || 'Member' }}</th>
-                            <td>{{ f?.name || '' }} <span class="muted" *ngIf="f?.phone">— {{ f.phone }}</span></td>
-                        </tr>
+                        <tr><th>Father Name</th><td>{{ profile?.father_name || '' }}</td></tr>
+                        <tr><th>Father Email</th><td>{{ profile?.father_email || '' }}</td></tr>
+                        <tr><th>Father Occupation</th><td>{{ profile?.father_occupation || '' }}</td></tr>
+                        <tr><th>Mother Name</th><td>{{ profile?.mother_name || '' }}</td></tr>
+                        <tr><th>Mother Email</th><td>{{ profile?.mother_email || '' }}</td></tr>
+                        <tr><th>Mother Occupation</th><td>{{ profile?.mother_occupation || '' }}</td></tr>
+                        <tr><th>Spouse Name</th><td>{{ profile?.spouse_name || '' }}</td></tr>
+                        <tr><th>Sibling's (Sister)</th><td>{{ profile?.siblings_sister || profile?.sister_name || '' }}</td></tr>
+                        <tr><th>Earning Members</th><td>{{ profile?.earning_members || '' }}</td></tr>
                     </tbody>
                 </table>
-                <ng-template #noFamily><div class="empty">No family details available.</div></ng-template>
 
                 <div class="section-title">Emergency Contact</div>
                 <table class="kv-table" *ngIf="userEmergencyContacts.length > 0; else noEmergency">
                     <tbody>
-                        <tr *ngFor="let c of userEmergencyContacts">
-                            <th>{{ c?.name || 'Contact' }}</th>
-                            <td>{{ c?.phone || c?.mobile || '' }} <span class="muted" *ngIf="c?.relation">— {{ c.relation }}</span></td>
-                        </tr>
+                        <ng-container *ngFor="let c of userEmergencyContacts">
+                            <tr><th>Name</th><td>{{ c?.name || '' }}</td></tr>
+                            <tr><th>Phone</th><td>{{ c?.phone || c?.mobile || '' }}</td></tr>
+                            <tr><th>Email</th><td>{{ c?.email || '' }}</td></tr>
+                        </ng-container>
                     </tbody>
                 </table>
-                <ng-template #noEmergency><div class="empty">No emergency contact available.</div></ng-template>
+                <ng-template #noEmergency>
+                    <table class="kv-table">
+                        <tbody>
+                            <tr><th>Name</th><td></td></tr>
+                            <tr><th>Phone</th><td></td></tr>
+                            <tr><th>Email</th><td></td></tr>
+                        </tbody>
+                    </table>
+                </ng-template>
             </ng-container>
 
             <!-- Education & Work -->
@@ -140,10 +155,17 @@
                 <div class="section-title">Spiritual Details</div>
                 <table class="kv-table">
                     <tbody>
-                        <tr><th>Diksha Date</th><td>{{ profile?.diksha_date || '' }}</td></tr>
-                        <tr><th>Diksha Place</th><td>{{ profile?.diksha_place || '' }}</td></tr>
-                        <tr><th>Sansthak Name</th><td>{{ profile?.sansthak_name || '' }}</td></tr>
-                        <tr><th>Spiritual Journey</th><td>{{ profile?.spiritual_journey || '' }}</td></tr>
+                        <tr><th>Date of Initiation</th><td>{{ profile?.date_of_initiation || profile?.diksha_date || '' }}</td></tr>
+                        <tr><th>Years of Spiritual Initiation</th><td>{{ profile?.years_of_spiritual_initiation || '' }}</td></tr>
+                        <tr><th>Place of Initiation</th><td>{{ profile?.place_of_initiation || profile?.diksha_place || '' }}</td></tr>
+                        <tr><th>Initiation Branch</th><td>{{ profile?.initiation_branch?.name || profile?.initiation_branch || '' }}</td></tr>
+                        <tr><th>Date of Joining</th><td>{{ profile?.date_of_joining || '' }}</td></tr>
+                        <tr><th>Date of Registration</th><td>{{ profile?.date_of_registration || '' }}</td></tr>
+                        <tr><th>Place of Joining</th><td>{{ profile?.place_of_joining || '' }}</td></tr>
+                        <tr><th>Dress Code</th><td>{{ profile?.dress_code?.name || profile?.dress_code || '' }}</td></tr>
+                        <tr><th>Dress Code Ordained Date</th><td>{{ profile?.dress_code_ordained_date || '' }}</td></tr>
+                        <tr><th>Gyan Agya Date</th><td>{{ profile?.gyan_agya_date || '' }}</td></tr>
+                        <tr><th>Name Changing Date</th><td>{{ profile?.name_changing_date || '' }}</td></tr>
                     </tbody>
                 </table>
             </ng-container>

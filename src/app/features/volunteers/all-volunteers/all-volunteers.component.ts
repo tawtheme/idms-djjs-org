@@ -792,7 +792,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
   }
 
   editVolunteer(volunteer: Volunteer): void {
-    console.log('Edit volunteer:', volunteer);
+    const uuid = (volunteer as any).uuid || volunteer.id;
+    this.router.navigate(['/volunteers', uuid, 'edit']);
   }
 
   deleteVolunteer(volunteer: Volunteer): void {

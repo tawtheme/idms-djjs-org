@@ -18,6 +18,7 @@ import { CameraUploadComponent } from '../../../shared/components/camera-upload/
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DataService } from '../../../data.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { isMobileValid, isEmailValid, sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../shared/utils/validators';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -188,7 +189,7 @@ export class CreateVisitorComponent {
    * Syncs WhatsApp number with phone number if copy option is enabled
    */
   onPhoneChange(): void {
-    this.form.phone = this.sanitizeMobile(this.form.phone);
+    this.form.phone = sanitizeMobile(this.form.phone);
     this.phoneInputWarning = '';
     if (this.form.copyAsWhatsapp) {
       this.form.whatsappNumber = this.form.phone;
@@ -196,56 +197,37 @@ export class CreateVisitorComponent {
   }
 
   onWhatsappChange(): void {
-    this.form.whatsappNumber = this.sanitizeMobile(this.form.whatsappNumber);
+    this.form.whatsappNumber = sanitizeMobile(this.form.whatsappNumber);
     this.whatsappInputWarning = '';
   }
 
-  private sanitizeMobile(value: string): string {
-    return (value || '').replace(/\D/g, '').slice(0, 10);
-  }
-
   blockNonDigit(event: KeyboardEvent, field: 'phone' | 'whatsapp'): void {
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
-    if (event.key.length === 1 && !/^\d$/.test(event.key)) {
-      event.preventDefault();
-      this.flashNumericWarning(field);
-    }
-  }
-
-  private flashNumericWarning(field: 'phone' | 'whatsapp'): void {
-    const message = 'Only numbers are allowed.';
+    const blocked = blockNonDigitKey(event);
+    if (!blocked) return;
     if (field === 'phone') {
-      this.phoneInputWarning = message;
+      this.phoneInputWarning = blocked;
       clearTimeout(this.phoneWarningTimer);
       this.phoneWarningTimer = setTimeout(() => (this.phoneInputWarning = ''), 2000);
     } else {
-      this.whatsappInputWarning = message;
+      this.whatsappInputWarning = blocked;
       clearTimeout(this.whatsappWarningTimer);
       this.whatsappWarningTimer = setTimeout(() => (this.whatsappInputWarning = ''), 2000);
     }
   }
 
-  isMobileValid(value: string): boolean {
-    return /^\d{10}$/.test(value || '');
-  }
-
-  isEmailValid(value: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value || '');
-  }
+  isMobileValid(value: string): boolean { return isMobileValid(value); }
+  isEmailValid(value: string): boolean { return isEmailValid(value); }
 
   get phoneError(): string {
-    if (!this.form.phone) return '';
-    return this.isMobileValid(this.form.phone) ? '' : 'Enter a valid 10-digit mobile number.';
+    return mobileError(this.form.phone);
   }
 
   get whatsappError(): string {
-    if (!this.form.whatsappNumber) return '';
-    return this.isMobileValid(this.form.whatsappNumber) ? '' : 'Enter a valid 10-digit mobile number.';
+    return mobileError(this.form.whatsappNumber);
   }
 
   get emailError(): string {
-    if (!this.form.email) return '';
-    return this.isEmailValid(this.form.email) ? '' : 'Enter a valid email address.';
+    return emailError(this.form.email);
   }
 
   /**

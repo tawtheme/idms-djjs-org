@@ -83,6 +83,55 @@
     .form-control {
         max-width: 100%;
     }
+
+    .field-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 4px;
+
+        > label {
+            margin: 0;
+        }
+    }
+
+    .copy-whatsapp {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: $color-gray-600;
+        cursor: pointer;
+        font-weight: 400;
+        white-space: nowrap;
+
+        input[type="checkbox"] {
+            margin: 0;
+            cursor: pointer;
+            width: 13px;
+            height: 13px;
+        }
+    }
+}
+
+.profile-image-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .profile-thumb {
+        width: 96px;
+        height: 96px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid $color-gray-200;
+    }
+
+    .profile-image-actions {
+        display: flex;
+        gap: 8px;
+    }
 }
 
 // Form actions

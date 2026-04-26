@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewAttendanceModalComponent } from '../view-attendance-modal/view-attendance-modal.component';
+import { BarcodeScannerModalComponent } from '../../../../shared/components/barcode-scanner-modal/barcode-scanner-modal.component';
 import { DataService } from '../../../../data.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
@@ -57,12 +58,14 @@ interface AttendanceSummary {
     IconComponent,
     ModalComponent,
     ConfirmationDialogComponent,
-    ViewAttendanceModalComponent
+    ViewAttendanceModalComponent,
+    BarcodeScannerModalComponent
   ],
   templateUrl: './attendance-detail.component.html',
   styleUrls: ['./attendance-detail.component.scss']
 })
-export class AttendanceDetailComponent implements OnInit {
+export class AttendanceDetailComponent implements OnInit, AfterViewInit {
+  @ViewChild('enterIdInput') enterIdInput?: ElementRef<HTMLInputElement>;
   private dataService = inject(DataService);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -133,6 +136,29 @@ export class AttendanceDetailComponent implements OnInit {
     this.attendanceMode = (this.route.snapshot.queryParamMap.get('mode') as 'checkin' | 'checkout') || 'checkin';
     this.loadSummary();
     this.loadAttendanceData();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.enterIdInput?.nativeElement?.focus(), 0);
+  }
+
+  // Barcode scanner modal
+  scannerModalOpen = false;
+
+  openScannerModal(): void {
+    this.scannerModalOpen = true;
+  }
+
+  closeScannerModal(): void {
+    this.scannerModalOpen = false;
+  }
+
+  onBarcodeScanned(code: string): void {
+    this.scannerModalOpen = false;
+    this.enterId = (code || '').trim();
+    if (this.enterId) {
+      this.onEnterId();
+    }
   }
 
   loadSummary(): void {

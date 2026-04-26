@@ -27,7 +27,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(private elementRef: ElementRef) {}
   
   @Input() value: Date | null = null;
-  @Input() placeholder: string = 'Select date';
+  @Input() placeholder: string = 'Select Date';
   @Input() format: string = 'MM/dd/yyyy';
   @Input() minDate: Date | null = null;
   @Input() maxDate: Date | null = null;
