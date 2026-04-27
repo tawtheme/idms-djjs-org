@@ -14,10 +14,6 @@
         </div>
 
         <ng-container *ngIf="activeTab === 'sewa'">
-            <div *ngIf="isLoading" class="loading-wrap">
-                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-            </div>
-
             <div *ngIf="!isLoading && error" class="error-state">{{ error }}</div>
 
             <ng-container *ngIf="!isLoading && !error">
@@ -64,10 +60,6 @@
         </ng-container>
 
         <ng-container *ngIf="activeTab === 'program'">
-            <div *ngIf="isLoadingProgram" class="loading-wrap">
-                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-            </div>
-
             <div *ngIf="!isLoadingProgram && programError" class="error-state">{{ programError }}</div>
 
             <ng-container *ngIf="!isLoadingProgram && !programError">
@@ -101,10 +93,6 @@
         </ng-container>
 
         <ng-container *ngIf="activeTab === 'donation'">
-            <div *ngIf="isLoadingDonation" class="loading-wrap">
-                <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-            </div>
-
             <div *ngIf="!isLoadingDonation && donationError" class="error-state">{{ donationError }}</div>
 
             <ng-container *ngIf="!isLoadingDonation && !donationError">
