@@ -6,7 +6,7 @@
     "start": "serve dist/idms-djjs-org/browser -s -l tcp://0.0.0.0:4200",
     "dev": "ng serve --port 4200",
     "serve:prod": "serve dist/idms-djjs-org/browser -s -l tcp://0.0.0.0:4200",
-    "build": "NODE_OPTIONS=--max-old-space-size=2048 UV_THREADPOOL_SIZE=2 ng build --configuration production",
+    "build": "NODE_OPTIONS=--max-old-space-size=1536 UV_THREADPOOL_SIZE=1 ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
