@@ -281,25 +281,33 @@
                                 <div class="address-content">
                                     <div *ngIf="volunteer.address.street">{{ volunteer.address.street }}</div>
                                     <div *ngIf="volunteer.address.cityName">{{ volunteer.address.cityName }}</div>
+                                    <div *ngIf="volunteer.address.districtName">{{ volunteer.address.districtName }}</div>
                                     <div *ngIf="volunteer.address.stateName">{{ volunteer.address.stateName }}</div>
-                                    <div *ngIf="volunteer.address.correspondingBranch">{{ volunteer.address.correspondingBranch }}</div>
                                     <div *ngIf="volunteer.address.taskBranch">{{ volunteer.address.taskBranch }}</div>
+                                    <div *ngIf="volunteer.address.correspondingBranch">{{ volunteer.address.correspondingBranch }}</div>
                                     <div *ngIf="volunteer.address.mobileNumber">{{ volunteer.address.mobileNumber }}</div>
                                 </div>
                             </td>
                             <td data-label="Regular Sewa" class="sewa-column">
-                                <div class="sewa-content" *ngIf="volunteer.userSewas && volunteer.userSewas.length > 0; else noSewa">
+                                <div class="sewa-content">
                                     <a href="#"
                                        class="sewa-tracking"
                                        (click)="openSewaTrackingModal(volunteer, $event)">
                                         Vise Sewa Tracking
                                     </a>
-                                    <div class="sewa-entry" *ngFor="let us of volunteer.userSewas">
-                                        <div class="sewa-name">{{ us.sewaName }}<span *ngIf="us.branchName">({{ us.branchName }})</span></div>
-                                        <span class="sewa-badge" *ngIf="us.badgeId !== '' && us.badgeId !== null && us.badgeId !== undefined">{{ us.badgeId }}</span>
-                                    </div>
+                                    <ng-container *ngIf="volunteer.userSewas && volunteer.userSewas.length > 0">
+                                        <div class="sewa-entry" *ngFor="let us of volunteer.userSewas">
+                                            <div class="sewa-name">{{ us.sewaName }}<span *ngIf="us.branchName">({{ us.branchName }})</span></div>
+                                            <span class="sewa-badge has-tooltip"
+                                                *ngIf="us.badgeId !== '' && us.badgeId !== null && us.badgeId !== undefined">
+                                                {{ us.badgeId }}
+                                                <span class="custom-tooltip" *ngIf="us.allocationDate">
+                                                    Allocation Date: <strong>{{ us.allocationDate }}</strong>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </ng-container>
                                 </div>
-                                <ng-template #noSewa><span>-</span></ng-template>
                             </td>
                             <td data-label="Enter By">
                                 {{ volunteer.enterBy || '-' }}
@@ -331,12 +339,6 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <!-- Loading cell -->
-                    <tr *ngIf="isLoading">
-                        <td [attr.colspan]="8" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -466,6 +468,7 @@
                     [selectedValues]="selectedRole"
                     placeholder="Select role"
                     [searchable]="true"
+                    [autocomplete]="true"
                     (selectionChange)="selectedRole = $event"
                     [closeOnSelect]="true">
                 </app-dropdown>
@@ -516,6 +519,7 @@
                     [selectedValues]="selectedBranch"
                     placeholder="Select branch"
                     [searchable]="true"
+                    [autocomplete]="true"
                     (selectionChange)="selectedBranch = $event"
                     [closeOnSelect]="true">
                 </app-dropdown>

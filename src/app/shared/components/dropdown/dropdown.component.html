@@ -70,7 +70,7 @@
             <!-- Search Input (skip in autocomplete mode — input is in trigger) -->
             @if (searchable && !autocomplete) {
                 <div class="dropdown-search">
-                    <input #searchInput type="text" [(ngModel)]="searchQuery" [ngModelOptions]="{standalone: true}" (input)="onSearchChange($event)"
+                    <input #searchInput type="text" [(ngModel)]="searchQuery" [ngModelOptions]="{standalone: true}" (keyup.enter)="onSearchChange($event)"
                         placeholder="Search options..." class="dropdown-search-input" autocomplete="off">
                 </div>
             }

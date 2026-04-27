@@ -33,6 +33,7 @@ export interface Volunteer {
     state?: string;
     pincode?: string;
     cityName?: string;
+    districtName?: string;
     stateName?: string;
     correspondingBranch?: string;
     taskBranch?: string;
@@ -44,6 +45,7 @@ export interface Volunteer {
     count?: number;
   };
   userSewas?: Array<{
+    allocationDate?: string;
     sewaName: string;
     branchName: string;
     badgeId: number | string;
@@ -52,6 +54,8 @@ export interface Volunteer {
   sewaInterest: boolean;
   sewaAllocated?: boolean;
   sewaMode?: string;
+  roleId?: string;
+  branchId?: string;
 }
 
 @Component({
@@ -193,6 +197,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     this.loadVolunteers();
     this.loadSewaOptions();
     this.loadBranches();
+    this.loadRoles();
     this.headerActions.set({
       label: 'Create Volunteer',
       icon: 'add',
@@ -295,15 +300,45 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     );
   }
 
+  private formatAllocationDate(value: any): string {
+    if (!value) return '';
+    const str = String(value).trim();
+    // Try parsing "DD/MM/YYYY hh:mm am/pm" first
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+    let date: Date;
+    if (m) {
+      const [, dd, mm, yyyy, hh, min, ampm] = m;
+      let hour = parseInt(hh, 10) % 12;
+      if (ampm.toLowerCase() === 'pm') hour += 12;
+      date = new Date(parseInt(yyyy, 10), parseInt(mm, 10) - 1, parseInt(dd, 10), hour, parseInt(min, 10));
+    } else {
+      const parsed = new Date(str);
+      if (isNaN(parsed.getTime())) return str; // fallback to raw string
+      date = parsed;
+    }
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    let hour = date.getHours();
+    const minute = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hour >= 12 ? 'pm' : 'am';
+    hour = hour % 12 || 12;
+    return `${day} ${month}, ${year} at ${hour}:${minute}${ampm}`;
+  }
+
   private applyVolunteersResponse(response: any): void {
     const volunteersData = response?.data || response?.volunteers || response?.results || response || [];
     const meta = response?.meta || response?.pagination || {};
     this.totalItems = Number(meta.total ?? response?.total ?? (Array.isArray(volunteersData) ? volunteersData.length : 0));
 
     this.volunteers = (Array.isArray(volunteersData) ? volunteersData : []).map((item: any) => {
-      const firstImage = item.user_images && item.user_images.length > 0 ? item.user_images[0].full_path : null;
+      const firstImage = item.user_image?.full_path || (item.user_images && item.user_images.length > 0 ? item.user_images[0].full_path : null);
       const relationOf = item.user_profile?.relation_of || {};
-      const relationName = Object.values(relationOf)[0] as string || '';
+      const relationName = Object.entries(relationOf)
+        .filter(([, value]) => value != null && String(value).trim() !== '')
+        .map(([key, value]) => `${key.split('_')[0]} ${value}`)
+        .join(', ');
 
       const userAddress = item.user_address || {};
       const addressArray = Array.isArray(userAddress) ? userAddress : [userAddress];
@@ -313,11 +348,23 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
       const sewaArray = Array.isArray(regularSewa) ? regularSewa : [regularSewa];
       const primarySewa = sewaArray[0] || {};
 
+      const rolesRaw = Array.isArray(item.roles) ? item.roles : (Array.isArray(item.user_roles) ? item.user_roles : []);
+      const firstRole = rolesRaw[0];
+      const roleId = firstRole
+        ? String(firstRole.pivot?.role_id ?? firstRole.id ?? '')
+        : (item.role_id != null ? String(item.role_id) : '');
+
+      const branchId = primaryAddress.working_branch?.id != null
+        ? String(primaryAddress.working_branch.id)
+        : (primaryAddress.task_branch_id != null ? String(primaryAddress.task_branch_id)
+          : (primaryAddress.branch_id != null ? String(primaryAddress.branch_id) : ''));
+
       const userSewasRaw = Array.isArray(item.user_sewas) ? item.user_sewas : [];
       const userSewas = userSewasRaw.map((us: any) => ({
         sewaName: us?.sewa?.name || '',
         branchName: us?.branch?.name || '',
-        badgeId: us?.badge_id ?? ''
+        badgeId: us?.badge_id ?? '',
+        allocationDate: this.formatAllocationDate(us?.created_at)
       }));
 
       const volunteer: Volunteer & { uuid?: string } = {
@@ -337,11 +384,14 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
           state: primaryAddress.state || '',
           pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
           cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
+          districtName: primaryAddress.district ? `District : ${primaryAddress.district}` : '',
           stateName: primaryAddress.state ? `State : ${primaryAddress.state}` : '',
-          correspondingBranch: primaryAddress.corresponding_branch ?
-            `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
-          taskBranch: primaryAddress.task_branch ?
-            `Task branch : ${primaryAddress.task_branch}` : '',
+          correspondingBranch: primaryAddress.home_branch?.name
+            ? `Corresponding Branch : ${primaryAddress.home_branch.name}`
+            : (primaryAddress.corresponding_branch ? `Corresponding Branch : ${primaryAddress.corresponding_branch}` : ''),
+          taskBranch: primaryAddress.working_branch?.name
+            ? `Task Branch : ${primaryAddress.working_branch.name}`
+            : (primaryAddress.task_branch ? `Task Branch : ${primaryAddress.task_branch}` : ''),
           mobileNumber: item.phone ? `Mobile Number : ${item.phone}` : ''
         },
         regularSewa: primarySewa.tracking || primarySewa.sewa_name || primarySewa.count ? {
@@ -353,7 +403,9 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         enterBy: item.user_created_by?.name || '',
         sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
         sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
-        sewaMode: item.sewa_mode || primarySewa.mode || ''
+        sewaMode: item.sewa_mode || primarySewa.mode || '',
+        roleId: roleId || undefined,
+        branchId: branchId || undefined
       };
 
       return volunteer;
@@ -606,7 +658,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
 
   changeRole(volunteer: Volunteer): void {
     this.changeRoleVolunteer = volunteer;
-    this.selectedRole = [];
+    this.selectedRole = volunteer.roleId ? [volunteer.roleId] : [];
     this.changeRoleModalOpen = true;
     if (this.roleOptions.length === 0) {
       this.loadRoles();
@@ -617,11 +669,11 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     this.dataService.get<any>('v1/options/roles').pipe(
       catchError(() => of({ data: [] }))
     ).subscribe((response) => {
-      const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
-      this.roleOptions = (Array.isArray(data) ? data : []).map((role: any) => ({
-        id: String(role.id),
-        label: role.name || role.label || role.title || '',
-        value: String(role.id)
+      const roles = response?.data?.roles || response?.data || response?.results || response || [];
+      this.roleOptions = (Array.isArray(roles) ? roles : []).map((r: any) => ({
+        id: String(r.id ?? r.value ?? r.name),
+        label: r.name || r.label || r.title || '',
+        value: String(r.id ?? r.value ?? r.name)
       }));
     });
   }
@@ -684,7 +736,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
 
   changeBranch(volunteer: Volunteer): void {
     this.changeBranchVolunteer = volunteer;
-    this.selectedBranch = [];
+    this.selectedBranch = volunteer.branchId ? [volunteer.branchId] : [];
     this.changeBranchModalOpen = true;
   }
 
@@ -719,7 +771,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     };
 
     this.isSubmittingBranch = true;
-    this.dataService.put('v1/users/update-branch', payload).pipe(
+    this.dataService.put('v1/users/change-branch', payload).pipe(
       catchError((error) => {
         console.error('Error updating branch:', error);
         alert('Failed to update branch. Please try again.');

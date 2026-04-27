@@ -512,6 +512,51 @@
             font-size: 12px;
             font-weight: 600;
             width: fit-content;
+            position: relative;
+
+            &.has-tooltip {
+                cursor: help;
+            }
+
+            .custom-tooltip {
+                position: absolute;
+                bottom: calc(100% + 8px);
+                left: 50%;
+                transform: translateX(-50%);
+                background: $color-gray-900;
+                color: $color-white;
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 500;
+                line-height: 1.4;
+                white-space: nowrap;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity 0.12s ease, visibility 0.12s ease;
+                z-index: 100;
+
+                strong {
+                    font-weight: 700;
+                }
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border: 5px solid transparent;
+                    border-top-color: $color-gray-900;
+                }
+            }
+
+            &:hover .custom-tooltip {
+                opacity: 1;
+                visibility: visible;
+            }
         }
     }
 }
