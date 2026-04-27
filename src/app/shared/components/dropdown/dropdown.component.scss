@@ -74,6 +74,33 @@
         }
     }
 
+    .dropdown-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .dropdown-clear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        border: none;
+        cursor: pointer;
+        color: $color-gray-500;
+        background: transparent;
+        border-radius: 4px;
+        transition: all 0.12s;
+
+        &:hover {
+            color: $color-gray-900;
+            background: $color-gray-100;
+        }
+    }
+
     &-trigger {
         display: flex;
         align-items: center;

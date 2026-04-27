@@ -235,6 +235,21 @@ export class ViewAttendanceModalComponent implements OnChanges {
     this.loadVolunteerDetails();
   }
 
+  getSewaLabel(value: any): string {
+    const opt = this.sewaTypeOptions.find(o => String(o.value) === String(value));
+    return opt?.label || String(value);
+  }
+
+  removeSewa(value: any): void {
+    this.selectedSewaType = this.selectedSewaType.filter(v => String(v) !== String(value));
+    this.applyFilter();
+  }
+
+  clearSewaFilters(): void {
+    this.selectedSewaType = [];
+    this.applyFilter();
+  }
+
   onListViewChange(): void {
     this.currentPage = 1;
     this.loadVolunteerDetails();

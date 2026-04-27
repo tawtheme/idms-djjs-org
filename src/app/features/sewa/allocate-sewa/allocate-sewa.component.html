@@ -61,6 +61,53 @@
 
     <div class="allocate-sewa-content">
         <app-unallocated-section (allocate)="onAllocate($event)"></app-unallocated-section>
-        <app-allocated-section (unassign)="onUnassign($event)"></app-allocated-section>
+        <app-allocated-section
+            [sewaAssignedBranchId]="selectedAssignmentBranch[0] || null"
+            (unassign)="onUnassign($event)"></app-allocated-section>
     </div>
 </div>
+
+<ng-container *ngIf="showUnassignModal">
+    <div class="modal-backdrop is-open" (click)="closeUnassignModal()"></div>
+    <div class="modal confirmation-dialog is-open">
+        <div class="confirmation-dialog__dialog modal-small">
+            <button type="button" class="confirmation-dialog__close" (click)="closeUnassignModal()" aria-label="Close dialog">
+                <app-icon name="close" />
+            </button>
+
+            <div class="confirmation-dialog__icon-wrapper">
+                <div class="confirmation-dialog__icon confirmation-dialog__icon--danger">
+                    <app-icon name="help_outline" />
+                </div>
+            </div>
+
+            <div class="confirmation-dialog__body">
+                <h3 class="confirmation-dialog__title">Confirm Unassign</h3>
+                <p class="confirmation-dialog__message">Are you sure you want to do this action?</p>
+
+                <div class="unassign-form">
+                    <div class="form-group">
+                        <label>Reason <span class="required">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="unassignReason" (ngModelChange)="unassignError = null" placeholder="Enter reason" />
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <textarea class="form-control" [(ngModel)]="unassignRemarks" placeholder="Enter remarks" rows="3"></textarea>
+                    </div>
+                    <div class="form-group form-group--inline">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" [(ngModel)]="checkUserAlreadyAssign" />
+                            Check if user is already assigned
+                        </label>
+                    </div>
+                    <div *ngIf="unassignError" class="unassign-error">{{ unassignError }}</div>
+                </div>
+            </div>
+
+            <div class="confirmation-dialog__footer">
+                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
+                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
+            </div>
+        </div>
+    </div>
+</ng-container>

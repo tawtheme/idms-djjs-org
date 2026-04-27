@@ -6,7 +6,7 @@
     <div class="section-controls">
         <div class="search-control">
             <input type="text" class="form-control" [(ngModel)]="searchTerm" placeholder="Search..."
-                (input)="currentPage = 1">
+                (keyup.enter)="onSearchEnter()">
         </div>
         <button class="btn btn--primary btn--sm" type="button" (click)="onAllocate()"
             [disabled]="selectedIds.size === 0">
@@ -14,49 +14,58 @@
         </button>
     </div>
 
-    <!-- Card Listing View -->
-    <div class="cards-container">
-        <div class="cards-grid">
-            <div *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" class="volunteer-card"
-                [class.selected]="selectedIds.has(volunteer.id)" (click)="toggleSelect(volunteer.id, $event)">
-                <div class="card-checkbox">
-                    <input type="checkbox" [checked]="selectedIds.has(volunteer.id)"
-                        (change)="toggleSelect(volunteer.id, $event)" (click)="$event.stopPropagation()">
-                </div>
-                <div class="card-content">
-                    <div class="card-image">
-                        <div class="volunteer-image">
-                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'" [alt]="volunteer.name"
-                                onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                    </div>
-                    <div class="card-details">
-                        <div class="card-id">ID: {{ volunteer.id }}</div>
-                        <div class="card-name">{{ volunteer.name }}</div>
-                        <div class="card-phone" *ngIf="volunteer.phone">
-                            <app-icon name="phone" />
-                            {{ volunteer.phone }}
-                        </div>
-                        <div class="card-phone" *ngIf="!volunteer.phone">
-                            <app-icon name="phone" />
-                            -
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="no-data" *ngIf="pagedVolunteers.length === 0">
-            No unallocated volunteers found
-        </div>
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && volunteers.length === 0" class="unallocated-state">
+        <div class="no-data">No unallocated volunteers found</div>
     </div>
 
-    <!-- Simple Pagination for the card view -->
-    <div class="simple-pagination" *ngIf="filteredVolunteers.length > pageSize">
-        <button class="btn btn--link" [disabled]="currentPage === 1"
-            (click)="currentPage = currentPage - 1">Previous</button>
-        <span>Page {{currentPage}}</span>
-        <button class="btn btn--link" [disabled]="currentPage * pageSize >= filteredVolunteers.length"
-            (click)="currentPage = currentPage + 1">Next</button>
+    <!-- Table -->
+    <div *ngIf="volunteers.length > 0" class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Image</th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let volunteer of volunteers; trackBy: trackById"
+                    [class.selected]="selectedIds.has(volunteer.id)"
+                    (click)="toggleSelect(volunteer.id, $event)">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input type="checkbox" [checked]="selectedIds.has(volunteer.id)"
+                            (change)="toggleSelect(volunteer.id, $event)">
+                    </td>
+                    <td data-label="Image" class="image-column">
+                        <div class="volunteer-image">
+                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
+                                 [alt]="volunteer.name"
+                                 onerror="this.src='/assets/img/placeholder.svg'">
+                        </div>
+                    </td>
+                    <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
+                    <td data-label="Name" class="name">{{ volunteer.name }}</td>
+                    <td data-label="Phone">{{ volunteer.phone || '-' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Load More -->
+    <div *ngIf="hasMore && volunteers.length > 0 && !isLoading" class="load-more">
+        <button class="load-more__btn" type="button" (click)="loadMore()" [disabled]="isLoadingMore">
+            <span class="load-more__count">Showing {{ volunteers.length }} of {{ totalItems }}</span>
+            <span class="load-more__sep">-</span>
+            {{ isLoadingMore ? 'Loading...' : 'Load More' }}
+        </button>
     </div>
 </div>

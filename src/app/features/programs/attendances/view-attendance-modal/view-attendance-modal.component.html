@@ -89,12 +89,29 @@
             </div>
             <app-dropdown [options]="listViewOptions" [selectedValues]="selectedListViewType"
                 placeholder="Select Status" [closeOnSelect]="true"
-                (selectionChange)="selectedListViewType = $event; onListViewChange()">
+                (selectionChange)="selectedListViewType = $event">
             </app-dropdown>
             <app-dropdown [options]="sewaTypeOptions" [selectedValues]="selectedSewaType"
                 placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" [closeOnSelect]="false"
-                (selectionChange)="selectedSewaType = $event; onSewaTypeChange()">
+                [showSelectedItems]="false"
+                (selectionChange)="selectedSewaType = $event">
             </app-dropdown>
+            <button class="btn btn--primary btn--sm" (click)="applyFilter()">
+                <app-icon name="search" />
+                <span>Search</span>
+            </button>
+        </div>
+
+        <!-- Selected Sewa filter chips -->
+        <div class="selected-filters" *ngIf="selectedSewaType.length > 0">
+            <span class="selected-filters__label">Sewa:</span>
+            <span class="selected-chip" *ngFor="let val of selectedSewaType">
+                {{ getSewaLabel(val) }}
+                <button type="button" class="selected-chip__remove" (click)="removeSewa(val)" aria-label="Remove">
+                    <app-icon name="close" />
+                </button>
+            </span>
+            <button type="button" class="selected-filters__clear" (click)="clearSewaFilters()">Clear all</button>
         </div>
 
         <!-- Table -->
