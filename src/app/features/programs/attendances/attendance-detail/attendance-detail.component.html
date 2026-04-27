@@ -119,6 +119,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Badge No</th>
                         <th>Sewa</th>
                         <th>Donation</th>
                         <th>Status</th>
@@ -141,13 +142,14 @@
                                     <span class="name-text">{{ record.name }}</span>
                                 </div>
                             </td>
+                            <td data-label="Badge No">{{ record.badgeNo || '-' }}</td>
                             <td data-label="Sewa">{{ record.sewa }}</td>
-                            <td data-label="Donation" class="editable-cell" (dblclick)="startEditing(record, 'donation')">
+                            <td data-label="Donation" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'donation')">
                                 <ng-container *ngIf="!isEditing(record.id, 'donation')">
                                     <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
                                     <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
                                 </ng-container>
-                                <input *ngIf="isEditing(record.id, 'donation')"
+                                <input *ngIf="attendanceMode === 'checkin' && isEditing(record.id, 'donation')"
                                     type="number" class="inline-input"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
@@ -155,14 +157,14 @@
                                     (blur)="saveEditing(record)"
                                     [disabled]="isSaving" />
                             </td>
-                            <td data-label="Status" class="editable-cell" (dblclick)="startEditing(record, 'status')">
+                            <td data-label="Status" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'status')">
                                 <ng-container *ngIf="!isEditing(record.id, 'status')">
                                     <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
                                         {{ getStatusLabel(record.status) }}
                                     </span>
                                     <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted editable-text">-</span>
                                 </ng-container>
-                                <select *ngIf="isEditing(record.id, 'status')"
+                                <select *ngIf="attendanceMode === 'checkin' && isEditing(record.id, 'status')"
                                     class="inline-select"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
@@ -172,7 +174,6 @@
                                     [disabled]="isSaving">
                                     <option value="1">Present</option>
                                     <option value="0">Leave</option>
-                                    <option value="2">Check Out</option>
                                 </select>
                             </td>
                             <td data-label="CheckIn">
@@ -180,12 +181,12 @@
                                 <span *ngIf="!record.checkIn" class="text-muted">-</span>
                             </td>
                             <!-- Remarks (editable on double-click) -->
-                            <td data-label="Remarks" class="editable-cell" (dblclick)="startEditing(record, 'remarks')">
+                            <td data-label="Remarks" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'remarks')">
                                 <ng-container *ngIf="!isEditing(record.id, 'remarks')">
                                     <span *ngIf="record.remarks" class="editable-text">{{ record.remarks }}</span>
                                     <span *ngIf="!record.remarks" class="text-muted editable-text">-</span>
                                 </ng-container>
-                                <input *ngIf="isEditing(record.id, 'remarks')"
+                                <input *ngIf="attendanceMode === 'checkin' && isEditing(record.id, 'remarks')"
                                     type="text" class="inline-input"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"

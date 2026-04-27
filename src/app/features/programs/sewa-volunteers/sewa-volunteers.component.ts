@@ -284,7 +284,7 @@ export class SewaVolunteersComponent implements OnInit {
         id: v.id,
         uniqueId: v.unique_id || '',
         name: v.name || v.volunteer_name || '',
-        image: v.image || v.user_image || '',
+        image: v.image || v.user_image?.full_path || v.user_images?.[0]?.full_path || '',
         phone: v.phone || v.mobile || '',
         hasAssignedSewa: v.is_assigned === true || v.is_assigned === 1,
         assignedSewaName: v.assigned_sewa?.name || ''
@@ -340,7 +340,7 @@ export class SewaVolunteersComponent implements OnInit {
           psvId: psv.id || '',
           badgeNo: badgeId != null ? String(badgeId) : (v.badge_no || v.badge_number || ''),
           name: v.name || v.volunteer_name || '',
-          image: v.image || v.user_image || '',
+          image: v.image || v.user_image?.full_path || v.user_images?.[0]?.full_path || '',
           head: psv.head != null ? String(psv.head) : (v.head || v.sewa_head || ''),
           subHead: psv.sub_head != null ? String(psv.sub_head) : (v.sub_head || v.sewa_sub_head || ''),
           headChecked: Number(psv.head) === 1,

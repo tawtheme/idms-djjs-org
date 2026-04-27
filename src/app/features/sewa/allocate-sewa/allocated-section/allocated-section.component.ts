@@ -1,10 +1,10 @@
-import { Component, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpParams } from '@angular/common/http';
 import { AllocatedVolunteer } from '../allocate-sewa.component';
 import { DataService } from '../../../../data.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
@@ -17,6 +17,7 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 })
 export class AllocatedSectionComponent implements OnInit {
     @Output() unassign = new EventEmitter<AllocatedVolunteer[]>();
+    @Input() sewaAssignedBranchId: string | null = null;
 
     private dataService = inject(DataService);
     volunteers: AllocatedVolunteer[] = [];
@@ -30,56 +31,108 @@ export class AllocatedSectionComponent implements OnInit {
 
     // Pagination
     currentPage = 1;
-    pageSize = 20;
+    pageSize = 50;
+    totalItems = 0;
+    isLoading = false;
+    isLoadingMore = false;
+
+    private lastFilters: any = {};
 
     ngOnInit(): void {
     }
 
-    loadVolunteers(filters: any = {}): void {
-        let params = new HttpParams();
-        Object.keys(filters).forEach(key => {
-            if (filters[key]) {
-                params = params.set(key, filters[key]);
+    loadVolunteers(filters: any = {}, append = false): void {
+        if (!append) {
+            this.lastFilters = filters || {};
+            this.currentPage = 1;
+        }
+
+        if (append) {
+            this.isLoadingMore = true;
+        } else {
+            this.isLoading = true;
+        }
+
+        let params = new HttpParams()
+            .set('per_page', this.pageSize.toString())
+            .set('page', this.currentPage.toString());
+
+        Object.keys(this.lastFilters).forEach(key => {
+            if (this.lastFilters[key]) {
+                params = params.set(key, this.lastFilters[key]);
             }
         });
+        const term = this.searchTerm.trim();
+        if (term) {
+            params = params.set('search', term);
+        }
 
         this.dataService.get<any>('v1/assigned-regular-sewas', { params }).pipe(
             catchError((error) => {
                 console.error('Error loading allocated volunteers:', error);
                 return of({ data: [] });
+            }),
+            finalize(() => {
+                this.isLoading = false;
+                this.isLoadingMore = false;
             })
         ).subscribe((response) => {
-            const data = response.data || response.results || response || [];
+            const records = response?.data?.records || response?.data || response?.results || response || [];
 
-            this.volunteers = (Array.isArray(data) ? data : []).map((item: any) => {
+            const newRecords = (Array.isArray(records) ? records : []).map((item: any) => {
                 const sewaInfo = item.sewa || item.regular_sewa || {};
+                const userInfo = item.user || {};
+                const headVal = item.head ?? sewaInfo.head;
+                const subHeadVal = item.sub_head ?? sewaInfo.sub_head;
                 return {
-                    id: item.id ?? item.user_id ?? item.unique_id ?? '',
-                    badgeNo: item.badge_no || item.badge_number || '',
-                    name: item.name || item.full_name || '',
-                    image: item.image || item.profile_image || (item.user_images?.[0]?.full_path ?? undefined),
-                    head: sewaInfo.head || item.head || '',
-                    subHead: sewaInfo.sub_head || item.sub_head || '',
-                    isRegular: sewaInfo.is_regular === 1 || sewaInfo.is_regular === true || item.is_regular === 1 || item.is_regular === true,
+                    id: item.id ?? '',
+                    userId: item.user_id || userInfo.id || '',
+                    sewaId: item.sewa_id || sewaInfo.id || '',
+                    uniqueId: userInfo.unique_id != null ? String(userInfo.unique_id) : (item.unique_id != null ? String(item.unique_id) : ''),
+                    badgeNo: item.badge_id != null ? String(item.badge_id) : (item.badge_no || item.badge_number || ''),
+                    name: userInfo.name || item.name || item.full_name || '',
+                    image: userInfo.user_image?.full_path || userInfo.user_images?.[0]?.full_path || item.user_image?.full_path || item.user_images?.[0]?.full_path || item.image || item.profile_image || undefined,
+                    head: headVal != null ? String(headVal) : '',
+                    subHead: subHeadVal != null ? String(subHeadVal) : '',
+                    headChecked: Number(headVal) === 1,
+                    subHeadChecked: Number(subHeadVal) === 1,
+                    isRegular: item.sewa_mode === 1 || item.sewa_mode === '1' || sewaInfo.is_regular === 1 || sewaInfo.is_regular === true || item.is_regular === 1 || item.is_regular === true,
                     sewa: sewaInfo.name || sewaInfo.sewa_name || item.sewa_name || ''
                 };
             });
+
+            if (append) {
+                this.volunteers = [...this.volunteers, ...newRecords];
+            } else {
+                this.volunteers = newRecords;
+            }
+
+            this.totalItems = response?.total
+                ?? response?.meta?.total
+                ?? response?.data?.total
+                ?? this.volunteers.length;
         });
     }
 
+    loadMore(): void {
+        this.currentPage++;
+        this.loadVolunteers(this.lastFilters, true);
+    }
+
+    get hasMore(): boolean {
+        return this.volunteers.length < this.totalItems;
+    }
+
     refresh(): void {
-        this.loadVolunteers();
+        this.loadVolunteers(this.lastFilters);
+    }
+
+    onSearchEnter(): void {
+        this.loadVolunteers(this.lastFilters);
     }
 
     get filteredVolunteers(): AllocatedVolunteer[] {
-        const term = this.searchTerm.trim().toLowerCase();
-        let filtered = this.volunteers.filter(v =>
-            !term ||
-            v.name.toLowerCase().includes(term) ||
-            (v.badgeNo && v.badgeNo.toLowerCase().includes(term)) ||
-            (v.sewa && v.sewa.toLowerCase().includes(term)) ||
-            String(v.id).includes(term)
-        );
+        let filtered = [...this.volunteers];
 
         if (this.sortField) {
             filtered.sort((a, b) => {
@@ -98,11 +151,6 @@ export class AllocatedSectionComponent implements OnInit {
         }
 
         return filtered;
-    }
-
-    get pagedVolunteers(): AllocatedVolunteer[] {
-        const start = (this.currentPage - 1) * this.pageSize;
-        return this.filteredVolunteers.slice(start, start + this.pageSize);
     }
 
     sortBy(field: string): void {
@@ -131,20 +179,80 @@ export class AllocatedSectionComponent implements OnInit {
     toggleSelectAll(event: Event): void {
         const checked = (event.target as HTMLInputElement).checked;
         if (checked) {
-            this.pagedVolunteers.forEach(v => this.selectedIds.add(v.id));
+            this.filteredVolunteers.forEach(v => this.selectedIds.add(v.id));
         } else {
-            this.pagedVolunteers.forEach(v => this.selectedIds.delete(v.id));
+            this.filteredVolunteers.forEach(v => this.selectedIds.delete(v.id));
         }
     }
 
     isAllSelected(): boolean {
-        return this.pagedVolunteers.length > 0 &&
-            this.pagedVolunteers.every(v => this.selectedIds.has(v.id));
+        return this.filteredVolunteers.length > 0 &&
+            this.filteredVolunteers.every(v => this.selectedIds.has(v.id));
     }
 
     isIndeterminate(): boolean {
-        const selectedCount = this.pagedVolunteers.filter(v => this.selectedIds.has(v.id)).length;
-        return selectedCount > 0 && selectedCount < this.pagedVolunteers.length;
+        const selectedCount = this.filteredVolunteers.filter(v => this.selectedIds.has(v.id)).length;
+        return selectedCount > 0 && selectedCount < this.filteredVolunteers.length;
+    }
+
+    toggleHead(volunteer: AllocatedVolunteer, event: Event): void {
+        event.stopPropagation();
+        const checked = (event.target as HTMLInputElement).checked;
+        this.callRoleApi(volunteer, 'head', checked);
+    }
+
+    toggleSubHead(volunteer: AllocatedVolunteer, event: Event): void {
+        event.stopPropagation();
+        const checked = (event.target as HTMLInputElement).checked;
+        this.callRoleApi(volunteer, 'sub-head', checked);
+    }
+
+    toggleIsRegular(volunteer: AllocatedVolunteer, event: Event): void {
+        event.stopPropagation();
+        const checked = (event.target as HTMLInputElement).checked;
+        this.callRoleApi(volunteer, 'sewa_mode', checked);
+    }
+
+    private callRoleApi(volunteer: AllocatedVolunteer, type: 'head' | 'sub-head' | 'sewa_mode', checked: boolean): void {
+        if (!volunteer.userId || !volunteer.sewaId || !this.sewaAssignedBranchId) {
+            alert('User, Sewa, and Sewa Assignment Branch are required.');
+            this.volunteers = [...this.volunteers];
+            return;
+        }
+
+        const body = {
+            user_id: volunteer.userId,
+            sewa_id: volunteer.sewaId,
+            sewa_assigned_branch_id: this.sewaAssignedBranchId,
+            action: checked ? '1' : '0'
+        };
+
+        // Optimistic update
+        const prevHead = volunteer.headChecked;
+        const prevSubHead = volunteer.subHeadChecked;
+        const prevIsRegular = volunteer.isRegular;
+        if (type === 'head') {
+            volunteer.headChecked = checked;
+            if (checked) volunteer.subHeadChecked = false;
+        } else if (type === 'sub-head') {
+            volunteer.subHeadChecked = checked;
+            if (checked) volunteer.headChecked = false;
+        } else {
+            volunteer.isRegular = checked;
+        }
+
+        const label = type === 'head' ? 'Head' : type === 'sub-head' ? 'Sub Head' : 'Is Regular';
+        this.dataService.post<any>(`v1/user-sewas/${type}`, body).pipe(
+            catchError((err) => {
+                console.error(`Failed to update ${type}:`, err);
+                alert(err?.error?.message || `Failed to update ${label}.`);
+                volunteer.headChecked = prevHead;
+                volunteer.subHeadChecked = prevSubHead;
+                volunteer.isRegular = prevIsRegular;
+                this.volunteers = [...this.volunteers];
+                return of(null);
+            })
+        ).subscribe();
     }
 
     onUnassign(): void {

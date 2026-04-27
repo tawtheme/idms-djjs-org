@@ -30,7 +30,13 @@
         </div>
 
         <div class="dropdown-actions">
-            <app-icon name="keyboard_arrow_down" class="dropdown-arrow" [class.rotated]="isOpen" />
+            @if (showClear && selectedOptions.length > 0 && !disabled) {
+                <button type="button" class="dropdown-clear" (click)="clearSelection(); $event.stopPropagation()" aria-label="Clear selection">
+                    <app-icon name="close" />
+                </button>
+            } @else {
+                <app-icon name="keyboard_arrow_down" class="dropdown-arrow" [class.rotated]="isOpen" />
+            }
         </div>
     </div>
     }

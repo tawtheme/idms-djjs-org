@@ -457,6 +457,7 @@
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .table {
@@ -473,7 +474,26 @@
             font-size: 13px;
             line-height: 1.35;
             vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            &.action-cell {
+                overflow: visible;
+                text-overflow: clip;
+            }
         }
+
+        // Column widths sum ≈ 100%
+        th:nth-child(1), td:nth-child(1) { width: 8%; }   // ID
+        th:nth-child(2), td:nth-child(2) { width: 19%; }  // Name
+        th:nth-child(3), td:nth-child(3) { width: 9%; }   // Badge No
+        th:nth-child(4), td:nth-child(4) { width: 13%; }  // Sewa
+        th:nth-child(5), td:nth-child(5) { width: 8%; }   // Donation
+        th:nth-child(6), td:nth-child(6) { width: 7%; }   // Status
+        th:nth-child(7), td:nth-child(7) { width: 14%; }  // CheckIn
+        th:nth-child(8), td:nth-child(8) { width: 12%; }  // Remarks
+        th:nth-child(9), td:nth-child(9) { width: 10%; }  // Action (checkin only)
     }
 }
 
@@ -492,7 +512,6 @@
 
 .name-cell {
     vertical-align: middle !important;
-
     display: table-cell;
 
     .volunteer-image,
@@ -504,11 +523,20 @@
     .volunteer-image {
         margin-right: 10px;
     }
+
+    .name-info {
+        max-width: calc(100% - 42px);
+
+        .name-text {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
 }
 
 .name-info {
-    display: flex;
-    flex-direction: column;
     gap: 2px;
 }
 

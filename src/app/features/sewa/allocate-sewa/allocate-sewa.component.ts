@@ -5,14 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DataService } from '../../../data.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { UnallocatedSectionComponent } from './unallocated-section/unallocated-section.component';
 import { AllocatedSectionComponent } from './allocated-section/allocated-section.component';
 import { OptionsService } from '../../../core/services/options.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 export interface UnallocatedVolunteer {
   id: number | string;
+  uniqueId?: string;
   name: string;
   image?: string;
   phone?: string;
@@ -20,11 +22,16 @@ export interface UnallocatedVolunteer {
 
 export interface AllocatedVolunteer {
   id: number | string;
+  userId?: string;
+  sewaId?: string;
+  uniqueId?: string;
   badgeNo?: string;
   name: string;
   image?: string;
   head?: string;
   subHead?: string;
+  headChecked?: boolean;
+  subHeadChecked?: boolean;
   isRegular: boolean;
   sewa?: string;
 }
@@ -38,7 +45,8 @@ export interface AllocatedVolunteer {
     DropdownComponent,
     BreadcrumbComponent,
     UnallocatedSectionComponent,
-    AllocatedSectionComponent
+    AllocatedSectionComponent,
+    IconComponent
   ],
   selector: 'app-allocate-sewa',
   templateUrl: './allocate-sewa.component.html',
@@ -61,14 +69,22 @@ export class AllocateSewaComponent implements OnInit {
   selectedGender: any[] = [];
   uid: string = '';
 
+  // Unassign modal state
+  showUnassignModal = false;
+  unassignReason = '';
+  unassignRemarks = '';
+  unassignError: string | null = null;
+  isUnassigning = false;
+  checkUserAlreadyAssign = false;
+  pendingUnassignVolunteers: AllocatedVolunteer[] = [];
+
   // Options
   branchOptions: DropdownOption[] = [];
   sewaOptions: DropdownOption[] = [];
 
   branchSearchTypeOptions: DropdownOption[] = [
-    { id: 'in_both', label: 'In Both', value: 'in_both' },
-    { id: 'assigned', label: 'Assigned', value: 'assigned' },
-    { id: 'task', label: 'Task', value: 'task' }
+    { id: 'none', label: 'None', value: '' },
+    { id: 'in_both', label: 'In Both', value: 'in_both' }
   ];
 
   sewaTypeOptions: DropdownOption[] = [];
@@ -97,11 +113,16 @@ export class AllocateSewaComponent implements OnInit {
     this.onSearch();
   }
 
+  private canSearch(): boolean {
+    const hasSewaType = this.selectedSewaType.length > 0;
+    const hasSewaOrUid = this.selectedSewa.length > 0 || !!this.uid;
+    return hasSewaType && hasSewaOrUid;
+  }
+
   loadMasterData(): void {
     // Load Branches using OptionsService
     this.optionsService.getBranches().subscribe({
       next: (options) => {
-        console.log('Branches loaded:', options);
         this.branchOptions = options;
       },
       error: (err) => console.error('Failed to load branches', err)
@@ -109,9 +130,9 @@ export class AllocateSewaComponent implements OnInit {
 
     // Sewa Type is static - represents volunteer vs regular
     this.sewaTypeOptions = [
-      { id: 'volunteer', label: 'Volunteer', value: 'volunteer' },
-      { id: 'preacher', label: 'Preacher', value: 'preacher' },
-      { id: 'desiring_devotee', label: 'Desiring Devotee', value: 'desiring_devotee' }
+      { id: 'volunteer', label: 'Volunteer', value: 'Volunteer' },
+      { id: 'preacher', label: 'Preacher', value: 'Preacher' },
+      { id: 'desiring_devotee', label: 'Desiring Devotee', value: 'DesiringDevotee' }
     ];
 
     // Set default selection to first option if available and not already selected
@@ -149,19 +170,18 @@ export class AllocateSewaComponent implements OnInit {
   }
 
   onSearch(): void {
+    if (!this.canSearch()) return;
+
     const filters: any = {};
     // Map component state to API parameters
-    if (this.selectedAssignmentBranch.length) filters['branch_id'] = this.selectedAssignmentBranch[0];
+    if (this.selectedAssignmentBranch.length) filters['sewa_assigned_branch_id'] = this.selectedAssignmentBranch[0];
+    if (this.selectedTaskBranch.length) filters['branch_id'] = this.selectedTaskBranch[0];
     if (this.selectedCorrespondingBranch.length) filters['home_branch'] = this.selectedCorrespondingBranch[0];
-    if (this.selectedBranchSearchType.length) filters['branch_type'] = this.selectedBranchSearchType[0];
+    if (this.selectedBranchSearchType.length && this.selectedBranchSearchType[0]) filters['branch_type'] = this.selectedBranchSearchType[0];
     if (this.selectedSewaType.length) filters['sewa_type'] = this.selectedSewaType[0];
     if (this.selectedSewa.length) filters['sewa_id'] = this.selectedSewa[0];
     if (this.selectedGender.length) filters['gender'] = this.selectedGender[0];
     if (this.uid) filters['unique_id'] = this.uid;
-
-    // Task Branch is present in UI but not in the required params list provided. 
-    // Sending it as optional 'task_branch_id' if needed, or it might be ignored by API.
-    if (this.selectedTaskBranch.length) filters['task_branch_id'] = this.selectedTaskBranch[0];
 
     if (this.unallocatedSection) this.unallocatedSection.loadVolunteers(filters);
     if (this.allocatedSection) this.allocatedSection.loadVolunteers(filters);
@@ -176,6 +196,10 @@ export class AllocateSewaComponent implements OnInit {
       alert('Please select a Sewa before allocating volunteers.');
       return;
     }
+    if (!this.selectedTaskBranch.length) {
+      alert('Please select a Task Branch before allocating volunteers.');
+      return;
+    }
     if (!this.selectedAssignmentBranch.length) {
       alert('Please select a Sewa Assignment Branch before allocating volunteers.');
       return;
@@ -184,6 +208,7 @@ export class AllocateSewaComponent implements OnInit {
     const userIds = volunteers.map(v => v.id);
     const payload = {
       sewa_id: this.selectedSewa[0],
+      branch_id: this.selectedTaskBranch[0],
       sewa_assigned_branch_id: this.selectedAssignmentBranch[0],
       ids: userIds
     };
@@ -205,22 +230,55 @@ export class AllocateSewaComponent implements OnInit {
 
   onUnassign(volunteers: AllocatedVolunteer[]): void {
     if (volunteers.length === 0) return;
+    this.pendingUnassignVolunteers = volunteers;
+    this.unassignReason = '';
+    this.unassignRemarks = '';
+    this.checkUserAlreadyAssign = false;
+    this.unassignError = null;
+    this.showUnassignModal = true;
+  }
 
-    const userIds = volunteers.map(v => v.id);
-    const payload = { user_ids: userIds };
+  closeUnassignModal(): void {
+    if (this.isUnassigning) return;
+    this.showUnassignModal = false;
+    this.pendingUnassignVolunteers = [];
+  }
 
-    this.dataService.post('v1/user-sewas/bulk-unassign', payload).pipe(
-      catchError((error) => {
-        console.error('Error unassigning volunteers:', error);
-        alert('Failed to unassign volunteers. Please try again.');
+  confirmUnassign(): void {
+    if (!this.unassignReason.trim()) {
+      this.unassignError = 'Reason is required.';
+      return;
+    }
+    if (!this.selectedSewa.length) {
+      this.unassignError = 'Please select a Sewa.';
+      return;
+    }
+    if (this.pendingUnassignVolunteers.length === 0) {
+      this.unassignError = 'No volunteers selected.';
+      return;
+    }
+
+    const body = {
+      sewa_id: String(this.selectedSewa[0]),
+      is_check_userAlreadyAssign: this.checkUserAlreadyAssign ? '1' : '0',
+      reason: this.unassignReason.trim(),
+      remark: this.unassignRemarks.trim(),
+      ids: this.pendingUnassignVolunteers.map(v => String(v.id))
+    };
+
+    this.isUnassigning = true;
+    this.unassignError = null;
+    this.dataService.post<any>('v1/user-sewas/bulk-unassign', body).pipe(
+      catchError((err) => {
+        this.unassignError = err?.error?.message || 'Failed to unassign volunteers.';
         return of(null);
-      })
+      }),
+      finalize(() => this.isUnassigning = false)
     ).subscribe((response) => {
-      if (response) {
-        console.log('Successfully unassigned volunteers:', response);
-        // Refresh both lists after successful unassignment
-        this.onSearch();
-      }
+      if (response === null) return;
+      this.showUnassignModal = false;
+      this.pendingUnassignVolunteers = [];
+      this.onSearch();
     });
   }
 }

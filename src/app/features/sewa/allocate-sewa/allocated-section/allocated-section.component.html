@@ -1,12 +1,12 @@
 <div class="section allocated-section">
     <div class="section-header">
-        <h2 class="section-title">Allocated</h2>
+        <div class="section-title">Allocated</div>
     </div>
 
     <div class="section-controls">
         <div class="search-control">
             <input type="text" class="form-control" [(ngModel)]="searchTerm" placeholder="Search..."
-                (input)="currentPage = 1">
+                (keyup.enter)="onSearchEnter()">
         </div>
         <button class="btn btn--secondary btn--sm" type="button" (click)="onUnassign()"
             [disabled]="selectedIds.size === 0">
@@ -14,50 +14,81 @@
         </button>
     </div>
 
-    <!-- Card Listing View -->
-    <div class="cards-container">
-        <div class="cards-grid">
-            <div *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" class="volunteer-card"
-                [class.selected]="selectedIds.has(volunteer.id)" (click)="toggleSelect(volunteer.id, $event)">
-                <div class="card-checkbox">
-                    <input type="checkbox" [checked]="selectedIds.has(volunteer.id)"
-                        (change)="toggleSelect(volunteer.id, $event)" (click)="$event.stopPropagation()">
-                </div>
-                <div class="card-content">
-                    <div class="card-image">
-                        <div class="volunteer-image">
-                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'" [alt]="volunteer.name"
-                                onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                    </div>
-                    <div class="card-details">
-                        <div class="card-id">ID: {{ volunteer.id }}</div>
-                        <div class="card-badge" *ngIf="volunteer.badgeNo">Badge: {{ volunteer.badgeNo }}</div>
-                        <div class="card-name">{{ volunteer.name }}</div>
-                        <div class="card-sewa" *ngIf="volunteer.sewa">
-                            <app-icon name="work" />
-                            {{ volunteer.sewa }}
-                        </div>
-                        <div class="card-regular" *ngIf="volunteer.isRegular">
-                            <span class="regular-badge">Regular</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="no-data" *ngIf="pagedVolunteers.length === 0">
-            No Allocated Volunteers Found
-        </div>
+    <!-- Empty State -->
+    <div *ngIf="filteredVolunteers.length === 0" class="allocated-state">
+        <div class="no-data">No Allocated Volunteers Found</div>
     </div>
 
-    <!-- Simple Pagination for the table view -->
-    <div class="simple-pagination" *ngIf="filteredVolunteers.length > pageSize">
-        <button class="btn btn--link" [disabled]="currentPage === 1"
-            (click)="currentPage = currentPage - 1">Previous</button>
-        <span>Page {{currentPage}} of {{ Math.ceil(filteredVolunteers.length / pageSize) }} (Total:
-            {{filteredVolunteers.length}})</span>
-        <button class="btn btn--link" [disabled]="currentPage * pageSize >= filteredVolunteers.length"
-            (click)="currentPage = currentPage + 1">Next</button>
+    <!-- Table (only shown when there's data) -->
+    <div *ngIf="filteredVolunteers.length > 0" class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            [indeterminate]="isIndeterminate()"
+                            (change)="toggleSelectAll($event)"
+                            (click)="$event.stopPropagation()">
+                    </th>
+                    <th>Head</th>
+                    <th>Sub Head</th>
+                    <th>Is Regular</th>
+                    <th>Id</th>
+                    <th>Badge No</th>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Sewa</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let volunteer of filteredVolunteers; trackBy: trackById" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <input
+                            type="checkbox"
+                            [checked]="selectedIds.has(volunteer.id)"
+                            (change)="toggleSelect(volunteer.id, $event)">
+                    </td>
+                    <td data-label="Head" (click)="$event.stopPropagation()">
+                        <input type="checkbox"
+                            [checked]="volunteer.headChecked"
+                            [disabled]="volunteer.subHeadChecked"
+                            (change)="toggleHead(volunteer, $event)" />
+                    </td>
+                    <td data-label="Sub Head" (click)="$event.stopPropagation()">
+                        <input type="checkbox"
+                            [checked]="volunteer.subHeadChecked"
+                            [disabled]="volunteer.headChecked"
+                            (change)="toggleSubHead(volunteer, $event)" />
+                    </td>
+                    <td data-label="Is Regular" (click)="$event.stopPropagation()">
+                        <input type="checkbox"
+                            [checked]="volunteer.isRegular"
+                            (change)="toggleIsRegular(volunteer, $event)" />
+                    </td>
+                    <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
+                    <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
+                    <td data-label="Name" class="name">{{ volunteer.name }}</td>
+                    <td data-label="Image" class="image-column">
+                        <div class="volunteer-image">
+                            <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
+                                 [alt]="volunteer.name"
+                                 onerror="this.src='/assets/img/placeholder.svg'">
+                        </div>
+                    </td>
+                    <td data-label="Sewa">{{ volunteer.sewa || '-' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Load More -->
+    <div *ngIf="hasMore && filteredVolunteers.length > 0 && !isLoading" class="load-more">
+        <button class="load-more__btn" type="button" (click)="loadMore()" [disabled]="isLoadingMore">
+            <span class="load-more__count">Showing {{ volunteers.length }} of {{ totalItems }}</span>
+            <span class="load-more__sep">-</span>
+            {{ isLoadingMore ? 'Loading...' : 'Load More' }}
+        </button>
     </div>
 </div>
