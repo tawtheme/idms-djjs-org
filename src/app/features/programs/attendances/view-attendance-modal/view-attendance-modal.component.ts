@@ -31,6 +31,7 @@ interface VolunteerRecord {
   donation: number | string;
   status: string;
   checkIn: string;
+  checkOut: string;
   remarks: string;
 }
 
@@ -89,11 +90,15 @@ export class ViewAttendanceModalComponent implements OnChanges {
   currentPage = 1;
   totalItems = 0;
 
+  // Track which tabs have already loaded — avoids re-fetching when user toggles back
+  private aggregatedLoaded = false;
+  private detailsLoaded = false;
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen && this.programId) {
-      this.loadAggregatedData();
-      this.loadSewaTypes();
-      this.loadVolunteerDetails();
+      this.aggregatedLoaded = false;
+      this.detailsLoaded = false;
+      this.loadActiveTab();
     }
   }
 
@@ -102,12 +107,25 @@ export class ViewAttendanceModalComponent implements OnChanges {
   }
 
   switchTab(tab: 'aggregated' | 'details'): void {
+    if (this.activeTab === tab) return;
     this.activeTab = tab;
+    this.loadActiveTab();
+  }
+
+  private loadActiveTab(): void {
+    if (this.activeTab === 'aggregated') {
+      if (this.aggregatedLoaded) return;
+      this.loadAggregatedData();
+    } else {
+      if (this.detailsLoaded) return;
+      this.loadVolunteerDetails();
+    }
   }
 
   // ── Aggregated Data ──
   loadAggregatedData(): void {
     this.isLoadingAggregated = true;
+    this.aggregatedLoaded = true;
     this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
       catchError(() => of({ data: [] })),
       finalize(() => this.isLoadingAggregated = false)
@@ -123,20 +141,38 @@ export class ViewAttendanceModalComponent implements OnChanges {
         left: item.total_left || 0,
         absent: item.total_absent || 0
       }));
+      this.sewaTypeOptions = this.buildSewaOptions(data.sewa_Ids ?? data.sewa_ids, items);
     });
   }
 
-  loadSewaTypes(): void {
-    this.dataService.get<any>(`v1/programs/${this.programId}/sewas`).pipe(
-      catchError(() => of({ data: { sewas: [] } }))
-    ).subscribe((response) => {
-      const sewas = response.data?.sewas || response.data || [];
-      this.sewaTypeOptions = (Array.isArray(sewas) ? sewas : []).map((sewa: any) => ({
-        id: String(sewa.id),
-        label: sewa.name,
-        value: sewa.id
-      }));
-    });
+  /**
+   * Builds the sewa-filter dropdown from the attendance-summary response so we
+   * don't need a separate `/programs/{id}/sewas` round-trip. Prefers the
+   * explicit `sewa_Ids` array when the API returns it; otherwise falls back to
+   * deduping `{sewa_id, sewa_name}` pairs out of the aggregated items.
+   */
+  private buildSewaOptions(sewaIds: any, items: any[]): { id: string; label: string; value: any }[] {
+    if (Array.isArray(sewaIds) && sewaIds.length) {
+      return sewaIds
+        .map((s: any) => {
+          const id = s?.sewa?.id ?? s?.sewa_id ?? s?.id ?? s?.value ?? s;
+          const name = s?.sewa?.name ?? s?.name ?? s?.sewa_name ?? s?.label ?? '';
+          return { id: String(id ?? ''), label: String(name), value: id };
+        })
+        .filter(o => o.id);
+    }
+    const seen = new Set<string>();
+    return (Array.isArray(items) ? items : [])
+      .map((item: any) => ({
+        id: String(item.sewa_id ?? ''),
+        label: item.sewa_name || '',
+        value: item.sewa_id
+      }))
+      .filter(o => {
+        if (!o.id || seen.has(o.id)) return false;
+        seen.add(o.id);
+        return true;
+      });
   }
 
   downloadAggregatedCSV(): void {
@@ -151,6 +187,7 @@ export class ViewAttendanceModalComponent implements OnChanges {
   // ── Volunteer Details ──
   loadVolunteerDetails(): void {
     this.isLoadingDetails = true;
+    this.detailsLoaded = true;
 
     const body: any = {
       program_id: this.programId,
@@ -182,10 +219,11 @@ export class ViewAttendanceModalComponent implements OnChanges {
         image: item.image || item.user_image || '',
         sewa: item.sewa || item.sewa_name || '',
         sewaId: item.sewa_id || '',
-        badgeNo: item.badge_no || item.badge_number || '',
+        badgeNo: String(item.badge ?? item.badge_id ?? item.badge_no ?? item.badge_number ?? ''),
         donation: item.donation || item.donation_amount || 0,
-        status: item.status || '',
-        checkIn: item.check_in || item.checkin_time || '',
+        status: item.status ?? '',
+        checkIn: item.checked_in || item.check_in || item.checkin_time || '',
+        checkOut: item.checked_out || item.check_out || item.checkout_time || '',
         remarks: item.remarks || ''
       }));
       this.totalItems = response.total || response.meta?.total || response.meta?.itemsCount || this.volunteerRecords.length;
@@ -231,14 +269,64 @@ export class ViewAttendanceModalComponent implements OnChanges {
     window.print();
   }
 
-  getStatusClass(status: any): string {
-    const s = String(status || '').toLowerCase();
-    switch (s) {
-      case 'present': return 'status-present';
-      case 'absent': return 'status-absent';
-      case 'leave': return 'status-leave';
+  getStatusClass(record: VolunteerRecord | any): string {
+    const key = this.resolveStatusKey(record);
+    switch (key) {
       case 'left': return 'status-left';
+      case 'leave': return 'status-leave';
+      case 'checkout': return 'status-checkout';
+      case 'checkin': return 'status-present';
+      case 'absent': return 'status-absent';
       default: return '';
+    }
+  }
+
+  getStatusLabel(record: VolunteerRecord | any): string {
+    const key = this.resolveStatusKey(record);
+    switch (key) {
+      case 'left': return 'Left';
+      case 'leave': return 'Leave';
+      case 'checkout': return 'CheckOut';
+      case 'checkin': return 'Present';
+      case 'absent': return 'Absent';
+      default: return '';
+    }
+  }
+
+  hasStatus(record: VolunteerRecord | any): boolean {
+    return record?.status !== '' && record?.status !== null && record?.status !== undefined;
+  }
+
+  private resolveStatusKey(record: VolunteerRecord | any): 'left' | 'leave' | 'checkout' | 'checkin' | 'absent' | '' {
+    const status = String(record?.status ?? '').trim().toLowerCase();
+    const hasCheckIn = !!record?.checkIn;
+    const hasCheckOut = !!record?.checkOut;
+
+    switch (status) {
+      case '0':
+      case 'leave':
+        return 'leave';
+      case '2':
+      case 'checkout':
+      case 'check_out':
+      case 'check out':
+      case 'return':
+        return 'checkout';
+      case '3':
+      case 'absent':
+      case 'not_attended':
+        return 'absent';
+      case 'left':
+        return 'left';
+      case '1':
+      case 'present':
+      case 'checkin':
+      case 'check_in':
+      case 'check in':
+        if (hasCheckIn && hasCheckOut) return 'checkout';
+        return 'checkin';
+      default:
+        return '';
     }
   }
 

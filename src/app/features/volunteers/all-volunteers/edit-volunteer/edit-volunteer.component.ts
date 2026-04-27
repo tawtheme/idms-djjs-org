@@ -92,9 +92,8 @@ export class EditVolunteerComponent implements OnInit {
 
   levelOptions: DropdownOption[] = [
     { id: 'Volunteer', label: 'Volunteer', value: 'Volunteer' },
-    { id: 'Sewadar', label: 'Sewadar', value: 'Sewadar' },
-    { id: 'Coordinator', label: 'Coordinator', value: 'Coordinator' },
-    { id: 'Head', label: 'Head', value: 'Head' }
+    { id: 'Preacher', label: 'Preacher', value: 'Preacher' },
+    { id: 'Desiring Devotee', label: 'Desiring Devotee', value: 'Desiring Devotee' }
   ];
   selectedLevel: any[] = [];
 

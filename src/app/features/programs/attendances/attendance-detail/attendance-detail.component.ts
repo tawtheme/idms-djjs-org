@@ -154,35 +154,18 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   }
 
   loadSummary(): void {
-    this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
-      catchError(() => of({ data: [] }))
+    this.dataService.get<any>(`v1/attendances/${this.programId}`).pipe(
+      catchError(() => of({ data: {} }))
     ).subscribe((response) => {
-      const data = response.data || {};
-      const items = data.items || [];
-      let totalVolunteers = 0;
-      let totalCheckIns = 0;
-      let totalCheckOuts = 0;
-      let totalLeaves = 0;
-      let totalLeft = 0;
-
-      if (Array.isArray(items)) {
-        items.forEach((item: any) => {
-          totalVolunteers += item.total_volunteers || 0;
-          totalCheckIns += item.total_check_in || 0;
-          totalCheckOuts += item.total_check_out || 0;
-          totalLeaves += item.total_leaves || 0;
-          totalLeft += item.total_left || 0;
-        });
-      }
-
+      const data = response?.data || {};
       this.summary = {
         ...this.summary,
-        programName: data.program_name || this.summary.programName,
-        totalVolunteers,
-        totalCheckIns,
-        totalCheckOuts,
-        totalLeaves,
-        totalLeft
+        programName: data.program_name || data.title || this.summary.programName,
+        totalVolunteers: data.total_volunteers || 0,
+        totalCheckIns: data.total_check_in || 0,
+        totalCheckOuts: data.total_check_out || 0,
+        totalLeaves: data.total_leaves || 0,
+        totalLeft: data.total_left || 0
       };
     });
   }
@@ -217,7 +200,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         image: item.image || item.user_image || '',
         sewa: item.sewa || item.sewa_name || '',
         sewaId: item.sewa_id || '',
-        badgeNo: item.badge_no || item.badge_number || '',
+        badgeNo: String(item.badge ?? item.badge_id ?? item.badge_no ?? item.badge_number ?? ''),
         donation: item.donation || item.donation_amount || 0,
         status: item.status ?? '',
         checkIn: item.checked_in || item.check_in || item.checkin_time || '',
@@ -292,10 +275,64 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       finalize(() => this.isSubmitting = false)
     ).subscribe((response) => {
       if (response === null) return;
+      // Snapshot scan inputs before the modal close clears them
+      const user = this.fetchedUser;
+      const donation = Number(this.fetchUserDonation) || 0;
+      const remarks = this.fetchUserRemarks || '';
       this.closeFetchUserModal();
+      this.applyScanLocally(user, status, donation, remarks, response?.data);
       this.loadSummary();
-      this.loadAttendanceData();
     });
+  }
+
+  /**
+   * Optimistically updates the in-memory list with the just-scanned record so
+   * we don't have to re-fetch the entire paginated list after every scan.
+   *
+   * Falls back to a full re-fetch when the user is on a non-first page or has
+   * a search term active — the server is the source of truth in those views,
+   * and slotting a row in locally would misrepresent the page contents.
+   */
+  private applyScanLocally(
+    user: any,
+    status: 0 | 1 | 2,
+    donation: number,
+    remarks: string,
+    attendanceData: any
+  ): void {
+    if (!user) return;
+
+    if (this.currentPage !== 1 || this.filterTerm.trim()) {
+      this.loadAttendanceData();
+      return;
+    }
+
+    const id = String(user?.unique_id || user?.id || attendanceData?.unique_id || '');
+    const newRow: AttendanceRecord = {
+      id,
+      name: user?.name || user?.volunteer_name || '',
+      image: user?.image || user?.user_image || '',
+      sewa: user?.program_sewa?.name || user?.program_sewa?.sewa?.name || user?.sewa?.name || user?.sewa || '',
+      sewaId: user?.program_sewa?.id || user?.sewa_id || '',
+      badgeNo: String(user?.badge_id || user?.badge_no || user?.badge_number || ''),
+      donation,
+      status: String(status),
+      checkIn: attendanceData?.check_in || attendanceData?.checked_in || attendanceData?.checkin_time || new Date().toISOString(),
+      remarks
+    };
+
+    const existingIndex = this.allRecords.findIndex(r => r.id && r.id === id);
+    if (existingIndex >= 0) {
+      this.allRecords = [
+        newRow,
+        ...this.allRecords.slice(0, existingIndex),
+        ...this.allRecords.slice(existingIndex + 1)
+      ];
+    } else {
+      this.allRecords = [newRow, ...this.allRecords];
+      this.totalItems += 1;
+    }
+    this.records = [...this.allRecords];
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -374,6 +411,29 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     return '';
   }
 
+  /**
+   * Formats a server timestamp like "2026-04-27 04:18:14" as
+   * "27 Apr, 2026 at 04:18AM". Returns the original string when parsing fails.
+   */
+  formatCheckIn(value: string): string {
+    if (!value) return '';
+    const normalized = value.replace(' ', 'T');
+    const d = new Date(normalized);
+    if (isNaN(d.getTime())) return value;
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+
+    let hours = d.getHours();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12 || 12;
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    return `${day} ${month}, ${year} at ${String(hours).padStart(2, '0')}:${minutes}${ampm}`;
+  }
+
   getStatusLabel(status: any): string {
     const s = String(status);
     switch (s) {
@@ -446,12 +506,14 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     ).subscribe((response) => {
       if (response) {
         (record as any)[field] = field === 'donation' ? (Number(value) || 0) : value;
-        this.loadSummary();
-        this.loadAttendanceData();
+        this.allRecords = this.allRecords.map(r => r.id === record.id ? { ...record } : r);
+        this.records = [...this.allRecords];
+        if (field === 'status') this.loadSummary();
       }
       this.editingCell = null;
     });
   }
+
 
   onEditKeydown(event: KeyboardEvent, record: AttendanceRecord): void {
     if (event.key === 'Enter') {

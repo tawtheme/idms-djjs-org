@@ -33,6 +33,7 @@ export interface Volunteer {
     state?: string;
     pincode?: string;
     cityName?: string;
+    stateName?: string;
     correspondingBranch?: string;
     taskBranch?: string;
     mobileNumber?: string;
@@ -336,6 +337,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
           state: primaryAddress.state || '',
           pincode: primaryAddress.pincode || primaryAddress.pin_code || '',
           cityName: primaryAddress.city ? `City : ${primaryAddress.city}` : '',
+          stateName: primaryAddress.state ? `State : ${primaryAddress.state}` : '',
           correspondingBranch: primaryAddress.corresponding_branch ?
             `Corresponding branch : ${primaryAddress.corresponding_branch}` : '',
           taskBranch: primaryAddress.task_branch ?
@@ -879,8 +881,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
   formatAddress(address: Volunteer['address']): string {
     const parts = [];
     if (address.street) parts.push(address.street);
-    if (address.pincode) parts.push(address.pincode);
     if (address.cityName) parts.push(address.cityName);
+    if (address.stateName) parts.push(address.stateName);
     if (address.correspondingBranch) parts.push(address.correspondingBranch);
     if (address.taskBranch) parts.push(address.taskBranch);
     if (address.mobileNumber) parts.push(address.mobileNumber);

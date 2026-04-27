@@ -37,10 +37,6 @@
 
     <!-- Aggregated Tab -->
     <div class="tab-panel" *ngIf="activeTab === 'aggregated'">
-        <div *ngIf="isLoadingAggregated" class="loading-cell">
-            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-        </div>
-
         <ng-container *ngIf="!isLoadingAggregated">
             <div *ngIf="aggregatedRows.length === 0" class="loading-cell">
                 <app-empty-state title="No Data" description="No aggregated attendance data available." size="small"></app-empty-state>
@@ -117,11 +113,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngIf="isLoadingDetails">
-                        <td colspan="8" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
                     <ng-container *ngIf="!isLoadingDetails">
                         <tr *ngFor="let record of volunteerRecords; trackBy: trackById">
                             <td><span class="id-badge">{{ record.id }}</span></td>
@@ -141,8 +132,8 @@
                                 <span *ngIf="!record.donation" class="text-muted">-</span>
                             </td>
                             <td>
-                                <span class="status-badge" [ngClass]="getStatusClass(record.status)" *ngIf="record.status">{{ record.status }}</span>
-                                <span *ngIf="!record.status" class="text-muted">-</span>
+                                <span class="status-badge" [ngClass]="getStatusClass(record)" *ngIf="hasStatus(record)">{{ getStatusLabel(record) }}</span>
+                                <span *ngIf="!hasStatus(record)" class="text-muted">-</span>
                             </td>
                             <td>
                                 <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>

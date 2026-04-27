@@ -221,7 +221,9 @@
         min-width: 200px;
         width: 100%;
         text-transform: capitalize;
-        
+        display: flex;
+        flex-direction: column;
+
         // Default positioning (opens downward)
         top: calc(100% + 4px);
         left: 0;
@@ -238,6 +240,7 @@
 
     &-search {
         border-bottom: 1px solid $color-gray-300;
+        flex-shrink: 0;
 
         &-input {
             width: 100%;
@@ -262,6 +265,7 @@
         padding: 8px 12px;
         border-bottom: 1px solid $color-gray-300;
         background: $color-gray-50;
+        flex-shrink: 0;
 
         &-label {
             display: flex;
@@ -279,7 +283,8 @@
 
 
     &-options {
-        max-height: 200px;
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto;
 
         .dropdown-option {

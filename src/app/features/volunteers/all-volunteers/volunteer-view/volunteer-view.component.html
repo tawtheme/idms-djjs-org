@@ -45,7 +45,6 @@
             </div>
         </header>
 
-        <div *ngIf="isLoading" class="vv-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
         <div *ngIf="!isLoading && error" class="vv-state vv-state--error">{{ error }}</div>
 
         <div class="vv-body" *ngIf="!isLoading && !error && user">
@@ -291,7 +290,6 @@
 
             <!-- Sewa Tracking -->
             <ng-container *ngIf="activeTab === 'sewa'">
-                <div *ngIf="sewaLoading" class="vv-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                 <div *ngIf="!sewaLoading && sewaError" class="vv-state vv-state--error">{{ sewaError }}</div>
 
                 <ng-container *ngIf="!sewaLoading && !sewaError">
@@ -329,7 +327,6 @@
 
             <!-- Program Journey -->
             <ng-container *ngIf="activeTab === 'program'">
-                <div *ngIf="programLoading" class="vv-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                 <div *ngIf="!programLoading && programError" class="vv-state vv-state--error">{{ programError }}</div>
 
                 <section class="vv-section vv-section--flush" *ngIf="!programLoading && !programError && programRows.length > 0">
@@ -364,7 +361,6 @@
 
             <!-- Donations -->
             <ng-container *ngIf="activeTab === 'donation'">
-                <div *ngIf="donationLoading" class="vv-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                 <div *ngIf="!donationLoading && donationError" class="vv-state vv-state--error">{{ donationError }}</div>
 
                 <section class="vv-section vv-section--flush" *ngIf="!donationLoading && !donationError && donationRows.length > 0">

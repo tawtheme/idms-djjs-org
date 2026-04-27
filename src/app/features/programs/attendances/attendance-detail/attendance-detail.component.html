@@ -1,65 +1,45 @@
 <div class="attendance-detail-container">
-    <div class="attendance-detail-header">
-    </div>
-
     <!-- Summary Section -->
     <div class="summary-section">
-        <div class="summary-top">
-            <div class="summary-item summary-item--program">
-                <div class="summary-item__content">
-                    <span class="summary-item__label">Program Name</span>
-                    <strong class="summary-item__value">{{ summary.programName || '-' }}</strong>
-                    <span class="summary-item__sub" *ngIf="summary.programDate">{{ summary.programDate }}</span>
+        <div class="summary-section__top">
+            <div class="summary-program">
+                <div class="summary-item summary-item--program">
+                    <div class="summary-item__content">
+                        <span class="summary-item__label">Program Name: </span>
+                        <strong class="summary-item__value">{{ summary.programName || '-' }}</strong>
+                        <span class="summary-item__sub" *ngIf="summary.programDate">{{ summary.programDate }}</span>
+                    </div>
                 </div>
             </div>
-            <button class="btn btn--primary" type="button" (click)="openAttendanceModal()">
-                <app-icon name="visibility" />
-                <span>View Attendance Details</span>
-            </button>
-        </div>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-item__content">
-                    <strong class="summary-item__number">{{ summary.totalVolunteers }}</strong>
-                    <span class="summary-item__label">Total Volunteers</span>
+            <div class="summary-row">
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <strong class="summary-stat__number">{{ summary.totalVolunteers }}</strong>
+                        <span class="summary-stat__label">Total Volunteers</span>
+                    </div>
+                    <div class="summary-stat">
+                        <strong class="summary-stat__number summary-stat__number--green">{{ summary.totalCheckIns }}</strong>
+                        <span class="summary-stat__label">Total Check In's</span>
+                    </div>
+                    <div class="summary-stat">
+                        <strong class="summary-stat__number summary-stat__number--orange">{{ summary.totalCheckOuts }}</strong>
+                        <span class="summary-stat__label">Total Check Out's</span>
+                    </div>
+                    <div class="summary-stat">
+                        <strong class="summary-stat__number">{{ summary.totalLeaves }}</strong>
+                        <span class="summary-stat__label">Total Leaves</span>
+                    </div>
+                    <div class="summary-stat">
+                        <strong class="summary-stat__number summary-stat__number--red">{{ summary.totalLeft }}</strong>
+                        <span class="summary-stat__label">Total Left</span>
+                    </div>
                 </div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-item__content">
-                    <strong class="summary-item__number summary-item__number--green">{{ summary.totalCheckIns }}</strong>
-                    <span class="summary-item__label">Total Check In's</span>
-                </div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-item__content">
-                    <strong class="summary-item__number summary-item__number--orange">{{ summary.totalCheckOuts }}</strong>
-                    <span class="summary-item__label">Total Check Out's</span>
-                </div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-item__content">
-                    <strong class="summary-item__number">{{ summary.totalLeaves }}</strong>
-                    <span class="summary-item__label">Total Leaves</span>
-                </div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-item__content">
-                    <strong class="summary-item__number summary-item__number--red">{{ summary.totalLeft }}</strong>
-                    <span class="summary-item__label">Total Left</span>
-                </div>
+                <button class="btn btn--primary summary-row__action" type="button" (click)="openAttendanceModal()">
+                    <app-icon name="visibility" />
+                    <span>View Attendance Details</span>
+                </button>
             </div>
         </div>
-    </div>
-
-    <!-- Error state -->
-    <div *ngIf="error && !isLoading" class="error-state">
-        <app-icon name="error_outline" class="error-state__icon" />
-        <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadAttendanceData()">Retry</button>
-    </div>
-
-    <!-- Table Section with Enter ID -->
-    <div class="table-section">
         <div class="enter-id-row">
             <input
                 #enterIdInput
@@ -79,30 +59,61 @@
                 <app-icon name="camera_alt" />
             </button>
         </div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <app-icon name="error_outline" class="error-state__icon" />
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadAttendanceData()">Retry</button>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-section">
         <div class="table-section__header">
             <h3 class="table-section__title">{{ attendanceMode === 'checkin' ? 'Checked In' : 'Checked Out' }} Volunteers</h3>
-            <span class="table-section__count">{{ totalItems }} records</span>
+            <div class="table-section__actions">
+                <div class="table-section__search">
+                    <app-icon name="search" class="table-section__search-icon" />
+                    <input
+                        type="text"
+                        class="table-section__search-input"
+                        placeholder="Quick search..."
+                        [(ngModel)]="filterTerm"
+                        [ngModelOptions]="{ standalone: true }"
+                        (keydown.enter)="applyFilter()" />
+                    <button
+                        *ngIf="filterTerm"
+                        type="button"
+                        class="table-section__search-clear"
+                        (click)="filterTerm = ''; applyFilter()"
+                        aria-label="Clear search">
+                        <app-icon name="close" />
+                    </button>
+                </div>
+                <span class="table-section__count">{{ totalItems }} records</span>
+            </div>
         </div>
         <div class="table-container">
             <table class="table">
                 <colgroup *ngIf="attendanceMode === 'checkin'">
                     <col style="width: 7%;">
-                    <col style="width: 22%;">
+                    <col style="width: 20%;">
                     <col style="width: 12%;">
                     <col style="width: 11%;">
                     <col style="width: 9%;">
-                    <col style="width: 12%;">
-                    <col style="width: 15%;">
+                    <col style="width: 16%;">
+                    <col style="width: 13%;">
                     <col style="width: 12%;">
                 </colgroup>
                 <colgroup *ngIf="attendanceMode !== 'checkin'">
                     <col style="width: 8%;">
-                    <col style="width: 25%;">
+                    <col style="width: 23%;">
                     <col style="width: 14%;">
                     <col style="width: 12%;">
                     <col style="width: 10%;">
-                    <col style="width: 14%;">
-                    <col style="width: 17%;">
+                    <col style="width: 18%;">
+                    <col style="width: 15%;">
                 </colgroup>
                 <thead>
                     <tr>
@@ -113,7 +124,7 @@
                         <th>Status</th>
                         <th>CheckIn</th>
                         <th>Remarks</th>
-                        <th *ngIf="attendanceMode === 'checkin'">Action</th>
+                        <th *ngIf="attendanceMode === 'checkin'" class="action-th">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,22 +139,44 @@
                                 </div>
                                 <div class="name-info">
                                     <span class="name-text">{{ record.name }}</span>
-                                    <span class="badge-text" *ngIf="record.badgeNo">Badge: {{ record.badgeNo }}</span>
                                 </div>
                             </td>
                             <td data-label="Sewa">{{ record.sewa }}</td>
-                            <td data-label="Donation">
-                                <span *ngIf="record.donation">{{ record.donation }}</span>
-                                <span *ngIf="!record.donation" class="text-muted">-</span>
+                            <td data-label="Donation" class="editable-cell" (dblclick)="startEditing(record, 'donation')">
+                                <ng-container *ngIf="!isEditing(record.id, 'donation')">
+                                    <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
+                                    <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
+                                </ng-container>
+                                <input *ngIf="isEditing(record.id, 'donation')"
+                                    type="number" class="inline-input"
+                                    [(ngModel)]="editingCell!.value"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keydown)="onEditKeydown($event, record)"
+                                    (blur)="saveEditing(record)"
+                                    [disabled]="isSaving" />
                             </td>
-                            <td data-label="Status">
-                                <span class="status-badge" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
-                                    {{ getStatusLabel(record.status) }}
-                                </span>
-                                <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted">-</span>
+                            <td data-label="Status" class="editable-cell" (dblclick)="startEditing(record, 'status')">
+                                <ng-container *ngIf="!isEditing(record.id, 'status')">
+                                    <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
+                                        {{ getStatusLabel(record.status) }}
+                                    </span>
+                                    <span *ngIf="record.status === '' || record.status === null || record.status === undefined" class="text-muted editable-text">-</span>
+                                </ng-container>
+                                <select *ngIf="isEditing(record.id, 'status')"
+                                    class="inline-select"
+                                    [(ngModel)]="editingCell!.value"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keydown)="onEditKeydown($event, record)"
+                                    (change)="saveEditing(record)"
+                                    (blur)="saveEditing(record)"
+                                    [disabled]="isSaving">
+                                    <option value="1">Present</option>
+                                    <option value="0">Leave</option>
+                                    <option value="2">Check Out</option>
+                                </select>
                             </td>
                             <td data-label="CheckIn">
-                                <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>
+                                <span *ngIf="record.checkIn" class="checkin-time">{{ formatCheckIn(record.checkIn) }}</span>
                                 <span *ngIf="!record.checkIn" class="text-muted">-</span>
                             </td>
                             <!-- Remarks (editable on double-click) -->
@@ -161,7 +194,7 @@
                                     [disabled]="isSaving" />
                             </td>
                             <!-- Action -->
-                            <td data-label="Action" *ngIf="attendanceMode === 'checkin'">
+                            <td data-label="Action" class="action-cell" *ngIf="attendanceMode === 'checkin'">
                                 <div class="action-btns">
                                     <button class="btn-action btn-action--view" (click)="viewVolunteer(record)" title="View Details">
                                         <app-icon name="visibility" />
@@ -183,12 +216,6 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <!-- Loading -->
-                    <tr *ngIf="isLoading">
-                        <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -251,7 +278,7 @@
             </div>
             <div class="view-detail__item">
                 <span class="view-detail__label">Check In</span>
-                <span class="view-detail__value">{{ viewRecord.checkIn || '-' }}</span>
+                <span class="view-detail__value">{{ viewRecord.checkIn ? formatCheckIn (viewRecord.checkIn) : '-' }}</span>
             </div>
             <div class="view-detail__item">
                 <span class="view-detail__label">Remarks</span>

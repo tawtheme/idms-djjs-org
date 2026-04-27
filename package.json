@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "serve dist/idms-djjs-org/browser -s -l 3000",
+    "start": "ng serve --port 4200",
+    "serve:prod": "serve dist/idms-djjs-org/browser -s -l 4200",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

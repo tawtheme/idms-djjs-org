@@ -1,9 +1,4 @@
 <div class="ve-shell">
-    <!-- Saving overlay (section-level) -->
-    <div class="ve-saving-overlay" *ngIf="savingSection">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-    </div>
-
     <!-- Sidebar -->
     <aside class="ve-sidebar" *ngIf="!isLoading">
         <div class="ve-profile">
@@ -50,7 +45,6 @@
             </div>
         </header>
 
-        <div *ngIf="isLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
         <div *ngIf="!isLoading && error" class="ve-state ve-state--error">{{ error }}</div>
 
         <ng-container *ngIf="!isLoading">
@@ -635,7 +629,6 @@
 
                     <!-- Sewa Tracking (read-only) -->
                     <ng-container *ngIf="activeTab === 'sewa'">
-                        <div *ngIf="sewaLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                         <div *ngIf="!sewaLoading && sewaError" class="ve-state ve-state--error">{{ sewaError }}</div>
 
                         <ng-container *ngIf="!sewaLoading && !sewaError">
@@ -673,7 +666,6 @@
 
                     <!-- Program Journey (read-only) -->
                     <ng-container *ngIf="activeTab === 'program'">
-                        <div *ngIf="programLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                         <div *ngIf="!programLoading && programError" class="ve-state ve-state--error">{{ programError }}</div>
 
                         <table class="track-table" *ngIf="!programLoading && !programError && programRows.length > 0">
@@ -705,7 +697,6 @@
 
                     <!-- Donations (read-only) -->
                     <ng-container *ngIf="activeTab === 'donation'">
-                        <div *ngIf="donationLoading" class="ve-state"><app-loading [size]="'medium'" [type]="'spinner'"></app-loading></div>
                         <div *ngIf="!donationLoading && donationError" class="ve-state ve-state--error">{{ donationError }}</div>
 
                         <table class="track-table" *ngIf="!donationLoading && !donationError && donationRows.length > 0">

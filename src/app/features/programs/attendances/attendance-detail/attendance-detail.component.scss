@@ -6,8 +6,10 @@
 
 .attendance-detail-container {
     overflow: visible;
-    height: auto;
     min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 // ========================================
@@ -17,18 +19,19 @@
     background: $color-white;
     border: 1px solid $color-gray-200;
     border-radius: 12px;
-    padding: 12px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+
+    &__top {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
 }
 
-.summary-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-
+.summary-program {
     .summary-item--program {
         background: transparent;
         padding: 0;
@@ -36,14 +39,41 @@
         &:hover {
             background: transparent;
         }
-    }
 
-    .btn {
+        .summary-item__content {
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .summary-item__label {
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-gray-500;
+        }
+
+        .summary-item__value {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color-gray-900;
+        }
+    }
+}
+
+.summary-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    &__action.btn {
         display: flex;
         align-items: center;
         gap: 6px;
         flex-shrink: 0;
         white-space: nowrap;
+        margin-left: auto;
 
         ::ng-deep .material-symbols-rounded {
             font-size: 18px;
@@ -51,10 +81,47 @@
     }
 }
 
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
+.summary-stats {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+}
+
+.summary-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: $color-gray-50;
+    border: 1px solid $color-gray-200;
+    line-height: 1.4;
+    transition: background 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+        background: $color-gray-100;
+    }
+
+    &__number {
+        font-size: 14px;
+        font-weight: 500;
+        color: $color-gray-900;
+        line-height: 1.4;
+
+        &--green { color: $color-green-600; }
+        &--orange { color: #f97316; }
+        &--red { color: $color-red-500; }
+    }
+
+    &__label {
+        font-size: 13px;
+        font-weight: 500;
+        color: $color-gray-500;
+        white-space: nowrap;
+        line-height: 1.4;
+    }
 }
 
 .summary-item {
@@ -123,13 +190,13 @@
 
     &__label {
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 500;
         color: $color-gray-500;
     }
 
     &__value {
         font-size: 14px;
-        font-weight: 700;
+        font-weight: 600;
         color: $color-gray-900;
         line-height: 1.3;
         word-break: break-word;
@@ -168,14 +235,14 @@
 .enter-id-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-bottom: 1px solid $color-gray-200;
+    gap: 8px;
+    padding: 8px 16px;
+    background: $color-primary-50;
+    border-top: 1px solid $color-gray-200;
     transition: border-color 0.2s ease, background 0.2s ease;
 
     &:focus-within {
-        border-color: $color-primary-400;
-        background: $color-primary-50;
+        border-top-color: $color-primary-400;
     }
 
     &__icon {
@@ -183,7 +250,7 @@
         color: $color-gray-500;
 
         ::ng-deep .material-symbols-rounded {
-            font-size: 24px;
+            font-size: 20px;
         }
     }
 
@@ -192,14 +259,18 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        width: 28px;
+        height: 28px;
         border: 1px solid $color-gray-300;
         background: #fff;
-        border-radius: 6px;
+        border-radius: 5px;
         color: $color-gray-600;
         cursor: pointer;
         transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+        ::ng-deep .material-symbols-rounded {
+            font-size: 16px;
+        }
 
         &:hover:not(:disabled) {
             background: $color-primary-50;
@@ -215,8 +286,8 @@
 
     &__input {
         flex: 1;
-        padding: 8px 0;
-        font-size: 15px;
+        padding: 4px 0;
+        font-size: 13px;
         font-weight: 500;
         color: $color-gray-900;
         border: none;
@@ -283,12 +354,16 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 1px 3px $shadow-color-weak;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 
     &__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px;
+        padding: 6px 12px;
         border-bottom: 1px solid $color-gray-200;
     }
 
@@ -313,14 +388,92 @@
         color: $color-gray-500;
     }
 
+    &__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-left: auto;
+    }
+
+    &__search {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 280px;
+        max-width: 50%;
+        background: $color-white;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+        padding: 0 8px 0 32px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:focus-within {
+            border-color: $color-primary-400;
+            box-shadow: 0 0 0 3px rgba($color-primary-500, 0.12);
+        }
+
+        &-icon {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $color-gray-500;
+            display: inline-flex;
+        }
+
+        &-input {
+            flex: 1;
+            min-width: 0;
+            height: 32px;
+            border: 0;
+            background: transparent;
+            font-size: 13px;
+            color: $color-gray-900;
+            outline: none;
+
+            &::placeholder { color: $color-gray-400; }
+        }
+
+        &-clear {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: 0;
+            color: $color-gray-500;
+            cursor: pointer;
+            border-radius: 4px;
+
+            &:hover { color: $color-gray-900; background: $color-gray-100; }
+        }
+    }
+
     .table-container {
         border: none;
         border-radius: 0;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
     }
 
     .table {
         table-layout: fixed;
         width: 100%;
+
+        thead th {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        tbody td {
+            padding: 6px 12px;
+            font-size: 13px;
+            line-height: 1.35;
+            vertical-align: middle;
+        }
     }
 }
 
@@ -381,9 +534,9 @@
 
 // Volunteer image
 .volunteer-image {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     overflow: hidden;
     flex-shrink: 0;
     border: 1px solid $color-gray-100;
@@ -427,22 +580,28 @@
 .action-btns {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 6px;
+}
+
+.action-th,
+.action-cell {
+    text-align: right !important;
 }
 
 .btn-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
     transition: all 0.15s ease;
 
     ::ng-deep .material-symbols-rounded {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     &--view {
@@ -819,19 +978,23 @@
 // Responsive
 // ========================================
 @media (max-width: 1200px) {
-    .summary-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .summary-stats {
+        gap: 16px;
     }
 }
 
 @media (max-width: 768px) {
-    .summary-top {
+    .summary-row {
         flex-direction: column;
         align-items: flex-start;
+
+        &__action.btn {
+            margin-left: 0;
+        }
     }
 
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .summary-stats {
+        gap: 18px;
     }
 
     .enter-id-row {
@@ -840,8 +1003,10 @@
 }
 
 @media (max-width: 480px) {
-    .summary-grid {
-        grid-template-columns: 1fr;
+    .summary-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 
     .enter-id-row {
@@ -851,5 +1016,71 @@
         .enter-id-row__btn {
             justify-content: center;
         }
+    }
+}
+
+// ========================================
+// Print: show only the listing table
+// ========================================
+@media print {
+    :host ::ng-deep app-header,
+    :host ::ng-deep app-loading,
+    :host ::ng-deep .app-sidebar,
+    :host ::ng-deep .header,
+    :host ::ng-deep .breadcrumb {
+        display: none !important;
+    }
+
+    .summary-section,
+    .error-state,
+    .table-section__header,
+    .action-th,
+    .action-cell {
+        display: none !important;
+    }
+
+    .attendance-detail-container {
+        display: block;
+        gap: 0;
+        padding: 0;
+        min-height: auto;
+    }
+
+    .table-section {
+        flex: none;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .table-container {
+        flex: none;
+        overflow: visible;
+        border: 0;
+    }
+
+    .table {
+        page-break-inside: auto;
+        thead { display: table-header-group; }
+        tr { page-break-inside: avoid; }
+
+        thead th,
+        tbody td {
+            color: #000 !important;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+    }
+
+    .editable-cell .editable-text {
+        color: #000 !important;
+    }
+
+    .status-badge {
+        background: transparent !important;
+        color: #000 !important;
+        border: 0 !important;
+        padding: 0 !important;
     }
 }
