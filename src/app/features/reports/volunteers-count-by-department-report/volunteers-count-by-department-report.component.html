@@ -1,0 +1,140 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--two">
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="branchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Programs</label>
+                <app-dropdown
+                    [options]="programOptions"
+                    [selectedValues]="selectedPrograms"
+                    placeholder=""
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    [multiSelect]="true"
+                    (selectionChange)="selectedPrograms = $event"
+                    [closeOnSelect]="false">
+                </app-dropdown>
+            </div>
+        </div>
+        <div class="filter-actions-row">
+            <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Filter</button>
+            <button class="btn btn--outline btn--sm" type="button" (click)="resetFilters()">Reset</button>
+            <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+            <button class="btn btn--outline btn--sm" type="button" (click)="loadReport()">
+                <app-icon name="refresh" [size]="14" /> Reload
+            </button>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!error">
+        <div class="listing-wrapper">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" (click)="sortBy('sewaName')">
+                                <span class="th-content">
+                                    Sewa Name
+                                    <app-icon
+                                        [name]="sortField === 'sewaName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'sewaName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                        class="sort-icon"
+                                        [class.sort-icon--active]="sortField === 'sewaName'" />
+                                </span>
+                            </th>
+                            <th class="sortable" (click)="sortBy('present')">
+                                <span class="th-content">
+                                    Present
+                                    <app-icon
+                                        [name]="sortField === 'present' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'present' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                        class="sort-icon"
+                                        [class.sort-icon--active]="sortField === 'present'" />
+                                </span>
+                            </th>
+                            <th class="sortable" (click)="sortBy('absent')">
+                                <span class="th-content">
+                                    Absent
+                                    <app-icon
+                                        [name]="sortField === 'absent' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'absent' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                        class="sort-icon"
+                                        [class.sort-icon--active]="sortField === 'absent'" />
+                                </span>
+                            </th>
+                            <th class="sortable" (click)="sortBy('onLeave')">
+                                <span class="th-content">
+                                    On Leave
+                                    <app-icon
+                                        [name]="sortField === 'onLeave' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'onLeave' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                        class="sort-icon"
+                                        [class.sort-icon--active]="sortField === 'onLeave'" />
+                                </span>
+                            </th>
+                            <th class="sortable" (click)="sortBy('total')">
+                                <span class="th-content">
+                                    Total
+                                    <app-icon
+                                        [name]="sortField === 'total' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'total' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                        class="sort-icon"
+                                        [class.sort-icon--active]="sortField === 'total'" />
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of rows; trackBy: trackById">
+                            <td data-label="Sewa Name">{{ row.sewaName }}</td>
+                            <td data-label="Present">{{ row.present }}</td>
+                            <td data-label="Absent">{{ row.absent }}</td>
+                            <td data-label="On Leave">{{ row.onLeave }}</td>
+                            <td data-label="Total">{{ row.total }}</td>
+                        </tr>
+                        <tr *ngIf="rows.length === 0" class="empty-row">
+                            <td colspan="5">
+                                <app-empty-state
+                                    title="No data available in table"
+                                    description="There are no volunteer counts matching the selected filters."
+                                    [size]="'small'">
+                                </app-empty-state>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="totals-row">
+                            <td class="totals-label">Total Volunteers:</td>
+                            <td>{{ totals.present }}</td>
+                            <td>{{ totals.absent }}</td>
+                            <td>{{ totals.onLeave }}</td>
+                            <td>{{ totals.total }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <app-pager
+                [total]="totalItems"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)">
+            </app-pager>
+        </div>
+    </ng-container>
+</div>

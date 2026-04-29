@@ -91,7 +91,7 @@
                     <div class="sewa-panel__title">
                         <h4>{{ activeSewa.sewaName }}</h4>
                         <input type="text" class="sewa-nav__search-input" placeholder="Search volunteer..."
-                            [(ngModel)]="volunteerSearchTerm" (ngModelChange)="onVolunteerSearchChange()" [ngModelOptions]="{ standalone: true }" />
+                            [(ngModel)]="volunteerSearchTerm" (keyup.enter)="onVolunteerSearchSubmit()" [ngModelOptions]="{ standalone: true }" />
                     </div>
                     <div class="sewa-list__scroll">
                         <div *ngIf="isLoadingVolunteers" class="loading-cell">

@@ -45,9 +45,11 @@ export class FileUploadComponent {
   imagePreviews: Map<File, string> = new Map();
 
   onBrowseClick(event: MouseEvent): void {
+    // Always stop propagation so the bubbled click doesn't also trigger
+    // drop-zone-inner's openFileDialog (which would re-open the picker).
+    event.stopPropagation();
     if (!this.allowBrowse) {
       event.preventDefault();
-      event.stopPropagation();
       this.browseRequested.emit();
     }
   }

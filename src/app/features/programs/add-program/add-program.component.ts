@@ -2,10 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -17,10 +16,8 @@ import { of } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterModule,
-    BreadcrumbComponent,
     DropdownComponent,
-    DatepickerComponent,
-    LoadingComponent
+    DatepickerComponent
   ],
   templateUrl: './add-program.component.html',
   styleUrls: ['./add-program.component.scss']
@@ -49,8 +46,9 @@ export class AddProgramComponent implements OnInit {
   chooseSewa: string[] = [];
   startDateTime: Date | null = null;
   endDateTime: Date | null = null;
+  repeatEndDate: Date | null = null;
   status = 'Active';
-  repeats = 'Once';
+  repeats = 'once';
   remarks = '';
 
   isSubmitting = false;
@@ -69,11 +67,9 @@ export class AddProgramComponent implements OnInit {
   ];
 
   readonly repeatsOptions: DropdownOption[] = [
-    { id: '1', label: 'Once', value: 'Once' },
-    { id: '2', label: 'Daily', value: 'Daily' },
-    { id: '3', label: 'Weekly', value: 'Weekly' },
-    { id: '4', label: 'Monthly', value: 'Monthly' },
-    { id: '5', label: 'Yearly', value: 'Yearly' }
+    { id: '1', label: 'Once', value: 'once' },
+    { id: '2', label: 'Weekly', value: 'weekly' },
+    { id: '3', label: 'Monthly', value: 'monthly' }
   ];
 
   ngOnInit(): void {
@@ -95,7 +91,7 @@ export class AddProgramComponent implements OnInit {
 
   private loadDropdownOptions(): void {
     let optionsLoaded = 0;
-    const totalOptions = 4;
+    const totalOptions = 5;
 
     const checkAndLoadDuplicate = () => {
       optionsLoaded++;
@@ -106,6 +102,18 @@ export class AddProgramComponent implements OnInit {
         }
       }
     };
+
+    this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'Volunteer' } }).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || response || [];
+      this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: String(s.id)
+      }));
+      checkAndLoadDuplicate();
+    });
 
     this.dataService.get<any>('v1/options/branches').pipe(
       catchError(() => of({ data: [] }))
@@ -158,7 +166,7 @@ export class AddProgramComponent implements OnInit {
 
   private loadDuplicateData(programId: string): void {
     this.isLoading = true;
-    this.dataService.get<any>(`v1/programs/${programId}`).pipe(
+    this.dataService.get<any>(`v1/programs/${programId}`, { params: { actionType: 'edit' } }).pipe(
       catchError((err) => {
         console.error('Error loading program for duplication:', err);
         return of(null);
@@ -176,31 +184,16 @@ export class AddProgramComponent implements OnInit {
       this.chooseSewa = Array.isArray(data.program_sewas)
         ? data.program_sewas.map((s: any) => String(s.sewa_id || s.sewa?.id)).filter(Boolean)
         : [];
-      if (data.id) {
-        this.loadSewaOptions(String(data.id));
-      }
       this.startDateTime = data.start_date_time ? new Date(data.start_date_time) : null;
       this.endDateTime = data.end_date_time ? new Date(data.end_date_time) : null;
       this.status = data.status === 1 ? 'Active' : (data.status === 2 ? 'Inactive' : (data.status || 'Active'));
-      this.repeats = data.repeats || 'Once';
+      this.repeats = (data.repeats || 'once').toLowerCase();
+      this.repeatEndDate = data.repeat_ends ? new Date(data.repeat_ends) : null;
       this.remarks = data.remarks || '';
     });
   }
 
-  private loadSewaOptions(programId: string): void {
-    this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
-      catchError(() => of({ data: [] }))
-    ).subscribe((response) => {
-      const data = response.data || response || [];
-      this.sewaOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
-        id: String(item.id),
-        label: item.name,
-        value: String(item.id)
-      }));
-    });
-  }
-
-  get isFormValid(): boolean {
+get isFormValid(): boolean {
     return !!(
       this.name.trim() &&
       this.programCoordinator &&
@@ -209,8 +202,13 @@ export class AddProgramComponent implements OnInit {
       this.branch &&
       this.chooseSewa.length > 0 &&
       this.startDateTime &&
-      this.endDateTime
+      this.endDateTime &&
+      (!this.isRecurring || this.repeatEndDate)
     );
+  }
+
+  get isRecurring(): boolean {
+    return this.repeats === 'weekly' || this.repeats === 'monthly';
   }
 
   onSubmit(): void {
@@ -229,6 +227,7 @@ export class AddProgramComponent implements OnInit {
       end_date_time: this.formatDateOnly(this.endDateTime),
       status: this.status === 'Active' ? 1 : 2,
       repeats: this.repeats,
+      repeat_ends: this.isRecurring ? this.formatDateOnly(this.repeatEndDate) : null,
       remarks: this.remarks.trim()
     };
 
@@ -236,7 +235,7 @@ export class AddProgramComponent implements OnInit {
       ? this.dataService.put(`v1/programs/${this.editProgramId}`, payload)
       : (this.duplicateFromId
         ? this.dataService.post(`v1/programs/duplicate/${this.duplicateFromId}`, payload)
-        : this.dataService.post('v1/programs', payload));
+        : this.dataService.post('v1/programs/store', payload));
 
     apiCall.pipe(
       catchError((err) => {
@@ -290,13 +289,53 @@ export class AddProgramComponent implements OnInit {
 
   onRepeatsChange(values: any[] | null): void {
     if (values && values.length > 0) this.repeats = values[0];
+    if (!this.isRecurring) {
+      this.repeatEndDate = null;
+    }
   }
 
   onStartDateTimeChange(date: Date | null): void {
     this.startDateTime = date;
+    if (date && this.endDateTime && this.endDateTime < date) {
+      this.endDateTime = null;
+    }
+    if (this.endDateTime && this.repeatEndDate && this.repeatEndDate < this.endDateTime) {
+      this.repeatEndDate = null;
+    }
   }
 
   onEndDateTimeChange(date: Date | null): void {
     this.endDateTime = date;
+    if (date && this.repeatEndDate && this.repeatEndDate < date) {
+      this.repeatEndDate = null;
+    }
+  }
+
+  onRepeatEndDateChange(date: Date | null): void {
+    this.repeatEndDate = date;
+  }
+
+  get today(): Date {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  get endDateMin(): Date {
+    if (this.startDateTime) {
+      const d = new Date(this.startDateTime);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+    return this.today;
+  }
+
+  get repeatEndDateMin(): Date {
+    if (this.endDateTime) {
+      const d = new Date(this.endDateTime);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+    return this.endDateMin;
   }
 }

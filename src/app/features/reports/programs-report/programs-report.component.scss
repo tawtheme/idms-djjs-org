@@ -1,0 +1,10 @@
+@use '../report-listing' as r;
+
+@include r.report-listing('.reports');
+
+.field-error {
+    margin-top: 4px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+}

@@ -1,0 +1,226 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--six">
+            <div class="filter-field">
+                <label>Task Branch <span class="required">*</span></label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    [closeOnSelect]="true"
+                    (selectionChange)="selectedTaskBranch = $event; taskBranchError = null">
+                </app-dropdown>
+                <div *ngIf="taskBranchError" class="field-error">{{ taskBranchError }}</div>
+            </div>
+            <div class="filter-field">
+                <label>Branch Search Type</label>
+                <app-dropdown
+                    [options]="branchSearchTypeOptions"
+                    [selectedValues]="selectedBranchSearchType"
+                    placeholder="Select Branch Search Type"
+                    [closeOnSelect]="true"
+                    (selectionChange)="selectedBranchSearchType = $event">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewas</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="selectedSewa"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    [closeOnSelect]="true"
+                    (selectionChange)="selectedSewa = $event">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Corresponding Branch</label>
+                <app-dropdown
+                    [options]="correspondingBranchOptions"
+                    [selectedValues]="selectedCorrespondingBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    [closeOnSelect]="true"
+                    (selectionChange)="selectedCorrespondingBranch = $event">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewa Allocated</label>
+                <app-dropdown
+                    [options]="sewaAllocatedOptions"
+                    [selectedValues]="selectedSewaAllocated"
+                    placeholder="None"
+                    [closeOnSelect]="true"
+                    (selectionChange)="selectedSewaAllocated = $event">
+                </app-dropdown>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-wrapper">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <!-- Error state -->
+        <div *ngIf="error" class="error-state">
+            <p>{{ error }}</p>
+            <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="!error">
+            <!-- Reports Table -->
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('id')">
+                                    <span class="th-content">
+                                        Id
+                                        <app-icon
+                                            [name]="sortField === 'id' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'id' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'id'" />
+                                    </span>
+                                </th>
+                                <th>Image</th>
+                                <th class="sortable" (click)="sortBy('userName')">
+                                    <span class="th-content">
+                                        User Name
+                                        <app-icon
+                                            [name]="sortField === 'userName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'userName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'userName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('fatherName')">
+                                    <span class="th-content">
+                                        Father Name
+                                        <app-icon
+                                            [name]="sortField === 'fatherName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'fatherName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'fatherName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('motherName')">
+                                    <span class="th-content">
+                                        Mother Name
+                                        <app-icon
+                                            [name]="sortField === 'motherName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'motherName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'motherName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('spouseName')">
+                                    <span class="th-content">
+                                        Spouse Name
+                                        <app-icon
+                                            [name]="sortField === 'spouseName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'spouseName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'spouseName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('phone')">
+                                    <span class="th-content">
+                                        Phone
+                                        <app-icon
+                                            [name]="sortField === 'phone' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'phone' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'phone'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('sewa')">
+                                    <span class="th-content">
+                                        Sewa
+                                        <app-icon
+                                            [name]="sortField === 'sewa' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'sewa' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'sewa'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('taskBranch')">
+                                    <span class="th-content">
+                                        Task Branch
+                                        <app-icon
+                                            [name]="sortField === 'taskBranch' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'taskBranch' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'taskBranch'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('correspondingBranch')">
+                                    <span class="th-content">
+                                        Corresponding Branch
+                                        <app-icon
+                                            [name]="sortField === 'correspondingBranch' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'correspondingBranch' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'correspondingBranch'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('badgeId')">
+                                    <span class="th-content">
+                                        Badge Id
+                                        <app-icon
+                                            [name]="sortField === 'badgeId' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'badgeId' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'badgeId'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Id">{{ row.id }}</td>
+                                <td data-label="Image">
+                                    <img *ngIf="row.image" [src]="row.image" alt="" class="row-avatar" />
+                                    <span *ngIf="!row.image" class="row-avatar row-avatar--placeholder"></span>
+                                </td>
+                                <td data-label="User Name">{{ row.userName }}</td>
+                                <td data-label="Father Name">{{ row.fatherName }}</td>
+                                <td data-label="Mother Name">{{ row.motherName }}</td>
+                                <td data-label="Spouse Name">{{ row.spouseName }}</td>
+                                <td data-label="Phone">{{ row.phone }}</td>
+                                <td data-label="Sewa">{{ row.sewa }}</td>
+                                <td data-label="Task Branch">{{ row.taskBranch }}</td>
+                                <td data-label="Corresponding Branch">{{ row.correspondingBranch }}</td>
+                                <td data-label="Badge Id">{{ row.badgeId }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="11">
+                                    <app-empty-state
+                                        title="No data available in table"
+                                        description="There are no volunteers matching the selected filters."
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

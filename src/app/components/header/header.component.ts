@@ -30,10 +30,20 @@ export class HeaderComponent {
   @Input() breadcrumbs: { label: string; route?: string }[] = [];
   @Output() navigateTo = new EventEmitter<string>();
   @Output() closePage = new EventEmitter<void>();
+  @Output() sidenavToggle = new EventEmitter<void>();
 
   @ViewChild('headerElement', { static: false }) headerElement!: ElementRef<HTMLElement>;
 
   isMenuOpen = false;
+
+  quickTiles: MenuGroupItem[] = [
+    { label: 'Add Visitor', icon: 'people', route: '/visitors/create' },
+    { label: 'Attendance', icon: 'checklist', route: '/programs/attendances' },
+    { label: 'Volunteer Cards', icon: 'badge', route: '/volunteer-cards' },
+    { label: 'Sewa Volunteer', icon: 'people', route: '/programs/sewa-volunteers' },
+    { label: 'Allocate Sewa', icon: 'assignment', route: '/sewa/allocate-sewa' },
+    { label: 'Programs', icon: 'event', route: '/programs/programs-list' }
+  ];
 
   menuGroups: MenuGroup[] = [
     {
@@ -80,6 +90,21 @@ export class HeaderComponent {
       ]
     },
     {
+      title: 'Reports',
+      items: [
+        { label: 'Programs List', icon: 'assessment', route: '/reports/programs' },
+        { label: 'Volunteers List Branch/Sewa Wise', icon: 'group', route: '/reports/volunteers-branch-sewa' },
+        { label: 'Consecutive Absentees', icon: 'person_remove', route: '/reports/consecutive-absentees' },
+        { label: 'Cards Returned/Not Returned', icon: 'badge', route: '/reports/cards-returned' },
+        { label: 'Donation Department Wise', icon: 'volunteer_activism', route: '/reports/donation-dept-wise' },
+        { label: 'Volunteers List Skill Wise', icon: 'engineering', route: '/reports/volunteers-skills' },
+        { label: 'Sewa Issued', icon: 'assignment_turned_in', route: '/reports/sewa-issued' },
+        { label: 'Head/Subhead Volunteers', icon: 'supervisor_account', route: '/reports/head-subhead-volunteers' },
+        { label: 'Volunteers Attendance', icon: 'checklist', route: '/reports/volunteers-attendance' },
+        { label: 'Volunteers Count by Department', icon: 'pie_chart', route: '/reports/volunteers-count-by-department' }
+      ]
+    },
+    {
       title: 'Manage Branches',
       items: [
         { label: 'Listing', icon: 'account_tree', route: '/branches' },
@@ -120,6 +145,20 @@ export class HeaderComponent {
 
   closeMenu(): void {
     this.isMenuOpen = false;
+  }
+
+  onMenuButtonClick(): void {
+    this.sidenavToggle.emit();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.toggleMenu();
+    } else if (event.key === 'Escape' && this.isMenuOpen) {
+      this.closeMenu();
+    }
   }
 
   onMenuItemClick(item: MenuGroupItem): void {

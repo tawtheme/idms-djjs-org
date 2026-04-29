@@ -101,23 +101,24 @@
 
                         <section class="ve-section">
                             <div class="ve-section__head"><h3>Profile Image</h3></div>
-                            <div class="form-grid">
-                                <div class="form-field" *ngIf="!profileImagePreview">
-                                    <label>Upload Method</label>
-                                    <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
-                                </div>
-                                <div class="form-field" *ngIf="profileImagePreview">
-                                    <label>Profile Image</label>
-                                    <div class="profile-image-preview">
-                                        <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-                                        <div class="profile-image-meta">
-                                            <div class="profile-image-date" *ngIf="profileImageDate">Uploaded on: <strong>{{ profileImageDate }}</strong></div>
-                                            <div class="profile-image-actions">
-                                                <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isSaving">Change</button>
-                                                <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isSaving">Remove</button>
-                                            </div>
+                            <div class="profile-image-section">
+                                <div class="profile-image-list" *ngIf="profileImages.length > 0">
+                                    <div class="profile-image-row" *ngFor="let img of profileImages">
+                                        <div class="profile-image-thumb">
+                                            <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                 alt="Profile image"
+                                                 onerror="this.src='/assets/img/placeholder.svg'" />
                                         </div>
+                                        <div class="profile-image-meta">
+                                            <label>Upload date</label>
+                                            <input type="text" class="form-control" [value]="img.date || '-'" readonly />
+                                        </div>
+                                        <button type="button" class="btn btn--danger btn--sm" (click)="deleteProfileImage(img)" [disabled]="isSaving">Delete</button>
                                     </div>
+                                </div>
+                                <div class="profile-image-actions">
+                                    <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageUpload()" [disabled]="isSaving">Upload Profile Image</button>
+                                    <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageCapture()" [disabled]="isSaving">Capture Live Profile Image</button>
                                 </div>
                             </div>
                         </section>
@@ -125,34 +126,6 @@
 
                     <!-- Address Details -->
                     <ng-container *ngIf="activeTab === 'address'">
-                        <section class="ve-section">
-                            <div class="ve-section__head">
-                                <h3>Permanent Address</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent'">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
-                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
-                                <div class="form-field">
-                                    <label>Country</label>
-                                    <app-dropdown [options]="countryOptions" [selectedValues]="permanent.country ? [permanent.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('permanent', $event[0] || '')"></app-dropdown>
-                                </div>
-                                <div class="form-field">
-                                    <label>State</label>
-                                    <app-dropdown [options]="permStateOptions" [selectedValues]="permanent.state ? [permanent.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('permanent', $event[0] || '')"></app-dropdown>
-                                </div>
-                                <div class="form-field">
-                                    <label>District</label>
-                                    <app-dropdown [options]="permDistrictOptions" [selectedValues]="permanent.district ? [permanent.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('permanent', $event[0] || '')"></app-dropdown>
-                                </div>
-                                <div class="form-field">
-                                    <label>City</label>
-                                    <app-dropdown [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></app-dropdown>
-                                </div>
-                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"></div>
-                            </div>
-                        </section>
-
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Correspondence Address</h3>
@@ -194,6 +167,34 @@
                                     <label>Home Branch</label>
                                     <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.home_branch ? [correspondence.home_branch] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.home_branch = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section class="ve-section" *ngIf="!copyAddress">
+                            <div class="ve-section__head">
+                                <h3>Permanent Address</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent'">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Country</label>
+                                    <app-dropdown [options]="countryOptions" [selectedValues]="permanent.country ? [permanent.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>State</label>
+                                    <app-dropdown [options]="permStateOptions" [selectedValues]="permanent.state ? [permanent.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>District</label>
+                                    <app-dropdown [options]="permDistrictOptions" [selectedValues]="permanent.district ? [permanent.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>City</label>
+                                    <app-dropdown [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></app-dropdown>
+                                </div>
+                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"></div>
                             </div>
                         </section>
                     </ng-container>
@@ -338,12 +339,21 @@
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Aadhaar Number</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.aadhaar.number" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="12">
+                                    <label>Aadhaar Number <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="aadhaarErrors.number"
+                                        [(ngModel)]="idProofs.aadhaar.number"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="aadhaarErrors.number = ''"
+                                        inputmode="numeric" maxlength="12">
+                                    <div class="field-error" *ngIf="aadhaarErrors.number">{{ aadhaarErrors.number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Name</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.aadhaar.name" [ngModelOptions]="{ standalone: true }">
+                                    <label>Name <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="aadhaarErrors.name"
+                                        [(ngModel)]="idProofs.aadhaar.name"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="aadhaarErrors.name = ''">
+                                    <div class="field-error" *ngIf="aadhaarErrors.name">{{ aadhaarErrors.name }}</div>
                                 </div>
                                 <div class="form-field">
                                     <label>Home Reason</label>
@@ -355,13 +365,26 @@
                                 </div>
                                 <div class="form-field form-field--full">
                                     <label>Aadhaar Document</label>
-                                    <div class="id-proof-upload">
-                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('aadhaar')" [disabled]="isSaving">
-                                            {{ idProofs.aadhaar.preview ? 'Change Document' : 'Add New Aadhaar Document' }}
-                                        </button>
-                                        <div class="id-proof-preview" *ngIf="idProofs.aadhaar.preview">
-                                            <img [src]="idProofs.aadhaar.preview" alt="Aadhaar preview" class="profile-thumb" />
-                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('aadhaar')" [disabled]="isSaving">Remove</button>
+                                    <div class="profile-image-section">
+                                        <div class="thumb-grid" *ngIf="aadhaarImages.length > 0 || idProofs.aadhaar.previews.length > 0">
+                                            <div class="thumb-tile" *ngFor="let img of aadhaarImages">
+                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                     alt="Aadhaar document"
+                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <button type="button" class="thumb-tile__delete" (click)="deleteAadhaarImage(img)" [disabled]="isSaving" aria-label="Delete">
+                                                    <app-icon name="delete" />
+                                                </button>
+                                            </div>
+                                            <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.aadhaar.previews; let i = index">
+                                                <img [src]="p" alt="Aadhaar preview (new)" />
+                                                <button type="button" class="thumb-tile__delete" (click)="removeAadhaarPreview(i)" [disabled]="isSaving" aria-label="Remove">
+                                                    <app-icon name="close" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="profile-image-actions">
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageUpload()" [disabled]="isSaving">Upload Aadhaar Document</button>
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageCapture()" [disabled]="isSaving">Capture Live Aadhaar Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -375,12 +398,20 @@
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Voter Number</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.voter.voter_number" [ngModelOptions]="{ standalone: true }">
+                                    <label>Voter Number <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="voterErrors.voter_number"
+                                        [(ngModel)]="idProofs.voter.voter_number"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="voterErrors.voter_number = ''">
+                                    <div class="field-error" *ngIf="voterErrors.voter_number">{{ voterErrors.voter_number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Name</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.voter.name" [ngModelOptions]="{ standalone: true }">
+                                    <label>Name <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="voterErrors.name"
+                                        [(ngModel)]="idProofs.voter.name"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="voterErrors.name = ''">
+                                    <div class="field-error" *ngIf="voterErrors.name">{{ voterErrors.name }}</div>
                                 </div>
                                 <div class="form-field">
                                     <label>Part Number</label>
@@ -390,7 +421,7 @@
                                     <label>Serial Number</label>
                                     <input class="form-control" [(ngModel)]="idProofs.voter.serial_number" [ngModelOptions]="{ standalone: true }">
                                 </div>
-                                <div class="form-field">
+                                <!-- <div class="form-field">
                                     <label>Voter Address</label>
                                     <app-dropdown
                                         [options]="[
@@ -401,32 +432,45 @@
                                         placeholder="Select Address"
                                         (selectionChange)="idProofs.voter.address = ($event[0] || '')"
                                         [closeOnSelect]="true"></app-dropdown>
-                                </div>
+                                </div> -->
                                 <div class="form-field">
                                     <label>Home Reason</label>
-                                    <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                    <app-dropdown [options]="voterHomeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
                                 </div>
                                 <div class="form-field">
                                     <label>Mobile Linked</label>
                                     <input type="tel" class="form-control" [(ngModel)]="idProofs.voter.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                 </div>
-                                <div class="form-field">
+                                <!-- <div class="form-field">
                                     <label>Ashram Voter Area</label>
                                     <input class="form-control" [(ngModel)]="idProofs.voter.ashram_voter_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Voter Area ID">
-                                </div>
+                                </div> -->
                                 <div class="form-field form-field--full">
                                     <label>Voter Remarks</label>
                                     <textarea class="form-control" rows="3" [(ngModel)]="idProofs.voter.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
                                 </div>
                                 <div class="form-field form-field--full">
                                     <label>Electoral Document</label>
-                                    <div class="id-proof-upload">
-                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('voter')" [disabled]="isSaving">
-                                            {{ idProofs.voter.preview ? 'Change Document' : 'Add New Electoral Document' }}
-                                        </button>
-                                        <div class="id-proof-preview" *ngIf="idProofs.voter.preview">
-                                            <img [src]="idProofs.voter.preview" alt="Voter ID preview" class="profile-thumb" />
-                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('voter')" [disabled]="isSaving">Remove</button>
+                                    <div class="profile-image-section">
+                                        <div class="thumb-grid" *ngIf="voterImages.length > 0 || idProofs.voter.previews.length > 0">
+                                            <div class="thumb-tile" *ngFor="let img of voterImages">
+                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                     alt="Electoral document"
+                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <button type="button" class="thumb-tile__delete" (click)="deleteVoterImage(img)" [disabled]="isSaving" aria-label="Delete">
+                                                    <app-icon name="delete" />
+                                                </button>
+                                            </div>
+                                            <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.voter.previews; let i = index">
+                                                <img [src]="p" alt="Electoral preview (new)" />
+                                                <button type="button" class="thumb-tile__delete" (click)="removeVoterPreview(i)" [disabled]="isSaving" aria-label="Remove">
+                                                    <app-icon name="close" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="profile-image-actions">
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerVoterImageUpload()" [disabled]="isSaving">Upload Electoral Document</button>
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerVoterImageCapture()" [disabled]="isSaving">Capture Live Electoral Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -440,25 +484,42 @@
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>License Number</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.license.license_number" [ngModelOptions]="{ standalone: true }">
+                                    <label>License Number <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="licenseErrors.license_number"
+                                        [(ngModel)]="idProofs.license.license_number"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="licenseErrors.license_number = ''">
+                                    <div class="field-error" *ngIf="licenseErrors.license_number">{{ licenseErrors.license_number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>License Holder Name</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.license.holder_name" [ngModelOptions]="{ standalone: true }">
+                                    <label>License Holder Name <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="licenseErrors.holder_name"
+                                        [(ngModel)]="idProofs.license.holder_name"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="licenseErrors.holder_name = ''">
+                                    <div class="field-error" *ngIf="licenseErrors.holder_name">{{ licenseErrors.holder_name }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>State</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.license.state" [ngModelOptions]="{ standalone: true }">
+                                    <label>State <span class="required">*</span></label>
+                                    <app-dropdown
+                                        [options]="licenseStateOptions"
+                                        [selectedValues]="idProofs.license.state ? [idProofs.license.state] : []"
+                                        placeholder="Select State"
+                                        [searchable]="true"
+                                        [autocomplete]="true"
+                                        [closeOnSelect]="true"
+                                        (selectionChange)="idProofs.license.state = ($event[0] || ''); licenseErrors.state = ''"></app-dropdown>
+                                    <div class="field-error" *ngIf="licenseErrors.state">{{ licenseErrors.state }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>License Type</label>
+                                    <label>License Type <span class="required">*</span></label>
                                     <app-dropdown
                                         [options]="licenseTypeOptions"
                                         [selectedValues]="idProofs.license.license_type ? [idProofs.license.license_type] : []"
                                         placeholder="Select License Type"
-                                        (selectionChange)="idProofs.license.license_type = ($event[0] || '')"
+                                        (selectionChange)="idProofs.license.license_type = ($event[0] || ''); licenseErrors.license_type = ''"
                                         [closeOnSelect]="true"></app-dropdown>
+                                    <div class="field-error" *ngIf="licenseErrors.license_type">{{ licenseErrors.license_type }}</div>
                                 </div>
                                 <div class="form-field">
                                     <label>Date of Issue</label>
@@ -470,13 +531,26 @@
                                 </div>
                                 <div class="form-field form-field--full">
                                     <label>License Document</label>
-                                    <div class="id-proof-upload">
-                                        <button type="button" class="btn btn--secondary btn--sm" (click)="openIdProofModal('license')" [disabled]="isSaving">
-                                            {{ idProofs.license.preview ? 'Change Document' : 'Add New License Document' }}
-                                        </button>
-                                        <div class="id-proof-preview" *ngIf="idProofs.license.preview">
-                                            <img [src]="idProofs.license.preview" alt="License preview" class="profile-thumb" />
-                                            <button type="button" class="btn btn--secondary btn--sm" (click)="removeIdProof('license')" [disabled]="isSaving">Remove</button>
+                                    <div class="profile-image-section">
+                                        <div class="thumb-grid" *ngIf="licenseImages.length > 0 || idProofs.license.previews.length > 0">
+                                            <div class="thumb-tile" *ngFor="let img of licenseImages">
+                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                     alt="License document"
+                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <button type="button" class="thumb-tile__delete" (click)="deleteLicenseImage(img)" [disabled]="isSaving" aria-label="Delete">
+                                                    <app-icon name="delete" />
+                                                </button>
+                                            </div>
+                                            <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.license.previews; let i = index">
+                                                <img [src]="p" alt="License preview (new)" />
+                                                <button type="button" class="thumb-tile__delete" (click)="removeLicensePreview(i)" [disabled]="isSaving" aria-label="Remove">
+                                                    <app-icon name="close" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="profile-image-actions">
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerLicenseImageUpload()" [disabled]="isSaving">Upload License Document</button>
+                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerLicenseImageCapture()" [disabled]="isSaving">Capture Live License Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -538,7 +612,12 @@
                                 </div>
                                 <div class="form-field">
                                     <label>Experience Period</label>
-                                    <input class="form-control" [(ngModel)]="work.experience_period" [ngModelOptions]="{ standalone: true }">
+                                    <app-dropdown
+                                        [options]="experiencePeriodOptions"
+                                        [selectedValues]="work.experience_period ? [work.experience_period] : []"
+                                        placeholder="Select Experience Period"
+                                        (selectionChange)="work.experience_period = ($event[0] || '')"
+                                        [closeOnSelect]="true"></app-dropdown>
                                 </div>
                                 <div class="form-field">
                                     <label>Skill</label>
@@ -557,7 +636,10 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Medical Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical'">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
+                                <div class="ve-section__head-actions">
+                                    <button type="button" class="btn btn--secondary btn--sm" (click)="addMedicalHistory()" [disabled]="savingSection === 'medical'">+ Add Medical History</button>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical'">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
+                                </div>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -565,38 +647,59 @@
                                     <app-dropdown [options]="bloodGroupOptions" [selectedValues]="selectedBloodGroup" placeholder="Select Blood Group" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedBloodGroup = $event" [closeOnSelect]="true"></app-dropdown>
                                 </div>
                             </div>
-                        </section>
 
-                        <section class="ve-section" *ngFor="let h of medicalHistories; let i = index">
-                            <div class="ve-section__head">
-                                <h3>Medical History #{{ i + 1 }}</h3>
-                                <button type="button" class="btn btn--secondary btn--sm" (click)="removeMedicalHistory(i)">Delete</button>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-field">
-                                    <label>Major Illness</label>
-                                    <input class="form-control" [(ngModel)]="h.major_illness" [ngModelOptions]="{ standalone: true }">
-                                </div>
-                                <div class="form-field">
-                                    <label>Note</label>
-                                    <input class="form-control" [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }">
-                                </div>
-                                <div class="form-field form-field--full">
-                                    <label>Add Medical Docs</label>
-                                    <app-file-upload [config]="medicalDocsConfig" [disabled]="isSaving" (filesSelected)="onHistoryDocsSelected(i, $event)"></app-file-upload>
-                                    <ul class="docs-list" *ngIf="h.docs.length">
-                                        <li *ngFor="let d of h.docs; let di = index">
-                                            <span>{{ d.name }}</span>
-                                            <button type="button" class="btn-link" (click)="removeHistoryDoc(i, di)">Remove</button>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <div class="medical-histories-table-wrap" *ngIf="medicalHistories.length > 0">
+                                <table class="medical-histories-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-index">#</th>
+                                            <th class="col-illness">Major Illness</th>
+                                            <th class="col-note">Note</th>
+                                            <th class="col-docs">Docs</th>
+                                            <th class="col-action"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let h of medicalHistories; let i = index">
+                                            <td class="col-index">{{ i + 1 }}</td>
+                                            <td class="col-illness">
+                                                <label class="major-illness-toggle">
+                                                    <input type="checkbox"
+                                                        [checked]="h.major_illness == 1 || h.major_illness === true || h.major_illness === '1'"
+                                                        (change)="h.major_illness = $any($event.target).checked ? 1 : 0">
+                                                    <span>Yes</span>
+                                                </label>
+                                            </td>
+                                            <td class="col-note">
+                                                <input class="form-control" [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }" placeholder="Note">
+                                            </td>
+                                            <td class="col-docs">
+                                                <div class="medical-history-row__docs">
+                                                    <button type="button" class="btn btn--secondary btn--sm" (click)="medicalDocInput.click()" [disabled]="isSaving">
+                                                        <app-icon name="upload" /> Upload
+                                                    </button>
+                                                    <input #medicalDocInput type="file" accept="image/*,.pdf" multiple hidden
+                                                        (change)="onMedicalDocsInputChange(i, medicalDocInput)" />
+                                                    <span class="medical-history-row__chips" *ngIf="h.docs.length">
+                                                        <span class="doc-chip" *ngFor="let d of h.docs; let di = index" [title]="d.name">
+                                                            <span class="doc-chip__name">{{ d.name }}</span>
+                                                            <button type="button" class="doc-chip__remove" (click)="removeHistoryDoc(i, di)" aria-label="Remove">
+                                                                <app-icon name="close" />
+                                                            </button>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="col-action">
+                                                <button type="button" class="medical-history-row__delete" (click)="removeMedicalHistory(i)" aria-label="Delete">
+                                                    <app-icon name="delete" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
-
-                        <div class="ve-row-actions">
-                            <button type="button" class="btn btn--secondary" (click)="addMedicalHistory()">+ Add Medical History</button>
-                        </div>
                     </ng-container>
 
                     <!-- Spiritual -->

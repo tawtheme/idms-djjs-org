@@ -260,7 +260,7 @@
     background: $color-white;
     border: 1px solid $color-gray-200;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
 
     &__head {
         display: flex;
@@ -323,6 +323,15 @@
         font-size: 12px;
     }
 
+    .form-control.is-invalid {
+        border-color: $color-red-600;
+
+        &:focus {
+            border-color: $color-red-600;
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+        }
+    }
+
     .field-label-row {
         display: flex;
         align-items: center;
@@ -334,6 +343,7 @@
 
     /* Full-width: control spans every column in the row */
     &--full { grid-column: 1 / -1; }
+    &--span2 { grid-column: span 2; }
 }
 
 /* ---------- Form controls ---------- */
@@ -384,7 +394,173 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
     input[type="checkbox"] { margin: 0; cursor: pointer; width: 14px; height: 14px; }
 }
 
-/* ---------- Profile image / Id proof previews ---------- */
+/* ---------- Profile image gallery ---------- */
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+
+    .profile-image-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .profile-image-row {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        align-items: center;
+        gap: 24px;
+
+        &--no-meta {
+            grid-template-columns: 72px auto;
+            justify-content: start;
+            gap: 16px;
+            padding: 6px 0;
+
+            .profile-image-thumb {
+                width: 72px;
+                height: 72px;
+                flex-shrink: 0;
+            }
+
+            .btn {
+                padding: 6px 14px;
+                font-size: 13px;
+                height: auto;
+                line-height: 1.2;
+                align-self: center;
+            }
+        }
+    }
+
+    .profile-image-list--no-meta {
+        gap: 8px;
+    }
+
+    .profile-image-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid $color-gray-200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-gray-50;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .profile-image-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color-gray-900;
+            margin: 0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid $color-gray-200;
+            border-radius: 6px;
+            background: $color-gray-100;
+            color: $color-gray-700;
+            font-size: 14px;
+            cursor: not-allowed;
+        }
+    }
+
+    .profile-image-empty {
+        padding: 24px 8px;
+        text-align: center;
+        color: $color-gray-500;
+        font-size: 13px;
+        font-style: italic;
+    }
+
+    .profile-image-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 12px;
+        padding: 4px 0;
+    }
+
+    .thumb-tile {
+        position: relative;
+        aspect-ratio: 1;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        overflow: hidden;
+        background: $color-gray-50;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        &__delete {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(220, 38, 38, 0.95);
+            color: $color-white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+            app-icon { font-size: 16px; }
+
+            &:hover { background: #b91c1c; }
+            &:disabled { opacity: 0; cursor: not-allowed; }
+        }
+
+        &:hover {
+            border-color: $color-primary-300;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+            .thumb-tile__delete {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        &--pending {
+            border-style: dashed;
+            border-color: $color-primary-300;
+        }
+    }
+}
+
 .profile-image-preview {
     display: flex;
     align-items: center;
@@ -412,6 +588,12 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
+}
+
+.id-proof-preview-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .id-proof-preview {
@@ -514,6 +696,195 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
     display: flex;
     justify-content: flex-start;
     padding-top: 4px;
+}
+
+/* ---------- Medical histories list ---------- */
+.medical-histories {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0 20px 16px;
+}
+
+.medical-histories-table-wrap {
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.medical-histories-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: $color-white;
+
+    thead {
+        background: $color-gray-50;
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: $color-gray-600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 10px 12px;
+            border-bottom: 1px solid $color-gray-200;
+        }
+    }
+
+    tbody {
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid $color-gray-100;
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+    }
+
+    .col-index {
+        width: 48px;
+        text-align: center;
+        color: $color-gray-500;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .col-illness { width: 14%; }
+
+    .major-illness-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: $color-gray-700;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+    }
+    .col-note { width: 38%; }
+    .col-docs { width: auto; min-width: 220px; }
+    .col-action { width: 56px; text-align: center; }
+
+    .form-control {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 13px;
+        height: 32px;
+    }
+
+    .medical-history-row__docs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        min-width: 0;
+
+        .btn {
+            white-space: nowrap;
+            height: 32px;
+            padding: 0 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .btn app-icon { font-size: 14px; }
+    }
+
+    .medical-history-row__chips {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .medical-history-row__delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: none;
+        background: none;
+        color: $color-red-600;
+        cursor: pointer;
+        border-radius: 4px;
+
+        app-icon { font-size: 18px; }
+
+        &:hover { background: rgba(220, 38, 38, 0.08); }
+    }
+}
+
+.doc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 6px 3px 8px;
+    background: $color-gray-100;
+    border-radius: 12px;
+    font-size: 11px;
+    color: $color-gray-700;
+    max-width: 160px;
+
+    &__name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: $color-gray-500;
+        cursor: pointer;
+        padding: 0;
+
+        app-icon { font-size: 12px; }
+
+        &:hover { background: $color-gray-300; color: $color-gray-900; }
+    }
+}
+
+/* ---------- Medical docs upload ---------- */
+.medical-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .btn {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        app-icon { font-size: 16px; }
+    }
+
+    .docs-list {
+        margin-top: 0;
+
+        .docs-list__name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+    }
 }
 
 /* ---------- Documents list ---------- */

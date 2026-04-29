@@ -1,0 +1,213 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--four">
+            <div class="filter-field">
+                <label>Task Branch <span class="required">*</span></label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="Select Task Branch"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event; branchError = null"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+                <div *ngIf="branchError" class="field-error">{{ branchError }}</div>
+            </div>
+            <div class="filter-field">
+                <label>Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Program Name"
+                        [(ngModel)]="nameSearch"
+                        [ngModelOptions]="{ standalone: true }"
+                        (keyup.enter)="applyFilter()" />
+                    <button *ngIf="nameSearch" type="button" class="input-clear" (click)="nameSearch=''; applyFilter()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>From Date</label>
+                <app-datepicker
+                    [value]="fromDate"
+                    placeholder="Select From Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="fromDate = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field">
+                <label>To Date</label>
+                <app-datepicker
+                    [value]="toDate"
+                    placeholder="Select To Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="toDate = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!error">
+            <!-- Reports Table -->
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('name')">
+                                    <span class="th-content">
+                                        Program Name
+                                        <app-icon
+                                            [name]="sortField === 'name' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'name' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'name'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('programCoordinator')">
+                                    <span class="th-content">
+                                        Program Co-Ordinator
+                                        <app-icon
+                                            [name]="sortField === 'programCoordinator' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'programCoordinator' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'programCoordinator'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('initiative')">
+                                    <span class="th-content">
+                                        Initiative
+                                        <app-icon
+                                            [name]="sortField === 'initiative' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'initiative' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'initiative'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('project')">
+                                    <span class="th-content">
+                                        Project
+                                        <app-icon
+                                            [name]="sortField === 'project' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'project' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'project'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('branch')">
+                                    <span class="th-content">
+                                        Branch
+                                        <app-icon
+                                            [name]="sortField === 'branch' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'branch' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'branch'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('totalVolunteers')">
+                                    <span class="th-content">
+                                        Total Volunteers
+                                        <app-icon
+                                            [name]="sortField === 'totalVolunteers' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'totalVolunteers' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'totalVolunteers'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('totalPresent')">
+                                    <span class="th-content">
+                                        Total Present
+                                        <app-icon
+                                            [name]="sortField === 'totalPresent' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'totalPresent' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'totalPresent'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('totalLeave')">
+                                    <span class="th-content">
+                                        Total Leave
+                                        <app-icon
+                                            [name]="sortField === 'totalLeave' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'totalLeave' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'totalLeave'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('totalAbsent')">
+                                    <span class="th-content">
+                                        Total Absent
+                                        <app-icon
+                                            [name]="sortField === 'totalAbsent' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'totalAbsent' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'totalAbsent'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('startDateTime')">
+                                    <span class="th-content">
+                                        Start Date Time
+                                        <app-icon
+                                            [name]="sortField === 'startDateTime' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'startDateTime' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'startDateTime'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('endDateTime')">
+                                    <span class="th-content">
+                                        End Date Time
+                                        <app-icon
+                                            [name]="sortField === 'endDateTime' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'endDateTime' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'endDateTime'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Program Name">{{ row.name }}</td>
+                                <td data-label="Program Co-Ordinator">{{ row.programCoordinator }}</td>
+                                <td data-label="Initiative">{{ row.initiative }}</td>
+                                <td data-label="Project">{{ row.project }}</td>
+                                <td data-label="Branch">{{ row.branch }}</td>
+                                <td data-label="Total Volunteers">{{ row.totalVolunteers }}</td>
+                                <td data-label="Total Present">{{ row.totalPresent }}</td>
+                                <td data-label="Total Leave">{{ row.totalLeave }}</td>
+                                <td data-label="Total Absent">{{ row.totalAbsent }}</td>
+                                <td data-label="Start Date Time">{{ row.startDateTime }}</td>
+                                <td data-label="End Date Time">{{ row.endDateTime }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="11">
+                                    <app-empty-state
+                                        title="No Data Found"
+                                        [description]="hasSearched ? 'There are no programs matching the selected filters.' : 'Please select a Task Branch and click Search to view the report.'"
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+    </ng-container>
+</div>

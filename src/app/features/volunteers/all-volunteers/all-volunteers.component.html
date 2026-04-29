@@ -446,6 +446,44 @@
         </p>
     </app-modal>
 
+    <!-- Probation Dates Modal -->
+    <app-modal
+        *ngIf="probationModalOpen"
+        [isOpen]="probationModalOpen"
+        [title]="'Change Volunteer to Desiring Devotee'"
+        [size]="'small'"
+        [showFooter]="true"
+        [footerAlign]="'right'"
+        [footerButtons]="[
+            { text: 'Close', type: 'danger', action: 'cancel', disabled: isSubmittingDesiring },
+            { text: isSubmittingDesiring ? 'Converting...' : 'Convert', type: 'primary', action: 'submit', disabled: isSubmittingDesiring }
+        ]"
+        (close)="closeProbationModal()"
+        (footerAction)="$event === 'submit' ? submitDesiringConversion() : closeProbationModal()">
+        <div class="probation-form">
+            <div class="form-group">
+                <label class="form-label">Probation Start Date</label>
+                <app-datepicker
+                    [value]="probationStartDate"
+                    placeholder="Select Start Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="probationStartDate = $event; probationError = null">
+                </app-datepicker>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Probation End Date</label>
+                <app-datepicker
+                    [value]="probationEndDate"
+                    placeholder="Select End Date"
+                    format="dd/MM/yyyy"
+                    [minDate]="probationStartDate"
+                    (dateChange)="probationEndDate = $event; probationError = null">
+                </app-datepicker>
+            </div>
+            <div *ngIf="probationError" class="form-error">{{ probationError }}</div>
+        </div>
+    </app-modal>
+
     <!-- Change Role Modal -->
     <app-modal
         *ngIf="changeRoleModalOpen"

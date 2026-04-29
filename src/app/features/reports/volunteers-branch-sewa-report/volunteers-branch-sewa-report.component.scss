@@ -1,0 +1,23 @@
+@use '../report-listing' as r;
+
+@include r.report-listing('.reports');
+
+.field-error {
+    margin-top: 4px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.row-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+    background: var(--color-surface-variant, #e5e7eb);
+
+    &--placeholder {
+        background: var(--color-surface-variant, #e5e7eb);
+    }
+}

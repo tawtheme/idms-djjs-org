@@ -1,0 +1,146 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--four">
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Filter</button>
+                    <button class="btn btn--outline btn--sm" type="button" (click)="resetFilters()">Reset</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-wrapper">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <!-- Error state -->
+        <div *ngIf="error" class="error-state">
+            <p>{{ error }}</p>
+            <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="!error">
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('sewaName')">
+                                    <span class="th-content">
+                                        Sewa Name
+                                        <app-icon
+                                            [name]="getSortIcon('sewaName')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'sewaName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('headName')">
+                                    <span class="th-content">
+                                        Head Name
+                                        <app-icon
+                                            [name]="getSortIcon('headName')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'headName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('headContact')">
+                                    <span class="th-content">
+                                        Head Contact
+                                        <app-icon
+                                            [name]="getSortIcon('headContact')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'headContact'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('headAddress')">
+                                    <span class="th-content">
+                                        Head Address
+                                        <app-icon
+                                            [name]="getSortIcon('headAddress')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'headAddress'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('subHeadName')">
+                                    <span class="th-content">
+                                        Sub Head Name
+                                        <app-icon
+                                            [name]="getSortIcon('subHeadName')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'subHeadName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('subHeadContact')">
+                                    <span class="th-content">
+                                        Sub Head Contact
+                                        <app-icon
+                                            [name]="getSortIcon('subHeadContact')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'subHeadContact'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('subHeadAddress')">
+                                    <span class="th-content">
+                                        Sub Head Address
+                                        <app-icon
+                                            [name]="getSortIcon('subHeadAddress')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'subHeadAddress'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Sewa Name">{{ row.sewaName }}</td>
+                                <td data-label="Head Name">{{ row.headName }}</td>
+                                <td data-label="Head Contact">{{ row.headContact }}</td>
+                                <td data-label="Head Address">{{ row.headAddress }}</td>
+                                <td data-label="Sub Head Name">{{ row.subHeadName }}</td>
+                                <td data-label="Sub Head Contact">{{ row.subHeadContact }}</td>
+                                <td data-label="Sub Head Address">{{ row.subHeadAddress }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="7">
+                                    <app-empty-state
+                                        title="No data available in table"
+                                        description="There are no records matching the selected filters."
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

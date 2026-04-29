@@ -667,3 +667,44 @@
     }
 }
 
+
+.probation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        text-align: center;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+
+        &:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+    }
+
+    .form-error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}

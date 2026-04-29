@@ -4,9 +4,7 @@
         <p class="page-subtitle">{{ editProgramId ? 'Update the program details below' : 'Fill in the details below to create a new program' }}</p>
     </div>
 
-    <app-loading *ngIf="isLoading" type="spinner" size="medium" message="Loading program..."></app-loading>
-
-    <form *ngIf="!isLoading" class="program-form" (ngSubmit)="onSubmit()">
+    <form class="program-form" (ngSubmit)="onSubmit()">
         <!-- Program Details -->
         <div class="form-section">
             <div class="section-header">
@@ -19,19 +17,19 @@
                 </div>
                 <div class="form-field">
                     <label for="program-coordinator">Program Co-ordinator <span class="required">*</span></label>
-                    <app-dropdown [options]="programCoordinatorOptions" [selectedValues]="programCoordinator ? [programCoordinator] : []" [searchable]="true" [closeOnSelect]="true" placeholder="Select Program Co-ordinator" (selectionChange)="onProgramCoordinatorChange($event)"></app-dropdown>
+                    <app-dropdown [options]="programCoordinatorOptions" [selectedValues]="programCoordinator ? [programCoordinator] : []" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Program Co-ordinator" (selectionChange)="onProgramCoordinatorChange($event)"></app-dropdown>
                 </div>
                 <div class="form-field">
                     <label for="initiative">Initiative <span class="required">*</span></label>
-                    <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []" [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative" (selectionChange)="onInitiativeChange($event)"></app-dropdown>
+                    <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Initiative" (selectionChange)="onInitiativeChange($event)"></app-dropdown>
                 </div>
                 <div class="form-field">
                     <label for="project">Project <span class="required">*</span></label>
-                    <app-dropdown [options]="projectOptions" [selectedValues]="project ? [project] : []" [searchable]="true" [closeOnSelect]="true" placeholder="Select Project" (selectionChange)="onProjectChange($event)"></app-dropdown>
+                    <app-dropdown [options]="projectOptions" [selectedValues]="project ? [project] : []" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Project" (selectionChange)="onProjectChange($event)"></app-dropdown>
                 </div>
                 <div class="form-field">
                     <label for="branch">Branch <span class="required">*</span></label>
-                    <app-dropdown [options]="branchOptions" [selectedValues]="branch ? [branch] : []" [searchable]="true" [closeOnSelect]="true" placeholder="Select Branch" (selectionChange)="onBranchChange($event)"></app-dropdown>
+                    <app-dropdown [options]="branchOptions" [selectedValues]="branch ? [branch] : []" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Branch" (selectionChange)="onBranchChange($event)"></app-dropdown>
                 </div>
             </div>
         </div>
@@ -44,42 +42,65 @@
             <div class="form-grid">
                 <div class="form-field">
                     <label for="start-date-time">Start Date <span class="required">*</span></label>
-                    <app-datepicker [value]="startDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onStartDateTimeChange($event)"></app-datepicker>
+                    <app-datepicker
+                        [value]="startDateTime"
+                        [minDate]="today"
+                        placeholder="Select Date"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onStartDateTimeChange($event)">
+                    </app-datepicker>
                 </div>
                 <div class="form-field">
                     <label for="end-date-time">End Date <span class="required">*</span></label>
-                    <app-datepicker [value]="endDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy" (dateChange)="onEndDateTimeChange($event)"></app-datepicker>
+                    <app-datepicker
+                        [value]="endDateTime"
+                        [minDate]="endDateMin"
+                        placeholder="Select Date"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onEndDateTimeChange($event)">
+                    </app-datepicker>
                 </div>
                 <div class="form-field">
                     <label for="repeats">Repeats</label>
-                    <app-dropdown [options]="repeatsOptions" [selectedValues]="[repeats]" [searchable]="true" [closeOnSelect]="true" placeholder="Select Repeats" (selectionChange)="onRepeatsChange($event)"></app-dropdown>
+                    <app-dropdown [options]="repeatsOptions" [selectedValues]="[repeats]" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Repeats" (selectionChange)="onRepeatsChange($event)"></app-dropdown>
+                </div>
+                <div class="form-field" *ngIf="isRecurring">
+                    <label for="repeat-end-date">Repeat End Date <span class="required">*</span></label>
+                    <app-datepicker
+                        [value]="repeatEndDate"
+                        [minDate]="repeatEndDateMin"
+                        [initialViewDate]="endDateTime"
+                        placeholder="Select Date"
+                        format="dd/MM/yyyy"
+                        (dateChange)="onRepeatEndDateChange($event)">
+                    </app-datepicker>
                 </div>
             </div>
         </div>
 
-        <!-- Sewa & Status -->
+        <!-- Sewa -->
         <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">Sewa & Status</h3>
+                <h3 class="section-title">Sewa</h3>
             </div>
             <div class="form-grid">
-                <div class="form-field">
+                <div class="form-field form-field--full">
                     <label for="choose-sewa">Choose Sewa <span class="required">*</span></label>
-                    <app-dropdown [options]="sewaOptions" [selectedValues]="chooseSewa" [searchable]="true" [multiSelect]="true" [closeOnSelect]="false" placeholder="Select Sewa" (selectionChange)="onChooseSewaChange($event)"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label for="status">Status</label>
-                    <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)"></app-dropdown>
+                    <app-dropdown [options]="sewaOptions" [selectedValues]="chooseSewa" [searchable]="true" [multiSelect]="true" [showSelectAll]="true" [closeOnSelect]="false" placeholder="Select Sewa" (selectionChange)="onChooseSewaChange($event)"></app-dropdown>
                 </div>
             </div>
         </div>
 
-        <!-- Remarks -->
+        <!-- Additional Information -->
         <div class="form-section">
             <div class="section-header">
                 <h3 class="section-title">Additional Information</h3>
             </div>
             <div class="form-grid">
+                <div class="form-field">
+                    <label for="status">Status</label>
+                    <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [autocomplete]="true" [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)"></app-dropdown>
+                </div>
                 <div class="form-field form-field--full">
                     <label for="remarks">Remarks</label>
                     <textarea id="remarks" class="form-control" [(ngModel)]="remarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks" rows="4"></textarea>

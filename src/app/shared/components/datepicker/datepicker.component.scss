@@ -21,6 +21,8 @@
             background: $color-white;
             cursor: text;
             transition: border-color 150ms ease, box-shadow 150ms ease;
+            min-height: 40px;
+            box-sizing: border-box;
 
             &:focus {
                 outline: none;
@@ -81,9 +83,9 @@
         border: 1px solid $color-gray-300;
         border-radius: 8px;
         box-shadow: 0 10px 30px $shadow-color;
-        padding: 12px;
-        min-width: 240px;
-        width: 240px;
+        padding: 8px;
+        min-width: 220px;
+        width: 220px;
 
         // Upward positioning
         &.calendar-upward {
@@ -174,9 +176,9 @@
         .calendar-year {
             background: none;
             border: none;
-            padding: 10px 4px;
+            padding: 6px 4px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             color: $color-gray-900;
             cursor: pointer;
             transition: all 150ms ease;
@@ -266,13 +268,13 @@
                 .calendar-day {
                     background: none;
                     border: none;
-                    padding: 4px 2px;
+                    padding: 2px;
                     border-radius: 4px;
-                    font-size: 12px;
+                    font-size: 11px;
                     color: $color-gray-900;
                     cursor: pointer;
                     transition: all 150ms ease;
-                    min-height: 28px;
+                    min-height: 24px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
