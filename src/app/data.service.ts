@@ -14,8 +14,8 @@ export class DataService {
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`, options) as Observable<T>;
   }
 
-  post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data);
+  post<T>(endpoint: string, data: any, options?: any): Observable<T> {
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data, options) as Observable<T>;
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
@@ -26,8 +26,8 @@ export class DataService {
     return this.http.patch<T>(`${this.apiUrl}/${endpoint}`, data);
   }
 
-  delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`);
+  delete<T>(endpoint: string, options?: any): Observable<T> {
+    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`, options) as Observable<T>;
   }
 }
 

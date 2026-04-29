@@ -6,8 +6,16 @@
         [activeRoute]="activeRoute()"
         [breadcrumbs]="breadcrumbs()"
         (navigateTo)="onOpenPage($event)"
-        (closePage)="onClosePage()">
+        (closePage)="onClosePage()"
+        (sidenavToggle)="onSidenavToggle()">
     </app-header>
+    <div class="sidenav-backdrop" [class.is-open]="sidenavOpen()" (click)="closeSidenav()"></div>
+    <app-sidenav
+        class="app-sidenav-drawer"
+        [class.is-open]="sidenavOpen()"
+        [isCollapsed]="false"
+        (closeSidebar)="closeSidenav()">
+    </app-sidenav>
     <div class="content-wrapper" #contentWrapper>
         <router-outlet />
     </div>

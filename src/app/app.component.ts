@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { HeaderComponent } from './components/header/header.component';
+import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { LoadingComponent } from './shared/components/loading/loading.component';
 import { LoadingService } from './core/services/loading.service';
 import { filter } from 'rxjs/operators';
@@ -10,7 +11,7 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, HeaderComponent, LoadingComponent],
+  imports: [RouterOutlet, CommonModule, HeaderComponent, SidenavComponent, LoadingComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -19,6 +20,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   activeRoute = signal('');
   breadcrumbs = signal<{ label: string; route?: string }[]>([]);
   contentWrapperHeight = signal('calc(100vh - 48px)');
+  sidenavOpen = signal(false);
+
+  onSidenavToggle(): void {
+    this.sidenavOpen.set(!this.sidenavOpen());
+  }
+
+  closeSidenav(): void {
+    this.sidenavOpen.set(false);
+  }
 
   @ViewChild('contentWrapper', { static: false }) contentWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild(HeaderComponent, { static: false }) headerComponent!: HeaderComponent;
@@ -55,7 +65,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     '/branches/create': 'Add New Branch',
     '/branches/areas': 'Branch Areas',
     '/departments': 'Departments',
-    '/master-tables': 'Master Tables'
+    '/master-tables': 'Master Tables',
+    '/reports/programs': 'Programs Report',
+    '/reports/volunteers-branch-sewa': 'Volunteers List Branch/Sewa Wise',
+    '/reports/consecutive-absentees': 'Consecutive Absentees Report',
+    '/reports/cards-returned': 'Cards Returned/Not Returned',
+    '/reports/donation-dept-wise': 'Donation Department Wise',
+    '/reports/volunteers-skills': 'Volunteers List Skill Wise',
+    '/reports/sewa-issued': 'Sewa Issued',
+    '/reports/head-subhead-volunteers': 'Head/Subhead Volunteers',
+    '/reports/volunteers-attendance': 'Volunteers Attendance',
+    '/reports/volunteers-count-by-department': 'Volunteers Count by Department'
   };
 
   private parentMap: { [key: string]: { label: string; route: string } } = {

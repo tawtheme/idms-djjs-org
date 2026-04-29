@@ -1,0 +1,258 @@
+@use '../../../assets/scss/pages' as listing;
+@import '../../../assets/scss/variable';
+@import '../../../assets/scss/table';
+
+@mixin report-listing($ns) {
+    @include listing.listing($ns);
+
+    .listing-wrapper {
+        background: $color-white;
+        border: none;
+        border-radius: 0;
+        overflow: hidden;
+    }
+
+    .table-container {
+        flex: 1;
+        max-height: none;
+        background: $color-white;
+    }
+
+    .table {
+        background: $color-white;
+
+        thead th {
+            background: $color-white;
+        }
+
+        tbody tr,
+        tbody td {
+            background: $color-white;
+        }
+    }
+
+    .table thead th.sortable {
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: $color-gray-100;
+        }
+
+        .th-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sort-icon {
+            font-size: 16px;
+            color: $color-gray-400;
+            transition: color 0.15s ease;
+
+            &--active {
+                color: $color-primary-600;
+            }
+        }
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 14px 20px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+
+        &--four {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+
+            @media (max-width: 1024px) {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        &--five {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+
+            @media (max-width: 1280px) {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            @media (max-width: 1024px) {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        &--six {
+            grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+
+            @media (max-width: 1280px) {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            @media (max-width: 1024px) {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        &--seven {
+            grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+
+            @media (max-width: 1440px) {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+
+            @media (max-width: 1280px) {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            @media (max-width: 1024px) {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+    }
+
+    .filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0;
+            color: $color-gray-600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid $color-gray-300;
+            border-radius: 6px;
+            font-size: 14px;
+            color: $color-gray-900;
+            background: $color-white;
+            outline: none;
+            transition: border-color 0.15s ease;
+            min-height: 40px;
+
+            &:hover { border-color: $color-gray-400; }
+            &:focus { border-color: $color-primary-500; }
+        }
+    }
+
+    .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .form-control {
+            padding-right: 28px;
+        }
+
+        .input-clear {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 50%;
+            background: $color-gray-200;
+            color: $color-gray-700;
+            cursor: pointer;
+            padding: 0;
+            transition: background 0.15s ease;
+
+            &:hover {
+                background: $color-gray-300;
+                color: $color-gray-900;
+            }
+        }
+    }
+
+    .filter-field--actions {
+        align-self: end;
+
+        .filter-actions {
+            display: flex;
+            gap: 16px;
+
+            .btn {
+                min-height: 40px;
+                padding: 0 16px;
+            }
+        }
+    }
+
+    .loading-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .error-state {
+        padding: 24px;
+        text-align: center;
+        color: $color-red-600;
+    }
+
+    .empty-wrapper {
+        padding: 24px 0;
+    }
+
+    .table tbody tr.empty-row {
+        background: $color-white;
+
+        &:hover {
+            background: $color-white;
+        }
+
+        td {
+            padding: 24px 16px;
+            text-align: center;
+            border: none;
+        }
+    }
+}

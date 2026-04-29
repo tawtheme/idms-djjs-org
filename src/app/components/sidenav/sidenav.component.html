@@ -28,7 +28,7 @@
                                 *ngIf="!isCollapsed && isExpanded(item.label)"
                                 role="menu">
                                 <li *ngFor="let child of item.children" role="none">
-                                    <a [routerLink]="child.route" 
+                                    <a [routerLink]="child.route"
                                        [class.active]="isChildRouteActive(child.route, item.children)"
                                        [attr.aria-current]="isChildRouteActive(child.route, item.children) ? 'page' : null"
                                        role="menuitem"
@@ -53,15 +53,4 @@
         </nav>
     </div>
 
-    <!-- Footer -->
-    <div class="sidenav-footer">
-        <button 
-            type="button"
-            class="logout-btn" 
-            aria-label="Logout"
-            (click)="logout()">
-            <app-icon name="logout" class="icon" />
-            <span class="text" *ngIf="!isCollapsed">Logout</span>
-        </button>
-    </div>
 </aside>

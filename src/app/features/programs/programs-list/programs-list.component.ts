@@ -484,8 +484,18 @@ export class ProgramsListComponent implements OnInit {
   }
 
   duplicateProgram(program: Program): void {
-    this.router.navigate(['/programs/add-program'], {
-      queryParams: { duplicateFrom: program.id }
+    this.dataService.get<any>(`v1/programs/duplicate/${program.id}`).pipe(
+      catchError((err) => {
+        console.error('Error duplicating program:', err);
+        return of(null);
+      })
+    ).subscribe((response) => {
+      if (!response) return;
+      const data = response.data || response;
+      const newId = data?.id || data?.program?.id;
+      if (newId) {
+        this.router.navigate(['/programs/edit-program', newId]);
+      }
     });
   }
 

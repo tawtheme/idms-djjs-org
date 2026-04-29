@@ -1,0 +1,164 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--four">
+            <div class="filter-field">
+                <label>Task Branch <span class="required">*</span></label>
+                <app-dropdown
+                    [options]="branchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="Select Task Branch"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="onTaskBranchChange($event)"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+                <div *ngIf="branchError" class="field-error">{{ branchError }}</div>
+            </div>
+            <div class="filter-field">
+                <label>Card Status</label>
+                <app-dropdown
+                    [options]="cardStatusOptions"
+                    [selectedValues]="selectedCardStatus"
+                    placeholder="Select Card Status"
+                    (selectionChange)="selectedCardStatus = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Programs <span class="required">*</span></label>
+                <app-dropdown
+                    [options]="programOptions"
+                    [selectedValues]="selectedPrograms"
+                    placeholder="Select Programs"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedPrograms = $event; programError = null"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+                <div *ngIf="programError" class="field-error">{{ programError }}</div>
+            </div>
+            <div class="filter-field">
+                <label>Sewas</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="selectedSewas"
+                    placeholder="Select Sewas"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedSewas = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!error">
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('id')">
+                                    <span class="th-content">
+                                        Id
+                                        <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" />
+                                    </span>
+                                </th>
+                                <th>Image</th>
+                                <th class="sortable" (click)="sortBy('name')">
+                                    <span class="th-content">
+                                        Name
+                                        <app-icon [name]="getSortIcon('name')" class="sort-icon" [class.sort-icon--active]="sortField === 'name'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('phone')">
+                                    <span class="th-content">
+                                        Phone
+                                        <app-icon [name]="getSortIcon('phone')" class="sort-icon" [class.sort-icon--active]="sortField === 'phone'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('fatherName')">
+                                    <span class="th-content">
+                                        Father Name
+                                        <app-icon [name]="getSortIcon('fatherName')" class="sort-icon" [class.sort-icon--active]="sortField === 'fatherName'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('sewa')">
+                                    <span class="th-content">
+                                        Sewa
+                                        <app-icon [name]="getSortIcon('sewa')" class="sort-icon" [class.sort-icon--active]="sortField === 'sewa'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('badgeNo')">
+                                    <span class="th-content">
+                                        Badge No
+                                        <app-icon [name]="getSortIcon('badgeNo')" class="sort-icon" [class.sort-icon--active]="sortField === 'badgeNo'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('checkIn')">
+                                    <span class="th-content">
+                                        Check In
+                                        <app-icon [name]="getSortIcon('checkIn')" class="sort-icon" [class.sort-icon--active]="sortField === 'checkIn'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('checkOut')">
+                                    <span class="th-content">
+                                        Check Out
+                                        <app-icon [name]="getSortIcon('checkOut')" class="sort-icon" [class.sort-icon--active]="sortField === 'checkOut'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Id">{{ row.id }}</td>
+                                <td data-label="Image" class="name-with-image">
+                                    <div class="volunteer-image">
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" />
+                                    </div>
+                                </td>
+                                <td data-label="Name">{{ row.name }}</td>
+                                <td data-label="Phone">{{ row.phone }}</td>
+                                <td data-label="Father Name">{{ row.fatherName }}</td>
+                                <td data-label="Sewa">{{ row.sewa }}</td>
+                                <td data-label="Badge No">{{ row.badgeNo }}</td>
+                                <td data-label="Check In">{{ row.checkIn }}</td>
+                                <td data-label="Check Out">{{ row.checkOut }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="9">
+                                    <app-empty-state
+                                        title="No Records"
+                                        description="There are no cards matching the selected filters."
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+    </ng-container>
+</div>

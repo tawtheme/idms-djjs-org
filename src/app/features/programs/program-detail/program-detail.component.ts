@@ -98,7 +98,7 @@ export class ProgramDetailComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.dataService.get<any>(`v1/programs/${this.programId}`).pipe(
+    this.dataService.get<any>(`v1/programs/${this.programId}`, { params: { actionType: 'view' } }).pipe(
       catchError((err) => {
         this.error = err.error?.message || 'Failed to load program details.';
         this.isLoading = false;
@@ -157,11 +157,16 @@ export class ProgramDetailComponent implements OnInit {
       this.isLoadingMoreVolunteers = true;
     }
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('program_id', this.programId)
       .set('sewa_id', this.currentSewaId)
       .set('per_page', this.volPerPage.toString())
       .set('page', this.volunteerPage.toString());
+
+    const term = this.volunteerSearchTerm.trim();
+    if (term) {
+      params = params.set('search', term);
+    }
 
     this.dataService.get<any>(`v1/programs/view/${this.programId}`, { params }).pipe(
       catchError(() => of(null)),
@@ -287,13 +292,7 @@ export class ProgramDetailComponent implements OnInit {
   }
 
   get filteredVolunteers(): Volunteer[] {
-    const term = this.volunteerSearchTerm.toLowerCase().trim();
-    if (!term) return this.currentVolunteers;
-    return this.currentVolunteers.filter((v) =>
-      (v.user?.name || '').toLowerCase().includes(term) ||
-      (v.user?.uniqueId || '').toString().toLowerCase().includes(term) ||
-      (v.badgeId || '').toString().toLowerCase().includes(term)
-    );
+    return this.currentVolunteers;
   }
 
   get pagedVolunteers(): Volunteer[] {
@@ -301,7 +300,14 @@ export class ProgramDetailComponent implements OnInit {
   }
 
   onVolunteerSearchChange(): void {
-    // Search is client-side over already-loaded volunteers
+    // Search runs on Enter; see onVolunteerSearchSubmit
+  }
+
+  onVolunteerSearchSubmit(): void {
+    if (!this.currentSewaId) return;
+    this.volunteerPage = 1;
+    this.volunteerHasMore = false;
+    this.fetchVolunteersPage(true);
   }
 
   goBack(): void {

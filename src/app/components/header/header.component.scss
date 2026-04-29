@@ -166,6 +166,58 @@
         padding: 32px 40px 40px;
     }
 
+    &__tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid $color-gray-200;
+    }
+
+    &__tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 24px 16px;
+        min-height: 120px;
+        border: 1px solid $color-gray-200;
+        background: $color-white;
+        border-radius: 12px;
+        cursor: pointer;
+        color: $color-gray-800;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+        &:hover {
+            border-color: $color-primary-500;
+            background: rgba($color-primary-500, 0.06);
+            color: $color-primary-700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        &--active {
+            border-color: $color-primary-600;
+            background: rgba($color-primary-500, 0.1);
+            color: $color-primary-700;
+        }
+
+        &-icon {
+            font-size: 32px;
+            color: $color-primary-600;
+        }
+
+        &-label {
+            line-height: 1.2;
+        }
+    }
+
     &__grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -250,6 +302,23 @@
             padding: 20px 22px 24px;
         }
 
+        &__tiles {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+            padding-bottom: 20px;
+        }
+
+        &__tile {
+            min-height: 100px;
+            padding: 16px 10px;
+            font-size: 13px;
+
+            &-icon {
+                font-size: 26px;
+            }
+        }
+
         &__grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 24px;
@@ -262,6 +331,10 @@
 }
 
 @media (max-width: 480px) {
+    .megamenu__tiles {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .megamenu__grid {
         grid-template-columns: 1fr;
     }

@@ -1,0 +1,28 @@
+@use '../report-listing' as r;
+@import '../../../../assets/scss/variable';
+
+@include r.report-listing('.reports');
+
+.field-error {
+    margin-top: 4px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.volunteer-image {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: $color-gray-100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}

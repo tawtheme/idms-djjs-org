@@ -109,7 +109,8 @@ $modal-border-radius: 12px;
 
         // Let dropdown/calendar panels overflow beyond the modal body
         &:has(.sewa-reason-form),
-        &:has(.modal-dropdown-form) {
+        &:has(.modal-dropdown-form),
+        &:has(.probation-form) {
             overflow: visible;
         }
     }

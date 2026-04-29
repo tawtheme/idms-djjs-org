@@ -1,0 +1,318 @@
+@use '../../../../assets/scss/pages' as listing;
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/table';
+
+@include listing.listing('.reports');
+
+.listing-wrapper {
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-container {
+    flex: 1;
+    max-height: none;
+    background: $color-white;
+}
+
+.table {
+    background: $color-white;
+
+    thead th {
+        background: $color-white;
+    }
+
+    tbody tr,
+    tbody td {
+        background: $color-white;
+    }
+}
+
+.table thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        background: $color-gray-100;
+    }
+
+    .th-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .sort-icon {
+        font-size: 16px;
+        color: $color-gray-400;
+        transition: color 0.15s ease;
+
+        &--active {
+            color: $color-primary-600;
+        }
+    }
+}
+
+// Filters grid layout
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px 20px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    &--four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &--five {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+
+        @media (max-width: 1280px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+
+    label {
+        font-size: 11px;
+        font-weight: 600;
+        margin: 0;
+        color: $color-gray-600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid $color-gray-300;
+        border-radius: 6px;
+        font-size: 14px;
+        color: $color-gray-900;
+        background: $color-white;
+        outline: none;
+        transition: border-color 0.15s ease;
+        min-height: 40px;
+
+        &:hover { border-color: $color-gray-400; }
+        &:focus { border-color: $color-primary-500; }
+    }
+}
+
+.field-error {
+    margin-top: 4px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.filter-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+
+    .btn {
+        min-height: 38px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+}
+
+.filter-field--actions .filter-actions {
+    display: flex !important;
+    gap: 24px !important;
+
+    .btn + .btn {
+        margin-left: 0;
+    }
+}
+
+.stats-row {
+    width: 100%;
+    justify-content: space-between;
+
+    .stat-item {
+        flex: 1;
+    }
+}
+
+// Stats cards
+.stats-row {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0;
+    margin: 16px 0 24px;
+    background: transparent;
+    border: none;
+}
+
+.stat-item {
+    flex: 1 1 0;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 20px;
+    background: $color-white;
+    border: 1px solid $color-gray-200;
+    border-radius: 10px;
+    border-left: 4px solid $color-gray-300;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    &__label {
+        font-size: 12px;
+        color: $color-gray-600;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    &__value {
+        font-size: 26px;
+        font-weight: 700;
+        color: $color-gray-900;
+        line-height: 1.1;
+    }
+
+    &--total {
+        border-left-color: #2563eb;
+        .stat-item__value { color: #1d4ed8; }
+    }
+
+    &--present {
+        border-left-color: #16a34a;
+        .stat-item__value { color: #15803d; }
+    }
+
+    &--absent {
+        border-left-color: #dc2626;
+        .stat-item__value { color: #b91c1c; }
+    }
+
+    &--leave {
+        border-left-color: #d97706;
+        .stat-item__value { color: #b45309; }
+    }
+}
+
+.user-image-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-image-placeholder {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: $color-gray-100;
+        color: $color-gray-500;
+    }
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    line-height: 1.4;
+
+    &--success {
+        background: rgba(34, 197, 94, 0.12);
+        color: #16a34a;
+    }
+
+    &--danger {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+    }
+
+    &--warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #b45309;
+    }
+
+    &--neutral {
+        background: $color-gray-100;
+        color: $color-gray-700;
+    }
+}
+
+.error-state {
+    padding: 24px;
+    text-align: center;
+    color: $color-red-600;
+}
+
+.table tbody tr.empty-row {
+    background: $color-white;
+
+    &:hover {
+        background: $color-white;
+    }
+
+    td {
+        padding: 24px 16px;
+        text-align: center;
+        border: none;
+    }
+}

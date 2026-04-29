@@ -31,6 +31,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() format: string = 'MM/dd/yyyy';
   @Input() minDate: Date | null = null;
   @Input() maxDate: Date | null = null;
+  @Input() initialViewDate: Date | null = null;
   @Input() disabled: boolean = false;
   @Input() readonly: boolean = false;
   @Input() showToday: boolean = true;
@@ -50,7 +51,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnInit(): void {
     this.selectedDate = this.value;
     this.updateDisplayValue();
-    this.currentMonth = this.value ? new Date(this.value) : new Date();
+    this.currentMonth = this.value ? new Date(this.value) : (this.initialViewDate ? new Date(this.initialViewDate) : new Date());
   }
 
   ngAfterViewInit(): void {
@@ -61,6 +62,9 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
     if (changes['value']) {
       this.selectedDate = this.value;
       this.updateDisplayValue();
+    }
+    if (changes['initialViewDate'] && !this.value && this.initialViewDate && !this.isOpen) {
+      this.currentMonth = new Date(this.initialViewDate);
     }
   }
 
@@ -370,8 +374,10 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   isDateDisabled(date: Date): boolean {
-    if (this.minDate && date < this.minDate) return true;
-    if (this.maxDate && date > this.maxDate) return true;
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const t = startOfDay(date);
+    if (this.minDate && t < startOfDay(this.minDate)) return true;
+    if (this.maxDate && t > startOfDay(this.maxDate)) return true;
     return false;
   }
 
@@ -384,14 +390,17 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
     return date.toDateString() === today.toDateString();
   }
 
+  private isInsideThisDatepicker(target: HTMLElement | null): boolean {
+    if (!target) return false;
+    const host = this.elementRef?.nativeElement as HTMLElement | undefined;
+    return !!host && host.contains(target);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.isOpen) {
-      const target = event.target as HTMLElement;
-      const datepickerElement = target.closest('.datepicker-wrapper');
-      if (!datepickerElement) {
-        this.closeCalendar();
-      }
+    if (!this.isOpen) return;
+    if (!this.isInsideThisDatepicker(event.target as HTMLElement)) {
+      this.closeCalendar();
     }
   }
 
@@ -399,18 +408,18 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   @HostListener('document:mousedown', ['$event'])
   onDocumentMouseDown(event: Event): void {
     if (!this.isOpen) return;
-    const target = event.target as HTMLElement;
-    const inside = !!target.closest('.datepicker-wrapper');
-    if (!inside) this.closeCalendar();
+    if (!this.isInsideThisDatepicker(event.target as HTMLElement)) {
+      this.closeCalendar();
+    }
   }
 
   // Also close when focus moves outside (e.g., via keyboard)
   @HostListener('document:focusin', ['$event'])
   onDocumentFocusIn(event: Event): void {
     if (!this.isOpen) return;
-    const target = event.target as HTMLElement;
-    const inside = !!target.closest('.datepicker-wrapper');
-    if (!inside) this.closeCalendar();
+    if (!this.isInsideThisDatepicker(event.target as HTMLElement)) {
+      this.closeCalendar();
+    }
   }
 
   // Recalculate position on window resize

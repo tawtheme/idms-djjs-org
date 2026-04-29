@@ -1,0 +1,241 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--seven">
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="All"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewas</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="selectedSewa"
+                    placeholder="All"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedSewa = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewa Assigned</label>
+                <app-dropdown
+                    [options]="sewaAssignedOptions"
+                    [selectedValues]="selectedSewaAssigned"
+                    placeholder="All"
+                    (selectionChange)="selectedSewaAssigned = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Year</label>
+                <app-dropdown
+                    [options]="yearOptions"
+                    [selectedValues]="selectedYear"
+                    placeholder="All"
+                    [searchable]="true"
+                    (selectionChange)="selectedYear = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Month</label>
+                <app-dropdown
+                    [options]="monthOptions"
+                    [selectedValues]="selectedMonths"
+                    placeholder="Select Months"
+                    [searchable]="true"
+                    [multiSelect]="true"
+                    (selectionChange)="selectedMonths = $event"
+                    [closeOnSelect]="false">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Search</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Search by Name"
+                        [(ngModel)]="quickSearch"
+                        [ngModelOptions]="{ standalone: true }"
+                        (keyup.enter)="applyFilter()" />
+                    <button *ngIf="quickSearch" type="button" class="input-clear" (click)="quickSearch=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-wrapper">
+        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <!-- Error state -->
+        <div *ngIf="error" class="error-state">
+            <p>{{ error }}</p>
+            <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="!error">
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('id')">
+                                    <span class="th-content">
+                                        Id
+                                        <app-icon
+                                            [name]="getSortIcon('id')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'id'" />
+                                    </span>
+                                </th>
+                                <th>Image</th>
+                                <th class="sortable" (click)="sortBy('name')">
+                                    <span class="th-content">
+                                        Name
+                                        <app-icon
+                                            [name]="getSortIcon('name')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'name'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('phone')">
+                                    <span class="th-content">
+                                        Phone
+                                        <app-icon
+                                            [name]="getSortIcon('phone')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'phone'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('branch')">
+                                    <span class="th-content">
+                                        Branch
+                                        <app-icon
+                                            [name]="getSortIcon('branch')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'branch'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('sewa')">
+                                    <span class="th-content">
+                                        Sewa
+                                        <app-icon
+                                            [name]="getSortIcon('sewa')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'sewa'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('badgeNo')">
+                                    <span class="th-content">
+                                        Badge No
+                                        <app-icon
+                                            [name]="getSortIcon('badgeNo')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'badgeNo'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('issuedDate')">
+                                    <span class="th-content">
+                                        Issued Date
+                                        <app-icon
+                                            [name]="getSortIcon('issuedDate')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'issuedDate'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('reason')">
+                                    <span class="th-content">
+                                        Reason
+                                        <app-icon
+                                            [name]="getSortIcon('reason')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'reason'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('enterBy')">
+                                    <span class="th-content">
+                                        Enter By
+                                        <app-icon
+                                            [name]="getSortIcon('enterBy')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'enterBy'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('status')">
+                                    <span class="th-content">
+                                        Status
+                                        <app-icon
+                                            [name]="getSortIcon('status')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'status'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Id">{{ row.id }}</td>
+                                <td data-label="Image" class="name-with-image">
+                                    <div class="volunteer-image">
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" />
+                                    </div>
+                                </td>
+                                <td data-label="Name">{{ row.name }}</td>
+                                <td data-label="Phone">{{ row.phone }}</td>
+                                <td data-label="Branch">{{ row.branch }}</td>
+                                <td data-label="Sewa">{{ row.sewa }}</td>
+                                <td data-label="Badge No">{{ row.badgeNo }}</td>
+                                <td data-label="Issued Date">{{ row.issuedDate }}</td>
+                                <td data-label="Reason">{{ row.reason }}</td>
+                                <td data-label="Enter By">{{ row.enterBy }}</td>
+                                <td data-label="Status">{{ row.status }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="11">
+                                    <app-empty-state
+                                        title="No data available in table"
+                                        description="There are no records matching the selected filters."
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

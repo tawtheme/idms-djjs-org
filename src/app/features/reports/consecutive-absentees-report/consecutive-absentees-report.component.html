@@ -1,0 +1,209 @@
+<div class="reports-container">
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--four">
+            <div class="filter-field">
+                <label>Program Holding Branch <span class="required">*</span></label>
+                <app-dropdown
+                    [options]="branchOptions"
+                    [selectedValues]="selectedProgramHoldingBranch"
+                    placeholder="Select Program Holding Branch"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedProgramHoldingBranch = $event; programHoldingBranchError = null"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+                <div *ngIf="programHoldingBranchError" class="field-error">{{ programHoldingBranchError }}</div>
+            </div>
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="branchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="Select Task Branch"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Branch Search Type</label>
+                <app-dropdown
+                    [options]="branchSearchTypeOptions"
+                    [selectedValues]="selectedBranchSearchType"
+                    placeholder="Select Branch Search Type"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedBranchSearchType = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewas</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="selectedSewa"
+                    placeholder="Select Sewa"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedSewa = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Corresponding Branch</label>
+                <app-dropdown
+                    [options]="branchOptions"
+                    [selectedValues]="selectedCorrespondingBranch"
+                    placeholder="Select Corresponding Branch"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedCorrespondingBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>From Date</label>
+                <app-datepicker
+                    [value]="fromDate"
+                    placeholder="Select From Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="fromDate = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field">
+                <label>To Date</label>
+                <app-datepicker
+                    [value]="toDate"
+                    placeholder="Select To Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="toDate = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field">
+                <label>No. of Consecutive Leaves <span class="required">*</span></label>
+                <div class="input-wrap">
+                    <input
+                        type="number"
+                        min="0"
+                        class="form-control"
+                        placeholder="Enter Number"
+                        [(ngModel)]="consecutiveLeaves"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="consecutiveLeavesError = null"
+                        (keyup.enter)="applyFilter()" />
+                    <button *ngIf="consecutiveLeaves" type="button" class="input-clear" (click)="consecutiveLeaves=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+                <div *ngIf="consecutiveLeavesError" class="field-error">{{ consecutiveLeavesError }}</div>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!error">
+            <div class="listing-wrapper">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" (click)="sortBy('id')">
+                                    <span class="th-content">
+                                        Id
+                                        <app-icon
+                                            [name]="getSortIcon('id')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'id'" />
+                                    </span>
+                                </th>
+                                <th>Image</th>
+                                <th class="sortable" (click)="sortBy('name')">
+                                    <span class="th-content">
+                                        Name
+                                        <app-icon
+                                            [name]="getSortIcon('name')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'name'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('email')">
+                                    <span class="th-content">
+                                        Email
+                                        <app-icon
+                                            [name]="getSortIcon('email')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'email'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('phone')">
+                                    <span class="th-content">
+                                        Phone
+                                        <app-icon
+                                            [name]="getSortIcon('phone')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'phone'" />
+                                    </span>
+                                </th>
+                                <th class="sortable" (click)="sortBy('createdAt')">
+                                    <span class="th-content">
+                                        Created At
+                                        <app-icon
+                                            [name]="getSortIcon('createdAt')"
+                                            class="sort-icon"
+                                            [class.sort-icon--active]="sortField === 'createdAt'" />
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of rows; trackBy: trackById">
+                                <td data-label="Id">{{ row.id }}</td>
+                                <td data-label="Image" class="name-with-image">
+                                    <div class="volunteer-image">
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" />
+                                    </div>
+                                </td>
+                                <td data-label="Name">{{ row.name }}</td>
+                                <td data-label="Email">{{ row.email }}</td>
+                                <td data-label="Phone">{{ row.phone }}</td>
+                                <td data-label="Created At">{{ row.createdAt }}</td>
+                            </tr>
+                            <tr *ngIf="rows.length === 0" class="empty-row">
+                                <td colspan="6">
+                                    <app-empty-state
+                                        title="No Records"
+                                        description="There are no absentees matching the selected filters."
+                                        [size]="'small'">
+                                    </app-empty-state>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <app-pager
+                    [total]="totalItems"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                    [pageSizeOptions]="pageSizeOptions"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+                </app-pager>
+            </div>
+    </ng-container>
+</div>

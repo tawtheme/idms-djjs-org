@@ -3,7 +3,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DataService } from '../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -43,7 +43,6 @@ export interface AllocatedVolunteer {
     RouterModule,
     FormsModule,
     DropdownComponent,
-    BreadcrumbComponent,
     UnallocatedSectionComponent,
     AllocatedSectionComponent,
     IconComponent
@@ -84,7 +83,7 @@ export class AllocateSewaComponent implements OnInit {
 
   branchSearchTypeOptions: DropdownOption[] = [
     { id: 'none', label: 'None', value: '' },
-    { id: 'in_both', label: 'In Both', value: 'in_both' }
+    { id: 'both', label: 'In Both', value: 'both' }
   ];
 
   sewaTypeOptions: DropdownOption[] = [];

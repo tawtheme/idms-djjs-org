@@ -14,3 +14,47 @@
     box-sizing: border-box;
     padding: 20px;
 }
+
+.sidenav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+
+    &.is-open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.app-sidenav-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.is-open {
+        transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+        width: 320px;
+    }
+}
+
+:host ::ng-deep .app-sidenav-drawer > aside {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.12);
+}

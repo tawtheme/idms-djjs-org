@@ -1,6 +1,6 @@
 <header class="header" #headerElement>
     <div class="header-left">
-        <button class="menu-btn" (click)="toggleMenu()" type="button">
+        <button class="menu-btn" (click)="onMenuButtonClick()" type="button" title="Open navigation (F2 for quick menu)">
             <app-icon name="menu" />
             <span class="menu-label">Menu</span>
         </button>
@@ -35,6 +35,16 @@
 <div class="megamenu-backdrop" [class.is-open]="isMenuOpen" (click)="closeMenu()"></div>
 <div class="megamenu" [class.is-open]="isMenuOpen" role="dialog" aria-modal="true">
     <div class="megamenu__body">
+        <div class="megamenu__tiles">
+            <button *ngFor="let tile of quickTiles"
+                class="megamenu__tile"
+                [class.megamenu__tile--active]="tile.route === activeRoute"
+                (click)="onMenuItemClick(tile)"
+                type="button">
+                <app-icon [name]="tile.icon" class="megamenu__tile-icon" />
+                <span class="megamenu__tile-label">{{ tile.label }}</span>
+            </button>
+        </div>
         <div class="megamenu__grid">
             <div class="megamenu__group" *ngFor="let group of menuGroups; let last = last" [class.megamenu__group--full]="last">
                 <div class="megamenu__group-title" *ngIf="group.title">{{ group.title }}</div>

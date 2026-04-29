@@ -255,6 +255,90 @@ export const routes: Routes = [
   },
 
   // ============================================
+  // Reports Routes
+  // ============================================
+  {
+    path: 'reports/programs',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/programs-report/programs-report.component').then(
+        (m) => m.ProgramsReportComponent
+      ),
+  },
+  {
+    path: 'reports/volunteers-branch-sewa',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/volunteers-branch-sewa-report/volunteers-branch-sewa-report.component').then(
+        (m) => m.VolunteersBranchSewaReportComponent
+      ),
+  },
+  {
+    path: 'reports/consecutive-absentees',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/consecutive-absentees-report/consecutive-absentees-report.component').then(
+        (m) => m.ConsecutiveAbsenteesReportComponent
+      ),
+  },
+  {
+    path: 'reports/cards-returned',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/cards-returned-report/cards-returned-report.component').then(
+        (m) => m.CardsReturnedReportComponent
+      ),
+  },
+  {
+    path: 'reports/donation-dept-wise',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/donation-dept-wise-report/donation-dept-wise-report.component').then(
+        (m) => m.DonationDeptWiseReportComponent
+      ),
+  },
+  {
+    path: 'reports/volunteers-skills',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/volunteers-skills-report/volunteers-skills-report.component').then(
+        (m) => m.VolunteersSkillsReportComponent
+      ),
+  },
+  {
+    path: 'reports/sewa-issued',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/sewa-issued-report/sewa-issued-report.component').then(
+        (m) => m.SewaIssuedReportComponent
+      ),
+  },
+  {
+    path: 'reports/head-subhead-volunteers',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/head-subhead-volunteers-report/head-subhead-volunteers-report.component').then(
+        (m) => m.HeadSubheadVolunteersReportComponent
+      ),
+  },
+  {
+    path: 'reports/volunteers-attendance',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/volunteers-attendance-report/volunteers-attendance-report.component').then(
+        (m) => m.VolunteersAttendanceReportComponent
+      ),
+  },
+  {
+    path: 'reports/volunteers-count-by-department',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/reports/volunteers-count-by-department-report/volunteers-count-by-department-report.component').then(
+        (m) => m.VolunteersCountByDepartmentReportComponent
+      ),
+  },
+
+  // ============================================
   // Administration Routes
   // ============================================
   {
