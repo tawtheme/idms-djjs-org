@@ -9,6 +9,7 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
 import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewAttendanceModalComponent } from '../view-attendance-modal/view-attendance-modal.component';
 import { BarcodeScannerModalComponent } from '../../../../shared/components/barcode-scanner-modal/barcode-scanner-modal.component';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
@@ -57,7 +58,8 @@ interface AttendanceSummary {
     ModalComponent,
     ConfirmationDialogComponent,
     ViewAttendanceModalComponent,
-    BarcodeScannerModalComponent
+    BarcodeScannerModalComponent,
+    ImagePreviewDirective
   ],
   templateUrl: './attendance-detail.component.html',
   styleUrls: ['./attendance-detail.component.scss']

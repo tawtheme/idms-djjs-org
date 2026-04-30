@@ -12,6 +12,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 export interface UnallocatedVolunteer {
   id: number;
@@ -48,7 +49,8 @@ export interface AllocatedVolunteer {
     DropdownComponent,
     LoadingComponent,
     EmptyStateComponent,
-    IconComponent
+    IconComponent,
+    ImagePreviewDirective
   ],
   selector: 'app-sewa-volunteers',
   templateUrl: './sewa-volunteers.component.html',

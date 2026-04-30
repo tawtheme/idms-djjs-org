@@ -17,6 +17,7 @@ import { CreateVisitorComponent } from './create-visitor/create-visitor.componen
 import { DataService } from '../../data.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { SnackbarService } from '../../shared/services/snackbar.service';
+import { ImagePreviewDirective } from '../../shared/directives/image-preview.directive';
 
 export interface Visitor {
   id: number; // Display ID (unique_id)
@@ -50,7 +51,8 @@ export interface Visitor {
     ModalComponent,
     ConfirmationDialogComponent,
     CreateVisitorComponent,
-    IconComponent
+    IconComponent,
+    ImagePreviewDirective
   ],
   selector: 'app-visitors',
   templateUrl: './visitors.component.html',

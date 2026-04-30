@@ -3,7 +3,7 @@
     <aside class="ve-sidebar" *ngIf="!isLoading">
         <div class="ve-profile">
             <div class="ve-profile__avatar">
-                <img *ngIf="profileImagePreview" [src]="profileImagePreview" alt="Profile" />
+                <img *ngIf="profileImagePreview" [src]="profileImagePreview" alt="Profile" [appImagePreview]="profileImagePreview" previewTitle="Profile Image" />
                 <span *ngIf="!profileImagePreview">{{ nameInitials }}</span>
             </div>
             <div class="ve-profile__name">{{ basic.name || 'New Volunteer' }}</div>
@@ -56,7 +56,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Basic Information</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveBasicSection()" [disabled]="savingSection === 'basic'">{{ savingSection === 'basic' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveBasicSection()" [disabled]="savingSection === 'basic' || !isSectionDirty('basic')">{{ savingSection === 'basic' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -107,6 +107,7 @@
                                         <div class="profile-image-thumb">
                                             <img [src]="img.url || '/assets/img/placeholder.svg'"
                                                  alt="Profile image"
+                                                 [appImagePreview]="img.url" previewTitle="Profile Image"
                                                  onerror="this.src='/assets/img/placeholder.svg'" />
                                         </div>
                                         <div class="profile-image-meta">
@@ -134,7 +135,7 @@
                                         <input type="checkbox" [(ngModel)]="copyAddress" [ngModelOptions]="{ standalone: true }" />
                                         <span>Same as Permanent Address</span>
                                     </label>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveCorrespondenceSection()" [disabled]="savingSection === 'correspondence'">{{ savingSection === 'correspondence' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveCorrespondenceSection()" [disabled]="savingSection === 'correspondence' || !isSectionDirty('correspondence')">{{ savingSection === 'correspondence' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
                             <div class="form-grid">
@@ -179,7 +180,7 @@
                         <section class="ve-section" *ngIf="!copyAddress">
                             <div class="ve-section__head">
                                 <h3>Permanent Address</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent'">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent' || !isSectionDirty('permanent')">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
@@ -216,7 +217,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Personal Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="savePersonalSection()" [disabled]="savingSection === 'personal'">{{ savingSection === 'personal' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="savePersonalSection()" [disabled]="savingSection === 'personal' || !isSectionDirty('personal')">{{ savingSection === 'personal' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -241,7 +242,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Family Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveFamilySection()" [disabled]="savingSection === 'family'">{{ savingSection === 'family' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveFamilySection()" [disabled]="savingSection === 'family' || !isSectionDirty('family')">{{ savingSection === 'family' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field"><label>Father Name</label><input class="form-control" [(ngModel)]="personal.father_name" [ngModelOptions]="{ standalone: true }"></div>
@@ -324,7 +325,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Emergency Contact</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveEmergencySection()" [disabled]="savingSection === 'emergency'">{{ savingSection === 'emergency' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveEmergencySection()" [disabled]="savingSection === 'emergency' || !isSectionDirty('emergency')">{{ savingSection === 'emergency' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field"><label>Name</label><input class="form-control" [(ngModel)]="emergency.name" [ngModelOptions]="{ standalone: true }"></div>
@@ -347,7 +348,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Aadhaar Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAadhaarSection()" [disabled]="savingSection === 'aadhaar'">{{ savingSection === 'aadhaar' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAadhaarSection()" [disabled]="savingSection === 'aadhaar' || !isSectionDirty('aadhaar')">{{ savingSection === 'aadhaar' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -382,6 +383,7 @@
                                             <div class="thumb-tile" *ngFor="let img of aadhaarImages">
                                                 <img [src]="img.url || '/assets/img/placeholder.svg'"
                                                      alt="Aadhaar document"
+                                                     [appImagePreview]="img.url" previewTitle="Aadhaar Document"
                                                      onerror="this.src='/assets/img/placeholder.svg'" />
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteAadhaarImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
@@ -406,7 +408,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Electoral Photo Identity Card</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveElectoralSection()" [disabled]="savingSection === 'electoral'">{{ savingSection === 'electoral' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveElectoralSection()" [disabled]="savingSection === 'electoral' || !isSectionDirty('electoral')">{{ savingSection === 'electoral' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -468,6 +470,7 @@
                                             <div class="thumb-tile" *ngFor="let img of voterImages">
                                                 <img [src]="img.url || '/assets/img/placeholder.svg'"
                                                      alt="Electoral document"
+                                                     [appImagePreview]="img.url" previewTitle="Electoral Document"
                                                      onerror="this.src='/assets/img/placeholder.svg'" />
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteVoterImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
@@ -492,7 +495,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Driving License</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveLicenseSection()" [disabled]="savingSection === 'license'">{{ savingSection === 'license' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveLicenseSection()" [disabled]="savingSection === 'license' || !isSectionDirty('license')">{{ savingSection === 'license' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -548,6 +551,7 @@
                                             <div class="thumb-tile" *ngFor="let img of licenseImages">
                                                 <img [src]="img.url || '/assets/img/placeholder.svg'"
                                                      alt="License document"
+                                                     [appImagePreview]="img.url" previewTitle="License Document"
                                                      onerror="this.src='/assets/img/placeholder.svg'" />
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteLicenseImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
@@ -577,7 +581,7 @@
                                 <h3>Education</h3>
                                 <div class="ve-section__head-actions">
                                     <button type="button" class="btn btn--secondary btn--sm" (click)="addQualification()">+ Add Qualification</button>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveEducationSection()" [disabled]="savingSection === 'education'">{{ savingSection === 'education' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveEducationSection()" [disabled]="savingSection === 'education' || !isSectionDirty('education')">{{ savingSection === 'education' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
 
@@ -611,7 +615,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Work Experience</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveWorkSection()" [disabled]="savingSection === 'work'">{{ savingSection === 'work' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveWorkSection()" [disabled]="savingSection === 'work' || !isSectionDirty('work')">{{ savingSection === 'work' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
@@ -650,7 +654,7 @@
                                 <h3>Medical Details</h3>
                                 <div class="ve-section__head-actions">
                                     <button type="button" class="btn btn--secondary btn--sm" (click)="addMedicalHistory()" [disabled]="savingSection === 'medical'">+ Add Medical History</button>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical'">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical' || !isSectionDirty('medical')">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
                             <div class="form-grid">
@@ -719,7 +723,7 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Spiritual Detail</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveSpiritualSection()" [disabled]="savingSection === 'spiritual'">{{ savingSection === 'spiritual' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveSpiritualSection()" [disabled]="savingSection === 'spiritual' || !isSectionDirty('spiritual')">{{ savingSection === 'spiritual' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">

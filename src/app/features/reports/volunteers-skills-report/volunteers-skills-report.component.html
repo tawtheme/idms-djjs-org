@@ -139,7 +139,7 @@
                                 <td data-label="Id">{{ row.id }}</td>
                                 <td data-label="Image" class="name-with-image">
                                     <div class="volunteer-image">
-                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.userName" />
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.userName" [appImagePreview]="row.image" [previewTitle]="row.userName || 'Volunteer Photo'" />
                                     </div>
                                 </td>
                                 <td data-label="User Name">{{ row.userName }}</td>

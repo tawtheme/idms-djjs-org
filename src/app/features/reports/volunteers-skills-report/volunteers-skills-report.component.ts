@@ -11,6 +11,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 interface VolunteerSkillRow {
     id: string;
@@ -40,7 +41,8 @@ type SortField = 'id' | 'userName' | 'fatherName' | 'motherName' | 'spouseName' 
         PagerComponent,
         EmptyStateComponent,
         LoadingComponent,
-        IconComponent
+        IconComponent,
+        ImagePreviewDirective
     ],
     templateUrl: './volunteers-skills-report.component.html',
     styleUrls: ['./volunteers-skills-report.component.scss']

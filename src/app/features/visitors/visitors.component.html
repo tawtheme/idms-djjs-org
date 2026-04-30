@@ -169,6 +169,8 @@
                                 <div class="visitor-image">
                                     <img [src]="visitor.image || '/assets/img/placeholder.svg'"
                                         [alt]="visitor.name"
+                                        [appImagePreview]="visitor.image"
+                                        [previewTitle]="visitor.name || 'Visitor Photo'"
                                         onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                                 <span>{{ visitor.name }}</span>
@@ -291,6 +293,8 @@
                     <div class="visitor-card__photo">
                         <img [src]="card?.user_image?.full_path || '/assets/img/placeholder.svg'"
                              [alt]="card?.name || 'Visitor'"
+                             [appImagePreview]="card?.user_image?.full_path"
+                             [previewTitle]="card?.name || 'Visitor Photo'"
                              onerror="this.src='/assets/img/placeholder.svg'" />
                     </div>
                     <div class="visitor-card__name">{{ card?.name }}</div>

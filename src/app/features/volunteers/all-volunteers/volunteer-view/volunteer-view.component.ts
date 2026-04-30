@@ -1,14 +1,14 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../../data.service';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { ImagePreviewService } from '../../../../shared/services/image-preview.service';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 
 type TabId =
   | 'basic'
@@ -26,7 +26,7 @@ interface TabDef { id: TabId; label: string; }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, ModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, ImagePreviewDirective],
   selector: 'app-volunteer-view',
   templateUrl: './volunteer-view.component.html',
   styleUrls: ['./volunteer-view.component.scss']
@@ -35,6 +35,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dataService = inject(DataService);
+  imagePreviewService = inject(ImagePreviewService);
 
   /** When set, the component renders for the given user id without consulting the route. */
   @Input() userIdInput: string | null = null;
@@ -464,31 +465,4 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     return String(value);
   }
 
-  isPdf(value?: string | null): boolean {
-    if (!value) return false;
-    const v = value.toLowerCase();
-    return v.startsWith('data:application/pdf') || v.endsWith('.pdf') || v.includes('.pdf?');
-  }
-
-  // ----- File preview modal -----
-  private sanitizer = inject(DomSanitizer);
-  filePreviewOpen = false;
-  filePreviewUrl: string | null = null;
-  filePreviewSafeUrl: SafeResourceUrl | null = null;
-  filePreviewTitle = '';
-
-  openFilePreview(url: string | null | undefined, title: string): void {
-    if (!url) return;
-    this.filePreviewUrl = url;
-    this.filePreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    this.filePreviewTitle = title;
-    this.filePreviewOpen = true;
-  }
-
-  closeFilePreview(): void {
-    this.filePreviewOpen = false;
-    this.filePreviewUrl = null;
-    this.filePreviewSafeUrl = null;
-    this.filePreviewTitle = '';
-  }
 }

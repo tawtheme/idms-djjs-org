@@ -18,6 +18,7 @@ import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { HeaderActionsService } from '../../../services/header-actions.service';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 export interface Volunteer {
     id: number;
@@ -75,7 +76,8 @@ export interface Volunteer {
         SidePanelComponent,
         ModalComponent,
         IconComponent,
-        DatepickerComponent
+        DatepickerComponent,
+        ImagePreviewDirective
     ],
     selector: 'app-all-volunteers',
     templateUrl: './all-volunteers.component.html',

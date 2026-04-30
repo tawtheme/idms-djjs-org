@@ -8,6 +8,7 @@ import { DataService } from '../../../data.service';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 interface UserDocUrl { id: string; path: string; }
 
@@ -113,7 +114,7 @@ interface Tab {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BreadcrumbComponent, LoadingComponent, IconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BreadcrumbComponent, LoadingComponent, IconComponent, ImagePreviewDirective],
   selector: 'app-view-visitor',
   templateUrl: './view-visitor.component.html',
   styleUrls: ['./view-visitor.component.scss']

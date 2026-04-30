@@ -7,11 +7,12 @@ import { DataService } from '../../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 
 @Component({
     selector: 'app-allocated-section',
     standalone: true,
-    imports: [CommonModule, FormsModule, IconComponent],
+    imports: [CommonModule, FormsModule, IconComponent, ImagePreviewDirective],
     templateUrl: './allocated-section.component.html',
     styleUrls: ['./allocated-section.component.scss']
 })

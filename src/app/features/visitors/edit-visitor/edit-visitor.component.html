@@ -10,6 +10,7 @@
         <div class="vv-profile">
             <div class="vv-profile__avatar">
                 <img *ngIf="profileImage" [src]="profileImage" [alt]="user.name"
+                    [appImagePreview]="profileImage" previewTitle="Profile Image"
                     onerror="this.src='/assets/img/placeholder.svg'" />
                 <span *ngIf="!profileImage">{{ nameInitials }}</span>
             </div>
@@ -52,7 +53,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Basic Information</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.basic">
+                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.basic || !isSectionDirty('basic')">
                                 {{ isSaving.basic ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -101,6 +102,7 @@
                                 <div class="profile-image-thumb">
                                     <img [src]="img.url || '/assets/img/placeholder.svg'"
                                          alt="Profile image"
+                                         [appImagePreview]="img.url" previewTitle="Profile Image"
                                          onerror="this.src='/assets/img/placeholder.svg'" />
                                 </div>
                                 <div class="profile-image-meta">
@@ -124,7 +126,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Permanent Address</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['permanent']">
+                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['permanent'] || !isSectionDirty('permanent')">
                                 {{ isSavingSection['permanent'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -166,7 +168,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Personal Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['personalDetails']">
+                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['personalDetails'] || !isSectionDirty('personalDetails')">
                                 {{ isSavingSection['personalDetails'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -197,7 +199,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Family Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['family']">
+                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['family'] || !isSectionDirty('family')">
                                 {{ isSavingSection['family'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -279,7 +281,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Aadhaar Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['aadhaar']">
+                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['aadhaar'] || !isSectionDirty('aadhaar')">
                                 {{ isSavingSection['aadhaar'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -323,6 +325,7 @@
                                             </ng-container>
                                             <ng-template #aadImg>
                                                 <img [src]="img.url || '/assets/img/placeholder.svg'" alt="Aadhaar document"
+                                                     [appImagePreview]="img.url" previewTitle="Aadhaar Document"
                                                      onerror="this.src='/assets/img/placeholder.svg'" />
                                             </ng-template>
                                             <button type="button" class="thumb-tile__delete" (click)="deleteAadhaarImage(img)" [disabled]="isSavingSection['aadhaar']" aria-label="Delete">

@@ -12,6 +12,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 interface AbsenteeRow {
     id: string;
@@ -36,7 +37,8 @@ type SortField = 'id' | 'name' | 'email' | 'phone' | 'createdAt';
         PagerComponent,
         EmptyStateComponent,
         LoadingComponent,
-        IconComponent
+        IconComponent,
+        ImagePreviewDirective
     ],
     templateUrl: './consecutive-absentees-report.component.html',
     styleUrls: ['./consecutive-absentees-report.component.scss']

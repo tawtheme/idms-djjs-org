@@ -4,6 +4,7 @@ import { DataService } from '../../../../data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -48,7 +49,7 @@ export interface Donation {
 @Component({
   selector: 'app-view-program-panel',
   standalone: true,
-  imports: [CommonModule, IconComponent, LoadingComponent, ModalComponent],
+  imports: [CommonModule, IconComponent, LoadingComponent, ModalComponent, ImagePreviewDirective],
   templateUrl: './view-program-panel.component.html',
   styleUrls: ['./view-program-panel.component.scss']
 })

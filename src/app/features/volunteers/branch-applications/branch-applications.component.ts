@@ -13,6 +13,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { SewaTrackingModalComponent } from '../all-volunteers/sewa-tracking-modal/sewa-tracking-modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 export interface BranchApplication {
   id: number;
@@ -56,7 +57,8 @@ export interface BranchApplication {
     MenuDropdownComponent,
     DropdownComponent,
     SewaTrackingModalComponent,
-    IconComponent
+    IconComponent,
+    ImagePreviewDirective
   ],
   selector: 'app-branch-applications',
   templateUrl: './branch-applications.component.html',

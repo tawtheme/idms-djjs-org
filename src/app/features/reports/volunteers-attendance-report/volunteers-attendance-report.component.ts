@@ -11,6 +11,7 @@ import { DatepickerComponent } from '../../../shared/components/datepicker/datep
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 interface VolunteerAttendanceRow {
     id: string;
@@ -62,7 +63,8 @@ type SortField =
         DatepickerComponent,
         PagerComponent,
         EmptyStateComponent,
-        IconComponent
+        IconComponent,
+        ImagePreviewDirective
     ],
     templateUrl: './volunteers-attendance-report.component.html',
     styleUrls: ['./volunteers-attendance-report.component.scss']

@@ -14,6 +14,7 @@ import { DataService } from '../../../../data.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 
 type TabId =
     | 'basic'
@@ -42,7 +43,8 @@ interface TabDef { id: TabId; label: string; }
         IconComponent,
         FileUploadComponent,
         CameraUploadComponent,
-        ModalComponent
+        ModalComponent,
+        ImagePreviewDirective
     ],
     selector: 'app-edit-volunteer',
     templateUrl: './edit-volunteer.component.html',
@@ -544,7 +546,7 @@ export class EditVolunteerComponent implements OnInit {
         id: string;
         major_illness: string | number | boolean;
         note: string;
-        docs: Array<{ name: string; data: string }>;
+        docs: Array<{ id?: string; name: string; data: string }>;
     }> = [];
 
     bloodGroupOptions: DropdownOption[] = [
@@ -727,6 +729,7 @@ export class EditVolunteerComponent implements OnInit {
                 this.idProofs.license.mediaId = String(media?.id || '');
                 this.idProofs.license.mediaIsNew = false;
             }
+            this.snapshotSection('license');
         });
     }
 
@@ -766,6 +769,7 @@ export class EditVolunteerComponent implements OnInit {
                 this.idProofs.voter.mediaId = String(media?.id || '');
                 this.idProofs.voter.mediaIsNew = false;
             }
+            this.snapshotSection('electoral');
         });
     }
 
@@ -803,6 +807,7 @@ export class EditVolunteerComponent implements OnInit {
                 this.idProofs.aadhaar.mediaId = String(media?.id || '');
                 this.idProofs.aadhaar.mediaIsNew = false;
             }
+            this.snapshotSection('aadhaar');
         });
     }
 
@@ -897,6 +902,7 @@ export class EditVolunteerComponent implements OnInit {
                     docs: this.normalizeDocs(h?.user_doc_urls || h?.docs || h?.medical_history_media || h?.medical_docs)
                 }));
             }
+            this.snapshotSection('medical');
         });
     }
 
@@ -933,6 +939,7 @@ export class EditVolunteerComponent implements OnInit {
             if (Array.isArray(skills) && skills.length) {
                 this.selectedSkills = skills.map((s: any) => String(s?.skill_id || s?.id || s?.name || s)).filter(Boolean);
             }
+            this.snapshotSection('work');
         });
     }
 
@@ -949,17 +956,19 @@ export class EditVolunteerComponent implements OnInit {
                 ?? root?.qualifications
                 ?? root;
             const arr = Array.isArray(list) ? list : Object.values(list || {});
-            if (!arr.length) return;
-            this.qualifications = arr.map((q: any) => {
-                const deg = q?.degree?.id || q?.degree_id || q?.degree || '';
-                return {
-                    id: String(q?.id || ''),
-                    degree: deg ? String(deg) : '',
-                    name: q?.name || '',
-                    remarks: q?.remarks || '',
-                    selectedDegree: deg ? [String(deg)] : []
-                };
-            });
+            if (arr.length) {
+                this.qualifications = arr.map((q: any) => {
+                    const deg = q?.degree?.id || q?.degree_id || q?.degree || '';
+                    return {
+                        id: String(q?.id || ''),
+                        degree: deg ? String(deg) : '',
+                        name: q?.name || '',
+                        remarks: q?.remarks || '',
+                        selectedDegree: deg ? [String(deg)] : []
+                    };
+                });
+            }
+            this.snapshotSection('education');
         });
     }
 
@@ -990,6 +999,7 @@ export class EditVolunteerComponent implements OnInit {
             if (s?.years_of_spiritual_initiation !== undefined && s?.years_of_spiritual_initiation !== null) {
                 this.spiritual.years_of_spiritual_initiation = String(s.years_of_spiritual_initiation);
             }
+            this.snapshotSection('spiritual');
         });
     }
 
@@ -1014,6 +1024,7 @@ export class EditVolunteerComponent implements OnInit {
                 this.personal.marital_status = p.marital_status;
                 this.selectedMaritalStatus = [p.marital_status];
             }
+            this.snapshotSection('personal');
         });
     }
 
@@ -1049,6 +1060,7 @@ export class EditVolunteerComponent implements OnInit {
             if (f?.mother_occupation_type !== undefined && f?.mother_occupation_type !== null) this.selectedMotherOccupationType = [String(f.mother_occupation_type)];
             if (f?.father_occupation_status !== undefined && f?.father_occupation_status !== null) this.selectedFatherOccupationStatus = [String(f.father_occupation_status)];
             if (f?.mother_occupation_status !== undefined && f?.mother_occupation_status !== null) this.selectedMotherOccupationStatus = [String(f.mother_occupation_status)];
+            this.snapshotSection('family');
         });
     }
 
@@ -1063,6 +1075,7 @@ export class EditVolunteerComponent implements OnInit {
             this.emergency.name = e?.emergency_name || e?.name || this.emergency.name;
             this.emergency.phone = e?.emergency_phone || e?.phone || this.emergency.phone;
             this.emergency.email = e?.emergency_email || e?.email || this.emergency.email;
+            this.snapshotSection('emergency');
         });
     }
 
@@ -1084,6 +1097,7 @@ export class EditVolunteerComponent implements OnInit {
             if (this.permanent.country) this.loadStatesFor('permanent');
             if (this.permanent.state) this.loadDistrictsFor('permanent');
             if (this.permanent.state || this.permanent.district) this.loadCitiesFor('permanent');
+            this.snapshotSection('permanent');
         });
     }
 
@@ -1111,6 +1125,7 @@ export class EditVolunteerComponent implements OnInit {
             if (this.correspondence.country) this.loadStatesFor('correspondence');
             if (this.correspondence.state) this.loadDistrictsFor('correspondence');
             if (this.correspondence.state || this.correspondence.district) this.loadCitiesFor('correspondence');
+            this.snapshotSection('correspondence');
         });
     }
 
@@ -1168,6 +1183,7 @@ export class EditVolunteerComponent implements OnInit {
             if (Array.isArray(sewas) && sewas.length) {
                 this.selectedSewas = sewas.map((s: any) => String(s?.sewa?.id ?? s?.sewa_id ?? s?.id ?? s)).filter(Boolean);
             }
+            this.snapshotSection('basic');
         });
     }
 
@@ -1848,12 +1864,13 @@ export class EditVolunteerComponent implements OnInit {
         this.profileImageDate = null;
     }
 
-    private normalizeDocs(input: any): Array<{ name: string; data: string }> {
+    private normalizeDocs(input: any): Array<{ id?: string; name: string; data: string }> {
         if (!Array.isArray(input)) return [];
         return input.map((d: any) => {
             const url = d?.path || d?.full_path || d?.url || d?.data || '';
             const name = d?.name || d?.file_name || d?.original_name || (url ? url.split('/').pop() : '') || 'document';
-            return { name, data: url };
+            const id = d?.id ? String(d.id) : undefined;
+            return { id, name, data: url };
         });
     }
 
@@ -1899,7 +1916,37 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     removeHistoryDoc(historyIndex: number, docIndex: number): void {
-        this.medicalHistories[historyIndex]?.docs.splice(docIndex, 1);
+        const history = this.medicalHistories[historyIndex];
+        if (!history) return;
+        const removed = history.docs[docIndex];
+        if (removed?.id) this.queueMedicalDocDelete(removed.id);
+        history.docs.splice(docIndex, 1);
+    }
+
+    private medicalDocDeleteKey(): string {
+        return `delete_medical_history_docs:${this.userId || 'anon'}`;
+    }
+
+    private queueMedicalDocDelete(id: string): void {
+        try {
+            const key = this.medicalDocDeleteKey();
+            const raw = localStorage.getItem(key);
+            const list: string[] = raw ? raw.split(',').filter(Boolean) : [];
+            if (!list.includes(id)) list.push(id);
+            localStorage.setItem(key, list.join(','));
+        } catch { /* localStorage may be unavailable */ }
+    }
+
+    private getQueuedMedicalDocDeletes(): string {
+        try {
+            return localStorage.getItem(this.medicalDocDeleteKey()) || '';
+        } catch {
+            return '';
+        }
+    }
+
+    private clearQueuedMedicalDocDeletes(): void {
+        try { localStorage.removeItem(this.medicalDocDeleteKey()); } catch { /* ignore */ }
     }
 
     private fileToBase64(file: File): Promise<string> {
@@ -2146,7 +2193,7 @@ export class EditVolunteerComponent implements OnInit {
             major_illness: this.medicalHistories.map(h => (h.major_illness == 1 || h.major_illness === true || h.major_illness === '1') ? 1 : 0),
             medical_history_media: this.medicalHistories.map(h => (h.docs || []).map(d => d.data).filter(Boolean)),
             medical_history_id: this.medicalHistories.map(h => h.id || ''),
-            delete_medical_history_docs: ''
+            delete_medical_history_docs: this.getQueuedMedicalDocDeletes()
         };
 
         this.dataService.put('v1/users/update-medical', payload).pipe(
@@ -2157,8 +2204,12 @@ export class EditVolunteerComponent implements OnInit {
                 return of(null);
             })
         ).subscribe((response) => {
-            if (response) this.finishSave();
-            else this.isSaving = false;
+            if (response) {
+                this.clearQueuedMedicalDocDeletes();
+                this.finishSave();
+            } else {
+                this.isSaving = false;
+            }
         });
     }
 
@@ -2292,6 +2343,170 @@ export class EditVolunteerComponent implements OnInit {
     /** Tracks which inline section save is in flight, so its button can show a spinner. */
     savingSection: string | null = null;
 
+    private sectionBaselines: Record<string, string> = {};
+
+    private getSectionState(key: string): unknown {
+        switch (key) {
+            case 'basic':
+                return {
+                    basic: this.basic,
+                    level: this.selectedLevel,
+                    roles: this.selectedRoles,
+                    sewas: this.selectedSewas,
+                    copyAsWhatsapp: this.copyAsWhatsapp
+                };
+            case 'permanent':
+                return { permanent: this.permanent };
+            case 'correspondence':
+                return {
+                    correspondence: this.correspondence,
+                    copyAddress: this.copyAddress,
+                    correspondingBranch: this.selectedCorrespondingBranch,
+                    taskBranch: this.selectedTaskBranch
+                };
+            case 'personal':
+                return {
+                    gender: this.personal.gender,
+                    marital_status: this.personal.marital_status,
+                    dob: this.basic.dob,
+                    selectedGender: this.selectedGender,
+                    selectedMaritalStatus: this.selectedMaritalStatus
+                };
+            case 'family':
+                return {
+                    father_name: this.personal.father_name,
+                    father_email: this.personal.father_email,
+                    father_mobile: this.personal.father_mobile,
+                    father_occupation: this.personal.father_occupation,
+                    father_occupation_location: this.personal.father_occupation_location,
+                    father_occupation_type: this.personal.father_occupation_type,
+                    father_occupation_status: this.personal.father_occupation_status,
+                    mother_name: this.personal.mother_name,
+                    mother_email: this.personal.mother_email,
+                    mother_mobile: this.personal.mother_mobile,
+                    mother_occupation: this.personal.mother_occupation,
+                    mother_occupation_location: this.personal.mother_occupation_location,
+                    mother_occupation_type: this.personal.mother_occupation_type,
+                    mother_occupation_status: this.personal.mother_occupation_status,
+                    spouse_name: this.personal.spouse_name,
+                    siblings_brother: this.personal.siblings_brother,
+                    siblings_sister: this.personal.siblings_sister,
+                    earning_members: this.personal.earning_members,
+                    family_members_at_home: this.personal.family_members_at_home,
+                    samarpit_member: this.personal.samarpit_member,
+                    remarks: this.personal.remarks,
+                    selectedFatherOccupation: this.selectedFatherOccupation,
+                    selectedFatherOccupationLocation: this.selectedFatherOccupationLocation,
+                    selectedFatherOccupationType: this.selectedFatherOccupationType,
+                    selectedFatherOccupationStatus: this.selectedFatherOccupationStatus,
+                    selectedMotherOccupation: this.selectedMotherOccupation,
+                    selectedMotherOccupationLocation: this.selectedMotherOccupationLocation,
+                    selectedMotherOccupationType: this.selectedMotherOccupationType,
+                    selectedMotherOccupationStatus: this.selectedMotherOccupationStatus,
+                    selectedSiblingsBrother: this.selectedSiblingsBrother,
+                    selectedSiblingsSister: this.selectedSiblingsSister
+                };
+            case 'emergency':
+                return { emergency: this.emergency };
+            case 'spiritual':
+                return {
+                    spiritual: this.spiritual,
+                    selectedInitiationBranch: this.selectedInitiationBranch,
+                    joiningBranchId: this._joiningBranchId,
+                    dressCodeId: this._dressCodeId
+                };
+            case 'education':
+                return { qualifications: this.qualifications };
+            case 'work':
+                return {
+                    work: this.work,
+                    selectedProfession: this.selectedProfession,
+                    selectedSkills: this.selectedSkills
+                };
+            case 'aadhaar': {
+                const a = this.idProofs.aadhaar;
+                return {
+                    number: a.number,
+                    name: a.name,
+                    address: a.address,
+                    home_reason: a.home_reason,
+                    mobile_linked: a.mobile_linked,
+                    renewal_date: a.renewal_date,
+                    remarks: a.remarks,
+                    ashram_area_id: a.ashram_area_id,
+                    mediaIsNew: a.mediaIsNew,
+                    mediaId: a.mediaId,
+                    files: a.files.length,
+                    previews: a.previews.length,
+                    file: !!a.file,
+                    selectedAadhaarHomeReason: this.selectedAadhaarHomeReason
+                };
+            }
+            case 'electoral': {
+                const v = this.idProofs.voter;
+                return {
+                    voter_number: v.voter_number,
+                    name: v.name,
+                    port_number: v.port_number,
+                    serial_number: v.serial_number,
+                    address: v.address,
+                    home_reason: v.home_reason,
+                    mobile_linked: v.mobile_linked,
+                    remarks: v.remarks,
+                    ashram_voter_area_id: v.ashram_voter_area_id,
+                    mediaIsNew: v.mediaIsNew,
+                    mediaId: v.mediaId,
+                    files: v.files.length,
+                    previews: v.previews.length,
+                    file: !!v.file,
+                    selectedVoterHomeReason: this.selectedVoterHomeReason
+                };
+            }
+            case 'license': {
+                const l = this.idProofs.license;
+                return {
+                    license_number: l.license_number,
+                    holder_name: l.holder_name,
+                    state: l.state,
+                    license_type: l.license_type,
+                    date_of_issue: l.date_of_issue,
+                    expiry_date: l.expiry_date,
+                    mediaIsNew: l.mediaIsNew,
+                    mediaId: l.mediaId,
+                    files: l.files.length,
+                    previews: l.previews.length,
+                    file: !!l.file
+                };
+            }
+            case 'medical':
+                return {
+                    blood_group: this.medical.blood_group,
+                    notes: this.medical.notes,
+                    docs: this.medical.docs.length,
+                    selectedBloodGroup: this.selectedBloodGroup,
+                    histories: this.medicalHistories.map(h => ({
+                        id: h.id,
+                        major_illness: h.major_illness,
+                        note: h.note,
+                        docs: (h.docs || []).length
+                    }))
+                };
+            default:
+                return null;
+        }
+    }
+
+    snapshotSection(key: string): void {
+        this.sectionBaselines[key] = JSON.stringify(this.getSectionState(key));
+    }
+
+    isSectionDirty(key: string): boolean {
+        const base = this.sectionBaselines[key];
+        if (base === undefined) return false;
+        if (key === 'medical' && this.getQueuedMedicalDocDeletes()) return true;
+        return JSON.stringify(this.getSectionState(key)) !== base;
+    }
+
     /**
      * Generic per-section PUT helper. Runs the request, manages the section's
      * loading flag, surfaces a snackbar on success/failure. Does NOT navigate
@@ -2307,7 +2522,10 @@ export class EditVolunteerComponent implements OnInit {
                 return of(null);
             })
         ).subscribe((response) => {
-            if (response) this.snackbarService.showSuccess(`${label} updated`);
+            if (response) {
+                this.snackbarService.showSuccess(`${label} updated`);
+                this.snapshotSection(sectionKey);
+            }
             this.savingSection = null;
         });
     }
@@ -2326,6 +2544,7 @@ export class EditVolunteerComponent implements OnInit {
             })
         ).subscribe((response) => {
             if (!response) { this.savingSection = null; return; }
+            this.snapshotSection('basic');
             if (this.profileImage && this.userId) {
                 this.uploadProfileImage().subscribe({
                     next: () => { this.snackbarService.showSuccess('Basic information updated'); this.savingSection = null; },
@@ -2584,14 +2803,35 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     saveMedicalSection(): void {
-        this.putSection('medical', 'Medical details', 'v1/users/update-medical', {
+        if (this.savingSection) return;
+        this.savingSection = 'medical';
+        const queuedDeletes = this.getQueuedMedicalDocDeletes();
+        const payload = {
             user_id: this.userId,
             blood_group: this.selectedBloodGroup[0] || this.medical.blood_group || '',
             note: this.medicalHistories.map(h => h.note || ''),
             major_illness: this.medicalHistories.map(h => (h.major_illness == 1 || h.major_illness === true || h.major_illness === '1') ? 1 : 0),
             medical_history_media: this.medicalHistories.map(h => (h.docs || []).map(d => d.data).filter(Boolean)),
             medical_history_id: this.medicalHistories.map(h => h.id || ''),
-            delete_medical_history_docs: ''
+            delete_medical_history_docs: queuedDeletes
+        };
+
+        this.dataService.put('v1/users/update-medical', payload).pipe(
+            catchError((error: any) => {
+                const msg = error?.error?.message || error?.message || 'Failed to update Medical details.';
+                this.snackbarService.showError(msg);
+                return of(null);
+            })
+        ).subscribe((response) => {
+            if (response) {
+                this.snackbarService.showSuccess('Medical details updated');
+                this.clearQueuedMedicalDocDeletes();
+                // Reload from server so newly-saved rows pick up their backend ids
+                // and we don't re-create duplicates on the next save.
+                this.medicalHistories = [];
+                this.loadMedicalDetails();
+            }
+            this.savingSection = null;
         });
     }
 

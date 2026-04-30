@@ -1,0 +1,19 @@
+<ng-container *ngIf="vm$ | async as vm">
+    <app-modal
+        *ngIf="vm.isOpen"
+        [isOpen]="vm.isOpen"
+        [title]="vm.title || 'Preview'"
+        [size]="'large'"
+        (close)="close()">
+        <div class="image-preview-host" *ngIf="vm.url">
+            <iframe *ngIf="vm.isPdf"
+                    [src]="vm.safeUrl"
+                    title="File preview"
+                    class="image-preview-host__pdf"></iframe>
+            <img *ngIf="!vm.isPdf"
+                 [src]="vm.url"
+                 alt="File preview"
+                 class="image-preview-host__img" />
+        </div>
+    </app-modal>
+</ng-container>
