@@ -1,14 +1,16 @@
 <div class="reports-container">
     <div class="search-panel">
-        <div class="filters-grid filters-grid--four">
+        <div class="filters-grid filters-grid--seven">
             <div class="filter-field">
                 <label>Skills</label>
                 <app-dropdown
                     [options]="skillOptions"
                     [selectedValues]="selectedSkills"
-                    placeholder="Select Skills"
+                    placeholder="Select"
                     [searchable]="true"
                     [multiSelect]="true"
+                    [showSelectAll]="true"
+                    [showSelectedItems]="false"
                     (selectionChange)="selectedSkills = $event">
                 </app-dropdown>
             </div>
@@ -17,7 +19,7 @@
                 <app-dropdown
                     [options]="branchOptions"
                     [selectedValues]="selectedTaskBranch"
-                    placeholder="Select Task Branch"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event"
@@ -29,7 +31,7 @@
                 <app-dropdown
                     [options]="branchOptions"
                     [selectedValues]="selectedCorrespondingBranch"
-                    placeholder="Select Corresponding Branch"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event"
@@ -41,7 +43,7 @@
                 <app-dropdown
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="selectedBranchSearchType"
-                    placeholder="Select Branch Search Type"
+                    placeholder="Select"
                     (selectionChange)="selectedBranchSearchType = $event"
                     [closeOnSelect]="true">
                 </app-dropdown>
@@ -84,6 +86,15 @@
                     <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
+        </div>
+
+        <div class="selected-skills" *ngIf="selectedSkills?.length">
+            <span class="selected-skills__chip" *ngFor="let id of selectedSkills">
+                {{ getSkillLabel(id) }}
+                <button type="button" class="selected-skills__remove" (click)="removeSkill(id)">
+                    <app-icon name="close" [size]="10" />
+                </button>
+            </span>
         </div>
     </div>
 

@@ -64,6 +64,10 @@ export class CreateVolunteerComponent implements OnInit {
   isLoading = false;
   error: string | null = null;
 
+  existingUsers: { id: string; unique_id: number; level?: string; name?: string }[] = [];
+  showProceedToggle = false;
+  proceedForcefully = false;
+
   form: CreateVolunteerForm = {
     name: '',
     phone: '',
@@ -280,6 +284,9 @@ export class CreateVolunteerComponent implements OnInit {
     this.selectedImageType = null;
     this.clearImage();
     this.error = null;
+    this.existingUsers = [];
+    this.showProceedToggle = false;
+    this.proceedForcefully = false;
   }
 
   private resetForm(): void {
@@ -316,21 +323,52 @@ export class CreateVolunteerComponent implements OnInit {
     
     this.dataService.post('v1/volunteers/create', payload).pipe(
       catchError((error) => {
+        const body = (error as any)?.error;
+        if (this.handleDuplicateResponse(body)) {
+          return of(null);
+        }
         this.handleSubmitError(error);
         return of(null);
       }),
       finalize(() => {
         this.isLoading = false;
       })
-    ).subscribe((response) => {
-      if (response) {
-        this.handleSubmitSuccess();
-      } else {
-        // If response is null, error was already handled in catchError
-        // But ensure loading state is cleared
-        this.isLoading = false;
-      }
+    ).subscribe((response: any) => {
+      if (!response) return;
+      if (this.handleDuplicateResponse(response)) return;
+      this.handleSubmitSuccess();
     });
+  }
+
+  private handleDuplicateResponse(response: any): boolean {
+    if (!response || typeof response !== 'object') return false;
+
+    const buckets: any[] = [
+      response,
+      response?.data,
+      response?.data?.data,
+      response?.error,
+      response?.error?.data,
+      response?.errors,
+      response?.error?.errors,
+      response?.data?.errors
+    ];
+    let toggleFlag: any = undefined;
+    let users: any = undefined;
+    for (const b of buckets) {
+      if (!b || typeof b !== 'object') continue;
+      if (toggleFlag === undefined && 'isShowToggel' in b) toggleFlag = b.isShowToggel;
+      if (users === undefined && 'viewExistUsers' in b) users = b.viewExistUsers;
+      if (toggleFlag !== undefined && users !== undefined) break;
+    }
+
+    const showToggle = toggleFlag === 1 || toggleFlag === '1' || toggleFlag === true;
+    if (!showToggle || !Array.isArray(users) || !users.length) return false;
+
+    this.existingUsers = users;
+    this.showProceedToggle = true;
+    this.error = null;
+    return true;
   }
 
   /**
@@ -377,7 +415,8 @@ export class CreateVolunteerComponent implements OnInit {
       father_name: this.form.fatherName || '',
       mother_name: this.form.motherName || '',
       spouse_name: this.form.spouseName || '',
-      sewas: this.selectedSewas || []
+      sewas: this.selectedSewas || [],
+      proceed_forcefully: this.proceedForcefully ? 1 : 0
     };
 
     if (this.profileImage && this.profileImagePreview) {

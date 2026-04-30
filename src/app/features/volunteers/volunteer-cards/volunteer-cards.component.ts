@@ -1,14 +1,18 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { VolunteerCardsFiltersModalComponent } from './filters-modal/filters-modal.component';
+import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { DataService } from '../../../data.service';
 
 export interface VolunteerCard {
   id: number;
@@ -40,7 +44,8 @@ export interface VolunteerCard {
     PagerComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    VolunteerCardsFiltersModalComponent,
+    DatepickerComponent,
+    EmptyStateComponent,
     IconComponent,
     ImagePreviewDirective
   ],
@@ -48,8 +53,11 @@ export interface VolunteerCard {
   templateUrl: './volunteer-cards.component.html',
   styleUrls: ['./volunteer-cards.component.scss']
 })
-export class VolunteerCardsComponent {
+export class VolunteerCardsComponent implements OnInit {
   @ViewChild('exportWrapper') exportWrapper!: ElementRef;
+  private dataService = inject(DataService);
+  isLoading = false;
+  isExporting = false;
 
   volunteerCards: VolunteerCard[] = [];
   allVolunteerCards: VolunteerCard[] = [];
@@ -65,14 +73,14 @@ export class VolunteerCardsComponent {
   sewaOptions: DropdownOption[] = [];
   
   // Filters panel
-  filtersExpanded = false;
+  filtersExpanded = true;
   taskBranchOptions: DropdownOption[] = [];
   correspondingBranchOptions: DropdownOption[] = [];
-  branchSearchTypeOptions: DropdownOption[] = [];
+  branchSearchTypeOptions: DropdownOption[] = [
+    { id: 'both', label: 'In Both', value: 'both' }
+  ];
   filterOptionsDropdown: DropdownOption[] = [];
 
-  // More Filters Modal
-  moreFiltersModalOpen = false;
   moreFilters: any = {
     taskBranch: [],
     correspondingBranch: [],
@@ -103,24 +111,120 @@ export class VolunteerCardsComponent {
   ];
 
   constructor() {
-    // Initialize empty arrays - data will be loaded from API
     this.allVolunteerCards = [];
 
-    // Build filter options
     this.genderOptions = [
-      { id: '1', label: 'Male', value: 'Male' },
-      { id: '2', label: 'Female', value: 'Female' },
-      { id: '3', label: 'Other', value: 'Other' }
+      { id: 'MALE', label: 'MALE', value: 'MALE' },
+      { id: 'FEMALE', label: 'FEMALE', value: 'FEMALE' },
+      { id: 'OTHER', label: 'OTHER', value: 'OTHER' }
     ];
 
     this.sewaOptions = [];
+  }
 
-    this.applyFilter();
+  ngOnInit(): void {
+    this.loadBranches();
+    this.loadSewaOptions();
+  }
+
+  private loadSewaOptions(): void {
+    this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'volunteer' } }).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || response || [];
+      this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: String(s.id)
+      }));
+    });
+  }
+
+  private loadBranches(): void {
+    this.dataService.get<any>('v1/options/branches').pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+      const options: DropdownOption[] = (Array.isArray(data) ? data : []).map((branch: any) => ({
+        id: String(branch.id),
+        label: branch.name || branch.label || branch.title || '',
+        value: String(branch.id)
+      }));
+      this.taskBranchOptions = options;
+      this.correspondingBranchOptions = options;
+    });
+  }
+
+  private buildPayload(): Record<string, string> {
+    const firstValue = (arr: any[]): string => {
+      const v = arr?.[0];
+      if (v == null) return '';
+      return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
+    };
+    const orderBy = this.sortField ? this.sortDirection : '';
+    return {
+      branch_id: firstValue(this.moreFilters.taskBranch),
+      home_branch: firstValue(this.moreFilters.correspondingBranch),
+      branch_type: firstValue(this.moreFilters.branchSearchType),
+      sewa_id: firstValue(this.selectedSewa),
+      badge_id: (this.moreFilters.badgeNo || '').trim(),
+      gender: firstValue(this.selectedGender),
+      name: (this.moreFilters.name || '').trim(),
+      relation_name: (this.moreFilters.relationName || '').trim(),
+      mobile_number: (this.moreFilters.mobileNo || '').trim(),
+      unique_id: (this.moreFilters.uid || '').trim(),
+      card_option: firstValue(this.moreFilters.options),
+      sewa_assigned: '',
+      sewa_mode: '',
+      sortByColumn: this.sortField || '',
+      orderBy,
+      per_page: String(this.pageSize),
+      page: String(this.currentPage)
+    };
+  }
+
+  loadCards(): void {
+    this.isLoading = true;
+    const payload = this.buildPayload();
+    this.dataService.post<any>('v1/users/cards', payload).pipe(
+      catchError((err) => {
+        console.error('Error loading volunteer cards:', err);
+        this.isLoading = false;
+        return of({ data: [] });
+      })
+    ).subscribe((response) => {
+      const data = response?.data || response?.results || response || [];
+      const meta = response?.meta || response?.pagination || null;
+      this.volunteerCards = (Array.isArray(data) ? data : []).map((item: any) => this.mapCard(item));
+      this.allVolunteerCards = this.volunteerCards;
+      this.totalItems = meta ? (meta.total ?? meta.total_count ?? this.volunteerCards.length) : this.volunteerCards.length;
+      this.isLoading = false;
+    });
+  }
+
+  private mapCard(item: any): VolunteerCard {
+    const profile = item.user_profile || {};
+    return {
+      id: item.user_unique_id ?? item.unique_id ?? item.id ?? 0,
+      image: item.full_path || item.image_url || item.image || '',
+      name: item.user_name || item.name || '',
+      relationName: item.relation_name || item.spouse_name || profile.spouse_name || '',
+      fatherName: item.father_name || profile.father_name || '',
+      phone: item.phone || item.mobile_number || '',
+      mobileNo: item.mobile_number || item.phone || '',
+      uid: String(item.user_unique_id ?? item.unique_id ?? ''),
+      sewa: item.sewa_name || '',
+      gender: item.gender || profile.gender || '',
+      address: {
+        taskBranch: item.working_branch || '',
+        correspondingBranch: item.home_branch || ''
+      },
+      createdAt: item.created_at ? new Date(item.created_at) : undefined
+    };
   }
 
   get pagedCards(): VolunteerCard[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.volunteerCards.slice(start, start + this.pageSize);
+    return this.volunteerCards;
   }
 
   trackById(_: number, card: VolunteerCard): number {
@@ -192,84 +296,8 @@ export class VolunteerCardsComponent {
   }
 
   applyFilter(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const gender = this.selectedGender[0]?.value || '';
-    const sewa = this.selectedSewa[0]?.value || '';
-    const taskBranch = this.moreFilters.taskBranch[0]?.value || '';
-    const correspondingBranch = this.moreFilters.correspondingBranch[0]?.value || '';
-    const badgeNo = (this.moreFilters.badgeNo || '').trim().toLowerCase();
-    const filterName = (this.moreFilters.name || '').trim().toLowerCase();
-    const relationName = (this.moreFilters.relationName || '').trim().toLowerCase();
-    const mobileNo = (this.moreFilters.mobileNo || '').trim();
-    const uid = (this.moreFilters.uid || '').trim().toLowerCase();
-    const startFrom = this.moreFilters.startFrom ? new Date(this.moreFilters.startFrom) : null;
-    const endTo = this.moreFilters.endTo ? new Date(this.moreFilters.endTo) : null;
-
-    // Filter cards
-    let filtered = this.allVolunteerCards.filter((card) => {
-      // Search in Name, Relation Name, Mobile No., UID
-      const matchesTerm = !term ||
-        card.name.toLowerCase().includes(term) ||
-        (card.relationName && card.relationName.toLowerCase().includes(term)) ||
-        (card.mobileNo && card.mobileNo.includes(term)) ||
-        (card.uid && card.uid.toLowerCase().includes(term));
-
-      const matchesGender = !gender || card.gender === gender;
-      const matchesSewa = !sewa || card.sewa === sewa;
-
-      // Individual field filters
-      const matchesBadgeNo = !badgeNo || (card.id?.toString().includes(badgeNo));
-      const matchesName = !filterName || card.name.toLowerCase().includes(filterName);
-      const matchesRelationName = !relationName ||
-        (card.relationName && card.relationName.toLowerCase().includes(relationName));
-      const matchesMobileNo = !mobileNo || (card.mobileNo && card.mobileNo.includes(mobileNo));
-      const matchesUid = !uid || (card.uid && card.uid.toLowerCase().includes(uid));
-
-      // Date range filter
-      const matchesStartFrom = !startFrom || !card.createdAt || card.createdAt >= startFrom;
-      const matchesEndTo = !endTo || !card.createdAt || card.createdAt <= endTo;
-
-      // Branch filters
-      const matchesTaskBranch = !taskBranch ||
-        (card.address?.taskBranch === taskBranch);
-      const matchesCorrespondingBranch = !correspondingBranch ||
-        (card.address?.correspondingBranch === correspondingBranch);
-
-      return matchesTerm && matchesGender && matchesSewa &&
-             matchesBadgeNo && matchesName && matchesRelationName &&
-             matchesMobileNo && matchesUid &&
-             matchesStartFrom && matchesEndTo &&
-             matchesTaskBranch && matchesCorrespondingBranch;
-    });
-
-    // Apply sorting (using table header sorting)
-    if (this.sortField) {
-      filtered = [...filtered].sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
-
-        switch (this.sortField) {
-          case 'name':
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case 'id':
-            aValue = a.id;
-            bValue = b.id;
-            break;
-          default:
-            return 0;
-        }
-
-        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
-        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    this.volunteerCards = filtered;
-    this.totalItems = this.volunteerCards.length;
     this.currentPage = 1;
+    this.loadCards();
   }
 
   sortBy(field: string) {
@@ -292,11 +320,13 @@ export class VolunteerCardsComponent {
   // Pagination event handlers
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.loadCards();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = Math.max(20, size);
     this.currentPage = 1;
+    this.loadCards();
   }
 
   // Selection handlers
@@ -381,18 +411,95 @@ export class VolunteerCardsComponent {
     }
   }
 
-  // More Filters Modal
-  openMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = true;
+  private buildExportAllPayload(choice: 'web' | 'email'): Record<string, unknown> {
+    const firstValue = (arr: any[]): string => {
+      const v = arr?.[0];
+      if (v == null) return '';
+      return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
+    };
+    return {
+      exportChoice: choice,
+      is_export: '1',
+      home_branch: firstValue(this.moreFilters.correspondingBranch),
+      branch_id: firstValue(this.moreFilters.taskBranch),
+      branch_type: firstValue(this.moreFilters.branchSearchType),
+      sewa_id: firstValue(this.selectedSewa),
+      badge_id: (this.moreFilters.badgeNo || '').trim(),
+      gender: firstValue(this.selectedGender),
+      name: (this.moreFilters.name || '').trim(),
+      relation_name: (this.moreFilters.relationName || '').trim(),
+      former_name: '',
+      userStatus: '',
+      mobile_number: (this.moreFilters.mobileNo || '').trim(),
+      unique_id: (this.moreFilters.uid || '').trim(),
+      sewa_interest: '',
+      sewa_assigned: '',
+      sewa_mode: '',
+      sortByColumn: this.sortField || '',
+      orderBy: this.sortField ? this.sortDirection : ''
+    };
   }
 
-  closeMoreFiltersModal(): void {
-    this.moreFiltersModalOpen = false;
-  }
+  exportReport(choice: 'web' | 'email' = 'web'): void {
+    this.isExporting = true;
+    const hasSelection = this.selectedCards.size > 0;
+    const url = hasSelection ? 'v1/export/batch/volunteer' : 'v1/export/all/volunteer';
+    const payload: Record<string, unknown> = hasSelection
+      ? { ids: Array.from(this.selectedCards).map(String), exportChoice: choice }
+      : this.buildExportAllPayload(choice);
+    this.dataService.post<any>(url, payload, { responseType: 'blob', observe: 'response' }).pipe(
+      catchError(async (err) => {
+        let message = err?.error?.message || err?.message || 'Failed to export.';
+        if (err?.error instanceof Blob) {
+          try {
+            const text = await err.error.text();
+            const json = JSON.parse(text);
+            message = json?.message || message;
+          } catch { /* ignore */ }
+        }
+        console.error('Error exporting volunteer cards:', message);
+        this.isExporting = false;
+        return null;
+      })
+    ).subscribe((response: any) => {
+      this.isExporting = false;
+      if (!response) return;
+      const body: Blob = response.body;
+      if (!body) return;
 
-  onMoreFiltersApply(filters: any): void {
-    this.moreFilters = filters;
-    this.applyFilter();
+      if (body.type && body.type.includes('application/json')) {
+        body.text().then(text => {
+          try {
+            const json = JSON.parse(text);
+            const url = json.data?.downloadLink || json.data?.download_link || json.data?.url || json.url || json.file_url;
+            if (url && choice === 'web') {
+              const a = document.createElement('a');
+              a.href = url;
+              a.target = '_blank';
+              a.rel = 'noopener';
+              const fileName = url.split('/').pop() || 'export';
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          } catch { /* ignore */ }
+        });
+        return;
+      }
+
+      const blob = new Blob([body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      const today = new Date();
+      const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      a.download = `volunteer-cards-${stamp}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+    });
   }
 }
 

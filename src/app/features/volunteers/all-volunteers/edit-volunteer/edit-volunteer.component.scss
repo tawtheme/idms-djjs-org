@@ -517,6 +517,26 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
             display: block;
         }
 
+        &__pdf {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: $color-gray-50;
+            border: none;
+            color: $color-gray-700;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+
+            app-icon { font-size: 28px; color: #b91c1c; }
+
+            &:hover { background: $color-gray-100; }
+        }
+
         &__delete {
             position: absolute;
             top: 6px;
@@ -839,12 +859,14 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
         white-space: nowrap;
     }
 
+    &__view,
+    &__download,
     &__remove {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border: none;
         border-radius: 50%;
         background: transparent;
@@ -855,7 +877,13 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
         app-icon { font-size: 12px; }
 
         &:hover { background: $color-gray-300; color: $color-gray-900; }
+
+        &[disabled] { opacity: 0.4; cursor: not-allowed; }
     }
+
+    &__view:hover,
+    &__download:hover { color: $color-primary-600; }
+    &__remove:hover { color: #dc2626; }
 }
 
 /* ---------- Medical docs upload ---------- */

@@ -170,7 +170,7 @@ export class ConsecutiveAbsenteesReportComponent implements OnInit {
 
             this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
                 id: String(item.unique_id ?? item.id ?? ''),
-                image: item.image || item.profile_image || '',
+                image: item.user_image?.full_path || item.user_image?.image || item.image || item.profile_image || '',
                 name: item.name || '',
                 email: item.email || '',
                 phone: item.phone || item.mobile || '',
@@ -217,20 +217,43 @@ export class ConsecutiveAbsenteesReportComponent implements OnInit {
     exportReport(choice: 'web' | 'email' = 'web'): void {
         if (!this.validateRequired()) return;
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/volunteer_not_attending_sewa', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
+        const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
+
+        this.dataService.post<any>('v1/reports/volunteer_not_attending_sewa', payload, { responseType: 'blob', observe: 'response' }).pipe(
             catchError((err) => {
                 console.error('Error exporting consecutive absentees report:', err);
                 this.error = err.error?.message || err.message || 'Failed to export report.';
                 this.isExporting = false;
                 return of(null);
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') window.open(url, '_blank');
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `consecutive-absentees-report-${this.formatApiDate(new Date())}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 

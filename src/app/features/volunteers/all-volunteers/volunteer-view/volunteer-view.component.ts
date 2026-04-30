@@ -465,4 +465,37 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     return String(value);
   }
 
+  downloadDoc(doc: any): void {
+    const url: string = doc?.path || doc?.url || doc?.data || '';
+    if (!url) return;
+    const name: string = doc?.name || doc?.file_name || this.fileNameFromUrl(url) || 'document';
+    const trigger = (href: string, revoke?: boolean) => {
+      const a = document.createElement('a');
+      a.href = href;
+      a.download = name;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      if (revoke) setTimeout(() => URL.revokeObjectURL(href), 1000);
+    };
+    if (/^https?:/i.test(url)) {
+      fetch(url, { mode: 'cors' })
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.blob(); })
+        .then(blob => trigger(URL.createObjectURL(blob), true))
+        .catch(() => { window.open(url, '_blank', 'noopener'); });
+      return;
+    }
+    trigger(url);
+  }
+
+  private fileNameFromUrl(url: string): string {
+    const path = url.split('?')[0];
+    return path.substring(path.lastIndexOf('/') + 1) || '';
+  }
+
+  docName(doc: any): string {
+    return doc?.name || doc?.file_name || doc?.original_name || this.fileNameFromUrl(doc?.path || doc?.url || doc?.data || '') || 'document';
+  }
+
 }

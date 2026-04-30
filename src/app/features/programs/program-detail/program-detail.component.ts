@@ -126,14 +126,55 @@ export class ProgramDetailComponent implements OnInit {
       }
       const data = response.data || {};
       const items = data.items || [];
-      this.sewaList = (Array.isArray(items) ? items : []).map((item: any) => ({
-        sewaId: item.sewa_id || '',
+      const summary = (Array.isArray(items) ? items : []).map((item: any) => ({
+        sewaId: String(item.sewa_id || ''),
         sewaName: item.sewa_name || '',
         totalVolunteers: item.total_volunteers || 0
       }));
+
+      const allSewas = data.sewa_Ids ?? data.sewaIds ?? data.sewa_ids ?? [];
+      const normalized: SewaListItem[] = this.normalizeSewaIds(allSewas);
+
+      const byId = new Map<string, SewaListItem>();
+      // Seed from sewa_Ids first so order/coverage is preserved.
+      normalized.forEach((s) => { if (s.sewaId) byId.set(s.sewaId, s); });
+      // Overlay with items so we pick up real volunteer counts and any missing ids.
+      summary.forEach((s) => {
+        const existing = byId.get(s.sewaId);
+        byId.set(s.sewaId, {
+          sewaId: s.sewaId,
+          sewaName: s.sewaName || existing?.sewaName || '',
+          totalVolunteers: s.totalVolunteers
+        });
+      });
+
+      this.sewaList = Array.from(byId.values());
       this.activeSewaTabIndex = -1;
       this.currentVolunteers = [];
     });
+  }
+
+  private normalizeSewaIds(input: any): SewaListItem[] {
+    if (!input) return [];
+    const list = Array.isArray(input) ? input : Object.entries(input).map(([id, value]) => {
+      if (value && typeof value === 'object') return { id, ...(value as object) };
+      return { id, name: value };
+    });
+    return list
+      .map((entry: any) => {
+        if (typeof entry === 'string' || typeof entry === 'number') {
+          return { sewaId: String(entry), sewaName: '', totalVolunteers: 0 } as SewaListItem;
+        }
+        if (entry && typeof entry === 'object') {
+          return {
+            sewaId: String(entry.sewa_id ?? entry.sewa?.id ?? entry.id ?? ''),
+            sewaName: entry.sewa?.name || entry.sewa_name || entry.name || entry.label || '',
+            totalVolunteers: entry.total_volunteers ?? 0
+          } as SewaListItem;
+        }
+        return null;
+      })
+      .filter((s): s is SewaListItem => !!s && !!s.sewaId);
   }
 
   loadSewaVolunteers(sewaId: string): void {
@@ -241,22 +282,39 @@ export class ProgramDetailComponent implements OnInit {
     };
   }
 
-  getStatusLabel(status: number): string {
-    switch (status) {
-      case 1: return 'Completed';
-      case 2: return 'In Progress';
-      case 3: return 'Cancelled';
-      default: return 'Pending';
+  private computeProgramStatus(): { status: 'Completed' | 'Running' | 'Upcoming' | 'Scheduled'; scheduledDays?: number } {
+    const start = this.program?.startDateTime;
+    const end = this.program?.endDateTime;
+    const now = new Date();
+    const startDate = start ? new Date(start) : null;
+    let endDate = end ? new Date(end) : null;
+    if (end && typeof end === 'string' && !end.includes('T') && !end.includes(':')) {
+      endDate = new Date(end + 'T23:59:59');
     }
+
+    if (!startDate || isNaN(startDate.getTime())) return { status: 'Upcoming' };
+    if (now < startDate) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const startDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const daysUntil = Math.ceil((startDay.getTime() - today.getTime()) / msPerDay);
+      if (daysUntil > 6) return { status: 'Scheduled', scheduledDays: daysUntil };
+      return { status: 'Upcoming' };
+    }
+    if (endDate && now > endDate) return { status: 'Completed' };
+    return { status: 'Running' };
   }
 
-  getStatusClass(status: number): string {
-    switch (status) {
-      case 1: return 'status-completed';
-      case 2: return 'status-in-progress';
-      case 3: return 'status-cancelled';
-      default: return 'status-pending';
+  getStatusLabel(_status?: number): string {
+    const { status, scheduledDays } = this.computeProgramStatus();
+    if (status === 'Scheduled') {
+      return `Scheduled in ${scheduledDays} ${scheduledDays === 1 ? 'day' : 'days'}`;
     }
+    return status;
+  }
+
+  getStatusClass(_status?: number): string {
+    return 'status-' + this.computeProgramStatus().status.toLowerCase();
   }
 
   getTotalDonations(): number {
@@ -267,9 +325,16 @@ export class ProgramDetailComponent implements OnInit {
   selectSewaTab(index: number): void {
     this.activeSewaTabIndex = index;
     const sewa = this.sewaList[index];
-    if (sewa) {
-      this.loadSewaVolunteers(sewa.sewaId);
+    if (!sewa) return;
+    if (sewa.totalVolunteers <= 0) {
+      this.currentSewaId = sewa.sewaId;
+      this.currentVolunteers = [];
+      this.volunteerPage = 1;
+      this.volunteerHasMore = false;
+      this.volunteerSearchTerm = '';
+      return;
     }
+    this.loadSewaVolunteers(sewa.sewaId);
   }
 
   get activeSewa(): SewaListItem | null {

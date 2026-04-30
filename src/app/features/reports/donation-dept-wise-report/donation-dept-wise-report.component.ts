@@ -46,6 +46,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
     // Filter selections
     selectedTaskBranch: any[] = [];
     selectedProgram: any[] = [];
+    searchTerm = '';
 
     // Filter options
     taskBranchOptions: DropdownOption[] = [];
@@ -67,8 +68,16 @@ export class DonationDeptWiseReportComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadBranchOptions();
-        this.loadProgramOptions();
         this.loadReport();
+    }
+
+    onTaskBranchChange(values: any[]): void {
+        this.selectedTaskBranch = values || [];
+        this.selectedProgram = [];
+        this.programOptions = [];
+        if (this.selectedTaskBranch.length) {
+            this.loadProgramOptions(String(this.selectedTaskBranch[0]));
+        }
     }
 
     private loadBranchOptions(): void {
@@ -84,8 +93,8 @@ export class DonationDeptWiseReportComponent implements OnInit {
         });
     }
 
-    private loadProgramOptions(): void {
-        this.dataService.get<any>('v1/options/programs').pipe(
+    private loadProgramOptions(branchId: string): void {
+        this.dataService.get<any>('v1/options/programs', { params: { branch_id: branchId } }).pipe(
             catchError(() => of({ data: [] }))
         ).subscribe((response) => {
             const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
@@ -113,6 +122,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
 
         if (this.isMeaningful(this.selectedTaskBranch[0])) payload['branch_id'] = String(this.selectedTaskBranch[0]);
         if (this.isMeaningful(this.selectedProgram[0])) payload['program_id'] = String(this.selectedProgram[0]);
+        if (this.isMeaningful(this.searchTerm)) payload['search'] = this.searchTerm.trim();
 
         return { ...payload, ...extra };
     }
@@ -123,7 +133,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
 
         const payload = this.buildPayload();
 
-        this.dataService.post<any>('v1/reports/donation-dept-wise', payload).pipe(
+        this.dataService.post<any>('v1/reports/sewa_donations', payload).pipe(
             catchError((err) => {
                 console.error('Error loading donation report:', err);
                 this.error = err.error?.message || err.message || 'Failed to load report.';
@@ -138,7 +148,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
             this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
                 id: String(item.id ?? item.sewa_id ?? ''),
                 sewaName: item.sewa?.name || item.sewa_name || item.name || '',
-                donationAmount: Number(item.donation_amount ?? item.total_amount ?? item.amount ?? 0)
+                donationAmount: Number(item.donations_sum_amount ?? item.donation_amount ?? item.total_amount ?? item.amount ?? 0)
             }));
 
             if (meta) {
@@ -164,6 +174,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
     resetFilters(): void {
         this.selectedTaskBranch = [];
         this.selectedProgram = [];
+        this.searchTerm = '';
         this.sortField = '';
         this.sortDirection = 'asc';
         this.currentPage = 1;
@@ -196,20 +207,51 @@ export class DonationDeptWiseReportComponent implements OnInit {
         this.isExporting = true;
         const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
 
-        this.dataService.post<any>('v1/reports/donation-dept-wise', payload).pipe(
-            catchError((err) => {
+        this.dataService.post<any>('v1/reports/sewa_donations', payload, { responseType: 'blob', observe: 'response' }).pipe(
+            catchError(async (err) => {
                 console.error('Error exporting donation report:', err);
-                this.error = err.error?.message || err.message || 'Failed to export report.';
+                let message = err?.error?.message || err?.message || 'Failed to export report.';
+                if (err?.error instanceof Blob) {
+                    try {
+                        const text = await err.error.text();
+                        const json = JSON.parse(text);
+                        message = json?.message || json?.errors?.branch_id || message;
+                    } catch { /* ignore */ }
+                }
+                this.error = message;
                 this.isExporting = false;
-                return of(null);
+                return null;
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') window.open(url, '_blank');
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            const today = new Date();
+            const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            a.download = `donation-dept-wise-${stamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 

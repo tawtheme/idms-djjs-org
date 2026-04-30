@@ -201,20 +201,20 @@ export class VolunteersBranchSewaReportComponent implements OnInit {
             .join(', ');
 
         const images = Array.isArray(item.user_images) ? item.user_images : [];
-        const firstImage = images[0]?.image_url || images[0]?.url || item.image || '';
+        const firstImage = item.full_path || images[0]?.full_path || images[0]?.image_url || images[0]?.url || item.image || '';
 
         return {
-            id: String(item.unique_id || item.uid || item.id || ''),
+            id: String(item.user_unique_id ?? item.unique_id ?? item.uid ?? item.id ?? ''),
             image: firstImage,
-            userName: item.name || '',
-            fatherName: profile.father_name || item.father_name || '',
-            motherName: profile.mother_name || item.mother_name || '',
-            spouseName: profile.spouse_name || item.spouse_name || '',
-            phone: item.phone || item.mobile_number || '',
-            sewa: sewaNames,
-            taskBranch: primaryAddress.working_branch?.name || primaryAddress.task_branch || item.task_branch || '',
-            correspondingBranch: primaryAddress.home_branch?.name || primaryAddress.corresponding_branch || item.corresponding_branch || '',
-            badgeId: badgeIds || item.badge_no || item.badge_number || ''
+            userName: item.user_name || item.name || '',
+            fatherName: item.father_name || profile.father_name || '',
+            motherName: item.mother_name || profile.mother_name || '',
+            spouseName: item.spouse_name || profile.spouse_name || '',
+            phone: item.phone || item.alternate_phone || item.mobile_number || '',
+            sewa: item.sewa_name || sewaNames,
+            taskBranch: item.working_branch || primaryAddress.working_branch?.name || primaryAddress.task_branch || item.task_branch || '',
+            correspondingBranch: item.home_branch || primaryAddress.home_branch?.name || primaryAddress.corresponding_branch || item.corresponding_branch || '',
+            badgeId: item.badge_id != null && item.badge_id !== '' ? String(item.badge_id) : (badgeIds || item.badge_no || item.badge_number || '')
         };
     }
 

@@ -5,60 +5,145 @@
 // Apply shared listing styles
 @include listing.listing('.resigned-sewas');
 
-// Search Panel
-.search-panel {
-    background: $color-white;
-    border: 1px solid $color-gray-200;
-    border-radius: 8px;
-    padding: 10px 12px;
+.reinstate-form {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 14px;
+    padding: 2px;
+}
 
-    &__top {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+.reinstate-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, $color-primary-50, $color-gray-50);
+    border: 1px solid $color-primary-100;
+    border-radius: 10px;
 
-        app-dropdown {
-            min-width: 140px;
-            flex: 0 0 auto;
-        }
-
-        @media (max-width: 768px) {
-            flex-wrap: wrap;
-        }
-    }
-
-    &__actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-shrink: 0;
-    }
-
-    &__filters {
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
-        opacity: 0;
-
-        &--expanded {
-            grid-template-rows: 1fr;
-            opacity: 1;
-        }
-    }
-
-    &__filters-inner {
+    &__avatar {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 50%;
         overflow: hidden;
-        padding-top: 0;
-        transition: padding-top 0.3s ease;
+        background: $color-white;
+        border: 2px solid $color-white;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
 
-        .search-panel__filters--expanded & {
-            padding-top: 4px;
-            overflow: visible;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-gray-900;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 13px;
+        color: $color-gray-600;
+    }
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: $color-primary-100;
+        color: $color-primary-700;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.reinstate-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.reinstate-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &--full { grid-column: 1 / -1; }
+
+    label {
+        font-weight: 600;
+        font-size: 13px;
+        color: $color-gray-700;
+        text-align: left;
+
+        .required {
+            color: #dc2626;
+            margin-left: 2px;
+        }
+    }
+
+    .hint {
+        font-size: 12px;
+        color: $color-gray-500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid $color-gray-200;
+        border-radius: 8px;
+        font-size: 14px;
+        color: $color-gray-900;
+        background: $color-white;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        min-height: 42px;
+
+        &:hover { border-color: $color-gray-300; }
+
+        &:focus {
+            border-color: $color-primary-400;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 70px;
+        line-height: 1.5;
+    }
+}
+
+.reinstate-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+    margin-top: 4px;
+    border-top: 1px solid $color-gray-200;
+    padding-top: 16px;
+}
+
+.page-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
 }
 
 // Filters grid layout
@@ -73,6 +158,108 @@
 
     @media (max-width: 480px) {
         grid-template-columns: 1fr;
+    }
+
+    &.filters-grid--four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &.filters-grid--five {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+
+        @media (max-width: 1280px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+.filter-field--actions {
+    align-self: end;
+
+    .filter-actions {
+        display: flex;
+        gap: 12px;
+
+        .btn {
+            min-height: 40px;
+            padding: 0 16px;
+        }
+    }
+}
+
+.filter-field {
+    .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+        font-size: 14px;
+        color: $color-gray-900;
+        background: $color-white;
+        outline: none;
+        min-height: 40px;
+        transition: border-color 0.15s ease;
+
+        &:hover { border-color: $color-gray-300; }
+        &:focus { border-color: $color-primary-400; }
+    }
+
+    .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .form-control {
+            padding-right: 28px;
+        }
+
+        .input-clear {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 50%;
+            background: $color-gray-200;
+            color: $color-gray-700;
+            cursor: pointer;
+            padding: 0;
+            transition: background 0.15s ease;
+
+            &:hover {
+                background: $color-gray-300;
+                color: $color-gray-900;
+            }
+        }
     }
 }
 

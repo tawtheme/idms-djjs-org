@@ -3,6 +3,64 @@
 
 @include r.report-listing('.reports');
 
+.filters-grid.filters-grid--seven {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+
+    @media (max-width: 1440px) {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+    }
+
+    @media (max-width: 1280px) {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+    }
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.selected-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: $color-primary-600;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    &__remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+    }
+}
+
 .volunteer-image {
     width: 36px;
     height: 36px;

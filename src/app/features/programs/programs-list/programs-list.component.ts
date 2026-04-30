@@ -144,6 +144,9 @@ export class ProgramsListComponent implements OnInit {
     const params = new URLSearchParams();
     params.set('page', String(this.currentPage));
     params.set('per_page', String(this.pageSize));
+    if (this.selectedTaskBranch && this.selectedTaskBranch.length > 0) {
+      params.set('branch_id', String(this.selectedTaskBranch[0]));
+    }
 
     this.dataService.get<any>(`v1/programs?${params.toString()}`).pipe(
       catchError((error) => {
@@ -219,25 +222,7 @@ export class ProgramsListComponent implements OnInit {
     });
   }
 
-  private loadProjectOptions(branchId: string): void {
-    this.projectOptions = [];
-    this.selectedProject = [];
-    this.dataService.post<any>(`v1/projects/${branchId}`, {}).pipe(
-      catchError((err) => {
-        console.error('Error loading projects:', err);
-        return of({ data: [] });
-      })
-    ).subscribe((response) => {
-      const data = Array.isArray(response) ? response : (response.data || response.results || []);
-      this.projectOptions = (Array.isArray(data) ? data : []).map((item: any) => ({
-        id: String(item.id),
-        label: item.name || item.label || item.title || '',
-        value: item.id
-      }));
-    });
-  }
-
-  private formatDisplayDate(value: string | null | undefined): string {
+private formatDisplayDate(value: string | null | undefined): string {
     if (!value) return '';
     const d = new Date(value);
     if (isNaN(d.getTime())) return String(value);
@@ -395,16 +380,13 @@ export class ProgramsListComponent implements OnInit {
   }
 
   /**
-   * Handle task branch selection change — loads project options for the selected branch
+   * Handle task branch selection change — refetches programs scoped to the selected branch.
    */
   onTaskBranchChange(): void {
-    if (this.selectedTaskBranch && this.selectedTaskBranch.length > 0) {
-      this.loadProjectOptions(this.selectedTaskBranch[0]);
-    } else {
-      this.projectOptions = [];
-      this.selectedProject = [];
-    }
-    this.applyFilters();
+    this.projectOptions = [];
+    this.selectedProject = [];
+    this.currentPage = 1;
+    this.loadPrograms();
   }
 
   /**

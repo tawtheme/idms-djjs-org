@@ -1,125 +1,138 @@
 <div class="resigned-sewas-container">
-    <div class="resigned-sewas-header">
-    </div>
-
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
         <button class="btn btn--primary btn--sm" (click)="loadResignedSewas()">Retry</button>
     </div>
 
+    <ng-container *ngIf="!error">
     <!-- Search & Filter Panel -->
-    <div class="search-panel" *ngIf="!error">
-        <div class="search-panel__top">
-            <div class="search-input-wrapper">
-                <app-icon name="search" class="search-input-icon" />
-                <input
-                    type="search"
-                    class="search-input"
-                    placeholder="Search by User Name, Badge No., or Reason"
-                    [(ngModel)]="searchTerm"
-                    [ngModelOptions]="{ standalone: true }"
-                    (input)="onSearchChange()"/>
+    <div class="filters-grid filters-grid--five">
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="selectedTaskBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
             </div>
-            <app-dropdown
-                [options]="genderOptions"
-                [selectedValues]="selectedGender"
-                placeholder="Gender"
-                (selectionChange)="selectedGender = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="taskBranchOptions"
-                [selectedValues]="selectedTaskBranch"
-                placeholder="Task Branch"
-                (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="sortOrderOptions"
-                [selectedValues]="sortOrder"
-                placeholder="Sort By"
-                (selectionChange)="sortOrder = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="sewaOptions"
-                [selectedValues]="moreFilters.sewa"
-                placeholder="Sewa"
-                (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <div class="search-panel__actions">
-                <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
-                    <app-icon name="tune" />
-                    <span>Filters</span>
-                    <span class="filter-count" *ngIf="totalActiveFiltersCount() > 0">{{ totalActiveFiltersCount() }}</span>
-                    <app-icon name="keyboard_arrow_down" class="filter-btn__arrow" [class.filter-btn__arrow--up]="filtersExpanded" />
-                </button>
-                <button class="filter-btn" type="button" (click)="resetFilter()" *ngIf="hasAnyActiveFilter()">
-                    <app-icon name="close" />
-                    <span>Clear All</span>
-                </button>
+            <div class="filter-field">
+                <label>Sewas</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="moreFilters.sewa"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
             </div>
-        </div>
-        @if (filtersExpanded) {
-        <div class="search-panel__filters search-panel__filters--expanded">
-            <div class="search-panel__filters-inner">
-                <div class="filters-grid">
-                    <div class="filter-field">
-                        <label>Corresponding Branch</label>
-                        <app-dropdown
-                            [options]="correspondingBranchOptions"
-                            [selectedValues]="moreFilters.correspondingBranch"
-                            placeholder="Select Branch"
-                            (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Branch Search Type</label>
-                        <app-dropdown
-                            [options]="branchSearchTypeOptions"
-                            [selectedValues]="moreFilters.branchSearchType"
-                            placeholder="Select Type"
-                            (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Sewa Interest</label>
-                        <app-dropdown
-                            [options]="sewaInterestOptions"
-                            [selectedValues]="moreFilters.sewaInterest"
-                            placeholder="Select"
-                            (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Sewa Allocated</label>
-                        <app-dropdown
-                            [options]="sewaAllocatedOptions"
-                            [selectedValues]="moreFilters.sewaAllocated"
-                            placeholder="Select"
-                            (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Sewa Mode</label>
-                        <app-dropdown
-                            [options]="sewaModeOptions"
-                            [selectedValues]="moreFilters.sewaMode"
-                            placeholder="Select Mode"
-                            (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
+            <div class="filter-field">
+                <label>BadgeNo</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.badgeNo"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.badgeNo" type="button" class="input-clear" (click)="moreFilters.badgeNo=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
                 </div>
             </div>
-        </div>
-        }
+            <div class="filter-field">
+                <label>Gender</label>
+                <app-dropdown
+                    [options]="genderOptions"
+                    [selectedValues]="selectedGender"
+                    placeholder="None"
+                    (selectionChange)="selectedGender = $event; onSearchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.name"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.name" type="button" class="input-clear" (click)="moreFilters.name=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Relation Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.relationName"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.relationName" type="button" class="input-clear" (click)="moreFilters.relationName=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Mobile No.</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.mobileNo"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.mobileNo" type="button" class="input-clear" (click)="moreFilters.mobileNo=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>UID</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.uid"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.uid" type="button" class="input-clear" (click)="moreFilters.uid=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Address</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="moreFilters.address"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="moreFilters.address" type="button" class="input-clear" (click)="moreFilters.address=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport()">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                </div>
+            </div>
     </div>
 
     <!-- Resigned Sewas table -->
@@ -128,14 +141,6 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="checkbox-column">
-                            <input
-                                type="checkbox"
-                                [checked]="isAllSelected()"
-                                [indeterminate]="isIndeterminate()"
-                                (change)="toggleSelectAll($event)"
-                                (click)="$event.stopPropagation()">
-                        </th>
                         <th>Id</th>
                         <th>User Name</th>
                         <th>Task Branch</th>
@@ -149,14 +154,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngIf="!isLoading">
                         <tr *ngFor="let resignedSewa of pagedResignedSewas; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    [checked]="selectedResignedSewas.has(resignedSewa.id)"
-                                    (change)="toggleSelectResignedSewa(resignedSewa.id, $event)">
-                            </td>
                             <td data-label="Id">
                                 {{ resignedSewa.id }}
                             </td>
@@ -193,6 +191,7 @@
                             </td>
                             <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
                                 <app-menu-dropdown
+                                    *ngIf="getActionOptions(resignedSewa).length > 0"
                                     [options]="getActionOptions(resignedSewa)"
                                     (selectionChange)="onAction(resignedSewa, $event)">
                                 </app-menu-dropdown>
@@ -200,21 +199,14 @@
                         </tr>
                         <!-- Empty state -->
                         <tr *ngIf="pagedResignedSewas.length === 0">
-                            <td [attr.colspan]="11" class="empty-state-cell">
+                            <td [attr.colspan]="10" class="empty-state-cell">
                                 <app-empty-state
-                                    [title]="searchTerm || selectedTaskBranch.length > 0 || moreFilters.sewa.length > 0 ? 'No Results Found' : 'No Resigned Sewas Found'"
-                                    [description]="searchTerm || selectedTaskBranch.length > 0 || moreFilters.sewa.length > 0 ? 'No resigned sewas match your search criteria.' : 'There are no resigned sewas to display at the moment.'"
+                                    [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Resigned Sewas Found'"
+                                    [description]="hasAnyActiveFilter() ? 'No resigned sewas match your search criteria.' : 'There are no resigned sewas to display at the moment.'"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>
                         </tr>
-                    </ng-container>
-                    <!-- Loading cell -->
-                    <tr *ngIf="isLoading">
-                        <td [attr.colspan]="11" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -229,5 +221,58 @@
             (pageSizeChange)="onPageSizeChange($event)">
         </app-pager>
     </div>
+    </ng-container>
 
+    <!-- Reinstate User Modal -->
+    <app-modal
+        [isOpen]="isReinstateModalOpen"
+        [title]="'Reinstate User'"
+        [size]="'medium'"
+        (close)="closeReinstateModal()">
+        <div class="reinstate-form">
+            <div class="reinstate-grid">
+                <div class="reinstate-field">
+                    <label>Date <span class="required">*</span></label>
+                    <app-datepicker
+                        [value]="reinstateForm.date"
+                        placeholder="Select Date"
+                        format="dd/MM/yyyy"
+                        (dateChange)="reinstateForm.date = $event">
+                    </app-datepicker>
+                </div>
+                <div class="reinstate-field">
+                    <label>Sewa <span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="sewaOptions"
+                        [selectedValues]="reinstateForm.sewa"
+                        placeholder="Search and select sewas"
+                        [searchable]="true"
+                        [autocomplete]="true"
+                        [multiSelect]="true"
+                        (selectionChange)="reinstateForm.sewa = $event"
+                        [closeOnSelect]="false">
+                    </app-dropdown>
+                    <small class="hint">You can select multiple sewas.</small>
+                </div>
+            </div>
+
+            <div class="reinstate-field reinstate-field--full">
+                <label>Remarks</label>
+                <textarea
+                    class="form-control"
+                    rows="3"
+                    placeholder="Add any context for this reinstatement (optional)"
+                    [(ngModel)]="reinstateForm.remarks"
+                    [ngModelOptions]="{ standalone: true }">
+                </textarea>
+            </div>
+
+            <div class="reinstate-actions">
+                <button class="btn btn--secondary btn--md" type="button" (click)="closeReinstateModal()">Cancel</button>
+                <button class="btn btn--primary btn--md" type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
+                    {{ isSubmittingReinstate ? 'Reinstating...' : 'Reinstate User' }}
+                </button>
+            </div>
+        </div>
+    </app-modal>
 </div>

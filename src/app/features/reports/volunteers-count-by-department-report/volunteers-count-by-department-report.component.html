@@ -1,7 +1,7 @@
 <div class="reports-container">
     <!-- Search & Filter Panel -->
     <div class="search-panel">
-        <div class="filters-grid filters-grid--two">
+        <div class="filters-grid filters-grid--four">
             <div class="filter-field">
                 <label>Task Branch</label>
                 <app-dropdown
@@ -10,7 +10,7 @@
                     placeholder="None"
                     [searchable]="true"
                     [autocomplete]="true"
-                    (selectionChange)="selectedTaskBranch = $event"
+                    (selectionChange)="onTaskBranchChange($event)"
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
@@ -22,19 +22,17 @@
                     placeholder=""
                     [searchable]="true"
                     [autocomplete]="true"
-                    [multiSelect]="true"
                     (selectionChange)="selectedPrograms = $event"
-                    [closeOnSelect]="false">
+                    [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-        </div>
-        <div class="filter-actions-row">
-            <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Filter</button>
-            <button class="btn btn--outline btn--sm" type="button" (click)="resetFilters()">Reset</button>
-            <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
-            <button class="btn btn--outline btn--sm" type="button" (click)="loadReport()">
-                <app-icon name="refresh" [size]="14" /> Reload
-            </button>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -115,7 +113,7 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot>
+                    <tfoot *ngIf="rows.length > 0">
                         <tr class="totals-row">
                             <td class="totals-label">Total Volunteers:</td>
                             <td>{{ totals.present }}</td>

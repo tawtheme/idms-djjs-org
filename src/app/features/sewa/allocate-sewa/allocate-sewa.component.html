@@ -67,6 +67,25 @@
     </div>
 </div>
 
+<ng-container *ngIf="showUnassignWarningModal">
+    <div class="modal-backdrop is-open" (click)="closeUnassignWarning()"></div>
+    <div class="modal confirmation-dialog is-open">
+        <div class="confirmation-dialog__dialog modal-small">
+            <button type="button" class="confirmation-dialog__close" (click)="closeUnassignWarning()" aria-label="Close dialog">
+                <app-icon name="close" />
+            </button>
+            <div class="confirmation-dialog__body">
+                <h3 class="confirmation-dialog__title">Warning!</h3>
+                <p class="confirmation-dialog__message">{{ unassignWarningMessage }}</p>
+            </div>
+            <div class="confirmation-dialog__footer">
+                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassignWarning()">YES, UNASSIGN</button>
+                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignWarning()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
 <ng-container *ngIf="showUnassignModal">
     <div class="modal-backdrop is-open" (click)="closeUnassignModal()"></div>
     <div class="modal confirmation-dialog is-open">
@@ -88,7 +107,12 @@
                 <div class="unassign-form">
                     <div class="form-group">
                         <label>Reason <span class="required">*</span></label>
-                        <input type="text" class="form-control" [(ngModel)]="unassignReason" (ngModelChange)="unassignError = null" placeholder="Enter reason" />
+                        <app-dropdown
+                            [options]="unassignReasonOptions"
+                            [selectedValues]="selectedUnassignReason"
+                            placeholder="Select reason"
+                            [closeOnSelect]="true"
+                            (selectionChange)="onUnassignReasonChange($event)"></app-dropdown>
                     </div>
                     <div class="form-group">
                         <label>Remarks</label>

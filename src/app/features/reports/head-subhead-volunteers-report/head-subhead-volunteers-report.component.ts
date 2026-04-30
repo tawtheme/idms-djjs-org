@@ -58,6 +58,7 @@ export class HeadSubheadVolunteersReportComponent implements OnInit {
     // Filters
     selectedTaskBranch: any[] = [];
     taskBranchOptions: DropdownOption[] = [];
+    searchTerm = '';
 
     // Data
     rows: HeadSubheadRow[] = [];
@@ -93,6 +94,7 @@ export class HeadSubheadVolunteersReportComponent implements OnInit {
     private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
         const payload: Record<string, any> = {
             branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
+            search: this.searchTerm?.trim() || '',
             sortByColumn: this.sortField || '',
             orderBy: this.sortField ? this.sortDirection : '',
             per_page: String(this.pageSize),
@@ -107,7 +109,7 @@ export class HeadSubheadVolunteersReportComponent implements OnInit {
         this.isLoading = true;
         this.error = null;
 
-        this.dataService.post<any>('v1/reports/head-subhead-volunteers', this.buildPayload()).pipe(
+        this.dataService.post<any>('v1/reports/head_subhead_volunteers', this.buildPayload()).pipe(
             catchError((err) => {
                 console.error('Error loading head/sub-head volunteers report:', err);
                 this.error = err.error?.message || err.message || 'Failed to load report.';
@@ -176,20 +178,53 @@ export class HeadSubheadVolunteersReportComponent implements OnInit {
 
     exportReport(choice: 'web' | 'email' = 'web'): void {
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/head-subhead-volunteers', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
-            catchError((err) => {
+        const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
+
+        this.dataService.post<any>('v1/reports/head_subhead_volunteers', payload, { responseType: 'blob', observe: 'response' }).pipe(
+            catchError(async (err) => {
                 console.error('Error exporting head/sub-head volunteers report:', err);
-                this.error = err.error?.message || err.message || 'Failed to export report.';
+                let message = err?.error?.message || err?.message || 'Failed to export report.';
+                if (err?.error instanceof Blob) {
+                    try {
+                        const text = await err.error.text();
+                        const json = JSON.parse(text);
+                        message = json?.message || json?.errors?.branch_id || message;
+                    } catch { /* ignore */ }
+                }
+                this.error = message;
                 this.isExporting = false;
-                return of(null);
+                return null;
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') window.open(url, '_blank');
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            const today = new Date();
+            const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            a.download = `head-subhead-volunteers-${stamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 

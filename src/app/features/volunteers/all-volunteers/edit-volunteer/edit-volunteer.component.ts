@@ -313,12 +313,13 @@ export class EditVolunteerComponent implements OnInit {
 
     get idProofFileConfig(): FileUploadConfig {
         const multi = this.idProofActiveKey === 'aadhaar' || this.idProofActiveKey === 'voter' || this.idProofActiveKey === 'license';
+        const allowPdf = this.idProofActiveKey === 'aadhaar';
         return {
             multiple: multi,
-            accept: 'image/*',
+            accept: allowPdf ? 'image/*,.pdf' : 'image/*',
             maxSizeMb: 5,
             maxFiles: multi ? 10 : 1,
-            dropText: 'Drag & drop image here or',
+            dropText: allowPdf ? 'Drag & drop image or PDF here or' : 'Drag & drop image here or',
             buttonText: 'Browse',
             showFileListHeader: multi
         };
@@ -1915,6 +1916,48 @@ export class EditVolunteerComponent implements OnInit {
         input.value = '';
     }
 
+    isPdf(value?: string | null): boolean {
+        if (!value) return false;
+        const v = value.toLowerCase();
+        return v.startsWith('data:application/pdf') || v.endsWith('.pdf') || v.includes('.pdf?');
+    }
+
+    downloadDoc(doc: { id?: string; name: string; data: string }): void {
+        if (!doc?.data) return;
+        const triggerDownload = (href: string, revoke?: boolean) => {
+            const a = document.createElement('a');
+            a.href = href;
+            a.download = doc.name || this.fileNameFromUrl(doc.data) || 'document';
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            if (revoke) setTimeout(() => URL.revokeObjectURL(href), 1000);
+        };
+
+        if (/^https?:/i.test(doc.data)) {
+            // Cross-origin URLs ignore the download attribute; fetch as blob to force download.
+            fetch(doc.data, { mode: 'cors' })
+                .then((r) => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.blob();
+                })
+                .then((blob) => triggerDownload(URL.createObjectURL(blob), true))
+                .catch(() => {
+                    this.snackbarService.showError('Failed to download document.');
+                });
+            return;
+        }
+        triggerDownload(doc.data);
+    }
+
+    private fileNameFromUrl(url: string): string {
+        try {
+            const path = url.split('?')[0];
+            return path.substring(path.lastIndexOf('/') + 1) || '';
+        } catch { return ''; }
+    }
+
     removeHistoryDoc(historyIndex: number, docIndex: number): void {
         const history = this.medicalHistories[historyIndex];
         if (!history) return;
@@ -2525,9 +2568,31 @@ export class EditVolunteerComponent implements OnInit {
             if (response) {
                 this.snackbarService.showSuccess(`${label} updated`);
                 this.snapshotSection(sectionKey);
+                // Reload from server so newly-saved rows pick up their backend ids
+                // and we don't re-create duplicates on the next save.
+                this.reloadSection(sectionKey);
             }
             this.savingSection = null;
         });
+    }
+
+    private reloadSection(sectionKey: string): void {
+        switch (sectionKey) {
+            case 'permanent': this.loadPermanentAddress(); break;
+            case 'correspondence': this.loadCorrespondenceAddress(); break;
+            case 'personal': this.loadPersonalDetails(); break;
+            case 'family': this.loadFamilyDetails(); break;
+            case 'emergency': this.loadEmergencyDetails(); break;
+            case 'aadhaar': this.loadAadhaarDetails(); break;
+            case 'electoral': this.loadElectoralDetails(); break;
+            case 'license': this.loadDrivingLicenseDetails(); break;
+            case 'education':
+                this.qualifications = [];
+                this.loadEducationDetails();
+                break;
+            case 'work': this.loadWorkExperience(); break;
+            case 'spiritual': this.loadSpiritualDetails(); break;
+        }
     }
 
     saveBasicSection(): void {
@@ -2545,14 +2610,20 @@ export class EditVolunteerComponent implements OnInit {
         ).subscribe((response) => {
             if (!response) { this.savingSection = null; return; }
             this.snapshotSection('basic');
-            if (this.profileImage && this.userId) {
-                this.uploadProfileImage().subscribe({
-                    next: () => { this.snackbarService.showSuccess('Basic information updated'); this.savingSection = null; },
-                    error: () => { this.snackbarService.showSuccess('Basic information updated'); this.savingSection = null; }
-                });
-            } else {
+            const finishBasic = () => {
                 this.snackbarService.showSuccess('Basic information updated');
                 this.savingSection = null;
+                // Reload from server so the form reflects the persisted state.
+                this.loadBasicDetails();
+                this.loadUserImages();
+            };
+            if (this.profileImage && this.userId) {
+                this.uploadProfileImage().subscribe({
+                    next: finishBasic,
+                    error: finishBasic
+                });
+            } else {
+                finishBasic();
             }
         });
     }
