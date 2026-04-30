@@ -156,7 +156,13 @@
                                     <label>City</label>
                                     <app-dropdown [options]="corrCityOptions" [selectedValues]="correspondence.city ? [correspondence.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('correspondence', $event[0] || '')"></app-dropdown>
                                 </div>
-                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="correspondence.pincode" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Pincode <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="correspondencePincodeError" inputmode="numeric" maxlength="6"
+                                        [(ngModel)]="correspondence.pincode" [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="onPincodeChange('correspondence', $event)" />
+                                    <div class="field-error" *ngIf="correspondencePincodeError">{{ correspondencePincodeError }}</div>
+                                </div>
                                 <div class="form-field"><label>Tehsil</label><input class="form-control" [(ngModel)]="correspondence.tehsil" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field"><label>Post Office</label><input class="form-control" [(ngModel)]="correspondence.post_office" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
@@ -194,7 +200,13 @@
                                     <label>City</label>
                                     <app-dropdown [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></app-dropdown>
                                 </div>
-                                <div class="form-field"><label>Pincode</label><input class="form-control" [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field">
+                                    <label>Pincode <span class="required">*</span></label>
+                                    <input class="form-control" [class.is-invalid]="permanentPincodeError" inputmode="numeric" maxlength="6"
+                                        [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="onPincodeChange('permanent', $event)" />
+                                    <div class="field-error" *ngIf="permanentPincodeError">{{ permanentPincodeError }}</div>
+                                </div>
                             </div>
                         </section>
                     </ng-container>

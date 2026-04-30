@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ImageCropperComponent, ImageCroppedEvent, LoadedImage, ImageTransform } from 'ngx-image-cropper';
 import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-camera-upload',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, ImageCropperComponent],
   templateUrl: './camera-upload.component.html',
   styleUrls: ['./camera-upload.component.scss']
 })
@@ -14,21 +15,29 @@ export class CameraUploadComponent implements OnDestroy, AfterViewInit {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
 
   @Input() disabled = false;
+  /** Aspect ratio for the crop step. Default 1:1 (square). */
+  @Input() aspectRatio = 1;
   @Output() imageCaptured = new EventEmitter<File>();
   @Output() removed = new EventEmitter<void>();
 
   isStreaming = false;
   hasError = false;
   errorMessage = '';
+
+  // Crop step state
+  isCropping = false;
+  rawImageBase64 = '';
+  croppedBlob: Blob | null = null;
+  croppedPreview: string | null = null;
+  imageTransform: ImageTransform = {};
+
   capturedImageFile: File | null = null;
   capturedImagePreview: string | null = null;
   private stream: MediaStream | null = null;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
-  ngAfterViewInit(): void {
-    // ViewChild elements are now available
-  }
+  ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {
     this.stopCamera();
@@ -41,42 +50,32 @@ export class CameraUploadComponent implements OnDestroy, AfterViewInit {
       this.hasError = false;
       this.errorMessage = '';
 
-      // Request camera access with 1:1 aspect ratio
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
-          aspectRatio: 1.0,
+          aspectRatio: this.aspectRatio,
           width: { ideal: 1080 },
           height: { ideal: 1080 }
         }
       });
 
-      // Set isStreaming to true first so the video element is rendered
       this.isStreaming = true;
       this.cdr.detectChanges();
 
-      // Wait for the view to update and video element to be available
       setTimeout(() => {
         if (this.videoElement?.nativeElement) {
           const video = this.videoElement.nativeElement;
           video.srcObject = this.stream;
-          
-          console.log('Video element found, setting srcObject');
-          
-          // Wait for video metadata to load
+
           video.addEventListener('loadedmetadata', () => {
-            console.log('Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
-            video.play().then(() => {
-              console.log('Video playing successfully');
-            }).catch((error) => {
-              console.error('Error playing video:', error);
+            video.play().catch((error) => {
               this.hasError = true;
               this.errorMessage = 'Failed to start video stream';
               this.isStreaming = false;
+              console.error('Error playing video:', error);
             });
           }, { once: true });
         } else {
-          console.error('Video element still not found after view update');
           this.hasError = true;
           this.errorMessage = 'Failed to initialize video element';
           this.isStreaming = false;
@@ -84,132 +83,90 @@ export class CameraUploadComponent implements OnDestroy, AfterViewInit {
       }, 100);
     } catch (error: any) {
       this.hasError = true;
-      this.errorMessage = error.message || 'Failed to access camera. Please check permissions.';
+      this.errorMessage = error?.message || 'Failed to access camera. Please check permissions.';
       console.error('Camera access error:', error);
     }
   }
 
+  /** Capture frame from video, then enter crop mode (don't emit yet). */
   captureImage(): void {
-    console.log('Capture button clicked');
-    console.log('isStreaming:', this.isStreaming);
-    console.log('videoElement:', this.videoElement);
-    console.log('canvasElement:', this.canvasElement);
-
-    if (!this.isStreaming) {
-      console.error('Camera is not streaming');
-      alert('Camera is not streaming. Please wait for the camera to start.');
-      return;
-    }
-
-    if (!this.videoElement?.nativeElement) {
-      console.error('Video element not found');
-      alert('Video element not found');
-      return;
-    }
-
-    if (!this.canvasElement?.nativeElement) {
-      console.error('Canvas element not found');
-      alert('Canvas element not found');
-      return;
-    }
+    if (!this.isStreaming || !this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) return;
 
     const video = this.videoElement.nativeElement;
-    console.log('Video readyState:', video.readyState);
-    console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
-    
-    // Wait for video to be ready
     if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
-      console.log('Video not ready, waiting for metadata. readyState:', video.readyState, 'dimensions:', video.videoWidth, video.videoHeight);
-      const handleLoadedMetadata = () => {
-        console.log('Metadata loaded, performing capture');
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        setTimeout(() => this.performCapture(), 100); // Small delay to ensure video is ready
+      const handler = () => {
+        video.removeEventListener('loadedmetadata', handler);
+        setTimeout(() => this.performCapture(), 100);
       };
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('loadedmetadata', handler);
       return;
     }
-
-    console.log('Performing capture immediately');
     this.performCapture();
   }
 
   private performCapture(): void {
-    console.log('performCapture called');
-    
-    if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
-      console.error('Elements not available in performCapture');
-      return;
-    }
-
     const video = this.videoElement.nativeElement;
     const canvas = this.canvasElement.nativeElement;
     const context = canvas.getContext('2d');
+    if (!context) return;
 
-    if (!context) {
-      console.error('Could not get canvas context');
-      return;
-    }
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+    if (!w || !h) return;
 
-    // Get video dimensions
-    const videoWidth = video.videoWidth;
-    const videoHeight = video.videoHeight;
+    canvas.width = w;
+    canvas.height = h;
 
-    console.log('Video dimensions for capture:', videoWidth, 'x', videoHeight);
-
-    if (videoWidth === 0 || videoHeight === 0) {
-      console.error('Video dimensions are zero:', videoWidth, videoHeight);
-      alert('Video dimensions are zero. Please try again.');
-      return;
-    }
-
-    // Calculate 1:1 crop dimensions
-    const size = Math.min(videoWidth, videoHeight);
-    const offsetX = (videoWidth - size) / 2;
-    const offsetY = (videoHeight - size) / 2;
-
-    // Set canvas to 1:1 ratio
-    canvas.width = size;
-    canvas.height = size;
-
-    // Flip the canvas horizontally to match the mirrored preview
-    context.translate(size, 0);
+    // Mirror to match the preview the user saw
+    context.translate(w, 0);
     context.scale(-1, 1);
-
-    // Draw video frame to canvas with 1:1 crop
-    context.drawImage(
-      video,
-      offsetX, offsetY, size, size,
-      0, 0, size, size
-    );
-
-    // Reset the transformation
+    context.drawImage(video, 0, 0, w, h);
     context.setTransform(1, 0, 0, 1, 0, 0);
 
-    // Convert canvas to base64 image
-    const imageData = canvas.toDataURL('image/jpeg', 0.9);
-    
-    // Convert base64 to File object
-    const byteString = atob(imageData.split(',')[1]);
-    const mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    this.capturedImageFile = new File([blob], 'captured-image.jpg', { type: mimeString });
-    
-    // Store preview for display
-    this.capturedImagePreview = imageData;
-    
-    console.log('Image captured successfully, file size:', this.capturedImageFile.size);
-    
-    // Stop camera after capture
+    this.rawImageBase64 = canvas.toDataURL('image/jpeg', 0.92);
     this.stopCamera();
+    this.isCropping = true;
+    this.croppedBlob = null;
+    this.croppedPreview = null;
+    this.imageTransform = {};
+  }
 
-    // Emit the captured image
-    console.log('Emitting imageCaptured event');
-    this.imageCaptured.emit(this.capturedImageFile);
+  onCropped(event: ImageCroppedEvent): void {
+    this.croppedBlob = event.blob ?? null;
+    this.croppedPreview = (event as any).objectUrl ?? event.base64 ?? null;
+  }
+
+  onCropperLoaded(_e?: LoadedImage): void {}
+
+  onCropperFailed(): void {
+    this.hasError = true;
+    this.errorMessage = 'Failed to load image for cropping.';
+    this.isCropping = false;
+  }
+
+  rotateLeft(): void {
+    this.imageTransform = { ...this.imageTransform, rotate: ((this.imageTransform.rotate ?? 0) - 90) % 360 };
+  }
+
+  rotateRight(): void {
+    this.imageTransform = { ...this.imageTransform, rotate: ((this.imageTransform.rotate ?? 0) + 90) % 360 };
+  }
+
+  retake(): void {
+    this.isCropping = false;
+    this.rawImageBase64 = '';
+    this.croppedBlob = null;
+    this.croppedPreview = null;
+    this.startCamera();
+  }
+
+  confirmCrop(): void {
+    if (!this.croppedBlob) return;
+    const file = new File([this.croppedBlob], 'captured-image.jpg', { type: this.croppedBlob.type || 'image/jpeg' });
+    this.capturedImageFile = file;
+    this.capturedImagePreview = this.croppedPreview;
+    this.isCropping = false;
+    this.imageCaptured.emit(file);
   }
 
   removeFile(): void {
@@ -242,10 +199,8 @@ export class CameraUploadComponent implements OnDestroy, AfterViewInit {
       this.stream = null;
     }
     this.isStreaming = false;
-    
     if (this.videoElement?.nativeElement) {
       this.videoElement.nativeElement.srcObject = null;
     }
   }
 }
-

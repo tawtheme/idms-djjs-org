@@ -1,11 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../../data.service';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 type TabId =
   | 'basic'
@@ -23,15 +26,21 @@ interface TabDef { id: TabId; label: string; }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, LoadingComponent, IconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, ModalComponent],
   selector: 'app-volunteer-view',
   templateUrl: './volunteer-view.component.html',
   styleUrls: ['./volunteer-view.component.scss']
 })
-export class VolunteerViewComponent implements OnInit {
+export class VolunteerViewComponent implements OnInit, OnChanges {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dataService = inject(DataService);
+
+  /** When set, the component renders for the given user id without consulting the route. */
+  @Input() userIdInput: string | null = null;
+  /** Hide the route-aware close button when embedded in a side panel (panel handles close). */
+  @Input() embedded = false;
+  @Output() closed = new EventEmitter<void>();
 
   tabs: TabDef[] = [
     { id: 'basic', label: 'Basic Information' },
@@ -85,25 +94,108 @@ export class VolunteerViewComponent implements OnInit {
   private loadedTabs = new Set<TabId>();
 
   ngOnInit(): void {
-    this.userId = this.route.snapshot.paramMap.get('id');
-    if (this.userId) {
-      this.loadUser();
-      this.loadTab(this.activeTab);
+    this.userId = this.userIdInput || this.route.snapshot.paramMap.get('id');
+    if (this.userId) this.bootstrap();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userIdInput'] && !changes['userIdInput'].firstChange) {
+      this.userId = this.userIdInput;
+      if (this.userId) {
+        this.loadedTabs.clear();
+        this.bootstrap();
+      }
     }
+  }
+
+  private bootstrap(): void {
+    this.loadUser();
+    this.loadSewa();
+    this.loadProgram();
+    this.loadDonation();
+    this.loadedTabs.add('sewa');
+    this.loadedTabs.add('program');
+    this.loadedTabs.add('donation');
   }
 
   loadUser(): void {
     this.isLoading = true;
     this.error = null;
-    this.dataService.get<any>(`v1/users/${this.userId}`).pipe(
+    this.dataService.get<any>(`v1/users/${this.userId}/view`).pipe(
       catchError((err) => {
         this.error = err?.error?.message || err?.message || 'Failed to load volunteer.';
         return of(null);
       })
     ).subscribe((response) => {
       this.isLoading = false;
-      this.user = response?.data?.user || response?.data || response || null;
+      const user = response?.data?.user || response?.user || response?.data || null;
+      this.user = user;
+      if (user) this.populateFromView(user);
     });
+  }
+
+  /** Single-shot population of every section from /v1/users/{id}/view payload. */
+  private populateFromView(u: any): void {
+    this.basic = {
+      name: u?.name,
+      unique_id: u?.unique_id,
+      phone: u?.phone,
+      whatsapp_number: u?.whatsapp_number || u?.alternate_phone,
+      email: u?.email || u?.official_email,
+      personal_email: u?.personal_email,
+      level: u?.level,
+      roles: u?.roles
+    };
+
+    this.permanent = u?.user_permanent_address || {};
+    this.correspondence = u?.user_correspondence_address || {};
+
+    const profile = u?.user_profile || {};
+    this.personal = profile;
+    this.family = profile;
+    this.emergency = {
+      emergency_name: profile?.emergency_name,
+      emergency_phone: profile?.emergency_phone,
+      emergency_email: profile?.emergency_email
+    };
+
+    this.aadhaar = u?.user_aadhaar || {};
+    this.voter = u?.user_electoral || {};
+    this.license = u?.user_driving_license || {};
+
+    const eduList = Array.isArray(u?.user_educations) ? u.user_educations : [];
+    this.qualifications = eduList.map((q: any) => ({
+      degree: q?.degree?.name || q?.degree_id || '',
+      name: q?.name || q?.institute || '',
+      remarks: q?.remarks || ''
+    }));
+
+    const skills = Array.isArray(u?.user_skills) ? u.user_skills : [];
+    this.workSkills = skills.map((s: any) => s?.skill?.name || s?.name || s?.skill_id || '').filter(Boolean);
+    this.work = {
+      profession: profile?.profession,
+      profession_id: profile?.profession_id,
+      experience: profile?.experience,
+      experience_period: profile?.experience_period,
+      profession_skill_remarks: profile?.profession_skill_remarks
+    };
+
+    this.spiritual = u?.user_spiritual_detail || {};
+
+    const m = u?.user_medical || {};
+    const histories = m?.user_medical_histories || m?.medical_histories || m?.major_illness || [];
+    this.medical = {
+      blood_group: m?.blood_group || '',
+      histories: (Array.isArray(histories) ? histories : []).map((h: any) => ({
+        major_illness: h?.major_illness !== undefined && h?.major_illness !== null ? String(h.major_illness) : '',
+        note: h?.note || h?.notes || '',
+        docs: Array.isArray(h?.user_doc_urls) ? h.user_doc_urls : []
+      }))
+    };
+
+    // Profile/address/personal/etc are now populated; suppress re-fetch via per-tab loaders.
+    (['basic','address','personal','idproofs','education','spiritual','medical'] as TabId[])
+      .forEach(t => this.loadedTabs.add(t));
   }
 
   setTab(id: TabId): void {
@@ -111,34 +203,24 @@ export class VolunteerViewComponent implements OnInit {
     this.loadTab(id);
   }
 
+  scrollToSection(id: TabId): void {
+    this.activeTab = id;
+    this.loadTab(id);
+    const el = document.getElementById(`section-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   private loadTab(id: TabId): void {
     if (!this.userId || this.loadedTabs.has(id)) return;
-    this.loadedTabs.add(id);
-    switch (id) {
-      case 'basic': this.loadBasic(); break;
-      case 'address':
-        this.loadPermanent();
-        this.loadCorrespondence();
-        break;
-      case 'personal':
-        this.loadPersonal();
-        this.loadFamily();
-        this.loadEmergency();
-        break;
-      case 'idproofs':
-        this.loadAadhaar();
-        this.loadElectoral();
-        this.loadLicense();
-        break;
-      case 'education':
-        this.loadEducation();
-        this.loadWork();
-        break;
-      case 'spiritual': this.loadSpiritual(); break;
-      case 'medical': this.loadMedical(); break;
-      case 'sewa': this.loadSewa(); break;
-      case 'program': this.loadProgram(); break;
-      case 'donation': this.loadDonation(); break;
+    // Detail tabs (basic/address/personal/idproofs/education/spiritual/medical) are populated
+    // from /v1/users/{id}/view in loadUser; only tracking tabs need their own endpoints.
+    if (id === 'sewa' || id === 'program' || id === 'donation') {
+      this.loadedTabs.add(id);
+      if (id === 'sewa') this.loadSewa();
+      else if (id === 'program') this.loadProgram();
+      else if (id === 'donation') this.loadDonation();
     }
   }
 
@@ -267,6 +349,7 @@ export class VolunteerViewComponent implements OnInit {
       const data = response?.data?.refineUserSewaDatas || response?.refineUserSewaDatas || {};
       this.sewaBranches = Object.values(data).map((b: any) => ({
         branchName: b?.name || '',
+        search: '',
         sewaGroups: Object.values(b?.sewaDatas || {}).map((s: any) => ({
           sewaName: s?.sewaName || '',
           rows: (Array.isArray(s?.sewaTracks) ? s.sewaTracks : []).map((t: any) => ({
@@ -279,6 +362,22 @@ export class VolunteerViewComponent implements OnInit {
         }))
       }));
     });
+  }
+
+  filterSewaRows(rows: any[], term: string): any[] {
+    const t = (term || '').trim().toLowerCase();
+    if (!t) return rows;
+    return rows.filter(r =>
+      String(r.sewaName || '').toLowerCase().includes(t) ||
+      String(r.badgeId || '').toLowerCase().includes(t) ||
+      String(r.allocatedDate || '').toLowerCase().includes(t) ||
+      String(r.unallocatedDate || '').toLowerCase().includes(t) ||
+      String(r.reason || '').toLowerCase().includes(t)
+    );
+  }
+
+  groupHasMatches(group: any, term: string): boolean {
+    return this.filterSewaRows(group.rows || [], term).length > 0;
   }
 
   loadProgram(): void {
@@ -325,7 +424,11 @@ export class VolunteerViewComponent implements OnInit {
   }
 
   onClose(): void {
-    this.router.navigate(['/volunteers']);
+    if (this.embedded) {
+      this.closed.emit();
+    } else {
+      this.router.navigate(['/volunteers']);
+    }
   }
 
   // -- Header / nav helpers --------------------------------------------
@@ -359,5 +462,33 @@ export class VolunteerViewComponent implements OnInit {
   display(value: any): string {
     if (value === null || value === undefined || value === '') return '—';
     return String(value);
+  }
+
+  isPdf(value?: string | null): boolean {
+    if (!value) return false;
+    const v = value.toLowerCase();
+    return v.startsWith('data:application/pdf') || v.endsWith('.pdf') || v.includes('.pdf?');
+  }
+
+  // ----- File preview modal -----
+  private sanitizer = inject(DomSanitizer);
+  filePreviewOpen = false;
+  filePreviewUrl: string | null = null;
+  filePreviewSafeUrl: SafeResourceUrl | null = null;
+  filePreviewTitle = '';
+
+  openFilePreview(url: string | null | undefined, title: string): void {
+    if (!url) return;
+    this.filePreviewUrl = url;
+    this.filePreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.filePreviewTitle = title;
+    this.filePreviewOpen = true;
+  }
+
+  closeFilePreview(): void {
+    this.filePreviewOpen = false;
+    this.filePreviewUrl = null;
+    this.filePreviewSafeUrl = null;
+    this.filePreviewTitle = '';
   }
 }

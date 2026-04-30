@@ -1,60 +1,125 @@
 <div class="visitors-container">
-    <!-- Filter Section -->
-    <div class="listing-search">
-        <div class="listing-search-item">
-            <input
-                type="search"
-                class="form-control"
-                placeholder="Search by Name, Mobile No., Relation Name, or UID"
-                [(ngModel)]="searchTerm"
-                [ngModelOptions]="{ standalone: true }"
-                (input)="onSearchChange()"/>
-        </div>
-        <div class="listing-search-item">
-            <app-dropdown
-                [options]="genderOptions"
-                [selectedValues]="selectedGender"
-                placeholder="Gender"
-                (selectionChange)="selectedGender = $event; onFilterChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <app-dropdown
-                [options]="sortOrderOptions"
-                [selectedValues]="sortOrder"
-                placeholder="Sort By"
-                (selectionChange)="sortOrder = $event; onFilterChange()"
-                [closeOnSelect]="true">
-            </app-dropdown>
-            <div class="export-button-wrapper" #exportWrapper>
-                <button class="btn btn--secondary btn--sm export-trigger"
-                        type="button"
-                        (click)="toggleExportMenu()">
-                    <app-icon name="file_download" />
-                    <span>Export</span>
-                    <app-icon name="keyboard_arrow_down" />
-                </button>
-                <div class="export-menu" *ngIf="exportMenuOpen">
-                    <button class="export-menu-item"
-                            (click)="onExportAction({id: 'export', value: 'export'})">
-                        <app-icon name="download" />
-                        <span>Export selected records</span>
-                    </button>
-                    <button class="export-menu-item"
-                            (click)="onExportAction({id: 'print', value: 'print'})">
-                        <app-icon name="print" />
-                        <span>Print selected records</span>
+    <!-- Search & Filter Panel -->
+    <div class="search-panel">
+        <div class="filters-grid filters-grid--four">
+            <div class="filter-field">
+                <label>Gender</label>
+                <app-dropdown
+                    [options]="genderOptions"
+                    [selectedValues]="selectedGender"
+                    placeholder="None"
+                    (selectionChange)="selectedGender = $event; onFilterChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Name"
+                        [(ngModel)]="nameFilter"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="nameFilter" type="button" class="input-clear" (click)="nameFilter=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
                     </button>
                 </div>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="resetFilter()">
-                <app-icon name="refresh" />
-                Reset
-            </button>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="exportVisitors()" [disabled]="isExporting">
-                <app-icon name="file_download" />
-                {{ isExporting ? 'Exporting…' : 'Export' }}
-            </button>
-            <a class="btn btn--primary btn--sm" routerLink="/visitors/create">Add Visitor</a>
+            <div class="filter-field">
+                <label>Relation Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Relation Name"
+                        [(ngModel)]="relationNameFilter"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="relationNameFilter" type="button" class="input-clear" (click)="relationNameFilter=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Mobile No.</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Mobile No."
+                        [(ngModel)]="mobileFilter"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="mobileFilter" type="button" class="input-clear" (click)="mobileFilter=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>UID</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter UID"
+                        [(ngModel)]="uidFilter"
+                        [ngModelOptions]="{ standalone: true }"
+                        (input)="onSearchChange()" />
+                    <button *ngIf="uidFilter" type="button" class="input-clear" (click)="uidFilter=''; onSearchChange()">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Sort By</label>
+                <app-dropdown
+                    [options]="sortByColumnOptions"
+                    [selectedValues]="sortByColumn"
+                    placeholder="None"
+                    [searchable]="true"
+                    (selectionChange)="sortByColumn = $event; onFilterChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Order By</label>
+                <app-dropdown
+                    [options]="sortOrderOptions"
+                    [selectedValues]="sortOrder"
+                    placeholder="None"
+                    (selectionChange)="sortOrder = $event; onFilterChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <div class="export-button-wrapper" #exportWrapper>
+                        <button class="btn btn--secondary btn--md export-trigger"
+                                type="button"
+                                (click)="toggleExportMenu()">
+                            <app-icon name="file_download" />
+                            <span>Export</span>
+                            <app-icon name="keyboard_arrow_down" />
+                        </button>
+                        <div class="export-menu" *ngIf="exportMenuOpen">
+                            <button class="export-menu-item"
+                                    (click)="onExportAction({id: 'export', value: 'export'})">
+                                <app-icon name="download" />
+                                <span>Export selected records</span>
+                            </button>
+                            <button class="export-menu-item"
+                                    (click)="onExportAction({id: 'print', value: 'print'})">
+                                <app-icon name="print" />
+                                <span>Print selected records</span>
+                            </button>
+                        </div>
+                    </div>
+                    <a class="btn btn--primary btn--md" routerLink="/visitors/create">Add Visitor</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -150,19 +215,12 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <!-- Loading cell -->
-                    <tr *ngIf="isLoading">
-                        <td [attr.colspan]="9" class="loading-cell">
-                            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
         <app-pager
-            *ngIf="!error"
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
@@ -223,9 +281,6 @@
         ]"
         (close)="closePrintCardModal()"
         (footerAction)="$event === 'print' ? printCards() : closePrintCardModal()">
-        <div class="visitor-cards-loading" *ngIf="isLoadingPrintCards">
-            <app-loading [size]="'medium'" [type]="'spinner'" [message]="'Loading visitor cards...'"></app-loading>
-        </div>
         <div class="visitor-cards-grid printable-cards" *ngIf="!isLoadingPrintCards && printedCards.length">
             <div class="visitor-card" *ngFor="let card of printedCards">
                 <div class="visitor-card__header">

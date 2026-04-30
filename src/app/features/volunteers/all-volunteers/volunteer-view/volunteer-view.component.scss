@@ -4,14 +4,14 @@
     display: block;
     width: 100%;
     height: 100%;
-    background: $color-gray-50;
+    background: transparent;
     overflow: hidden;
 }
 
 /* ---------- Shell: sidebar + main ---------- */
 .vv-shell {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 200px 1fr;
     gap: 24px;
     height: 100%;
     box-sizing: border-box;
@@ -136,10 +136,10 @@
     flex-direction: column;
     overflow-y: auto;
     height: 100%;
-    background: $color-white;
-    border: 1px solid $color-gray-200;
-    border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 /* ---------- Sticky topbar ---------- */
@@ -208,7 +208,7 @@
 
 /* ---------- Body ---------- */
 .vv-body {
-    padding: 20px 24px 24px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -217,6 +217,7 @@
 
 /* ---------- Section ---------- */
 .vv-section {
+    scroll-margin-top: 16px;
     background: $color-white;
     border: 1px solid $color-gray-200;
     border-radius: 8px;
@@ -231,6 +232,7 @@
         background: $color-primary-50;
         border-bottom: 1px solid $color-gray-200;
         border-left: 3px solid $color-primary-600;
+        flex-wrap: wrap;
 
         h3 {
             margin: 0;
@@ -239,6 +241,11 @@
             color: $color-primary-700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            min-width: 0;
+            flex: 1 1 auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -250,7 +257,73 @@
         margin-left: 6px;
     }
 
-    &--flush .track-table { border: 0; border-radius: 0; }
+    &__search {
+        flex: 0 0 auto;
+
+        .form-control {
+            height: 32px;
+            width: 240px;
+            max-width: 100%;
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+
+        @media (max-width: 720px) {
+            width: 100%;
+            .form-control { width: 100%; }
+        }
+    }
+
+    &--flush {
+        overflow-x: auto;
+
+        .track-table { border: 0; border-radius: 0; }
+    }
+}
+
+/* Id Proof file action buttons (used inside .view-field values). */
+.file-btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    white-space: nowrap;
+    margin: 0 8px 6px 0;
+
+    &--empty {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+}
+
+/* File preview modal body */
+.file-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+
+    &__pdf {
+        width: 100%;
+        height: 70vh;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+    }
+
+    &__img {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+        border: 1px solid $color-gray-200;
+        border-radius: 6px;
+        background: $color-gray-50;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        width: 100%;
+    }
 }
 
 /* ---------- 3-column view grid ---------- */
@@ -310,6 +383,20 @@
         height: 90px;
         object-fit: contain;
         background: $color-gray-50;
+    }
+
+    &--pdf {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        text-decoration: none;
+        color: $color-red-600;
+        font-size: 12px;
+        font-weight: 600;
+
+        app-icon { font-size: 32px; }
     }
 }
 
@@ -378,8 +465,10 @@
         text-transform: uppercase;
         letter-spacing: 0.4px;
         padding: 8px 16px;
+        text-align: left;
         border-top: 1px solid $color-gray-200;
         border-bottom: 1px solid $color-gray-200;
+        white-space: nowrap;
     }
 
     thead:first-of-type th {
@@ -391,6 +480,7 @@
         text-align: left;
         padding: 10px 16px;
         border-bottom: 1px solid $color-gray-200;
+        white-space: nowrap;
     }
 
     td {
@@ -398,7 +488,11 @@
         color: $color-gray-800;
         padding: 11px 16px;
         border-bottom: 1px solid $color-gray-100;
+        white-space: nowrap;
+        vertical-align: middle;
     }
+    /* Allow the wide first column (Program Name / Sewa) to wrap. */
+    td:first-child { white-space: normal; min-width: 200px; }
     tbody tr:last-child td { border-bottom: 0; }
 
     .badge-pill {
@@ -450,6 +544,6 @@
         }
     }
 
-    .vv-body { padding: 16px; }
+    .vv-body { padding: 0; }
     .vv-topbar { padding: 12px 16px; }
 }

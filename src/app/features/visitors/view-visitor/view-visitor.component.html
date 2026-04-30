@@ -1,559 +1,138 @@
-<div class="view-visitor">
-    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
-
+<div class="vv-shell">
     <ng-container *ngIf="isLoading">
-        <div class="loading-wrapper">
+        <div class="vv-state">
             <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
         </div>
     </ng-container>
 
-    <ng-container *ngIf="!isLoading && error">
-        <div class="error-state">
-            <p>{{ error }}</p>
-            <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back to Listing</button>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="!isLoading && !error && user">
-        <!-- Header card -->
-        <div class="profile-header">
-            <div class="profile-header__avatar">
-                <img [src]="primaryImage"
-                    [alt]="user.name"
-                    onerror="this.src='/assets/img/placeholder.svg'">
+    <!-- Sidebar -->
+    <aside class="vv-sidebar" *ngIf="!isLoading && !error && user">
+        <div class="vv-profile">
+            <div class="vv-profile__avatar">
+                <img *ngIf="profileImage" [src]="profileImage" [alt]="user.name"
+                    onerror="this.src='/assets/img/placeholder.svg'" />
+                <span *ngIf="!profileImage">{{ nameInitials }}</span>
             </div>
-            <div class="profile-header__info">
-                <div class="profile-header__name-row">
-                    <h2 class="profile-header__name">{{ user.name }}</h2>
-                    <span class="profile-header__chip" *ngIf="user.level">{{ user.level }}</span>
-                </div>
-                <div class="profile-header__meta">
-                    <span class="profile-header__meta-item" *ngIf="user.unique_id">
-                        <strong>ID:</strong> {{ user.unique_id }}
-                    </span>
-                    <span class="profile-header__meta-item" *ngIf="user.phone">
-                        <strong>Phone:</strong> {{ user.phone }}
-                    </span>
-                    <span class="profile-header__meta-item" *ngIf="user.personal_email">
-                        <strong>Email:</strong> {{ user.personal_email }}
-                    </span>
-                    <span class="profile-header__meta-item" *ngIf="relationLabel">
-                        {{ relationLabel }}
-                    </span>
-                </div>
-            </div>
-            <div class="profile-header__actions">
-                <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back</button>
-            </div>
+            <div class="vv-profile__name">{{ user.name || 'Visitor' }}</div>
+            <div class="vv-profile__id" *ngIf="user.unique_id">#{{ user.unique_id }}</div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <button *ngFor="let tab of tabs"
-                type="button"
-                class="tab"
-                [class.tab--active]="activeTab === tab.key"
-                (click)="setActiveTab(tab.key)">
-                <app-icon [name]="tab.icon" />
-                <span>{{ tab.label }}</span>
-            </button>
+        <div class="vv-nav-group">
+            <div class="vv-nav-group__label">Profile</div>
+            <nav class="vv-nav">
+                <button *ngFor="let t of profileTabs" type="button" class="vv-nav__item"
+                    [class.vv-nav__item--active]="activeTab === t.id" (click)="setTab(t.id)">
+                    {{ t.label }}
+                </button>
+            </nav>
         </div>
+    </aside>
 
-        <!-- Tab content -->
-        <div class="tab-content">
-            <!-- Personal -->
-            <ng-container *ngIf="activeTab === 'personal'">
-                <div class="tab-toolbar" *ngIf="!editMode.personal">
-                    <button class="btn btn--secondary btn--sm" type="button" (click)="enterEdit('personal')">
-                        <app-icon name="edit" /> Edit
-                    </button>
-                </div>
+    <!-- Main column -->
+    <div class="vv-main">
+        <header class="vv-topbar" *ngIf="!isLoading && !error && user">
+            <div class="vv-topbar__title">
+                <span class="vv-topbar__crumb">View Visitor</span>
+                <h1>{{ activeTabLabel }}</h1>
+            </div>
+            <div class="vv-topbar__actions">
+                <button type="button" class="vv-topbar__close" (click)="onClose()" aria-label="Close">
+                    <app-icon name="close" />
+                </button>
+            </div>
+        </header>
 
-                <ng-container *ngIf="!editMode.personal; else personalEdit">
-                    <div class="info-grid">
-                        <div class="info-item"><label>Name</label><span>{{ user.name || '-' }}</span></div>
-                        <div class="info-item"><label>Unique ID</label><span>{{ user.unique_id || '-' }}</span></div>
-                        <div class="info-item"><label>Level</label><span>{{ user.level || '-' }}</span></div>
-                        <div class="info-item"><label>Gender</label><span>{{ user.user_profile?.gender || '-' }}</span></div>
-                        <div class="info-item"><label>Date of Birth</label><span>{{ user.user_profile?.dob || '-' }}</span></div>
-                        <div class="info-item"><label>Age</label><span>{{ user.user_profile?.age || '-' }}</span></div>
-                        <div class="info-item"><label>Marital Status</label><span>{{ user.user_profile?.marital_status || '-' }}</span></div>
-                        <div class="info-item"><label>Phone</label><span>{{ user.phone || '-' }}</span></div>
-                        <div class="info-item"><label>Alternate Phone</label><span>{{ user.alternate_phone || '-' }}</span></div>
-                        <div class="info-item"><label>Personal Email</label><span>{{ user.personal_email || '-' }}</span></div>
-                        <div class="info-item"><label>Official Email</label><span>{{ user.official_email || '-' }}</span></div>
-                        <div class="info-item"><label>Birth Place</label><span>{{ user.user_profile?.birth_place || '-' }}</span></div>
-                        <div class="info-item"><label>Birth State</label><span>{{ user.user_profile?.birth_state || '-' }}</span></div>
-                        <div class="info-item"><label>Birth Country</label><span>{{ user.user_profile?.birth_country || '-' }}</span></div>
-                        <div class="info-item"><label>Height</label><span>{{ formatHeight(user.user_profile) || '-' }}</span></div>
-                        <div class="info-item"><label>Weight</label><span>{{ user.user_profile?.weight || '-' }}</span></div>
-                        <div class="info-item"><label>Caste</label><span>{{ user.user_profile?.caste || '-' }}</span></div>
-                        <div class="info-item"><label>Identification Mark</label><span>{{ user.user_profile?.identification_mark || '-' }}</span></div>
-                        <div class="info-item"><label>Disability</label><span>{{ user.user_profile?.disablility || '-' }}</span></div>
-                        <div class="info-item"><label>Start Date</label><span>{{ user.start_date || '-' }}</span></div>
-                        <div class="info-item"><label>Valid Upto</label><span>{{ user.valid_upto || '-' }}</span></div>
+        <div *ngIf="!isLoading && error" class="vv-state vv-state--error">{{ error }}</div>
+
+        <div class="vv-body" *ngIf="!isLoading && !error && user">
+
+            <!-- Basic Information -->
+            <ng-container *ngIf="activeTab === 'basic'">
+                <section class="vv-section">
+                    <div class="vv-section__head"><h3>Basic Information</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field"><label>Unique ID</label><div class="view-value">{{ display(user.unique_id) }}</div></div>
+                        <div class="view-field"><label>Name</label><div class="view-value">{{ display(user.name) }}</div></div>
+                        <div class="view-field"><label>Email</label><div class="view-value">{{ display(user.personal_email) }}</div></div>
+                        <div class="view-field"><label>Personal Email</label><div class="view-value">{{ display(user.official_email) }}</div></div>
+                        <div class="view-field"><label>Mobile Number</label><div class="view-value">{{ display(user.phone) }}</div></div>
+                        <div class="view-field"><label>Level</label><div class="view-value">{{ display(user.level) }}</div></div>
+                        <div class="view-field view-field--full"><label>Purpose of Visit</label><div class="view-value">{{ display(user.remarks) }}</div></div>
+                        <div class="view-field"><label>Date</label><div class="view-value">{{ display(formatDate(user.start_date)) }}</div></div>
+                        <div class="view-field"><label>Valid UpTo</label><div class="view-value">{{ display(formatDate(user.valid_upto)) }}</div></div>
                     </div>
-                    <div class="info-item info-item--full" *ngIf="user.remarks">
-                        <label>Remarks</label>
-                        <span>{{ user.remarks }}</span>
-                    </div>
-                </ng-container>
+                </section>
 
-                <ng-template #personalEdit>
-                    <form class="edit-form" (ngSubmit)="savePersonal()" #personalNgForm="ngForm">
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label>Name</label>
-                                <input type="text" name="name" [(ngModel)]="personalForm.name" />
-                            </div>
-                            <div class="form-field">
-                                <label>Former Name</label>
-                                <input type="text" name="former_name" [(ngModel)]="personalForm.former_name" />
-                            </div>
-                            <div class="form-field">
-                                <label>Nickname</label>
-                                <input type="text" name="nickname" [(ngModel)]="personalForm.nickname" />
-                            </div>
-                            <div class="form-field">
-                                <label>Phone</label>
-                                <input type="tel" name="phone" [(ngModel)]="personalForm.phone" />
-                            </div>
-                            <div class="form-field">
-                                <label>Alternate Phone</label>
-                                <input type="tel" name="alternate_phone" [(ngModel)]="personalForm.alternate_phone" />
-                            </div>
-                            <div class="form-field">
-                                <label>Personal Email</label>
-                                <input type="email" name="personal_email" [(ngModel)]="personalForm.personal_email" />
-                            </div>
-                            <div class="form-field">
-                                <label>Official Email</label>
-                                <input type="email" name="email" [(ngModel)]="personalForm.email" />
-                            </div>
-                            <div class="form-field">
-                                <label>Level</label>
-                                <select name="level" [(ngModel)]="personalForm.level">
-                                    <option value="">Select level</option>
-                                    <option *ngFor="let opt of levelOptions" [value]="opt">{{ opt }}</option>
-                                </select>
-                            </div>
-                            <div class="form-field">
-                                <label>Current Status</label>
-                                <select name="current_status" [(ngModel)]="personalForm.current_status">
-                                    <option value="">Select status</option>
-                                    <option *ngFor="let opt of statusOptions" [value]="opt">{{ opt }}</option>
-                                </select>
-                            </div>
-                            <div class="form-field">
-                                <label>Start Date</label>
-                                <input type="date" name="start_date" [(ngModel)]="personalForm.start_date" />
-                            </div>
-                            <div class="form-field">
-                                <label>Valid Upto</label>
-                                <input type="date" name="valid_upto" [(ngModel)]="personalForm.valid_upto" />
-                            </div>
-                            <div class="form-field">
-                                <label>Date of Reinstatement</label>
-                                <input type="date" name="date_of_reinstatement" [(ngModel)]="personalForm.date_of_reinstatement" />
-                            </div>
-                            <div class="form-field">
-                                <label>Date of Leaving</label>
-                                <input type="date" name="date_of_leaving" [(ngModel)]="personalForm.date_of_leaving" />
-                            </div>
-                            <div class="form-field">
-                                <label>Date of Expired</label>
-                                <input type="date" name="date_of_expired" [(ngModel)]="personalForm.date_of_expired" />
-                            </div>
-                            <div class="form-field">
-                                <label>Needs Approval</label>
-                                <select name="needs_approval" [(ngModel)]="personalForm.needs_approval">
-                                    <option *ngFor="let opt of needsApprovalOptions" [ngValue]="opt.value">{{ opt.label }}</option>
-                                </select>
-                            </div>
-                            <div class="form-field form-field--full">
-                                <label>Remarks</label>
-                                <textarea name="remarks" rows="3" [(ngModel)]="personalForm.remarks"></textarea>
+                <section class="vv-section" *ngIf="primaryImage && primaryImage !== '/assets/img/placeholder.svg'">
+                    <div class="vv-section__head"><h3>Profile Image</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field view-field--full">
+                            <label>Photo</label>
+                            <div class="view-image">
+                                <img [src]="primaryImage" [alt]="user.name"
+                                    onerror="this.src='/assets/img/placeholder.svg'" />
                             </div>
                         </div>
-
-                        <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
-
-                        <div class="form-actions">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="cancelEdit('personal')" [disabled]="isSaving.personal">Cancel</button>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.personal">
-                                {{ isSaving.personal ? 'Saving…' : 'Save' }}
-                            </button>
-                        </div>
-                    </form>
-                </ng-template>
+                    </div>
+                </section>
             </ng-container>
 
-            <!-- Family -->
-            <ng-container *ngIf="activeTab === 'family'">
-                <div class="tab-toolbar" *ngIf="!editMode.family">
-                    <button class="btn btn--secondary btn--sm" type="button" (click)="enterEdit('family')">
-                        <app-icon name="edit" /> Edit
-                    </button>
-                </div>
-
-                <ng-container *ngIf="!editMode.family; else familyEdit">
-                    <h3 class="section-title">Father</h3>
-                    <div class="info-grid">
-                        <div class="info-item"><label>Name</label><span>{{ user.user_profile?.father_name || '-' }}</span></div>
-                        <div class="info-item"><label>Phone</label><span>{{ user.user_profile?.father_phone || '-' }}</span></div>
-                        <div class="info-item"><label>Email</label><span>{{ user.user_profile?.father_email || '-' }}</span></div>
-                        <div class="info-item"><label>Occupation</label><span>{{ user.user_profile?.father_occupation || '-' }}</span></div>
-                        <div class="info-item info-item--full"><label>Address</label><span>{{ user.user_profile?.father_address || '-' }}</span></div>
-                    </div>
-
-                    <h3 class="section-title">Mother</h3>
-                    <div class="info-grid">
-                        <div class="info-item"><label>Name</label><span>{{ user.user_profile?.mother_name || '-' }}</span></div>
-                        <div class="info-item"><label>Phone</label><span>{{ user.user_profile?.mother_phone || '-' }}</span></div>
-                        <div class="info-item"><label>Email</label><span>{{ user.user_profile?.mother_email || '-' }}</span></div>
-                        <div class="info-item"><label>Occupation</label><span>{{ user.user_profile?.mother_occupation || '-' }}</span></div>
-                        <div class="info-item info-item--full"><label>Address</label><span>{{ user.user_profile?.mother_address || '-' }}</span></div>
-                    </div>
-
-                    <h3 class="section-title">Spouse & Siblings</h3>
-                    <div class="info-grid">
-                        <div class="info-item"><label>Spouse</label><span>{{ user.user_profile?.spouse_name || '-' }}</span></div>
-                        <div class="info-item"><label>Brother(s)</label><span>{{ user.user_profile?.brother_name || '-' }}</span></div>
-                        <div class="info-item"><label>Sister(s)</label><span>{{ user.user_profile?.sister_name || '-' }}</span></div>
-                        <div class="info-item"><label>Earning Members</label><span>{{ user.user_profile?.earning_members || '-' }}</span></div>
-                    </div>
-
-                    <h3 class="section-title">Emergency Contact</h3>
-                    <div class="info-grid">
-                        <div class="info-item"><label>Name</label><span>{{ user.user_profile?.emergency_name || '-' }}</span></div>
-                        <div class="info-item"><label>Phone</label><span>{{ user.user_profile?.emergency_phone || '-' }}</span></div>
-                        <div class="info-item"><label>Email</label><span>{{ user.user_profile?.emergency_email || '-' }}</span></div>
-                    </div>
-                </ng-container>
-
-                <ng-template #familyEdit>
-                    <form class="edit-form" (ngSubmit)="saveFamily()" #familyNgForm="ngForm">
-                        <h3 class="section-title">Father</h3>
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label>Name</label>
-                                <input type="text" name="father_name" [(ngModel)]="familyForm.father_name" />
-                            </div>
-                            <div class="form-field">
-                                <label>Phone</label>
-                                <input type="tel" name="father_phone" [(ngModel)]="familyForm.father_phone" />
-                            </div>
-                            <div class="form-field">
-                                <label>Email</label>
-                                <input type="email" name="father_email" [(ngModel)]="familyForm.father_email" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation ID</label>
-                                <input type="text" name="father_occupation_id" [(ngModel)]="familyForm.father_occupation_id" placeholder="UUID" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Location ID</label>
-                                <input type="text" name="father_occupation_location_id" [(ngModel)]="familyForm.father_occupation_location_id" placeholder="UUID" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Type</label>
-                                <input type="number" name="father_occupation_type" [(ngModel)]="familyForm.father_occupation_type" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Status</label>
-                                <input type="number" name="father_occupation_status" [(ngModel)]="familyForm.father_occupation_status" />
-                            </div>
-                        </div>
-
-                        <h3 class="section-title">Mother</h3>
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label>Name</label>
-                                <input type="text" name="mother_name" [(ngModel)]="familyForm.mother_name" />
-                            </div>
-                            <div class="form-field">
-                                <label>Phone</label>
-                                <input type="tel" name="mother_phone" [(ngModel)]="familyForm.mother_phone" />
-                            </div>
-                            <div class="form-field">
-                                <label>Email</label>
-                                <input type="email" name="mother_email" [(ngModel)]="familyForm.mother_email" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation ID</label>
-                                <input type="text" name="mother_occupation_id" [(ngModel)]="familyForm.mother_occupation_id" placeholder="UUID" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Location ID</label>
-                                <input type="text" name="mother_occupation_location_id" [(ngModel)]="familyForm.mother_occupation_location_id" placeholder="UUID" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Type</label>
-                                <input type="number" name="mother_occupation_type" [(ngModel)]="familyForm.mother_occupation_type" />
-                            </div>
-                            <div class="form-field">
-                                <label>Occupation Status</label>
-                                <input type="number" name="mother_occupation_status" [(ngModel)]="familyForm.mother_occupation_status" />
-                            </div>
-                        </div>
-
-                        <h3 class="section-title">Spouse & Siblings</h3>
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label>Spouse Name</label>
-                                <input type="text" name="spouse_name" [(ngModel)]="familyForm.spouse_name" />
-                            </div>
-                            <div class="form-field">
-                                <label>Brother Siblings</label>
-                                <input type="number" name="brother_siblings" [(ngModel)]="familyForm.brother_siblings" />
-                            </div>
-                            <div class="form-field">
-                                <label>Sister Siblings</label>
-                                <input type="number" name="sister_siblings" [(ngModel)]="familyForm.sister_siblings" />
-                            </div>
-                            <div class="form-field">
-                                <label>Earning Members</label>
-                                <input type="number" name="earning_members" [(ngModel)]="familyForm.earning_members" />
-                            </div>
-                            <div class="form-field">
-                                <label>Family Devotees</label>
-                                <input type="text" name="family_devotees" [(ngModel)]="familyForm.family_devotees" />
-                            </div>
-                            <div class="form-field">
-                                <label>In-Laws Members</label>
-                                <input type="text" name="inlaws_members" [(ngModel)]="familyForm.inlaws_members" />
-                            </div>
-                            <div class="form-field form-field--full">
-                                <label>Remarks</label>
-                                <textarea name="family_remarks" rows="3" [(ngModel)]="familyForm.remarks"></textarea>
-                            </div>
-                        </div>
-
-                        <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
-
-                        <div class="form-actions">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="cancelEdit('family')" [disabled]="isSaving.family">Cancel</button>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.family">
-                                {{ isSaving.family ? 'Saving…' : 'Save' }}
-                            </button>
-                        </div>
-                    </form>
-                </ng-template>
-            </ng-container>
-
-            <!-- Address -->
+            <!-- Address Details -->
             <ng-container *ngIf="activeTab === 'address'">
-                <h3 class="section-title">Correspondence Address</h3>
-                <ng-container *ngIf="user.user_correspondence_address; else noCorrAddress">
-                    <div class="info-grid">
-                        <div class="info-item info-item--full"><label>Address Line 1</label><span>{{ user.user_correspondence_address.address_1 || '-' }}</span></div>
-                        <div class="info-item info-item--full"><label>Address Line 2</label><span>{{ user.user_correspondence_address.address_2 || '-' }}</span></div>
-                        <div class="info-item"><label>Country</label><span>{{ user.user_correspondence_address.country || '-' }}</span></div>
-                        <div class="info-item"><label>State</label><span>{{ user.user_correspondence_address.state || '-' }}</span></div>
-                        <div class="info-item"><label>District</label><span>{{ user.user_correspondence_address.district || '-' }}</span></div>
-                        <div class="info-item"><label>City</label><span>{{ user.user_correspondence_address.city || '-' }}</span></div>
-                        <div class="info-item"><label>Pincode</label><span>{{ user.user_correspondence_address.pincode || '-' }}</span></div>
-                        <div class="info-item"><label>Tehsil</label><span>{{ user.user_correspondence_address.tehsil || '-' }}</span></div>
-                        <div class="info-item"><label>Post Office</label><span>{{ user.user_correspondence_address.post_office || '-' }}</span></div>
-                        <div class="info-item"><label>Home Branch</label><span>{{ user.user_correspondence_address.home_branch?.name || '-' }}</span></div>
-                        <div class="info-item"><label>Working Branch</label><span>{{ user.user_correspondence_address.working_branch?.name || '-' }}</span></div>
+                <section class="vv-section">
+                    <div class="vv-section__head"><h3>Permanent Address</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field view-field--full"><label>Address 1</label><div class="view-value">{{ display(user.user_permanent_address?.address_1) }}</div></div>
+                        <div class="view-field view-field--full"><label>Address 2</label><div class="view-value">{{ display(user.user_permanent_address?.address_2) }}</div></div>
+                        <div class="view-field"><label>Country</label><div class="view-value">{{ display(user.user_permanent_address?.country) }}</div></div>
+                        <div class="view-field"><label>State</label><div class="view-value">{{ display(user.user_permanent_address?.state) }}</div></div>
+                        <div class="view-field"><label>City</label><div class="view-value">{{ display(user.user_permanent_address?.city) }}</div></div>
+                        <div class="view-field"><label>Pincode</label><div class="view-value">{{ display(user.user_permanent_address?.pincode) }}</div></div>
+                        <div class="view-field"><label>District</label><div class="view-value">{{ display(user.user_permanent_address?.district) }}</div></div>
                     </div>
-                </ng-container>
-                <ng-template #noCorrAddress>
-                    <p class="empty-text">No correspondence address on file.</p>
-                </ng-template>
-
-                <div class="section-title-row">
-                    <h3 class="section-title section-title--inline">Permanent Address</h3>
-                    <button class="btn btn--secondary btn--sm" type="button" *ngIf="!editMode.address" (click)="enterEdit('address')">
-                        <app-icon name="edit" /> Edit
-                    </button>
-                </div>
-
-                <ng-container *ngIf="!editMode.address; else addressEdit">
-                    <ng-container *ngIf="user.user_permanent_address; else noPermAddress">
-                        <div class="info-grid">
-                            <div class="info-item info-item--full"><label>Address Line 1</label><span>{{ user.user_permanent_address.address_1 || '-' }}</span></div>
-                            <div class="info-item info-item--full"><label>Address Line 2</label><span>{{ user.user_permanent_address.address_2 || '-' }}</span></div>
-                            <div class="info-item"><label>Country</label><span>{{ user.user_permanent_address.country || '-' }}</span></div>
-                            <div class="info-item"><label>State</label><span>{{ user.user_permanent_address.state || '-' }}</span></div>
-                            <div class="info-item"><label>District</label><span>{{ user.user_permanent_address.district || '-' }}</span></div>
-                            <div class="info-item"><label>City</label><span>{{ user.user_permanent_address.city || '-' }}</span></div>
-                            <div class="info-item"><label>Pincode</label><span>{{ user.user_permanent_address.pincode || '-' }}</span></div>
-                        </div>
-                    </ng-container>
-                    <ng-template #noPermAddress>
-                        <p class="empty-text">No permanent address on file.</p>
-                    </ng-template>
-                </ng-container>
-
-                <ng-template #addressEdit>
-                    <form class="edit-form" (ngSubmit)="saveAddress()" #addressNgForm="ngForm">
-                        <div class="form-grid">
-                            <div class="form-field form-field--full">
-                                <label>Address Line 1</label>
-                                <input type="text" name="address_1" [(ngModel)]="addressForm.address_1" />
-                            </div>
-                            <div class="form-field form-field--full">
-                                <label>Address Line 2</label>
-                                <input type="text" name="address_2" [(ngModel)]="addressForm.address_2" />
-                            </div>
-                            <div class="form-field">
-                                <label>Country</label>
-                                <input type="text" name="country" [(ngModel)]="addressForm.country" />
-                            </div>
-                            <div class="form-field">
-                                <label>State</label>
-                                <input type="text" name="state" [(ngModel)]="addressForm.state" />
-                            </div>
-                            <div class="form-field">
-                                <label>District</label>
-                                <input type="text" name="district" [(ngModel)]="addressForm.district" />
-                            </div>
-                            <div class="form-field">
-                                <label>City</label>
-                                <input type="text" name="city" [(ngModel)]="addressForm.city" />
-                            </div>
-                            <div class="form-field">
-                                <label>Pincode</label>
-                                <input type="text" name="pincode" [(ngModel)]="addressForm.pincode" />
-                            </div>
-                            <div class="form-field">
-                                <label>Tehsil</label>
-                                <input type="text" name="tehsil" [(ngModel)]="addressForm.tehsil" />
-                            </div>
-                            <div class="form-field">
-                                <label>Post Office</label>
-                                <input type="text" name="post_office" [(ngModel)]="addressForm.post_office" />
-                            </div>
-                        </div>
-
-                        <p class="form-error" *ngIf="saveError">{{ saveError }}</p>
-
-                        <div class="form-actions">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="cancelEdit('address')" [disabled]="isSaving.address">Cancel</button>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.address">
-                                {{ isSaving.address ? 'Saving…' : 'Save' }}
-                            </button>
-                        </div>
-                    </form>
-                </ng-template>
+                </section>
             </ng-container>
 
-            <!-- Spiritual & Skills -->
-            <ng-container *ngIf="activeTab === 'spiritual'">
-                <h3 class="section-title">Spiritual</h3>
-                <div class="info-grid">
-                    <div class="info-item"><label>Taken Gyan</label><span>{{ user.user_profile?.taken_gyan ? 'Yes' : 'No' }}</span></div>
-                </div>
-                <ng-container *ngIf="!isEmptySection(user.user_spiritual_detail)">
-                    <pre class="raw-block">{{ user.user_spiritual_detail | json }}</pre>
-                </ng-container>
-
-                <h3 class="section-title">Skills</h3>
-                <ng-container *ngIf="user.user_skills && user.user_skills.length > 0; else noSkills">
-                    <ul class="chip-list">
-                        <li *ngFor="let skill of user.user_skills" class="chip">
-                            {{ skill?.name || skill?.skill?.name || skill }}
-                        </li>
-                    </ul>
-                </ng-container>
-                <ng-template #noSkills>
-                    <p class="empty-text">No skills recorded.</p>
-                </ng-template>
-
-                <h3 class="section-title">Profession</h3>
-                <div class="info-grid">
-                    <div class="info-item"><label>Profession</label><span>{{ user.user_profile?.profession || '-' }}</span></div>
-                    <div class="info-item"><label>Experience</label><span>{{ user.user_profile?.experience || '-' }}</span></div>
-                    <div class="info-item"><label>Period</label><span>{{ user.user_profile?.experience_period || '-' }}</span></div>
-                </div>
-            </ng-container>
-
-            <!-- Education -->
-            <ng-container *ngIf="activeTab === 'education'">
-                <h3 class="section-title">Education</h3>
-                <ng-container *ngIf="user.user_educations && user.user_educations.length > 0; else noEducation">
-                    <div class="info-grid">
-                        <ng-container *ngFor="let edu of user.user_educations">
-                            <div class="info-item"><label>Degree</label><span>{{ edu?.degree?.name || edu?.degree_name || '-' }}</span></div>
-                            <div class="info-item"><label>Institute</label><span>{{ edu?.institute || '-' }}</span></div>
-                            <div class="info-item"><label>Year</label><span>{{ edu?.year || '-' }}</span></div>
-                            <div class="info-item"><label>Marks</label><span>{{ edu?.marks || '-' }}</span></div>
-                        </ng-container>
+            <!-- Personal & Family Details -->
+            <ng-container *ngIf="activeTab === 'personal'">
+                <section class="vv-section">
+                    <div class="vv-section__head"><h3>Personal Details</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field"><label>Gender</label><div class="view-value">{{ display(user.user_profile?.gender) }}</div></div>
+                        <div class="view-field"><label>Date of Birth</label><div class="view-value">{{ display(formatDate(user.user_profile?.dob)) }}</div></div>
+                        <div class="view-field"><label>Birth Place</label><div class="view-value">{{ display(user.user_profile?.birth_place) }}</div></div>
+                        <div class="view-field"><label>Height (in Ft)</label><div class="view-value">{{ display(user.user_profile?.height_in_ft) }}</div></div>
+                        <div class="view-field"><label>Height (in Inches)</label><div class="view-value">{{ display(user.user_profile?.height_in_inches) }}</div></div>
+                        <div class="view-field"><label>Weight (in Kg)</label><div class="view-value">{{ display(user.user_profile?.weight) }}</div></div>
+                        <div class="view-field view-field--full"><label>Identification Mark</label><div class="view-value">{{ display(user.user_profile?.identification_mark) }}</div></div>
                     </div>
-                </ng-container>
-                <ng-template #noEducation>
-                    <p class="empty-text">No education records on file.</p>
-                </ng-template>
+                </section>
 
-                <h3 class="section-title">Technical Qualifications</h3>
-                <ng-container *ngIf="user.user_technical_qualifications && user.user_technical_qualifications.length > 0; else noTech">
-                    <ul class="chip-list">
-                        <li *ngFor="let q of user.user_technical_qualifications" class="chip">
-                            {{ q?.name || q?.qualification?.name || q }}
-                        </li>
-                    </ul>
-                </ng-container>
-                <ng-template #noTech>
-                    <p class="empty-text">No technical qualifications on file.</p>
-                </ng-template>
-            </ng-container>
-
-            <!-- Documents -->
-            <ng-container *ngIf="activeTab === 'documents'">
-                <h3 class="section-title">Aadhaar</h3>
-                <ng-container *ngIf="user.user_aadhaar; else noAadhaar">
-                    <div class="info-grid">
-                        <div class="info-item"><label>Name on Aadhaar</label><span>{{ user.user_aadhaar.name || '-' }}</span></div>
-                        <div class="info-item"><label>Aadhaar Number</label><span>{{ user.user_aadhaar.aadhaar_number || '-' }}</span></div>
-                        <div class="info-item info-item--full"><label>Address</label><span>{{ user.user_aadhaar.address || '-' }}</span></div>
+                <section class="vv-section">
+                    <div class="vv-section__head"><h3>Family Details</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field"><label>Father Name</label><div class="view-value">{{ display(user.user_profile?.father_name) }}</div></div>
+                        <div class="view-field"><label>Father Email</label><div class="view-value">{{ display(user.user_profile?.father_email) }}</div></div>
+                        <div class="view-field"><label>Father Occupation</label><div class="view-value">{{ display(user.user_profile?.father_occupation) }}</div></div>
+                        <div class="view-field"><label>Mother Name</label><div class="view-value">{{ display(user.user_profile?.mother_name) }}</div></div>
+                        <div class="view-field"><label>Mother Email</label><div class="view-value">{{ display(user.user_profile?.mother_email) }}</div></div>
+                        <div class="view-field"><label>Mother Occupation</label><div class="view-value">{{ display(user.user_profile?.mother_occupation) }}</div></div>
+                        <div class="view-field"><label>Spouse Name</label><div class="view-value">{{ display(user.user_profile?.spouse_name) }}</div></div>
+                        <div class="view-field"><label>Sibling's (Brother)</label><div class="view-value">{{ display(user.user_profile?.brother_name) }}</div></div>
+                        <div class="view-field"><label>Sibling's (Sister)</label><div class="view-value">{{ display(user.user_profile?.sister_name) }}</div></div>
+                        <div class="view-field"><label>Earning Members</label><div class="view-value">{{ display(user.user_profile?.earning_members) }}</div></div>
                     </div>
-                    <div class="doc-grid" *ngIf="user.user_aadhaar.user_doc_urls && user.user_aadhaar.user_doc_urls.length > 0">
-                        <a *ngFor="let doc of user.user_aadhaar.user_doc_urls"
-                            class="doc-card"
-                            [href]="doc.path"
-                            target="_blank"
-                            rel="noopener">
-                            <img [src]="doc.path" [alt]="'Aadhaar document'" onerror="this.src='/assets/img/placeholder.svg'">
-                        </a>
+                </section>
+
+                <section class="vv-section">
+                    <div class="vv-section__head"><h3>Emergency Contact</h3></div>
+                    <div class="view-grid">
+                        <div class="view-field"><label>Name</label><div class="view-value">{{ display(user.user_profile?.emergency_name) }}</div></div>
+                        <div class="view-field"><label>Phone</label><div class="view-value">{{ display(user.user_profile?.emergency_phone) }}</div></div>
+                        <div class="view-field"><label>Email</label><div class="view-value">{{ display(user.user_profile?.emergency_email) }}</div></div>
                     </div>
-                </ng-container>
-                <ng-template #noAadhaar>
-                    <p class="empty-text">No Aadhaar on file.</p>
-                </ng-template>
-
-                <h3 class="section-title">PAN Card</h3>
-                <p class="empty-text" *ngIf="!user.user_pan_card">No PAN on file.</p>
-                <pre class="raw-block" *ngIf="user.user_pan_card">{{ user.user_pan_card | json }}</pre>
-
-                <h3 class="section-title">Ration</h3>
-                <p class="empty-text" *ngIf="!user.user_ration">No ration on file.</p>
-                <pre class="raw-block" *ngIf="user.user_ration">{{ user.user_ration | json }}</pre>
-
-                <h3 class="section-title">Driving License</h3>
-                <p class="empty-text" *ngIf="!user.user_driving_license">No driving license on file.</p>
-                <pre class="raw-block" *ngIf="user.user_driving_license">{{ user.user_driving_license | json }}</pre>
-
-                <h3 class="section-title">Electoral</h3>
-                <p class="empty-text" *ngIf="!user.user_electoral">No electoral document on file.</p>
-                <pre class="raw-block" *ngIf="user.user_electoral">{{ user.user_electoral | json }}</pre>
-
-                <h3 class="section-title">Passport</h3>
-                <p class="empty-text" *ngIf="!user.user_passport">No passport on file.</p>
-                <pre class="raw-block" *ngIf="user.user_passport">{{ user.user_passport | json }}</pre>
-
-                <h3 class="section-title">Pension</h3>
-                <p class="empty-text" *ngIf="!user.user_pension">No pension info on file.</p>
-                <pre class="raw-block" *ngIf="user.user_pension">{{ user.user_pension | json }}</pre>
-            </ng-container>
-
-            <!-- Medical -->
-            <ng-container *ngIf="activeTab === 'medical'">
-                <h3 class="section-title">Medical</h3>
-                <p class="empty-text" *ngIf="!user.user_medical">No medical info on file.</p>
-                <pre class="raw-block" *ngIf="user.user_medical">{{ user.user_medical | json }}</pre>
+                </section>
             </ng-container>
         </div>
-    </ng-container>
+    </div>
 </div>

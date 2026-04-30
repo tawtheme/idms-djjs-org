@@ -16,6 +16,7 @@ import { ConfirmationDialogComponent } from '../../shared/components/confirmatio
 import { CreateVisitorComponent } from './create-visitor/create-visitor.component';
 import { DataService } from '../../data.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { SnackbarService } from '../../shared/services/snackbar.service';
 
 export interface Visitor {
   id: number; // Display ID (unique_id)
@@ -60,6 +61,7 @@ export class VisitorsComponent implements OnInit {
   @ViewChild('createVisitorComponent') createVisitorComponent!: CreateVisitorComponent;
 
   private dataService = inject(DataService);
+  private snackbar = inject(SnackbarService);
   private router = inject(Router);
 
   visitors: Visitor[] = [];
@@ -91,10 +93,12 @@ export class VisitorsComponent implements OnInit {
   sewaReasonVisitor: Visitor | null = null;
   sewaReasonForm = { reason: '', remarks: '' };
   sewaReasonOptions: DropdownOption[] = [
-    { id: 'none', label: 'None', value: 'None' },
-    { id: 'lack_of_time', label: 'Lack of time', value: 'Lack of time' },
-    { id: 'health', label: 'Health reasons', value: 'Health reasons' },
-    { id: 'personal', label: 'Personal reasons', value: 'Personal reasons' },
+    { id: 'change_sewa', label: 'Change Sewa', value: 'Change Sewa' },
+    { id: 'dead', label: 'Dead', value: 'Dead' },
+    { id: 'left', label: 'Left', value: 'Left' },
+    { id: 'migrated', label: 'Migrated', value: 'Migrated' },
+    { id: 'married', label: 'Married', value: 'Married' },
+    { id: 'not_regular', label: 'Not Regular', value: 'Not Regular' },
     { id: 'other', label: 'Other', value: 'Other' }
   ];
   selectedSewaReason: any[] = [];
@@ -105,10 +109,16 @@ export class VisitorsComponent implements OnInit {
 
   // Filters
   searchTerm = ''; // Handles Name, Mobile No., Relation Name, UID
+  nameFilter = '';
+  relationNameFilter = '';
+  mobileFilter = '';
+  uidFilter = '';
   selectedGender: any[] = [];
   genderOptions: DropdownOption[] = [];
   sortOrder: any[] = [];
   sortOrderOptions: DropdownOption[] = [];
+  sortByColumn: any[] = [];
+  sortByColumnOptions: DropdownOption[] = [];
 
   // Pagination
   pageSizeOptions: number[] = [20, 50, 100];
@@ -131,32 +141,35 @@ export class VisitorsComponent implements OnInit {
   buildFilterOptions(): void {
     // Build filter options
     this.genderOptions = [
-      { id: '1', label: 'Male', value: 'Male' },
-      { id: '2', label: 'Female', value: 'Female' },
-      { id: '3', label: 'Other', value: 'Other' }
+      { id: '', label: 'None', value: '' },
+      { id: 'MALE', label: 'MALE', value: 'MALE' },
+      { id: 'FEMALE', label: 'FEMALE', value: 'FEMALE' },
+      { id: 'OTHER', label: 'OTHER', value: 'OTHER' }
     ];
 
-    // Combined Sort By and Order By options
     this.sortOrderOptions = [
-      { id: '0', label: 'None', value: '' },
-      { id: '1', label: 'Name (ASC)', value: 'name:asc' },
-      { id: '2', label: 'Name (DESC)', value: 'name:desc' },
-      { id: '3', label: 'Date (ASC)', value: 'date:asc' },
-      { id: '4', label: 'Date (DESC)', value: 'date:desc' },
-      { id: '5', label: 'Id (ASC)', value: 'id:asc' },
-      { id: '6', label: 'Id (DESC)', value: 'id:desc' },
-      { id: '7', label: 'Mobile No. (ASC)', value: 'phone:asc' },
-      { id: '8', label: 'Mobile No. (DESC)', value: 'phone:desc' },
-      { id: '9', label: 'Address (ASC)', value: 'address:asc' },
-      { id: '10', label: 'Address (DESC)', value: 'address:desc' },
-      { id: '11', label: 'Age (ASC)', value: 'age:asc' },
-      { id: '12', label: 'Age (DESC)', value: 'age:desc' },
-      { id: '13', label: 'Badge No (ASC)', value: 'badgeNo:asc' },
-      { id: '14', label: 'Badge No (DESC)', value: 'badgeNo:desc' },
-      { id: '15', label: 'Created date (ASC)', value: 'createdDate:asc' },
-      { id: '16', label: 'Created date (DESC)', value: 'createdDate:desc' },
-      { id: '17', label: 'City (ASC)', value: 'city:asc' },
-      { id: '18', label: 'City (DESC)', value: 'city:desc' }
+      { id: '', label: 'None', value: '' },
+      { id: 'ASC', label: 'ASC', value: 'ASC' },
+      { id: 'DESC', label: 'DESC', value: 'DESC' }
+    ];
+
+    this.sortByColumnOptions = [
+      { id: '', label: 'None', value: '' },
+      { id: 'address_1', label: 'Address', value: 'address_1' },
+      { id: 'dob', label: 'Age', value: 'dob' },
+      { id: 'badge_id', label: 'Badge No', value: 'badge_id' },
+      { id: 'created_at', label: 'Created date', value: 'created_at' },
+      { id: 'city', label: 'City', value: 'city' },
+      { id: 'created_by', label: 'Enter By', value: 'created_by' },
+      { id: 'father_name', label: 'Father Name', value: 'father_name' },
+      { id: 'gender', label: 'Gender', value: 'gender' },
+      { id: 'home_branch', label: 'Home Branch', value: 'home_branch' },
+      { id: 'unique_id', label: 'Id', value: 'unique_id' },
+      { id: 'mother_name', label: 'Mother Name', value: 'mother_name' },
+      { id: 'name', label: 'Name', value: 'name' },
+      { id: 'phone', label: 'Mobile', value: 'phone' },
+      { id: 'spouse_name', label: 'Spouse Name', value: 'spouse_name' },
+      { id: 'regular_sewa', label: 'Sewa Name', value: 'regular_sewa' }
     ];
   }
 
@@ -255,11 +268,16 @@ export class VisitorsComponent implements OnInit {
       params['gender'] = String(gender).toUpperCase();
     }
 
-    const sort = this.sortOrder[0];
-    if (sort) {
-      const [col, dir] = String(sort).split(':');
-      if (col) params['sortByColumn'] = col;
-      if (dir) params['orderBy'] = dir;
+    const sortCol = this.sortByColumn[0];
+    const sortDir = this.sortOrder[0];
+    if (sortCol) {
+      params['sortByColumn'] = sortCol;
+    }
+    if (sortDir) {
+      params['orderBy'] = sortDir;
+      if (!sortCol) {
+        params['sortByColumn'] = 'created_at';
+      }
     }
 
     params['page'] = this.currentPage;
@@ -273,55 +291,81 @@ export class VisitorsComponent implements OnInit {
     this.isExporting = true;
 
     const params = this.buildVisitorQueryParams();
-    delete params['page'];
-    delete params['per_page'];
+    params['page'] = this.currentPage;
+    params['per_page'] = this.pageSize;
     params['is_export'] = 1;
-    params['delivery_type'] = 'download';
+    params['export_type'] = 'excel';
 
     this.dataService.get<any>('v1/visitors', { params, responseType: 'blob', observe: 'response' }).pipe(
       catchError((error) => {
         console.error('Error exporting visitors:', error);
-        alert(error?.error?.message || 'Failed to export visitors. Please try again.');
+        this.snackbar.showError(error?.error?.message || 'Failed to export visitors.');
         return of(null);
       }),
       finalize(() => { this.isExporting = false; })
     ).subscribe((response: any) => {
-      if (!response) return;
-
-      const body: Blob | undefined = response.body;
-      const headers = response.headers;
-
-      // Some backends return JSON with a download URL when delivery_type=download isn't supported as binary.
-      if (body && body.type && body.type.includes('application/json')) {
-        body.text().then((txt: string) => {
-          try {
-            const parsed = JSON.parse(txt);
-            const url = parsed?.url || parsed?.data?.url || parsed?.download_url;
-            if (url) {
-              window.open(url, '_blank');
-            } else {
-              alert(parsed?.message || 'Export request submitted.');
-            }
-          } catch {
-            alert('Export response was not a downloadable file.');
-          }
-        });
-        return;
-      }
-
-      if (!body) return;
-
-      const filename = this.extractFilename(headers?.get?.('content-disposition'))
-        || `visitors_${new Date().toISOString().split('T')[0]}.csv`;
-      const url = URL.createObjectURL(body);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      this.handleExportResponse(response, `visitors_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
+  }
+
+  private handleExportResponse(response: any, fallbackName: string): void {
+    if (!response) return;
+    const body: Blob | undefined = response.body;
+    const headers = response.headers;
+
+    // JSON response containing a downloadLink — trigger auto download of that file.
+    if (body && body.type && body.type.includes('application/json')) {
+      body.text().then((txt: string) => {
+        try {
+          const parsed = JSON.parse(txt);
+          const url = parsed?.data?.downloadLink
+            || parsed?.data?.download_link
+            || parsed?.data?.url
+            || parsed?.url
+            || parsed?.download_url;
+          if (url) {
+            this.triggerBrowserDownload(url, this.filenameFromUrl(url) || fallbackName);
+            this.snackbar.showSuccess(parsed?.message || 'Successfully downloaded.');
+          } else {
+            this.snackbar.showError(parsed?.message || 'Export response did not include a download link.');
+          }
+        } catch {
+          this.snackbar.showError('Export response was not a downloadable file.');
+        }
+      });
+      return;
+    }
+
+    if (!body) return;
+
+    const filename = this.extractFilename(headers?.get?.('content-disposition')) || fallbackName;
+    const blob = new Blob([body], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const url = URL.createObjectURL(blob);
+    this.triggerBrowserDownload(url, filename);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.snackbar.showSuccess('Successfully downloaded.');
+  }
+
+  private triggerBrowserDownload(url: string, filename: string): void {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private filenameFromUrl(url: string): string | null {
+    try {
+      const u = new URL(url);
+      const last = u.pathname.split('/').filter(Boolean).pop();
+      return last ? decodeURIComponent(last) : null;
+    } catch {
+      return null;
+    }
   }
 
   private extractFilename(disposition: string | null | undefined): string | null {
@@ -448,9 +492,14 @@ export class VisitorsComponent implements OnInit {
     if (!visitor || this.isConverting) return;
 
     this.isConverting = true;
-    const visitorId = visitor.uuid || String(visitor.id);
+    const userId = visitor.uuid;
+    if (!userId) {
+      this.isConverting = false;
+      alert('Missing visitor identifier.');
+      return;
+    }
 
-    this.dataService.post(`v1/visitors/convert-to-volunteer/${visitorId}`, {}).pipe(
+    this.dataService.put(`v1/visitors/convert-to-volunteer/${userId}`, { id: userId }).pipe(
       catchError((error) => {
         console.error('Error converting visitor to volunteer:', error);
         const apiError = error as { error?: { message?: string } };
@@ -619,42 +668,27 @@ export class VisitorsComponent implements OnInit {
 
   exportSelectedRecords(): void {
     if (this.selectedVisitors.size === 0) {
-      alert('Please select at least one record to export.');
+      this.exportVisitors();
       return;
     }
+    if (this.isExporting) return;
+    this.isExporting = true;
 
-    const selectedData = this.allVisitors.filter(v => this.selectedVisitors.has(v.id));
+    const ids = this.allVisitors
+      .filter(v => this.selectedVisitors.has(v.id))
+      .map(v => String((v as any).uuid ?? v.id));
+    const payload = { ids, exportChoice: 'web' };
 
-    // Convert to CSV
-    const headers = ['Id', 'Name', 'Email', 'Phone', 'Date', 'Valid Upto', 'Purpose To Visit', 'Sewa Interest', 'Gender', 'Relation Name', 'UID'];
-    const rows = selectedData.map(v => [
-      v.id,
-      v.name,
-      v.email,
-      v.phone,
-      v.date,
-      v.validUpto,
-      v.purposeToVisit,
-      v.sewaInterest ? 'Yes' : 'No',
-      v.gender || '',
-      v.relationName || '',
-      v.uid || ''
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `visitors_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.dataService.post<any>('v1/export/batch/visitor', payload, { responseType: 'blob', observe: 'response' }).pipe(
+      catchError((error) => {
+        console.error('Error exporting selected visitors:', error);
+        this.snackbar.showError(error?.error?.message || 'Failed to export selected visitors.');
+        return of(null);
+      }),
+      finalize(() => { this.isExporting = false; })
+    ).subscribe((response: any) => {
+      this.handleExportResponse(response, `visitors_selected_${new Date().toISOString().split('T')[0]}.xlsx`);
+    });
   }
 
   printSelectedRecords(): void {
@@ -686,7 +720,16 @@ export class VisitorsComponent implements OnInit {
       })
     ).subscribe((response: any) => {
       const data = response?.data || response?.results || response || [];
-      this.printedCards = Array.isArray(data) ? data : [data];
+      const cards = Array.isArray(data) ? data : [data];
+      // Merge `remarks` from the local listing rows (which already mapped item.remarks)
+      // since /v1/users/bulk may not return that field.
+      this.printedCards = cards.map((card: any) => {
+        if (card?.remarks) return card;
+        const match = this.allVisitors.find(v =>
+          (v as any).uuid === card?.id || String(v.id) === String(card?.unique_id)
+        );
+        return { ...card, remarks: match?.purposeToVisit || card?.remarks || '' };
+      });
     });
   }
 
@@ -728,7 +771,12 @@ export class VisitorsComponent implements OnInit {
   }
 
   cardPurpose(card: any): string {
-    return card?.remarks || card?.purpose_of_visit || card?.purpose || '';
+    return card?.remarks
+      ?? card?.user?.remarks
+      ?? card?.user_profile?.remarks
+      ?? card?.purpose_to_visit
+      ?? card?.purpose_of_visit
+      ?? '';
   }
 
   cardPhone(card: any): string {
@@ -755,7 +803,27 @@ export class VisitorsComponent implements OnInit {
   }
 
   printCards(): void {
-    window.print();
+    const cards = document.querySelector('.printable-cards') as HTMLElement | null;
+    if (!cards) {
+      this.closePrintCardModal();
+      window.print();
+      return;
+    }
+
+    const host = document.createElement('div');
+    host.className = 'printable-print-host';
+    host.appendChild(cards.cloneNode(true));
+    document.body.appendChild(host);
+
+    this.closePrintCardModal();
+
+    const cleanup = () => {
+      window.removeEventListener('afterprint', cleanup);
+      host.remove();
+    };
+    window.addEventListener('afterprint', cleanup);
+
+    setTimeout(() => window.print(), 0);
   }
 
   // Create Visitor Modal Methods

@@ -92,7 +92,7 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager *ngIf="!error" [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+        <app-pager [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
         </app-pager>

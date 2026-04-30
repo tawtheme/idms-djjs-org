@@ -14,7 +14,7 @@
             <div class="vv-nav-group__label">Profile</div>
             <nav class="vv-nav">
                 <button *ngFor="let t of profileTabs" type="button" class="vv-nav__item"
-                    [class.vv-nav__item--active]="activeTab === t.id" (click)="setTab(t.id)">
+                    [class.vv-nav__item--active]="activeTab === t.id" (click)="scrollToSection(t.id)">
                     {{ t.label }}
                 </button>
             </nav>
@@ -24,7 +24,7 @@
             <div class="vv-nav-group__label">Activity</div>
             <nav class="vv-nav">
                 <button *ngFor="let t of activityTabs" type="button" class="vv-nav__item"
-                    [class.vv-nav__item--active]="activeTab === t.id" (click)="setTab(t.id)">
+                    [class.vv-nav__item--active]="activeTab === t.id" (click)="scrollToSection(t.id)">
                     {{ t.label }}
                 </button>
             </nav>
@@ -33,37 +33,21 @@
 
     <!-- Main column -->
     <div class="vv-main">
-        <header class="vv-topbar" *ngIf="!isLoading && !error && user">
-            <div class="vv-topbar__title">
-                <span class="vv-topbar__crumb">View Volunteer</span>
-                <h1>{{ activeTabLabel }}</h1>
-            </div>
-            <div class="vv-topbar__actions">
-                <button type="button" class="vv-topbar__close" (click)="onClose()" aria-label="Close">
-                    <app-icon name="close" />
-                </button>
-            </div>
-        </header>
-
         <div *ngIf="!isLoading && error" class="vv-state vv-state--error">{{ error }}</div>
 
         <div class="vv-body" *ngIf="!isLoading && !error && user">
 
             <!-- Basic Information -->
-            <ng-container *ngIf="activeTab === 'basic'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-basic" class="vv-section">
                     <div class="vv-section__head"><h3>Basic Information</h3></div>
                     <div class="view-grid">
                         <div class="view-field"><label>Unique ID</label><div class="view-value">{{ display(user?.unique_id) }}</div></div>
                         <div class="view-field"><label>Name</label><div class="view-value">{{ display(user?.name) }}</div></div>
+                        <div class="view-field"><label>Email</label><div class="view-value">{{ display(basic?.personal_email || user?.personal_email) }}</div></div>
+                        <div class="view-field"><label>Personal Email</label><div class="view-value">{{ display(basic?.official_email || user?.official_email) }}</div></div>
                         <div class="view-field"><label>Mobile Number</label><div class="view-value">{{ display(basic?.phone || user?.phone) }}</div></div>
-                        <div class="view-field"><label>WhatsApp Number</label><div class="view-value">{{ display(basic?.whatsapp_number || user?.whatsapp_number) }}</div></div>
-                        <div class="view-field"><label>Email</label><div class="view-value">{{ display(basic?.email || user?.email) }}</div></div>
                         <div class="view-field"><label>Level</label><div class="view-value">{{ display(basic?.level?.name || basic?.level || user?.level) }}</div></div>
-                        <div class="view-field view-field--full">
-                            <label>Roles</label>
-                            <div class="view-value">{{ display((basic?.roles || user?.roles)?.join?.(', ')) }}</div>
-                        </div>
                     </div>
                 </section>
 
@@ -81,12 +65,12 @@
             </ng-container>
 
             <!-- Address Details -->
-            <ng-container *ngIf="activeTab === 'address'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-address" class="vv-section">
                     <div class="vv-section__head"><h3>Permanent Address</h3></div>
                     <div class="view-grid">
-                        <div class="view-field"><label>Address 1</label><div class="view-value">{{ display(permanent?.permanent_address || permanent?.address_1) }}</div></div>
-                        <div class="view-field"><label>Address 2</label><div class="view-value">{{ display(permanent?.permanent_address_2 || permanent?.address_2) }}</div></div>
+                        <div class="view-field view-field--full"><label>Address 1</label><div class="view-value">{{ display(permanent?.permanent_address || permanent?.address_1) }}</div></div>
+                        <div class="view-field view-field--full"><label>Address 2</label><div class="view-value">{{ display(permanent?.permanent_address_2 || permanent?.address_2) }}</div></div>
                         <div class="view-field"><label>Country</label><div class="view-value">{{ display(permanent?.permanent_country || permanent?.country?.name || permanent?.country) }}</div></div>
                         <div class="view-field"><label>State</label><div class="view-value">{{ display(permanent?.permanent_state || permanent?.state?.name || permanent?.state) }}</div></div>
                         <div class="view-field"><label>District</label><div class="view-value">{{ display(permanent?.permanent_district || permanent?.district?.name || permanent?.district) }}</div></div>
@@ -98,28 +82,24 @@
                 <section class="vv-section">
                     <div class="vv-section__head"><h3>Correspondence Address</h3></div>
                     <div class="view-grid">
-                        <div class="view-field"><label>Address 1</label><div class="view-value">{{ display(correspondence?.address_1) }}</div></div>
-                        <div class="view-field"><label>Address 2</label><div class="view-value">{{ display(correspondence?.address_2) }}</div></div>
+                        <div class="view-field view-field--full"><label>Address 1</label><div class="view-value">{{ display(correspondence?.address_1) }}</div></div>
+                        <div class="view-field view-field--full"><label>Address 2</label><div class="view-value">{{ display(correspondence?.address_2) }}</div></div>
                         <div class="view-field"><label>Country</label><div class="view-value">{{ display(correspondence?.country?.name || correspondence?.country) }}</div></div>
                         <div class="view-field"><label>State</label><div class="view-value">{{ display(correspondence?.state?.name || correspondence?.state) }}</div></div>
                         <div class="view-field"><label>District</label><div class="view-value">{{ display(correspondence?.district?.name || correspondence?.district) }}</div></div>
                         <div class="view-field"><label>City</label><div class="view-value">{{ display(correspondence?.city?.name || correspondence?.city) }}</div></div>
                         <div class="view-field"><label>Pincode</label><div class="view-value">{{ display(correspondence?.pincode) }}</div></div>
-                        <div class="view-field"><label>Tehsil</label><div class="view-value">{{ display(correspondence?.tehsil) }}</div></div>
-                        <div class="view-field"><label>Post Office</label><div class="view-value">{{ display(correspondence?.post_office) }}</div></div>
-                        <div class="view-field"><label>Branch</label><div class="view-value">{{ display(correspondence?.branch?.name || correspondence?.branch_id) }}</div></div>
-                        <div class="view-field"><label>Home Branch</label><div class="view-value">{{ display(correspondence?.home_branch?.name || correspondence?.home_branch) }}</div></div>
                     </div>
                 </section>
             </ng-container>
 
             <!-- Personal & Family -->
-            <ng-container *ngIf="activeTab === 'personal'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-personal" class="vv-section">
                     <div class="vv-section__head"><h3>Personal Details</h3></div>
                     <div class="view-grid">
                         <div class="view-field"><label>Gender</label><div class="view-value">{{ display(personal?.gender) }}</div></div>
-                        <div class="view-field"><label>Date of Birth</label><div class="view-value">{{ display(personal?.dob || personal?.date_of_birth) }}</div></div>
+                        <div class="view-field"><label>Date of Birth</label><div class="view-value">{{ display((personal?.dob || personal?.date_of_birth) | date:'MMM d, y') }}</div></div>
                         <div class="view-field"><label>Marital Status</label><div class="view-value">{{ display(personal?.marital_status) }}</div></div>
                     </div>
                 </section>
@@ -156,56 +136,63 @@
             </ng-container>
 
             <!-- Id Proofs -->
-            <ng-container *ngIf="activeTab === 'idproofs'">
-                <section class="vv-section">
-                    <div class="vv-section__head"><h3>Aadhaar Details</h3></div>
+            <ng-container>
+                <section id="section-idproofs" class="vv-section">
+                    <div class="vv-section__head"><h3>Id Proofs</h3></div>
                     <div class="view-grid">
-                        <div class="view-field"><label>Aadhaar Number</label><div class="view-value">{{ display(aadhaar?.aadhaar_number) }}</div></div>
-                        <div class="view-field"><label>Name</label><div class="view-value">{{ display(aadhaar?.name) }}</div></div>
-                        <div class="view-field"><label>Home Reason</label><div class="view-value">{{ display(aadhaar?.home_reason) }}</div></div>
-                        <div class="view-field"><label>Mobile Linked</label><div class="view-value">{{ display(aadhaar?.mobile_linked) }}</div></div>
-                        <div class="view-field view-field--full" *ngIf="aadhaar?.user_doc_urls?.length">
-                            <label>Aadhaar Document</label>
-                            <div class="view-image">
-                                <img [src]="aadhaar.user_doc_urls[0]?.path" alt="Aadhaar" class="view-thumb view-thumb--doc" />
+                        <div class="view-field"><label>Aadhar Number</label><div class="view-value">{{ display(aadhaar?.aadhaar_number) }}</div></div>
+                        <div class="view-field"><label>Aadhar Address</label><div class="view-value">{{ display(aadhaar?.address) }}</div></div>
+                        <div class="view-field"><label>Aadhar Area</label><div class="view-value">{{ display(aadhaar?.ashram_adhaar_area_get_one?.name || aadhaar?.ashram_area_id) }}</div></div>
+                        <div class="view-field view-field--full">
+                            <label>Aadhar Card Proof</label>
+                            <div class="view-value">
+                                <ng-container *ngIf="aadhaar?.user_doc_urls?.length; else noAadhaarFile">
+                                    <button *ngFor="let doc of aadhaar.user_doc_urls; let i = index"
+                                            type="button"
+                                            class="btn btn--primary btn--sm file-btn"
+                                            (click)="openFilePreview(doc?.path, 'Aadhar Card Proof – File ' + (i + 1))">
+                                        View File {{ i + 1 }}
+                                    </button>
+                                </ng-container>
+                                <ng-template #noAadhaarFile>
+                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                </ng-template>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-                <section class="vv-section">
-                    <div class="vv-section__head"><h3>Electoral Photo Identity Card</h3></div>
-                    <div class="view-grid">
-                        <div class="view-field"><label>Voter Number</label><div class="view-value">{{ display(voter?.voter_number) }}</div></div>
-                        <div class="view-field"><label>Name</label><div class="view-value">{{ display(voter?.name) }}</div></div>
-                        <div class="view-field"><label>Part Number</label><div class="view-value">{{ display(voter?.part_number) }}</div></div>
-                        <div class="view-field"><label>Serial Number</label><div class="view-value">{{ display(voter?.serial_number) }}</div></div>
-                        <div class="view-field"><label>Voter Address</label><div class="view-value">{{ display(voter?.address) }}</div></div>
-                        <div class="view-field"><label>Home Reason</label><div class="view-value">{{ display(voter?.home_reason) }}</div></div>
-                        <div class="view-field"><label>Mobile Linked</label><div class="view-value">{{ display(voter?.mobile_linked) }}</div></div>
-                        <div class="view-field view-field--full"><label>Voter Remarks</label><div class="view-value">{{ display(voter?.remarks) }}</div></div>
-                        <div class="view-field view-field--full" *ngIf="voter?.user_doc_urls?.length">
-                            <label>Electoral Document</label>
-                            <div class="view-image">
-                                <img [src]="voter.user_doc_urls[0]?.path" alt="Voter" class="view-thumb view-thumb--doc" />
+                        <div class="view-field"><label>Driving License</label><div class="view-value">{{ display(license?.driving_license_number || license?.license_number) }}</div></div>
+                        <div class="view-field view-field--full">
+                            <label>Driving License Proof</label>
+                            <div class="view-value">
+                                <ng-container *ngIf="license?.user_doc_urls?.length; else noLicenseFile">
+                                    <button *ngFor="let doc of license.user_doc_urls; let i = index"
+                                            type="button"
+                                            class="btn btn--primary btn--sm file-btn"
+                                            (click)="openFilePreview(doc?.path, 'Driving License Proof – File ' + (i + 1))">
+                                        View File {{ i + 1 }}
+                                    </button>
+                                </ng-container>
+                                <ng-template #noLicenseFile>
+                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                </ng-template>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-                <section class="vv-section">
-                    <div class="vv-section__head"><h3>Driving License</h3></div>
-                    <div class="view-grid">
-                        <div class="view-field"><label>License Number</label><div class="view-value">{{ display(license?.driving_license_number || license?.license_number) }}</div></div>
-                        <div class="view-field"><label>License Holder Name</label><div class="view-value">{{ display(license?.license_holder_name || license?.holder_name) }}</div></div>
-                        <div class="view-field"><label>State</label><div class="view-value">{{ display(license?.license_state || license?.state) }}</div></div>
-                        <div class="view-field"><label>License Type</label><div class="view-value">{{ display(license?.license_type) }}</div></div>
-                        <div class="view-field"><label>Date of Issue</label><div class="view-value">{{ display(license?.date_of_issue) }}</div></div>
-                        <div class="view-field"><label>Expiry Date</label><div class="view-value">{{ display(license?.expiry_date) }}</div></div>
-                        <div class="view-field view-field--full" *ngIf="license?.user_doc_urls?.length">
-                            <label>License Document</label>
-                            <div class="view-image">
-                                <img [src]="license.user_doc_urls[0]?.path" alt="License" class="view-thumb view-thumb--doc" />
+                        <div class="view-field"><label>Electoral Document</label><div class="view-value">{{ display(voter?.voter_number) }}</div></div>
+                        <div class="view-field view-field--full">
+                            <label>Electoral Document Proof</label>
+                            <div class="view-value">
+                                <ng-container *ngIf="voter?.user_doc_urls?.length; else noVoterFile">
+                                    <button *ngFor="let doc of voter.user_doc_urls; let i = index"
+                                            type="button"
+                                            class="btn btn--primary btn--sm file-btn"
+                                            (click)="openFilePreview(doc?.path, 'Electoral Document Proof – File ' + (i + 1))">
+                                        View File {{ i + 1 }}
+                                    </button>
+                                </ng-container>
+                                <ng-template #noVoterFile>
+                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                </ng-template>
                             </div>
                         </div>
                     </div>
@@ -213,8 +200,8 @@
             </ng-container>
 
             <!-- Education & Work -->
-            <ng-container *ngIf="activeTab === 'education'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-education" class="vv-section">
                     <div class="vv-section__head"><h3>Education</h3></div>
                     <div class="qual-table" *ngIf="qualifications.length">
                         <div class="qual-table__head">
@@ -244,8 +231,8 @@
             </ng-container>
 
             <!-- Medical -->
-            <ng-container *ngIf="activeTab === 'medical'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-medical" class="vv-section">
                     <div class="vv-section__head"><h3>Medical Details</h3></div>
                     <div class="view-grid">
                         <div class="view-field"><label>Blood Group</label><div class="view-value">{{ display(medical?.blood_group) }}</div></div>
@@ -268,12 +255,11 @@
                     </div>
                 </section>
 
-                <div class="vv-empty" *ngIf="!medical.histories.length && !medical.blood_group">No medical details on file.</div>
             </ng-container>
 
             <!-- Spiritual -->
-            <ng-container *ngIf="activeTab === 'spiritual'">
-                <section class="vv-section">
+            <ng-container>
+                <section id="section-spiritual" class="vv-section">
                     <div class="vv-section__head"><h3>Spiritual Detail</h3></div>
                     <div class="view-grid">
                         <div class="view-field"><label>Date of Initiation</label><div class="view-value">{{ display(spiritual?.date_of_initiation) }}</div></div>
@@ -289,13 +275,20 @@
             </ng-container>
 
             <!-- Sewa Tracking -->
-            <ng-container *ngIf="activeTab === 'sewa'">
+            <ng-container>
+                <div id="section-sewa">
                 <div *ngIf="!sewaLoading && sewaError" class="vv-state vv-state--error">{{ sewaError }}</div>
 
                 <ng-container *ngIf="!sewaLoading && !sewaError">
                     <section class="vv-section vv-section--flush" *ngFor="let branch of sewaBranches">
                         <div class="vv-section__head">
                             <h3>Sewas Under <span class="vv-section__hint">{{ branch.branchName }}</span></h3>
+                            <div class="vv-section__search">
+                                <input type="text"
+                                    class="form-control form-control--sm"
+                                    placeholder="Search sewa, badge, date or reason"
+                                    [(ngModel)]="branch.search" />
+                            </div>
                         </div>
                         <table class="track-table">
                             <thead>
@@ -307,26 +300,27 @@
                                     <th>Reason</th>
                                 </tr>
                             </thead>
-                            <ng-container *ngFor="let group of branch.sewaGroups">
-                                <thead class="group-head"><tr><th colspan="5">{{ group.sewaName }}</th></tr></thead>
-                                <tbody>
-                                    <tr *ngFor="let row of group.rows">
+                            <tbody>
+                                <ng-container *ngFor="let group of branch.sewaGroups">
+                                    <tr *ngFor="let row of filterSewaRows(group.rows, branch.search)">
                                         <td>{{ row.sewaName }}</td>
                                         <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
                                         <td>{{ row.allocatedDate || 'N/A' }}</td>
                                         <td>{{ row.unallocatedDate || 'N/A' }}</td>
                                         <td>{{ row.reason || 'N/A' }}</td>
                                     </tr>
-                                </tbody>
-                            </ng-container>
+                                </ng-container>
+                            </tbody>
                         </table>
                     </section>
                     <div *ngIf="sewaBranches.length === 0" class="vv-empty">No sewa tracking data.</div>
                 </ng-container>
+                </div>
             </ng-container>
 
             <!-- Program Journey -->
-            <ng-container *ngIf="activeTab === 'program'">
+            <ng-container>
+                <div id="section-program">
                 <div *ngIf="!programLoading && programError" class="vv-state vv-state--error">{{ programError }}</div>
 
                 <section class="vv-section vv-section--flush" *ngIf="!programLoading && !programError && programRows.length > 0">
@@ -357,10 +351,12 @@
                     </table>
                 </section>
                 <div *ngIf="!programLoading && !programError && programRows.length === 0" class="vv-empty">No program journey data.</div>
+                </div>
             </ng-container>
 
             <!-- Donations -->
-            <ng-container *ngIf="activeTab === 'donation'">
+            <ng-container>
+                <div id="section-donation">
                 <div *ngIf="!donationLoading && donationError" class="vv-state vv-state--error">{{ donationError }}</div>
 
                 <section class="vv-section vv-section--flush" *ngIf="!donationLoading && !donationError && donationRows.length > 0">
@@ -377,7 +373,27 @@
                     </table>
                 </section>
                 <div *ngIf="!donationLoading && !donationError && donationRows.length === 0" class="vv-empty">No Data</div>
+                </div>
             </ng-container>
         </div>
     </div>
 </div>
+
+<!-- File Preview Modal -->
+<app-modal
+    *ngIf="filePreviewOpen"
+    [isOpen]="filePreviewOpen"
+    [title]="filePreviewTitle"
+    [size]="'large'"
+    (close)="closeFilePreview()">
+    <div class="file-preview" *ngIf="filePreviewUrl">
+        <iframe *ngIf="isPdf(filePreviewUrl)"
+                [src]="filePreviewSafeUrl"
+                title="File preview"
+                class="file-preview__pdf"></iframe>
+        <img *ngIf="!isPdf(filePreviewUrl)"
+             [src]="filePreviewUrl"
+             alt="File preview"
+             class="file-preview__img" />
+    </div>
+</app-modal>
