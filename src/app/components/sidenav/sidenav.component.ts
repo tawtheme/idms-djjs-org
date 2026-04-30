@@ -95,14 +95,14 @@ export class SidenavComponent implements OnInit, OnDestroy {
           icon: 'insights',
           children: [
             { label: 'Programs List', icon: 'list', route: '/reports/programs' },
+            { label: 'Consecutive Absentees', icon: 'person_remove', route: '/reports/consecutive-absentees' },
             { label: 'Volunteers Attendance', icon: 'checklist', route: '/reports/volunteers-attendance' },
-            { label: 'Volunteers Count by Department', icon: 'trending_up', route: '/reports/volunteers-count-by-department' },
             { label: 'Volunteers List Branch/Sewa Wise', icon: 'groups', route: '/reports/volunteers-branch-sewa' },
             { label: 'List of Sewa Issued', icon: 'assignment', route: '/reports/sewa-issued' },
+            { label: 'Cards Returned/Not Returned', icon: 'badge', route: '/reports/cards-returned' },
+            { label: 'Volunteers Count by Department', icon: 'trending_up', route: '/reports/volunteers-count-by-department' },
             { label: 'Donation Dept. Wise', icon: 'volunteer_activism', route: '/reports/donation-dept-wise' },
             { label: 'Head Sub-head Volunteers List', icon: 'people', route: '/reports/head-subhead-volunteers' },
-            { label: 'Consecutive Absentees', icon: 'person_remove', route: '/reports/consecutive-absentees' },
-            { label: 'Cards Returned/Not Returned', icon: 'badge', route: '/reports/cards-returned' },
             { label: 'Volunteers List Skill Wise', icon: 'work', route: '/reports/volunteers-skills' }
           ]
         }

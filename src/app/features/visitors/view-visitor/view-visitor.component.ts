@@ -103,7 +103,7 @@ interface UserDetail {
   user_pan_card?: any;
 }
 
-type TabKey = 'personal' | 'family' | 'address' | 'spiritual' | 'education' | 'documents' | 'medical';
+type TabKey = 'basic' | 'address' | 'personal';
 
 interface Tab {
   key: TabKey;
@@ -126,7 +126,7 @@ export class ViewVisitorComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   user: UserDetail | null = null;
-  activeTab: TabKey = 'personal';
+  activeTab: TabKey = 'basic';
 
   editMode: Record<'personal' | 'family' | 'address', boolean> = {
     personal: false,
@@ -152,14 +152,48 @@ export class ViewVisitorComponent implements OnInit {
   ];
 
   tabs: Tab[] = [
-    { key: 'personal', label: 'Personal', icon: 'person' },
-    { key: 'family', label: 'Family', icon: 'people' },
-    { key: 'address', label: 'Address', icon: 'location_on' },
-    { key: 'spiritual', label: 'Spiritual & Skills', icon: 'favorite' },
-    { key: 'education', label: 'Education', icon: 'assignment' },
-    { key: 'documents', label: 'Documents', icon: 'insert_drive_file' },
-    { key: 'medical', label: 'Medical', icon: 'info' }
+    { key: 'basic', label: 'Basic Information', icon: 'info' },
+    { key: 'address', label: 'Address Details', icon: 'location_on' },
+    { key: 'personal', label: 'Personal & Family Details', icon: 'people' }
   ];
+
+  profileTabs: { id: TabKey; label: string }[] = [
+    { id: 'basic', label: 'Basic Information' },
+    { id: 'address', label: 'Address Details' },
+    { id: 'personal', label: 'Personal & Family Details' }
+  ];
+
+  setTab(id: TabKey): void {
+    this.activeTab = id;
+  }
+
+  get activeTabLabel(): string {
+    return this.profileTabs.find((t) => t.id === this.activeTab)?.label || '';
+  }
+
+  onClose(): void {
+    this.goBack();
+  }
+
+  display(value: any): string {
+    if (value === null || value === undefined || value === '') return '-';
+    return String(value);
+  }
+
+  get nameInitials(): string {
+    const name = this.user?.name || '';
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  get profileImage(): string {
+    const first = this.user?.user_images?.[0];
+    return first?.full_path || first?.image || '';
+  }
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Manage Visitors', route: '/visitors' },
@@ -211,7 +245,7 @@ export class ViewVisitorComponent implements OnInit {
     const rel = this.user?.user_profile?.relation_of;
     if (!rel) return '';
     return Object.entries(rel)
-      .map(([k, v]) => `${k}: ${v}`)
+      .map(([k, v]) => `${k.replace(/_[FM]$/, '')} ${v}`)
       .join(' · ');
   }
 
@@ -221,6 +255,15 @@ export class ViewVisitorComponent implements OnInit {
     const inch = profile.height_in_inches;
     if (!ft && !inch) return '';
     return `${ft || 0}' ${inch || 0}"`;
+  }
+
+  formatDate(value?: string | null): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}/${d.getFullYear()}`;
   }
 
   isEmptySection(value: any): boolean {

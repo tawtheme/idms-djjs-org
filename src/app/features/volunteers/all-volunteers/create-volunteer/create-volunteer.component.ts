@@ -314,7 +314,7 @@ export class CreateVolunteerComponent implements OnInit {
     // Build and send payload
     const payload = this.buildPayload();
     
-    this.dataService.post('v1/volunteer/create', payload).pipe(
+    this.dataService.post('v1/volunteers/create', payload).pipe(
       catchError((error) => {
         this.handleSubmitError(error);
         return of(null);

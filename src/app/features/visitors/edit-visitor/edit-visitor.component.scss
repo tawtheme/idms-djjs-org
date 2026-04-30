@@ -1,23 +1,179 @@
 @import '../view-visitor/view-visitor.component.scss';
 @import '../../../../assets/scss/variable';
 
-.repeater {
+.vv-section { overflow: visible; }
+.vv-section .form-grid { padding: 16px 20px 20px; }
+
+.profile-image-section {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-bottom: 16px;
+}
 
-    &__row {
-        position: relative;
-        border: 1px solid $color-gray-200;
-        border-radius: 10px;
-        padding: 16px 16px 12px;
-        background: $color-gray-50;
+.profile-image-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-image-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    background: $color-gray-50;
+}
+
+.profile-image-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: $color-white;
+    flex-shrink: 0;
+    border: 1px solid $color-gray-200;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.profile-image-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+
+    label {
+        font-size: 11px;
+        font-weight: 600;
+        color: $color-gray-500;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+}
+
+.profile-image-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.required { color: #dc2626; }
+
+.field-error {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #b91c1c;
+}
+
+.form-control.is-invalid {
+    border-color: #dc2626;
+}
+
+.thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.thumb-tile__pdf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    color: $color-red-600;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    background: $color-gray-50;
+
+    app-icon {
+        font-size: 36px;
+    }
+}
+
+.thumb-tile {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    overflow: hidden;
+    background: $color-gray-50;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
 
-    &__remove {
+    &__delete {
         position: absolute;
-        top: 12px;
-        right: 12px;
+        top: 6px;
+        right: 6px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(220, 38, 38, 0.95);
+        color: $color-white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transform: scale(0.85);
+        transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+        app-icon { font-size: 16px; }
+
+        &:hover { background: #b91c1c; }
+        &:disabled { opacity: 0; cursor: not-allowed; }
+    }
+
+    &:hover {
+        border-color: $color-primary-300;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+        .thumb-tile__delete {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    &--pending {
+        border-style: dashed;
+        border-color: $color-primary-300;
+    }
+}
+
+.vv-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    &__error {
+        margin: 12px 20px 0;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: rgba(220, 38, 38, 0.08);
+        color: #b91c1c;
+        font-size: 13px;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 20px 16px;
+        border-top: 1px solid $color-gray-100;
     }
 }

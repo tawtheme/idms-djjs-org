@@ -12,6 +12,7 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { SewaTrackingModalComponent } from './sewa-tracking-modal/sewa-tracking-modal.component';
 import { CreateVolunteerComponent } from './create-volunteer/create-volunteer.component';
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { VolunteerViewComponent } from './volunteer-view/volunteer-view.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -70,6 +71,7 @@ export interface Volunteer {
         DropdownComponent,
         SewaTrackingModalComponent,
         CreateVolunteerComponent,
+        VolunteerViewComponent,
         SidePanelComponent,
         ModalComponent,
         IconComponent,
@@ -198,12 +200,6 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         this.loadSewaOptions();
         this.loadBranches();
         this.loadRoles();
-        this.headerActions.set({
-            label: 'Create Volunteer',
-            icon: 'add',
-            type: 'primary',
-            onClick: () => this.openCreateVolunteerModal()
-        });
     }
 
     ngOnDestroy(): void {
@@ -892,9 +888,18 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         this.generatedPassword = '';
     }
 
+    viewVolunteerPanelOpen = false;
+    viewingVolunteerId: string | null = null;
+
     viewDetails(volunteer: Volunteer): void {
         const uuid = (volunteer as any).uuid || volunteer.id;
-        this.router.navigate(['/volunteers', uuid, 'view']);
+        this.viewingVolunteerId = uuid as string;
+        this.viewVolunteerPanelOpen = true;
+    }
+
+    closeViewVolunteerPanel(): void {
+        this.viewVolunteerPanelOpen = false;
+        this.viewingVolunteerId = null;
     }
 
     editVolunteer(volunteer: Volunteer): void {

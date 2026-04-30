@@ -387,6 +387,27 @@
         </app-create-volunteer>
     </app-side-panel>
 
+    <!-- View Volunteer Side Panel -->
+    <app-side-panel
+        *ngIf="viewVolunteerPanelOpen"
+        [isOpen]="viewVolunteerPanelOpen"
+        title="View Volunteer"
+        [width]="'75%'"
+        position="right"
+        [closable]="true"
+        [showBackdrop]="true"
+        [closeOnBackdropClick]="true"
+        [showFooter]="false"
+        (close)="closeViewVolunteerPanel()">
+
+        <app-volunteer-view
+            *ngIf="viewingVolunteerId"
+            [embedded]="true"
+            [userIdInput]="viewingVolunteerId"
+            (closed)="closeViewVolunteerPanel()">
+        </app-volunteer-view>
+    </app-side-panel>
+
     <!-- Sewa Interest Reason Modal -->
     <app-modal
         *ngIf="sewaReasonModalOpen"

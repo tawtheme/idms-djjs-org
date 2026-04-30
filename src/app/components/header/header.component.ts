@@ -38,6 +38,7 @@ export class HeaderComponent {
 
   quickTiles: MenuGroupItem[] = [
     { label: 'Add Visitor', icon: 'people', route: '/visitors/create' },
+    { label: 'Add Volunteer', icon: 'volunteer_activism', route: '/volunteers/create' },
     { label: 'Attendance', icon: 'checklist', route: '/programs/attendances' },
     { label: 'Volunteer Cards', icon: 'badge', route: '/volunteer-cards' },
     { label: 'Sewa Volunteer', icon: 'people', route: '/programs/sewa-volunteers' },
@@ -45,93 +46,7 @@ export class HeaderComponent {
     { label: 'Programs', icon: 'event', route: '/programs/programs-list' }
   ];
 
-  menuGroups: MenuGroup[] = [
-    {
-      title: 'Quick Link',
-      items: [
-        { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-        { label: 'Add Visitors', icon: 'people', route: '/visitors/create' },
-        { label: 'Add Volunteers', icon: 'volunteer_activism', route: '/volunteers/create' },
-        { label: 'Add Branch', icon: 'account_tree', route: '/branches/create' },
-        { label: 'Add Branch Area', icon: 'map', route: '/branches/areas', queryParams: { openAdd: 'true' } },
-        { label: 'Add Program', icon: 'event', route: '/programs/add-program' },
-        { label: 'Add Sewa', icon: 'favorite', route: '/sewa/all-sewa', queryParams: { openAdd: 'true' } }
-      ]
-    },
-    {
-      title: 'Essentials',
-      items: [
-        { label: 'Attendances', icon: 'checklist', route: '/programs/attendances' },
-        { label: 'Volunteer Cards', icon: 'badge', route: '/volunteer-cards' },
-        { label: 'Visitors', icon: 'people', route: '/visitors' }
-      ]
-    },
-    {
-      title: 'Manage Volunteers',
-      items: [
-        { label: 'All Volunteers', icon: 'volunteer_activism', route: '/volunteers' },
-        { label: 'Add Volunteers', icon: 'volunteer_activism', route: '/volunteers/create' },
-        { label: 'Branch Applications', icon: 'business', route: '/volunteers/branch-applications' },
-        { label: 'Resigned Sewas', icon: 'person_remove', route: '/volunteers/resigned-sewas' }
-      ]
-    },
-    {
-      title: 'Manage Sewa',
-      items: [
-        { label: 'All Sewa', icon: 'favorite', route: '/sewa/all-sewa' },
-        { label: 'Allocate Sewa', icon: 'assignment', route: '/sewa/allocate-sewa' }
-      ]
-    },
-    {
-      title: 'Manage Programs',
-      items: [
-        { label: 'Programs', icon: 'event', route: '/programs/programs-list' },
-        { label: 'Sewa Volunteer', icon: 'people', route: '/programs/sewa-volunteers' }
-      ]
-    },
-    {
-      title: 'Reports',
-      items: [
-        { label: 'Programs List', icon: 'assessment', route: '/reports/programs' },
-        { label: 'Volunteers List Branch/Sewa Wise', icon: 'group', route: '/reports/volunteers-branch-sewa' },
-        { label: 'Consecutive Absentees', icon: 'person_remove', route: '/reports/consecutive-absentees' },
-        { label: 'Cards Returned/Not Returned', icon: 'badge', route: '/reports/cards-returned' },
-        { label: 'Donation Department Wise', icon: 'volunteer_activism', route: '/reports/donation-dept-wise' },
-        { label: 'Volunteers List Skill Wise', icon: 'engineering', route: '/reports/volunteers-skills' },
-        { label: 'Sewa Issued', icon: 'assignment_turned_in', route: '/reports/sewa-issued' },
-        { label: 'Head/Subhead Volunteers', icon: 'supervisor_account', route: '/reports/head-subhead-volunteers' },
-        { label: 'Volunteers Attendance', icon: 'checklist', route: '/reports/volunteers-attendance' },
-        { label: 'Volunteers Count by Department', icon: 'pie_chart', route: '/reports/volunteers-count-by-department' }
-      ]
-    },
-    {
-      title: 'Manage Branches',
-      items: [
-        { label: 'Listing', icon: 'account_tree', route: '/branches' },
-        { label: 'Branch Area', icon: 'map', route: '/branches/areas' }
-      ]
-    },
-    {
-      title: 'Manage Tables',
-      items: [
-        { label: 'Skills', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'skills' } },
-        { label: 'Degrees', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'degrees' } },
-        { label: 'Professions', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'professions' } },
-        { label: 'Languages', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'languages' } },
-        { label: 'Dress Codes', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'dress_codes' } },
-        { label: 'Banks', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'banks' } },
-        { label: 'Castes', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'castes' } },
-        { label: 'Newspapers', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'newspapers' } },
-        { label: 'Countries', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'countries' } },
-        { label: 'States', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'states' } },
-        { label: 'Districts', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'districts' } },
-        { label: 'Cities', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'cities' } },
-        { label: 'Ashram Adhaar Area', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'ashram_adhaar_areas' } },
-        { label: 'Weapon Types', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'weapon_types' } },
-        { label: 'Technical Qualifications', icon: 'table_chart', route: '/master-tables', queryParams: { type: 'technical_qualifications' } }
-      ]
-    }
-  ];
+  menuGroups: MenuGroup[] = [];
 
   private auth = inject(AuthService);
   private router = inject(Router);

@@ -126,6 +126,25 @@ export class EditVolunteerComponent implements OnInit {
     copyAsWhatsapp: boolean = false;
     phoneInputWarning = '';
     whatsappInputWarning = '';
+    permanentPincodeError = '';
+    correspondencePincodeError = '';
+
+    onPincodeChange(kind: 'permanent' | 'correspondence', value: string): void {
+        const cleaned = (value || '').replace(/\D/g, '').slice(0, 6);
+        if (kind === 'permanent') {
+            this.permanent.pincode = cleaned;
+            this.permanentPincodeError = this.validatePincode(cleaned);
+        } else {
+            this.correspondence.pincode = cleaned;
+            this.correspondencePincodeError = this.validatePincode(cleaned);
+        }
+    }
+
+    private validatePincode(value: string): string {
+        if (!value) return 'Pincode is required.';
+        if (!/^\d{6}$/.test(value)) return 'Pincode must be 6 digits.';
+        return '';
+    }
     private phoneWarningTimer?: ReturnType<typeof setTimeout>;
     private whatsappWarningTimer?: ReturnType<typeof setTimeout>;
 
@@ -1129,6 +1148,8 @@ export class EditVolunteerComponent implements OnInit {
             const wa = pick('alternate_phone', 'whatsapp_number', 'whatsapp');
             if (wa !== undefined) this.basic.whatsappNumber = String(wa);
 
+            this.copyAsWhatsapp = !!this.basic.phone && this.basic.phone === this.basic.whatsappNumber;
+
             const email = pick('email');
             if (email !== undefined) this.basic.email = String(email);
 
@@ -1481,6 +1502,7 @@ export class EditVolunteerComponent implements OnInit {
             if (!this.basic.name) this.basic.name = user?.name || '';
             if (!this.basic.phone) this.basic.phone = user?.phone || '';
             if (!this.basic.whatsappNumber) this.basic.whatsappNumber = user?.alternate_phone || user?.whatsapp_number || '';
+            this.copyAsWhatsapp = !!this.basic.phone && this.basic.phone === this.basic.whatsappNumber;
             if (!this.basic.email) this.basic.email = user?.email || '';
             if (!this.basic.personal_email) this.basic.personal_email = user?.personal_email || profile?.personal_email || '';
             if (!this.basic.aadhaarNumber) this.basic.aadhaarNumber = user?.aadhaar_number || '';
@@ -2208,6 +2230,13 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     private saveAddressTab(): void {
+        this.permanentPincodeError = this.validatePincode(this.permanent.pincode || '');
+        this.correspondencePincodeError = this.validatePincode(this.correspondence.pincode || '');
+        if (this.permanentPincodeError || this.correspondencePincodeError) {
+            this.snackbarService.showError('Please enter valid 6-digit pincodes.');
+            this.isSaving = false;
+            return;
+        }
         const permanentPayload: Record<string, unknown> = {
             user_id: this.userId,
             permanent_address: this.permanent.address_1 || '',
@@ -2310,6 +2339,11 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     savePermanentSection(): void {
+        this.permanentPincodeError = this.validatePincode(this.permanent.pincode || '');
+        if (this.permanentPincodeError) {
+            this.snackbarService.showError(this.permanentPincodeError);
+            return;
+        }
         this.putSection('permanent', 'Permanent address', 'v1/users/update-permanent/address', {
             user_id: this.userId,
             permanent_address: this.permanent.address_1 || '',
@@ -2323,6 +2357,11 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     saveCorrespondenceSection(): void {
+        this.correspondencePincodeError = this.validatePincode(this.correspondence.pincode || '');
+        if (this.correspondencePincodeError) {
+            this.snackbarService.showError(this.correspondencePincodeError);
+            return;
+        }
         this.putSection('correspondence', 'Correspondence address', 'v1/users/update-correspondence/address', {
             user_id: this.userId,
             address_1: this.correspondence.address_1 || '',

@@ -1,10 +1,45 @@
 <div class="camera-upload" [class.disabled]="disabled">
     @if (!capturedImageFile) {
-        @if (isStreaming) {
+        @if (isCropping) {
+            <!-- Crop step -->
+            <div class="cropper-container">
+                <div class="cropper-stage">
+                    <image-cropper
+                        [imageBase64]="rawImageBase64"
+                        [maintainAspectRatio]="true"
+                        [aspectRatio]="aspectRatio"
+                        [resizeToWidth]="1024"
+                        [cropperMinWidth]="64"
+                        [containWithinAspectRatio]="false"
+                        format="jpeg"
+                        [transform]="imageTransform"
+                        output="blob"
+                        (imageCropped)="onCropped($event)"
+                        (imageLoaded)="onCropperLoaded($event)"
+                        (loadImageFailed)="onCropperFailed()">
+                    </image-cropper>
+                </div>
+                <div class="camera-controls">
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="rotateLeft()" [disabled]="disabled">
+                        <app-icon name="rotate_left" />
+                    </button>
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="rotateRight()" [disabled]="disabled">
+                        <app-icon name="rotate_right" />
+                    </button>
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="retake()" [disabled]="disabled">
+                        Retake
+                    </button>
+                    <button type="button" class="btn btn--primary btn--sm" (click)="confirmCrop()" [disabled]="disabled || !croppedBlob">
+                        <app-icon name="check" />
+                        Use Photo
+                    </button>
+                </div>
+            </div>
+        } @else if (isStreaming) {
             <!-- Camera Preview -->
             <div class="camera-preview-container">
                 <div class="video-container">
-                    <video 
+                    <video
                         #videoElement
                         autoplay
                         playsinline
@@ -14,16 +49,16 @@
                     <canvas #canvasElement style="display: none;"></canvas>
                 </div>
                 <div class="camera-controls">
-                    <button 
-                        type="button" 
-                        class="btn btn--secondary btn--sm" 
+                    <button
+                        type="button"
+                        class="btn btn--secondary btn--sm"
                         (click)="cancelCapture()"
                         [disabled]="disabled">
                         Cancel
                     </button>
-                    <button 
-                        type="button" 
-                        class="btn btn--primary btn--sm capture-btn" 
+                    <button
+                        type="button"
+                        class="btn btn--primary btn--sm capture-btn"
                         (click)="captureImage(); $event.stopPropagation()"
                         [disabled]="disabled || !isStreaming"
                         [attr.aria-label]="'Capture image'">
@@ -33,7 +68,6 @@
                 </div>
             </div>
         } @else if (hasError) {
-            <!-- Error State - styled like drop zone -->
             <div class="drop-zone drop-zone--error">
                 <div class="drop-zone-inner">
                     <div class="drop-zone-content">
@@ -52,7 +86,7 @@
                     <div class="drop-zone-content">
                         <app-icon name="camera_alt" />
                         <div class="drop-text">
-                            Capture Live Profile Image
+                            Capture Live Photo
                         </div>
                     </div>
                     <button type="button" class="btn btn--primary btn--sm" [disabled]="disabled">
@@ -66,9 +100,9 @@
         <div class="image-preview-container">
             <div class="image-preview-wrapper">
                 <img [src]="capturedImagePreview || ''" [alt]="capturedImageFile!.name || 'Captured image'" class="preview-image">
-                <button 
-                    type="button" 
-                    class="delete-image-btn" 
+                <button
+                    type="button"
+                    class="delete-image-btn"
                     (click)="removeFile()"
                     title="Delete image"
                     [disabled]="disabled">
@@ -78,4 +112,3 @@
         </div>
     }
 </div>
-

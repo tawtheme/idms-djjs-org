@@ -45,20 +45,5 @@
                 <span class="megamenu__tile-label">{{ tile.label }}</span>
             </button>
         </div>
-        <div class="megamenu__grid">
-            <div class="megamenu__group" *ngFor="let group of menuGroups; let last = last" [class.megamenu__group--full]="last">
-                <div class="megamenu__group-title" *ngIf="group.title">{{ group.title }}</div>
-                <div class="megamenu__group-items" [class.megamenu__group-items--two-col]="last">
-                    <button *ngFor="let item of group.items"
-                        class="megamenu__item"
-                        [class.megamenu__item--active]="item.route === activeRoute"
-                        (click)="onMenuItemClick(item)"
-                        type="button">
-                        <app-icon [name]="item.icon" class="megamenu__item-icon" />
-                        <span>{{ item.label }}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
