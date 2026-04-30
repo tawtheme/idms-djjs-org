@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../shared/components/dropdown/dropdown.component';
 import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
@@ -41,10 +40,8 @@ export interface Visitor {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
     SidePanelComponent,

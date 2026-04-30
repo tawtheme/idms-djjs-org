@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../../data.service';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ImagePreviewService } from '../../../../shared/services/image-preview.service';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
@@ -26,7 +25,7 @@ interface TabDef { id: TabId; label: string; }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, ImagePreviewDirective],
   selector: 'app-volunteer-view',
   templateUrl: './volunteer-view.component.html',
   styleUrls: ['./volunteer-view.component.scss']

@@ -7,9 +7,8 @@ import { of } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
@@ -45,9 +44,7 @@ export interface AllocatedVolunteer {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
     DropdownComponent,
-    LoadingComponent,
     EmptyStateComponent,
     IconComponent,
     ImagePreviewDirective
