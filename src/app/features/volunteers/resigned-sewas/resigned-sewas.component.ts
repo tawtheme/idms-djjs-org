@@ -21,6 +21,7 @@ import { DatepickerComponent } from '../../../shared/components/datepicker/datep
 export interface ResignedSewa {
   id: number;
   uuid?: string; // UUID for API calls
+  userId?: string;
   image?: string;
   userName: string;
   taskBranch: string;
@@ -261,6 +262,7 @@ export class ResignedSewasComponent implements OnInit {
         const resignedSewa: ResignedSewa = {
           id: user.unique_id || 0,
           uuid: item.id,
+          userId: item.user_id || user.id || '',
           image: user.user_image?.full_path || null,
           userName: user.name || '',
           taskBranch: item.branch?.name || workingBranch.name || '',
@@ -560,7 +562,7 @@ export class ResignedSewasComponent implements OnInit {
     this.isSubmittingReinstate = true;
     const payload = {
       reinst_sewa: sewaIds,
-      reinstatement_user_id: this.reinstateTarget.uuid,
+      reinstatement_user_id: this.reinstateTarget.userId,
       reinstatement_status_change: 'Active',
       date: this.formatDateIso(this.reinstateForm.date),
       remarks: (this.reinstateForm.remarks || '').trim()
