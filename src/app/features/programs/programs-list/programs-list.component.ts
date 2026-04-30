@@ -5,7 +5,6 @@ import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 
@@ -38,7 +37,6 @@ export interface Program {
     FormsModule,
     PagerComponent,
     EmptyStateComponent,
-    LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
     IconComponent,

@@ -10,7 +10,6 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
@@ -36,7 +35,6 @@ type SortField = 'id' | 'name' | 'email' | 'phone' | 'createdAt';
         DatepickerComponent,
         PagerComponent,
         EmptyStateComponent,
-        LoadingComponent,
         IconComponent,
         ImagePreviewDirective
     ],

@@ -48,7 +48,14 @@ export class SidenavComponent implements OnInit, OnDestroy {
       title: 'Main',
       items: [
         { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-        { label: 'Visitors', icon: 'people', route: '/visitors' }
+        {
+          label: 'Visitors',
+          icon: 'people',
+          children: [
+            { label: 'Visitors', icon: 'list', route: '/visitors' },
+            { label: 'Add Visitor', icon: 'person_add', route: '/visitors/create' }
+          ]
+        }
       ]
     },
     {
@@ -59,6 +66,7 @@ export class SidenavComponent implements OnInit, OnDestroy {
           icon: 'volunteer_activism',
           children: [
             { label: 'All Volunteers', icon: 'list', route: '/volunteers' },
+            { label: 'Add Volunteer', icon: 'person_add', route: '/volunteers/create' },
             { label: 'Branch Applications', icon: 'business', route: '/volunteers/branch-applications' },
             { label: 'Resigned Sewas', icon: 'person_remove', route: '/volunteers/resigned-sewas' }
           ]
@@ -81,6 +89,7 @@ export class SidenavComponent implements OnInit, OnDestroy {
           icon: 'event',
           children: [
             { label: 'Programs List', icon: 'list', route: '/programs/programs-list' },
+            { label: 'Add Program', icon: 'add_circle', route: '/programs/add-program' },
             { label: 'Sewa Volunteers', icon: 'people', route: '/programs/sewa-volunteers' }
           ]
         },
