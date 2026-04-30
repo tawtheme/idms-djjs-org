@@ -166,12 +166,10 @@ export class SidenavComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Close sidebar on mobile when navigation link is clicked
+   * Close the sidebar after a navigation link is clicked.
    */
   onNavClick(): void {
-    if (this.isMobile()) {
-      this.closeSidebar.emit();
-    }
+    this.closeSidebar.emit();
   }
 
   /**
