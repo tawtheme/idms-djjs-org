@@ -127,7 +127,7 @@
                                 <td data-label="Id">{{ row.id }}</td>
                                 <td data-label="Image" class="name-with-image">
                                     <div class="volunteer-image">
-                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" />
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" [appImagePreview]="row.image" [previewTitle]="row.name || 'Volunteer Photo'" />
                                     </div>
                                 </td>
                                 <td data-label="Name">{{ row.name }}</td>

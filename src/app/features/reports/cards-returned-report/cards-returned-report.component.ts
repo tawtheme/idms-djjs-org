@@ -11,6 +11,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 interface CardRow {
     id: string;
@@ -37,7 +38,8 @@ type SortField = 'id' | 'name' | 'phone' | 'fatherName' | 'sewa' | 'badgeNo' | '
         PagerComponent,
         EmptyStateComponent,
         LoadingComponent,
-        IconComponent
+        IconComponent,
+        ImagePreviewDirective
     ],
     templateUrl: './cards-returned-report.component.html',
     styleUrls: ['./cards-returned-report.component.scss']

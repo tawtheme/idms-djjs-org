@@ -136,6 +136,8 @@
                                 <div class="volunteer-image">
                                     <img [src]="record.image || '/assets/img/placeholder.svg'"
                                         [alt]="record.name"
+                                        [appImagePreview]="record.image"
+                                        [previewTitle]="record.name || 'Volunteer Photo'"
                                         onerror="this.src='/assets/img/placeholder.svg'" />
                                 </div>
                                 <div class="name-info">
@@ -251,6 +253,8 @@
             <div class="volunteer-image volunteer-image--lg">
                 <img [src]="viewRecord.image || '/assets/img/placeholder.svg'"
                     [alt]="viewRecord.name"
+                    [appImagePreview]="viewRecord.image"
+                    [previewTitle]="viewRecord.name || 'Volunteer Photo'"
                     onerror="this.src='/assets/img/placeholder.svg'" />
             </div>
             <div class="view-detail__info">
@@ -311,7 +315,10 @@
             <div class="fetch-user-card">
                 <div class="fetch-user-avatar">
                     <img [src]="fetchedUser.image || fetchedUser.user_image || '/assets/img/placeholder.svg'"
-                        [alt]="fetchedUser.name" onerror="this.src='/assets/img/placeholder.svg'" />
+                        [alt]="fetchedUser.name"
+                        [appImagePreview]="fetchedUser.image || fetchedUser.user_image"
+                        [previewTitle]="fetchedUser.name || 'Volunteer Photo'"
+                        onerror="this.src='/assets/img/placeholder.svg'" />
                 </div>
                 <div class="fetch-user-card__body">
                     <h3 class="fetch-user-name">{{ fetchedUser.name }}</h3>

@@ -10,6 +10,7 @@
         <div class="vv-profile">
             <div class="vv-profile__avatar">
                 <img *ngIf="profileImage" [src]="profileImage" [alt]="user.name"
+                    [appImagePreview]="profileImage" previewTitle="Profile Image"
                     onerror="this.src='/assets/img/placeholder.svg'" />
                 <span *ngIf="!profileImage">{{ nameInitials }}</span>
             </div>
@@ -70,6 +71,7 @@
                             <label>Photo</label>
                             <div class="view-image">
                                 <img [src]="primaryImage" [alt]="user.name"
+                                    [appImagePreview]="primaryImage" previewTitle="Profile Image"
                                     onerror="this.src='/assets/img/placeholder.svg'" />
                             </div>
                         </div>

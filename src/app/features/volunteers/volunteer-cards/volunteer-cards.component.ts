@@ -8,6 +8,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { VolunteerCardsFiltersModalComponent } from './filters-modal/filters-modal.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 export interface VolunteerCard {
   id: number;
@@ -40,7 +41,8 @@ export interface VolunteerCard {
     MenuDropdownComponent,
     DropdownComponent,
     VolunteerCardsFiltersModalComponent,
-    IconComponent
+    IconComponent,
+    ImagePreviewDirective
   ],
   selector: 'app-volunteer-cards',
   templateUrl: './volunteer-cards.component.html',

@@ -57,7 +57,7 @@
                         <div class="view-field view-field--full">
                             <label>Photo</label>
                             <div class="view-image">
-                                <img [src]="profileImage" alt="Profile" class="view-thumb" />
+                                <img [src]="profileImage" alt="Profile" class="view-thumb" [appImagePreview]="profileImage" previewTitle="Profile Image" />
                             </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                                     <button *ngFor="let doc of aadhaar.user_doc_urls; let i = index"
                                             type="button"
                                             class="btn btn--primary btn--sm file-btn"
-                                            (click)="openFilePreview(doc?.path, 'Aadhar Card Proof – File ' + (i + 1))">
+                                            (click)="imagePreviewService.open(doc?.path, 'Aadhar Card Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
@@ -168,7 +168,7 @@
                                     <button *ngFor="let doc of license.user_doc_urls; let i = index"
                                             type="button"
                                             class="btn btn--primary btn--sm file-btn"
-                                            (click)="openFilePreview(doc?.path, 'Driving License Proof – File ' + (i + 1))">
+                                            (click)="imagePreviewService.open(doc?.path, 'Driving License Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
@@ -186,7 +186,7 @@
                                     <button *ngFor="let doc of voter.user_doc_urls; let i = index"
                                             type="button"
                                             class="btn btn--primary btn--sm file-btn"
-                                            (click)="openFilePreview(doc?.path, 'Electoral Document Proof – File ' + (i + 1))">
+                                            (click)="imagePreviewService.open(doc?.path, 'Electoral Document Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
@@ -247,9 +247,7 @@
                         <div class="view-field view-field--full" *ngIf="h.docs?.length">
                             <label>Documents</label>
                             <div class="view-image">
-                                <a *ngFor="let d of h.docs" [href]="d.path" target="_blank" rel="noopener">
-                                    <img [src]="d.path" alt="Document" class="view-thumb view-thumb--doc" />
-                                </a>
+                                <img *ngFor="let d of h.docs" [src]="d.path" alt="Document" class="view-thumb view-thumb--doc" [appImagePreview]="d.path" previewTitle="Medical Document" />
                             </div>
                         </div>
                     </div>
@@ -379,21 +377,3 @@
     </div>
 </div>
 
-<!-- File Preview Modal -->
-<app-modal
-    *ngIf="filePreviewOpen"
-    [isOpen]="filePreviewOpen"
-    [title]="filePreviewTitle"
-    [size]="'large'"
-    (close)="closeFilePreview()">
-    <div class="file-preview" *ngIf="filePreviewUrl">
-        <iframe *ngIf="isPdf(filePreviewUrl)"
-                [src]="filePreviewSafeUrl"
-                title="File preview"
-                class="file-preview__pdf"></iframe>
-        <img *ngIf="!isPdf(filePreviewUrl)"
-             [src]="filePreviewUrl"
-             alt="File preview"
-             class="file-preview__img" />
-    </div>
-</app-modal>

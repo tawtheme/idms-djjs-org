@@ -267,6 +267,8 @@
                                 <div class="volunteer-image">
                                     <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                         [alt]="volunteer.name"
+                                        [appImagePreview]="volunteer.image"
+                                        [previewTitle]="volunteer.name || 'Volunteer Photo'"
                                         onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                                 <div class="name-info">

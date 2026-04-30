@@ -272,7 +272,7 @@
                             <td data-label="Id">{{ row.id }}</td>
                             <td data-label="User Image">
                                 <div class="user-image-cell">
-                                    <img *ngIf="row.userImage" [src]="row.userImage" [alt]="row.name" />
+                                    <img *ngIf="row.userImage" [src]="row.userImage" [alt]="row.name" [appImagePreview]="row.userImage" [previewTitle]="row.name || 'Volunteer Photo'" />
                                     <span *ngIf="!row.userImage" class="user-image-placeholder">
                                         <app-icon name="person" [size]="18" />
                                     </span>

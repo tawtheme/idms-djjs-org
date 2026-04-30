@@ -137,6 +137,8 @@
                                 <div class="name-with-image">
                                     <div class="volunteer-image">
                                         <img [src]="record.image || '/assets/img/placeholder.svg'" [alt]="record.name"
+                                            [appImagePreview]="record.image"
+                                            [previewTitle]="record.name || 'Volunteer Photo'"
                                             onerror="this.src='/assets/img/placeholder.svg'" />
                                     </div>
                                     <span class="name-text">{{ record.name }}</span>

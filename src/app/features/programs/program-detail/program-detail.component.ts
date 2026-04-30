@@ -7,6 +7,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -51,7 +52,7 @@ export interface Donation {
 @Component({
   selector: 'app-program-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, EmptyStateComponent],
+  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, EmptyStateComponent, ImagePreviewDirective],
   templateUrl: './program-detail.component.html',
   styleUrls: ['./program-detail.component.scss']
 })

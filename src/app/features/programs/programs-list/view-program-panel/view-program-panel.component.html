@@ -84,6 +84,8 @@
                             <div class="volunteer-avatar">
                                 <img [src]="v.user.image || '/assets/img/placeholder.svg'"
                                      [alt]="v.user.name"
+                                     [appImagePreview]="v.user.image"
+                                     [previewTitle]="v.user.name || 'Volunteer Photo'"
                                      onerror="this.src='/assets/img/placeholder.svg'" />
                             </div>
                             <div class="volunteer-info">

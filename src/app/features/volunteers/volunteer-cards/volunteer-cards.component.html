@@ -200,6 +200,8 @@
                         <div class="volunteer-image">
                             <img [src]="card.image || '/assets/img/placeholder.svg'"
                                  [alt]="card.name"
+                                 [appImagePreview]="card.image"
+                                 [previewTitle]="card.name || 'Volunteer Photo'"
                                  onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                         <span class="volunteer-name">{{ card.name }}</span>

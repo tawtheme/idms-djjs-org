@@ -12,6 +12,7 @@ import { MenuDropdownComponent, MenuOption } from '../../../shared/components/me
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 export interface ResignedSewa {
   id: number;
@@ -39,7 +40,8 @@ export interface ResignedSewa {
     LoadingComponent,
     MenuDropdownComponent,
     DropdownComponent,
-    IconComponent
+    IconComponent,
+    ImagePreviewDirective
   ],
   selector: 'app-resigned-sewas',
   templateUrl: './resigned-sewas.component.html',

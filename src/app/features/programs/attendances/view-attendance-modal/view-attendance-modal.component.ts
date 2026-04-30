@@ -7,6 +7,7 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
 import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -46,7 +47,8 @@ interface VolunteerRecord {
     DropdownComponent,
     PagerComponent,
     EmptyStateComponent,
-    LoadingComponent
+    LoadingComponent,
+    ImagePreviewDirective
   ],
   templateUrl: './view-attendance-modal.component.html',
   styleUrls: ['./view-attendance-modal.component.scss']

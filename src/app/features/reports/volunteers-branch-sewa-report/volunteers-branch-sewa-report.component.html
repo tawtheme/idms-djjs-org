@@ -185,7 +185,7 @@
                             <tr *ngFor="let row of rows; trackBy: trackById">
                                 <td data-label="Id">{{ row.id }}</td>
                                 <td data-label="Image">
-                                    <img *ngIf="row.image" [src]="row.image" alt="" class="row-avatar" />
+                                    <img *ngIf="row.image" [src]="row.image" alt="" class="row-avatar" [appImagePreview]="row.image" [previewTitle]="row.userName || 'Volunteer Photo'" />
                                     <span *ngIf="!row.image" class="row-avatar row-avatar--placeholder"></span>
                                 </td>
                                 <td data-label="User Name">{{ row.userName }}</td>

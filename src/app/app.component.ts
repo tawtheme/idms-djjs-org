@@ -5,13 +5,14 @@ import { AuthService } from './services/auth.service';
 import { HeaderComponent } from './components/header/header.component';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { LoadingComponent } from './shared/components/loading/loading.component';
+import { ImagePreviewComponent } from './shared/components/image-preview/image-preview.component';
 import { LoadingService } from './core/services/loading.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, HeaderComponent, SidenavComponent, LoadingComponent],
+  imports: [RouterOutlet, CommonModule, HeaderComponent, SidenavComponent, LoadingComponent, ImagePreviewComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

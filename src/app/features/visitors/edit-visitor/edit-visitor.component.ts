@@ -15,13 +15,14 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { emailError } from '../../../shared/utils/validators';
+import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
 type TabKey = 'basic' | 'address' | 'personal' | 'idproofs';
 type IdProofKey = 'aadhaar' | 'voter' | 'license';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, FileUploadComponent, CameraUploadComponent, ModalComponent, DropdownComponent, DatepickerComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, FileUploadComponent, CameraUploadComponent, ModalComponent, DropdownComponent, DatepickerComponent, ImagePreviewDirective],
   selector: 'app-edit-visitor',
   templateUrl: './edit-visitor.component.html',
   styleUrls: ['./edit-visitor.component.scss']
@@ -44,6 +45,70 @@ export class EditVisitorComponent implements OnInit {
   activeTab: TabKey = 'basic';
 
   isSaving: Record<TabKey, boolean> = { basic: false, address: false, personal: false, idproofs: false };
+  private sectionBaselines: Record<string, string> = {};
+
+  private getSectionState(key: string): unknown {
+    switch (key) {
+      case 'basic': return { ...this.basicForm };
+      case 'permanent': return { ...this.addressForm };
+      case 'personalDetails': return {
+        gender: this.personalForm?.gender,
+        dob: this.personalForm?.dob,
+        marital_status: this.personalForm?.marital_status,
+        birth_place: this.personalForm?.birth_place,
+        height_in_ft: this.personalForm?.height_in_ft,
+        height_in_inches: this.personalForm?.height_in_inches,
+        weight: this.personalForm?.weight,
+        identification_mark: this.personalForm?.identification_mark
+      };
+      case 'family': return {
+        father_name: this.personalForm?.father_name,
+        father_email: this.personalForm?.father_email,
+        father_mobile: this.personalForm?.father_mobile,
+        father_occupation: this.personalForm?.father_occupation,
+        mother_name: this.personalForm?.mother_name,
+        mother_email: this.personalForm?.mother_email,
+        mother_mobile: this.personalForm?.mother_mobile,
+        mother_occupation: this.personalForm?.mother_occupation,
+        spouse_name: this.personalForm?.spouse_name,
+        siblings_brother: this.personalForm?.siblings_brother,
+        siblings_sister: this.personalForm?.siblings_sister,
+        earning_members: this.personalForm?.earning_members,
+        family_members_at_home: this.personalForm?.family_members_at_home,
+        samarpit_member: this.personalForm?.samarpit_member,
+        remarks: this.personalForm?.remarks
+      };
+      case 'aadhaar': {
+        const a = this.idProofs?.aadhaar || ({} as any);
+        return {
+          number: a.number,
+          name: a.name,
+          address: a.address,
+          home_reason: a.home_reason,
+          mobile_linked: a.mobile_linked,
+          renewal_date: a.renewal_date,
+          remarks: a.remarks,
+          ashram_area_id: a.ashram_area_id,
+          filesCount: (a.files || []).length,
+          previewsCount: (a.previews || []).length,
+          hasCropped: !!a.croppedImage,
+          imagesCount: (this.aadhaarImages || []).length
+        };
+      }
+      default: return null;
+    }
+  }
+
+  snapshotSection(key: string): void {
+    this.sectionBaselines[key] = JSON.stringify(this.getSectionState(key));
+  }
+
+  isSectionDirty(key: string): boolean {
+    const base = this.sectionBaselines[key];
+    if (base === undefined) return false;
+    return JSON.stringify(this.getSectionState(key)) !== base;
+  }
+
   isSavingSection: Record<string, boolean> = {
     permanent: false,
     personalDetails: false,
@@ -580,6 +645,11 @@ export class EditVisitorComponent implements OnInit {
       samarpit_member: '',
       remarks: ''
     };
+
+    this.snapshotSection('basic');
+    this.snapshotSection('permanent');
+    this.snapshotSection('personalDetails');
+    this.snapshotSection('family');
   }
 
   setTab(id: TabKey): void {
@@ -880,6 +950,7 @@ private cleanPayload(payload: Record<string, any>): Record<string, any> {
         this.idProofs.aadhaar.mediaId = String(media?.id || '');
         this.idProofs.aadhaar.mediaIsNew = false;
       }
+      this.snapshotSection('aadhaar');
     });
   }
 

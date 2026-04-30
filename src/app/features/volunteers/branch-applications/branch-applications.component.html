@@ -161,8 +161,10 @@
                             </td>
                             <td data-label="Image" class="image-column">
                                 <div class="application-image">
-                                    <img [src]="application.image || '/assets/img/placeholder.svg'" 
+                                    <img [src]="application.image || '/assets/img/placeholder.svg'"
                                          [alt]="application.name"
+                                         [appImagePreview]="application.image"
+                                         [previewTitle]="application.name || 'Volunteer Photo'"
                                          onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                             </td>

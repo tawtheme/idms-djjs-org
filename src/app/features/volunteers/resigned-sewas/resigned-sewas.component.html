@@ -164,6 +164,8 @@
                                 <div class="resigned-sewa-image">
                                     <img [src]="resignedSewa.image || '/assets/img/placeholder.svg'"
                                          [alt]="resignedSewa.userName"
+                                         [appImagePreview]="resignedSewa.image"
+                                         [previewTitle]="resignedSewa.userName || 'Volunteer Photo'"
                                          onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                                 {{ resignedSewa.userName }}
