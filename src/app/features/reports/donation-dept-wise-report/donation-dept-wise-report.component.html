@@ -11,7 +11,7 @@
                     [searchable]="true"
                     [autocomplete]="true"
                     [closeOnSelect]="true"
-                    (selectionChange)="selectedTaskBranch = $event">
+                    (selectionChange)="onTaskBranchChange($event)">
                 </app-dropdown>
             </div>
             <div class="filter-field">
@@ -29,9 +29,12 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Filter</button>
-                    <button class="btn btn--outline btn--sm" type="button" (click)="resetFilters()">Reset</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                    <button class="btn btn--primary btn--md" type="button" [disabled]="isLoading" (click)="applyFilter()">
+                        {{ isLoading ? 'Searching...' : 'Search' }}
+                    </button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">
+                        {{ isExporting ? 'Exporting...' : 'Export' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -91,13 +94,12 @@
                                 </td>
                             </tr>
                         </tbody>
-                        <tfoot>
-                            <tr class="total-row">
-                                <td class="total-row__label">Total Donation:</td>
-                                <td class="total-row__value">{{ formatCurrency(totalDonation) }}</td>
-                            </tr>
-                        </tfoot>
                     </table>
+                </div>
+
+                <div class="total-bar">
+                    <span class="total-bar__label">Total Donation:</span>
+                    <span class="total-bar__value">{{ formatCurrency(totalDonation) }}</span>
                 </div>
 
                 <!-- Pagination -->

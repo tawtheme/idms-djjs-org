@@ -631,6 +631,22 @@ export class SewaVolunteersComponent implements OnInit {
   unassignRemarks = '';
   unassignError: string | null = null;
   isUnassigning = false;
+  selectedUnassignReason: any[] = [];
+  unassignReasonOptions: DropdownOption[] = [
+    { id: 'Change Sewa', label: 'Change Sewa', value: 'Change Sewa' },
+    { id: 'Dead', label: 'Dead', value: 'Dead' },
+    { id: 'Left', label: 'Left', value: 'Left' },
+    { id: 'Migrated', label: 'Migrated', value: 'Migrated' },
+    { id: 'Married', label: 'Married', value: 'Married' },
+    { id: 'Not Regular', label: 'Not Regular', value: 'Not Regular' },
+    { id: 'Other', label: 'Other', value: 'Other' }
+  ];
+
+  onUnassignReasonChange(values: any[]): void {
+    this.selectedUnassignReason = values || [];
+    this.unassignReason = this.selectedUnassignReason[0] || '';
+    this.unassignError = null;
+  }
 
   toggleHead(volunteer: AllocatedVolunteer, event: Event): void {
     event.stopPropagation();
@@ -686,6 +702,7 @@ export class SewaVolunteersComponent implements OnInit {
       return;
     }
     this.unassignReason = '';
+    this.selectedUnassignReason = [];
     this.unassignRemarks = '';
     this.unassignError = null;
     this.showUnassignModal = true;

@@ -231,29 +231,50 @@
             </ng-container>
 
             <!-- Medical -->
-            <ng-container>
-                <section id="section-medical" class="vv-section">
-                    <div class="vv-section__head"><h3>Medical Details</h3></div>
-                    <div class="view-grid">
-                        <div class="view-field"><label>Blood Group</label><div class="view-value">{{ display(medical?.blood_group) }}</div></div>
-                    </div>
-                </section>
+            <section id="section-medical" class="vv-section">
+                <div class="vv-section__head"><h3>Medical Details</h3></div>
+                <div class="view-grid">
+                    <div class="view-field"><label>Blood Group</label><div class="view-value">{{ display(medical?.blood_group) }}</div></div>
+                </div>
 
-                <section class="vv-section" *ngFor="let h of medical.histories; let i = index">
-                    <div class="vv-section__head"><h3>Medical History #{{ i + 1 }}</h3></div>
-                    <div class="view-grid">
-                        <div class="view-field"><label>Major Illness</label><div class="view-value">{{ display(h.major_illness) }}</div></div>
-                        <div class="view-field view-field--full"><label>Note</label><div class="view-value">{{ display(h.note) }}</div></div>
-                        <div class="view-field view-field--full" *ngIf="h.docs?.length">
-                            <label>Documents</label>
-                            <div class="view-image">
-                                <img *ngFor="let d of h.docs" [src]="d.path" alt="Document" class="view-thumb view-thumb--doc" [appImagePreview]="d.path" previewTitle="Medical Document" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-            </ng-container>
+                <div class="vv-medical-history" *ngIf="medical?.histories?.length">
+                    <table class="vv-medical-history__table">
+                        <thead>
+                            <tr>
+                                <th class="col-index">#</th>
+                                <th class="col-illness">Major Illness</th>
+                                <th class="col-note">Note</th>
+                                <th class="col-docs">Documents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let h of medical.histories; let i = index">
+                                <td class="col-index">{{ i + 1 }}</td>
+                                <td class="col-illness">{{ display(h.major_illness) }}</td>
+                                <td class="col-note">{{ display(h.note) }}</td>
+                                <td class="col-docs">
+                                    <div class="view-image" *ngIf="h.docs?.length; else noDocs">
+                                        <div class="vv-doc-tile" *ngFor="let d of h.docs">
+                                            <span class="vv-doc-tile__name" [title]="d.name || docName(d)">{{ d.name || docName(d) }}</span>
+                                            <div class="vv-doc-tile__actions">
+                                                <button type="button" class="vv-doc-tile__btn"
+                                                    [appImagePreview]="d.path" previewTitle="Medical Document" aria-label="View">
+                                                    <app-icon name="visibility" />
+                                                </button>
+                                                <button type="button" class="vv-doc-tile__btn"
+                                                    (click)="downloadDoc(d)" aria-label="Download">
+                                                    <app-icon name="download" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ng-template #noDocs>—</ng-template>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
             <!-- Spiritual -->
             <ng-container>

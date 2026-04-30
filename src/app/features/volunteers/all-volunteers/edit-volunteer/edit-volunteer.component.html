@@ -381,16 +381,34 @@
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="aadhaarImages.length > 0 || idProofs.aadhaar.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of aadhaarImages">
-                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
-                                                     alt="Aadhaar document"
-                                                     [appImagePreview]="img.url" previewTitle="Aadhaar Document"
-                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <ng-container *ngIf="isPdf(img.url); else aadhaarImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="img.url" previewTitle="Aadhaar Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #aadhaarImg>
+                                                    <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                         alt="Aadhaar document"
+                                                         [appImagePreview]="img.url" previewTitle="Aadhaar Document"
+                                                         onerror="this.src='/assets/img/placeholder.svg'" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteAadhaarImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
                                                 </button>
                                             </div>
                                             <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.aadhaar.previews; let i = index">
-                                                <img [src]="p" alt="Aadhaar preview (new)" />
+                                                <ng-container *ngIf="isPdf(p); else aadhaarPendingImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="p" previewTitle="Aadhaar Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #aadhaarPendingImg>
+                                                    <img [src]="p" alt="Aadhaar preview (new)" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="removeAadhaarPreview(i)" [disabled]="isSaving" aria-label="Remove">
                                                     <app-icon name="close" />
                                                 </button>
@@ -699,8 +717,17 @@
                                                     <span class="medical-history-row__chips" *ngIf="h.docs.length">
                                                         <span class="doc-chip" *ngFor="let d of h.docs; let di = index" [title]="d.name">
                                                             <span class="doc-chip__name">{{ d.name }}</span>
-                                                            <button type="button" class="doc-chip__remove" (click)="removeHistoryDoc(i, di)" aria-label="Remove">
-                                                                <app-icon name="close" />
+                                                            <button type="button" class="doc-chip__view"
+                                                                [appImagePreview]="d.data" [previewTitle]="d.name || 'Medical Document'"
+                                                                [disabled]="!d.data" aria-label="View">
+                                                                <app-icon name="visibility" />
+                                                            </button>
+                                                            <button type="button" class="doc-chip__download"
+                                                                (click)="downloadDoc(d)" [disabled]="!d.data" aria-label="Download">
+                                                                <app-icon name="download" />
+                                                            </button>
+                                                            <button type="button" class="doc-chip__remove" (click)="removeHistoryDoc(i, di)" aria-label="Delete">
+                                                                <app-icon name="delete" />
                                                             </button>
                                                         </span>
                                                     </span>

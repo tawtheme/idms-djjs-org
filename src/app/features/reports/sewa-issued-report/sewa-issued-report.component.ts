@@ -75,20 +75,21 @@ export class SewaIssuedReportComponent implements OnInit {
     taskBranchOptions: DropdownOption[] = [];
     sewaOptions: DropdownOption[] = [];
     sewaAssignedOptions: DropdownOption[] = [
-        { id: 'all', label: 'All', value: 'all' },
-        { id: 'yes', label: 'Yes', value: 'yes' },
-        { id: 'no', label: 'No', value: 'no' }
+        { id: 'all', label: 'All', value: '' },
+        { id: 'yes', label: 'Yes', value: '1' },
+        { id: 'no', label: 'No', value: '0' }
     ];
     monthOptions: DropdownOption[] = [
-        { id: '01', label: 'January', value: '01' },
-        { id: '02', label: 'February', value: '02' },
-        { id: '03', label: 'March', value: '03' },
-        { id: '04', label: 'April', value: '04' },
-        { id: '05', label: 'May', value: '05' },
-        { id: '06', label: 'June', value: '06' },
-        { id: '07', label: 'July', value: '07' },
-        { id: '08', label: 'August', value: '08' },
-        { id: '09', label: 'September', value: '09' },
+        { id: 'all', label: 'Select All', value: 'all' },
+        { id: '1', label: 'January', value: '1' },
+        { id: '2', label: 'February', value: '2' },
+        { id: '3', label: 'March', value: '3' },
+        { id: '4', label: 'April', value: '4' },
+        { id: '5', label: 'May', value: '5' },
+        { id: '6', label: 'June', value: '6' },
+        { id: '7', label: 'July', value: '7' },
+        { id: '8', label: 'August', value: '8' },
+        { id: '9', label: 'September', value: '9' },
         { id: '10', label: 'October', value: '10' },
         { id: '11', label: 'November', value: '11' },
         { id: '12', label: 'December', value: '12' }
@@ -154,8 +155,8 @@ export class SewaIssuedReportComponent implements OnInit {
             branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : 'all',
             sewa_id: this.selectedSewa?.length ? String(this.selectedSewa[0]) : 'all',
             year: this.selectedYear?.length ? String(this.selectedYear[0]) : 'all',
-            month: this.selectedMonths?.length ? this.selectedMonths.map(String) : [],
-            sewa_assigned: this.selectedSewaAssigned?.length ? String(this.selectedSewaAssigned[0]) : 'all',
+            month: this.resolveSelectedMonths(),
+            sewa_assigned: this.selectedSewaAssigned?.length ? String(this.selectedSewaAssigned[0]) : '',
             search: this.quickSearch.trim(),
             sortByColumn: this.sortField || '',
             orderBy: this.sortField ? this.sortDirection : '',
@@ -280,5 +281,50 @@ export class SewaIssuedReportComponent implements OnInit {
 
     trackById(_index: number, row: SewaIssuedRow): string {
         return row.id;
+    }
+
+    get selectedMonthLabels(): string[] {
+        const values = this.resolveSelectedMonths();
+        if (!values.length) return [];
+        return values
+            .map((v) => this.monthOptions.find((o) => String(o.value) === String(v))?.label || '')
+            .filter((l) => !!l);
+    }
+
+    removeSelectedMonth(label: string): void {
+        const target = this.monthOptions.find((o) => o.label === label);
+        if (!target) return;
+        const targetValue = String(target.value);
+        const current = this.selectedMonths.map(String);
+        if (current.includes('all')) {
+            // expand "all" to explicit list, then drop the target
+            this.selectedMonths = this.monthOptions
+                .filter((o) => o.value !== 'all' && String(o.value) !== targetValue)
+                .map((o) => String(o.value));
+            return;
+        }
+        this.selectedMonths = current.filter((v) => v !== targetValue);
+    }
+
+    private resolveSelectedMonths(): string[] {
+        if (!this.selectedMonths?.length) return [];
+        const values = this.selectedMonths.map(String);
+        if (values.includes('all')) {
+            return ['1','2','3','4','5','6','7','8','9','10','11','12'];
+        }
+        return values;
+    }
+
+    onMonthSelectionChange(values: any[]): void {
+        const next = (values || []).map(String);
+        const previouslyAll = this.selectedMonths.map(String).includes('all');
+        const nowAll = next.includes('all');
+        if (nowAll && !previouslyAll) {
+            this.selectedMonths = ['all'];
+        } else if (nowAll && next.length > 1) {
+            this.selectedMonths = next.filter(v => v !== 'all');
+        } else {
+            this.selectedMonths = next;
+        }
     }
 }

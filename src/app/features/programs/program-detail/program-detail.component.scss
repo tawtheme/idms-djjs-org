@@ -152,17 +152,17 @@
         background: #dcfce7;
         color: #15803d;
     }
-    &.status-pending {
-        background: #fef3c7;
-        color: #d97706;
-    }
-    &.status-in-progress {
+    &.status-running {
         background: #dbeafe;
         color: #2563eb;
     }
-    &.status-cancelled {
-        background: #f3f4f6;
-        color: #6b7280;
+    &.status-scheduled {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+    &.status-upcoming {
+        background: #fef3c7;
+        color: #d97706;
     }
 }
 

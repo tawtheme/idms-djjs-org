@@ -37,10 +37,13 @@
             background: $color-gray-50;
             border-top: 1px solid $color-gray-200;
             padding: 12px 16px;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
         }
 
         .totals-label {
-            text-align: right;
+            text-align: left;
             color: $color-gray-700;
         }
     }
@@ -114,6 +117,20 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+    }
+}
+
+:host ::ng-deep .filters-grid--four {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+
+    .filter-field--actions {
+        align-self: end;
+
+        .filter-actions {
+            flex-wrap: nowrap;
+            gap: 16px;
+            white-space: nowrap;
+        }
     }
 }
 

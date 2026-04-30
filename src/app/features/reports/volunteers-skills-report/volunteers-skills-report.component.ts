@@ -85,7 +85,6 @@ export class VolunteersSkillsReportComponent implements OnInit {
     ngOnInit(): void {
         this.loadSkills();
         this.loadBranches();
-        this.loadReport();
     }
 
     private loadSkills(): void {
@@ -116,7 +115,7 @@ export class VolunteersSkillsReportComponent implements OnInit {
 
     private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
         const payload: Record<string, any> = {
-            skill_ids: this.selectedSkills?.length ? this.selectedSkills.map(String) : [],
+            skill_id: this.selectedSkills?.length ? this.selectedSkills.map(String) : [],
             branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
             corresponding_branch_id: this.selectedCorrespondingBranch?.length ? String(this.selectedCorrespondingBranch[0]) : '',
             branch_search_type: this.selectedBranchSearchType?.length ? String(this.selectedBranchSearchType[0]) : '',
@@ -136,7 +135,7 @@ export class VolunteersSkillsReportComponent implements OnInit {
         this.isLoading = true;
         this.error = null;
 
-        this.dataService.post<any>('v1/reports/volunteers-skills', this.buildPayload()).pipe(
+        this.dataService.post<any>('v1/reports/volunteers_skill', this.buildPayload()).pipe(
             catchError((err) => {
                 console.error('Error loading volunteers skills report:', err);
                 this.error = err.error?.message || err.message || 'Failed to load report.';
@@ -148,18 +147,18 @@ export class VolunteersSkillsReportComponent implements OnInit {
             const meta = response.meta || response.pagination || null;
 
             this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
-                id: String(item.id ?? ''),
-                image: item.image || item.profile_image || '',
-                userName: item.name || item.user_name || '',
+                id: String(item.user_unique_id ?? item.id ?? ''),
+                image: item.full_path || item.image_url || item.profile_image || item.image || '',
+                userName: item.user_name || item.name || '',
                 fatherName: item.father_name || '',
                 motherName: item.mother_name || '',
                 spouseName: item.spouse_name || '',
                 phone: item.phone || item.mobile || '',
                 sewa: item.sewa?.name || item.sewa_name || '',
-                badgeId: item.badge_id || item.badge_no || '',
+                badgeId: String(item.badge_id ?? item.badge_no ?? ''),
                 skills: Array.isArray(item.skills) ? item.skills.map((s: any) => s.name || s).join(', ') : (item.skills || ''),
-                taskBranch: item.branch?.name || item.task_branch || '',
-                correspondingBranch: item.corresponding_branch?.name || item.corresponding_branch_name || ''
+                taskBranch: item.working_branch || item.branch?.name || item.task_branch || '',
+                correspondingBranch: item.home_branch || item.corresponding_branch?.name || item.corresponding_branch_name || ''
             }));
 
             this.totalItems = meta ? (meta.total ?? meta.total_count ?? this.rows.length) : this.rows.length;
@@ -201,7 +200,7 @@ export class VolunteersSkillsReportComponent implements OnInit {
 
     exportReport(choice: 'web' | 'email' = 'web'): void {
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/volunteers-skills', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
+        this.dataService.post<any>('v1/reports/volunteers_skill', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
             catchError((err) => {
                 console.error('Error exporting volunteers skills report:', err);
                 this.error = err.error?.message || err.message || 'Failed to export report.';
@@ -220,5 +219,14 @@ export class VolunteersSkillsReportComponent implements OnInit {
 
     trackById(_index: number, row: VolunteerSkillRow): string {
         return row.id;
+    }
+
+    getSkillLabel(id: any): string {
+        const opt = this.skillOptions.find(o => String(o.id) === String(id) || String(o.value) === String(id));
+        return opt?.label || String(id);
+    }
+
+    removeSkill(id: any): void {
+        this.selectedSkills = this.selectedSkills.filter(v => String(v) !== String(id));
     }
 }

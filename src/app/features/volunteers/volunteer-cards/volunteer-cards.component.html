@@ -1,254 +1,279 @@
 <div class="volunteer-cards-container">
-    <div class="volunteer-cards-header">
-    </div>
-
     <!-- Search & Filter Panel -->
-    <div class="search-panel">
-        <div class="search-panel__top">
-            <div class="search-input-wrapper">
-                <app-icon name="search" class="search-input-icon" />
-                <input
-                    type="search"
-                    class="search-input"
-                    placeholder="Search by Name, Relation Name, Mobile No., UID"
-                    [(ngModel)]="searchTerm"
-                    [ngModelOptions]="{ standalone: true }"
-                    (input)="onSearchChange()"/>
+    <div class="filters-grid filters-grid--six">
+            <div class="filter-field">
+                <label>Task Branch</label>
+                <app-dropdown
+                    [options]="taskBranchOptions"
+                    [selectedValues]="moreFilters.taskBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.taskBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
             </div>
-            <div class="search-panel__actions">
-                <button class="filter-btn" type="button" (click)="toggleFiltersPanel()" [class.filter-btn--active]="filtersExpanded || hasAnyActiveFilter()">
-                    <app-icon name="tune" />
-                    <span>Filters</span>
-                    <span class="filter-count" *ngIf="totalActiveFiltersCount() > 0">{{ totalActiveFiltersCount() }}</span>
-                    <app-icon name="keyboard_arrow_down" class="filter-btn__arrow" [class.filter-btn__arrow--up]="filtersExpanded" />
-                </button>
-                <button class="filter-btn" type="button" (click)="resetFilter()" *ngIf="hasAnyActiveFilter()">
-                    <app-icon name="close" />
-                    <span>Clear All</span>
-                </button>
+            <div class="filter-field">
+                <label>Corresponding Branch</label>
+                <app-dropdown
+                    [options]="correspondingBranchOptions"
+                    [selectedValues]="moreFilters.correspondingBranch"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.correspondingBranch = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
             </div>
-        </div>
-        @if (filtersExpanded) {
-        <div class="search-panel__filters search-panel__filters--expanded">
-            <div class="search-panel__filters-inner">
-                <div class="filters-grid">
-                    <div class="filter-field">
-                        <label>Task Branch</label>
-                        <app-dropdown
-                            [options]="taskBranchOptions"
-                            [selectedValues]="moreFilters.taskBranch"
-                            placeholder="None"
-                            [searchable]="true"
-                            (selectionChange)="moreFilters.taskBranch = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Corresponding Branch</label>
-                        <app-dropdown
-                            [options]="correspondingBranchOptions"
-                            [selectedValues]="moreFilters.correspondingBranch"
-                            placeholder="None"
-                            [searchable]="true"
-                            (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Branch Search Type</label>
-                        <app-dropdown
-                            [options]="branchSearchTypeOptions"
-                            [selectedValues]="moreFilters.branchSearchType"
-                            placeholder="Select Branch Search Type"
-                            (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Sewa</label>
-                        <app-dropdown
-                            [options]="sewaOptions"
-                            [selectedValues]="selectedSewa"
-                            placeholder="None"
-                            (selectionChange)="selectedSewa = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>BadgeNo</label>
-                        <input
-                            type="text"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.badgeNo"
-                            [ngModelOptions]="{ standalone: true }"
-                            (input)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>Gender</label>
-                        <app-dropdown
-                            [options]="genderOptions"
-                            [selectedValues]="selectedGender"
-                            placeholder="None"
-                            (selectionChange)="selectedGender = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Name</label>
-                        <input
-                            type="text"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.name"
-                            [ngModelOptions]="{ standalone: true }"
-                            (input)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>Relation Name</label>
-                        <input
-                            type="text"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.relationName"
-                            [ngModelOptions]="{ standalone: true }"
-                            (input)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>Mobile No.</label>
-                        <input
-                            type="text"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.mobileNo"
-                            [ngModelOptions]="{ standalone: true }"
-                            (input)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>UID</label>
-                        <input
-                            type="text"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.uid"
-                            [ngModelOptions]="{ standalone: true }"
-                            (input)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>Options</label>
-                        <app-dropdown
-                            [options]="filterOptionsDropdown"
-                            [selectedValues]="moreFilters.options"
-                            placeholder="Select Options"
-                            (selectionChange)="moreFilters.options = $event; onSearchChange()"
-                            [closeOnSelect]="true">
-                        </app-dropdown>
-                    </div>
-                    <div class="filter-field">
-                        <label>Start From</label>
-                        <input
-                            type="date"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.startFrom"
-                            [ngModelOptions]="{ standalone: true }"
-                            (change)="onSearchChange()" />
-                    </div>
-                    <div class="filter-field">
-                        <label>End To</label>
-                        <input
-                            type="date"
-                            class="filter-input"
-                            [(ngModel)]="moreFilters.endTo"
-                            [ngModelOptions]="{ standalone: true }"
-                            (change)="onSearchChange()" />
-                    </div>
+            <div class="filter-field">
+                <label>Branch Search Type</label>
+                <app-dropdown
+                    [options]="branchSearchTypeOptions"
+                    [selectedValues]="moreFilters.branchSearchType"
+                    placeholder="Select"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.branchSearchType = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewa</label>
+                <app-dropdown
+                    [options]="sewaOptions"
+                    [selectedValues]="selectedSewa"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedSewa = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+
+            <div class="filter-field">
+                <label>Badge No</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Badge No"
+                        [(ngModel)]="moreFilters.badgeNo"
+                        [ngModelOptions]="{ standalone: true }"
+                        />
+                    <button *ngIf="moreFilters.badgeNo" type="button" class="input-clear" (click)="moreFilters.badgeNo=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
                 </div>
             </div>
-        </div>
-        }
+            <div class="filter-field">
+                <label>Gender</label>
+                <app-dropdown
+                    [options]="genderOptions"
+                    [selectedValues]="selectedGender"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedGender = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Name"
+                        [(ngModel)]="moreFilters.name"
+                        [ngModelOptions]="{ standalone: true }"
+                        />
+                    <button *ngIf="moreFilters.name" type="button" class="input-clear" (click)="moreFilters.name=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Relation Name</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Relation Name"
+                        [(ngModel)]="moreFilters.relationName"
+                        [ngModelOptions]="{ standalone: true }"
+                        />
+                    <button *ngIf="moreFilters.relationName" type="button" class="input-clear" (click)="moreFilters.relationName=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label>Mobile No.</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Mobile No."
+                        [(ngModel)]="moreFilters.mobileNo"
+                        [ngModelOptions]="{ standalone: true }"
+                        />
+                    <button *ngIf="moreFilters.mobileNo" type="button" class="input-clear" (click)="moreFilters.mobileNo=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>UID</label>
+                <div class="input-wrap">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter UID"
+                        [(ngModel)]="moreFilters.uid"
+                        [ngModelOptions]="{ standalone: true }"
+                        />
+                    <button *ngIf="moreFilters.uid" type="button" class="input-clear" (click)="moreFilters.uid=''">
+                        <app-icon name="close" [size]="10" />
+                    </button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Options</label>
+                <app-dropdown
+                    [options]="filterOptionsDropdown"
+                    [selectedValues]="moreFilters.options"
+                    placeholder="Select Options"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.options = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+
+            <div class="filter-field">
+                <label>Start From</label>
+                <app-datepicker
+                    [value]="moreFilters.startFrom"
+                    placeholder="Select Start Date"
+                    format="dd/MM/yyyy"
+                    (dateChange)="moreFilters.startFrom = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field">
+                <label>End To</label>
+                <app-datepicker
+                    [value]="moreFilters.endTo"
+                    placeholder="Select End Date"
+                    format="dd/MM/yyyy"
+                    [minDate]="moreFilters.startFrom"
+                    (dateChange)="moreFilters.endTo = $event">
+                </app-datepicker>
+            </div>
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" [disabled]="!hasAnyActiveFilter()" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                </div>
+            </div>
     </div>
 
     <!-- Volunteer Cards table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Action</th>
-                    <th (click)="sortBy('id')" class="sortable">
-                        Id
-                        <app-icon [name]="getSortIcon('id')" class="sort-icon" />
-                    </th>
-                    <th (click)="sortBy('name')" class="sortable">
-                        Name
-                        <app-icon [name]="getSortIcon('name')" class="sort-icon" />
-                    </th>
-                    <th>Father Name</th>
-                    <th>Phone</th>
-                    <th>Sewa</th>
-                    <th>Gender</th>
-                    <th>Unallocation Reason</th>
-                    <th>Enter By</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let card of pagedCards; trackBy: trackById" (click)="$event.stopPropagation()">
-                    <td data-label="Action" (click)="$event.stopPropagation()">
-                        <app-menu-dropdown
-                            [options]="getActionOptions(card)"
-                            (selectionChange)="onAction(card, $event)">
-                        </app-menu-dropdown>
-                    </td>
-                    <td data-label="Id">
-                        {{ card.id }}
-                    </td>
-                    <td data-label="Name" class="name-with-image">
-                        <div class="volunteer-image">
-                            <img [src]="card.image || '/assets/img/placeholder.svg'"
-                                 [alt]="card.name"
-                                 [appImagePreview]="card.image"
-                                 [previewTitle]="card.name || 'Volunteer Photo'"
-                                 onerror="this.src='/assets/img/placeholder.svg'">
-                        </div>
-                        <span class="volunteer-name">{{ card.name }}</span>
-                    </td>
-                    <td data-label="Father Name">
-                        {{ card.relationName || card.fatherName || '-' }}
-                    </td>
-                    <td data-label="Phone">
-                        {{ card.phone || '-' }}
-                    </td>
-                    <td data-label="Sewa">
-                        {{ card.sewa || '-' }}
-                    </td>
-                    <td data-label="Gender">
-                        {{ card.gender || '-' }}
-                    </td>
-                    <td data-label="Unallocation Reason">
-                        {{ card.unallocationReason || '-' }}
-                    </td>
-                    <td data-label="Enter By">
-                        {{ card.enterBy || '-' }}
-                    </td>
-                </tr>
-                <tr *ngIf="pagedCards.length === 0">
-                    <td [attr.colspan]="9" class="no-data">No data available in table</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="listing-wrapper">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input type="checkbox"
+                                   [checked]="isAllSelected()"
+                                   [indeterminate]="isIndeterminate()"
+                                   (change)="toggleSelectAll($event)" />
+                        </th>
+                        <th class="sortable" (click)="sortBy('id')">
+                            <span class="th-content">
+                                Id
+                                <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" />
+                            </span>
+                        </th>
+                        <th class="sortable" (click)="sortBy('name')">
+                            <span class="th-content">
+                                Name
+                                <app-icon [name]="getSortIcon('name')" class="sort-icon" [class.sort-icon--active]="sortField === 'name'" />
+                            </span>
+                        </th>
+                        <th>Father Name</th>
+                        <th>Phone</th>
+                        <th>Sewa</th>
+                        <th>Gender</th>
+                        <th>Unallocation Reason</th>
+                        <th>Enter By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let card of pagedCards; trackBy: trackById" (click)="$event.stopPropagation()">
+                        <td class="checkbox-column" (click)="$event.stopPropagation()">
+                            <input type="checkbox"
+                                   [checked]="selectedCards.has(card.id)"
+                                   (change)="toggleSelectCard(card.id, $event)" />
+                        </td>
+                        <td data-label="Id">
+                            {{ card.id }}
+                        </td>
+                        <td data-label="Name" class="name-with-image">
+                            <div class="volunteer-image">
+                                <img [src]="card.image || '/assets/img/placeholder.svg'"
+                                     [alt]="card.name"
+                                     [appImagePreview]="card.image"
+                                     [previewTitle]="card.name || 'Volunteer Photo'"
+                                     onerror="this.src='/assets/img/placeholder.svg'">
+                            </div>
+                            <span class="volunteer-name">{{ card.name }}</span>
+                        </td>
+                        <td data-label="Father Name">
+                            {{ card.relationName || card.fatherName || '-' }}
+                        </td>
+                        <td data-label="Phone">
+                            {{ card.phone || '-' }}
+                        </td>
+                        <td data-label="Sewa">
+                            {{ card.sewa || '-' }}
+                        </td>
+                        <td data-label="Gender">
+                            {{ card.gender || '-' }}
+                        </td>
+                        <td data-label="Unallocation Reason">
+                            {{ card.unallocationReason || '-' }}
+                        </td>
+                        <td data-label="Enter By">
+                            {{ card.enterBy || '-' }}
+                        </td>
+                    </tr>
+                    <tr *ngIf="pagedCards.length === 0">
+                        <td [attr.colspan]="9" class="empty-state-cell">
+                            <app-empty-state
+                                [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Volunteer Cards Found'"
+                                [description]="hasAnyActiveFilter() ? 'No volunteer cards match your search criteria.' : 'There are no volunteer cards available at the moment.'"
+                                [size]="'small'">
+                            </app-empty-state>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <app-pager
+            [total]="totalItems"
+            [pageSize]="pageSize"
+            [currentPage]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)">
+        </app-pager>
     </div>
 
-    <!-- Pagination -->
-    <app-pager
-        [total]="totalItems"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)">
-    </app-pager>
 
-
-    <!-- More Filters Modal -->
-    <app-volunteer-cards-filters-modal
-        [isOpen]="moreFiltersModalOpen"
-        [filters]="moreFilters"
-        (close)="closeMoreFiltersModal()"
-        (applyFilters)="onMoreFiltersApply($event)">
-    </app-volunteer-cards-filters-modal>
 </div>
 

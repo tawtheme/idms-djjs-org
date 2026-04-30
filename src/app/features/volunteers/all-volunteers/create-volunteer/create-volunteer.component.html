@@ -114,9 +114,35 @@
             </div>
         </div>
 
+        <!-- Possible Duplicate Volunteers -->
+        <div class="form-section duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
+            <div class="section-header">
+                <h3 class="section-title">Possible Duplicate Volunteers</h3>
+                <p class="section-subtitle">A volunteer with similar details already exists. Review the matches below — if you still want to proceed, turn on "Proceed with Possible Duplicate" in the form actions and submit again.</p>
+            </div>
+            <div class="duplicate-list">
+                <div class="duplicate-item" *ngFor="let u of existingUsers">
+                    <div class="duplicate-item__id">#{{ u.unique_id }}</div>
+                    <div class="duplicate-item__main">
+                        <div class="duplicate-item__name">{{ u.name }}</div>
+                        <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Form Actions -->
         <div class="form-actions">
             <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
+
+            <label class="proceed-toggle" *ngIf="showProceedToggle">
+                <input type="checkbox" class="proceed-toggle__input"
+                       [(ngModel)]="proceedForcefully"
+                       [ngModelOptions]="{ standalone: true }" />
+                <span class="proceed-toggle__slider"></span>
+                <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
+            </label>
+
             <button type="submit" class="btn btn--primary" [disabled]="isLoading">
                 {{ isLoading ? 'Submitting...' : 'Create Volunteer' }}
             </button>
@@ -198,6 +224,31 @@
                 <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
             </div>
         </div>
+    </div>
+
+    <!-- Possible Duplicate Volunteers (side-panel mode) -->
+    <div class="form-field duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
+        <h3 class="section-title">Possible Duplicate Volunteers</h3>
+        <p class="section-subtitle">A volunteer with similar details already exists. Review the matches below.</p>
+        <div class="duplicate-list">
+            <div class="duplicate-item" *ngFor="let u of existingUsers">
+                <div class="duplicate-item__id">#{{ u.unique_id }}</div>
+                <div class="duplicate-item__main">
+                    <div class="duplicate-item__name">{{ u.name }}</div>
+                    <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-field" *ngIf="showProceedToggle">
+        <label class="proceed-toggle">
+            <input type="checkbox" class="proceed-toggle__input"
+                   [(ngModel)]="proceedForcefully"
+                   [ngModelOptions]="{ standalone: true }" />
+            <span class="proceed-toggle__slider"></span>
+            <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
+        </label>
     </div>
 
 </form>

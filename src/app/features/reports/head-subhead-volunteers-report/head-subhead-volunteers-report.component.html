@@ -17,20 +17,15 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Filter</button>
-                    <button class="btn btn--outline btn--sm" type="button" (click)="resetFilters()">Reset</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                    <button class="btn btn--primary btn--md" type="button" [disabled]="isLoading || isExporting" (click)="applyFilter()">Search</button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isLoading || isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-wrapper">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-    </div>
-
-    <ng-container *ngIf="!isLoading">
+    <ng-container *ngIf="!isLoading && !isExporting">
         <!-- Error state -->
         <div *ngIf="error" class="error-state">
             <p>{{ error }}</p>

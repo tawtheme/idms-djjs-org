@@ -142,7 +142,7 @@ export class CardsReturnedReportComponent implements OnInit {
     private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
         const payload: Record<string, any> = {
             branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
-            card_status: this.selectedCardStatus?.length ? String(this.selectedCardStatus[0]) : '',
+            card_status: this.selectedCardStatus?.length ? (this.selectedCardStatus[0] === 'returned' ? '1' : '0') : '',
             sewa_id: this.selectedSewas?.length ? String(this.selectedSewas[0]) : '',
             program_id: this.selectedPrograms?.length ? String(this.selectedPrograms[0]) : '',
             search: this.quickSearch.trim(),
@@ -194,13 +194,13 @@ export class CardsReturnedReportComponent implements OnInit {
             const meta = response.meta || response.pagination || null;
 
             this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
-                id: String(item.id ?? ''),
-                image: item.image || item.profile_image || '',
-                name: item.name || '',
+                id: String(item.unique_id ?? item.id ?? ''),
+                image: item.full_path || item.image_url || item.profile_image || item.image || '',
+                name: item.user_name || item.name || '',
                 phone: item.phone || item.mobile || '',
-                fatherName: item.father_name || '',
+                fatherName: item.father_name || item.spouse_name || '',
                 sewa: item.sewa?.name || item.sewa_name || '',
-                badgeNo: item.badge_no || item.badge_id || '',
+                badgeNo: String(item.badge_no ?? item.badge_id ?? ''),
                 checkIn: this.formatDisplayDateTime(item.check_in),
                 checkOut: this.formatDisplayDateTime(item.check_out)
             }));

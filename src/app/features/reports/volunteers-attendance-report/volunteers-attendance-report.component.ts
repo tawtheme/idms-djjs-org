@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
+
 
 import { DataService } from '../../../data.service';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
@@ -229,46 +231,74 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         this.isLoading = true;
         this.error = null;
 
-        this.dataService.post<any>('v1/reports/volunteers_attendance', this.buildPayload()).pipe(
+        const payload = this.buildPayload({ is_export: '0', exportChoice: 'web' });
+
+        this.dataService.post<any>('v1/reports/volunteers_attendance', payload).pipe(
             catchError((err) => {
                 console.error('Error loading volunteers attendance report:', err);
                 this.error = err.error?.message || err.message || 'Failed to load report.';
                 this.isLoading = false;
-                return of({ data: [] });
+                return of({ data: {} });
             })
         ).subscribe((response) => {
-            const data = response?.data?.rows || response?.data || response?.results || response || [];
-            const meta = response?.meta || response?.pagination || response?.data?.meta || null;
-            const summary = response?.data?.summary || response?.summary || null;
+            const payload = response?.data ?? response ?? {};
+            const records = payload?.records || payload?.rows || payload?.data || (Array.isArray(payload) ? payload : []);
+            const meta = response?.meta || response?.pagination || payload?.meta || null;
 
-            this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
-                id: String(item.id ?? ''),
-                userImage: item.user_image || item.image || item.profile_image || '',
-                name: item.name || '',
-                father: item.father_name || item.father || '',
-                mother: item.mother_name || item.mother || '',
-                spouse: item.spouse_name || item.spouse || '',
-                phone: item.phone || item.mobile || item.mobile_number || '',
-                sewa: item.sewa?.name || item.sewa_name || '',
-                badgeId: item.badge_id || '',
-                donation: Number(item.donation ?? item.donation_amount ?? 0),
-                taskBranch: item.task_branch?.name || item.task_branch_name || item.branch?.name || '',
-                correspondingBranch: item.corresponding_branch?.name || item.corresponding_branch_name || '',
-                status: item.attendance_status || item.status || '',
-                checkIn: this.formatDisplayDateTime(item.check_in || item.check_in_time)
+            this.rows = (Array.isArray(records) ? records : []).map((item: any) => ({
+                id: String(item.user_unique_id ?? item.unique_id ?? item.uniqueId ?? item.user?.unique_id ?? item.id ?? ''),
+                userImage: item.full_path || item.image_url || item.user_image?.full_path || item.user?.image_url || item.image || item.profile_image || item.user?.image || '',
+                name: item.user_name || item.name || item.volunteer_name || item.user?.name || '',
+                father: item.father_name || item.father || item.user?.father_name || '',
+                mother: item.mother_name || item.mother || item.user?.mother_name || '',
+                spouse: item.spouse_name || item.spouse || item.user?.spouse_name || '',
+                phone: item.phone || item.mobile || item.mobile_number || item.user?.mobile || '',
+                sewa: item.sewa?.name || item.sewa_name || item.sewa || item.program_sewa?.name || item.program_sewa?.sewa?.name || '',
+                badgeId: String(item.badge_id ?? item.badge ?? item.badge_no ?? item.badge_number ?? item.user?.badge_id ?? ''),
+                donation: Number(item.donation ?? item.donation_amount ?? item.amount ?? 0),
+                taskBranch: item.working_branch || item.task_branch?.name || item.task_branch_name || item.taskBranch || item.user?.task_branch?.name || item.branch?.name || '',
+                correspondingBranch: item.home_branch || item.corresponding_branch?.name || item.corresponding_branch_name || item.correspondingBranch || item.user?.corresponding_branch?.name || '',
+                status: this.resolveStatusLabel(item.attendance_status ?? item.status),
+                checkIn: this.formatDisplayDateTime(item.check_in || item.checked_in || item.check_in_time || item.checkin_time)
             }));
 
-            this.totalItems = meta ? (meta.total ?? meta.total_count ?? this.rows.length) : this.rows.length;
-
-            this.summary = {
-                totalVolunteers: Number(summary?.total_volunteers ?? this.totalItems),
-                presentVolunteers: Number(summary?.present_volunteers ?? 0),
-                absentVolunteers: Number(summary?.absent_volunteers ?? 0),
-                onLeaveVolunteers: Number(summary?.on_leave_volunteers ?? summary?.leave_volunteers ?? 0)
-            };
+            this.totalItems = meta
+                ? (meta.total ?? meta.total_count ?? meta.itemsCount ?? this.rows.length)
+                : (response?.total ?? payload?.total ?? this.rows.length);
 
             this.isLoading = false;
         });
+
+        this.loadAttendanceSummary();
+    }
+
+    private loadAttendanceSummary(): void {
+        const programId = this.selectedPrograms?.length ? String(this.selectedPrograms[0]) : '';
+        if (!programId) return;
+
+        const params = new HttpParams().set('mode', 'report');
+        this.dataService.get<any>(`v1/attendances/${programId}`, { params }).pipe(
+            catchError(() => of(null))
+        ).subscribe((response) => {
+            if (!response) return;
+            const payload = response?.data ?? response ?? {};
+            this.summary = {
+                totalVolunteers: Number(payload?.total_volunteers ?? payload?.summary?.total_volunteers ?? 0),
+                presentVolunteers: Number(payload?.total_check_in ?? payload?.summary?.present_volunteers ?? 0),
+                absentVolunteers: Number(payload?.total_absent ?? payload?.summary?.absent_volunteers ?? 0),
+                onLeaveVolunteers: Number(payload?.total_leaves ?? payload?.summary?.on_leave_volunteers ?? payload?.summary?.leave_volunteers ?? 0)
+            };
+        });
+    }
+
+private resolveStatusLabel(status: any): string {
+        const s = String(status ?? '').trim().toLowerCase();
+        if (!s) return '';
+        if (s === '1' || s === 'present' || s === 'checkin' || s === 'check_in') return 'Present';
+        if (s === '0' || s === 'leave' || s === 'on leave') return 'Leave';
+        if (s === '2' || s === 'checkout' || s === 'check_out' || s === 'return') return 'CheckOut';
+        if (s === '3' || s === 'absent' || s === 'not_attended') return 'Absent';
+        return String(status);
     }
 
     applyFilter(): void {

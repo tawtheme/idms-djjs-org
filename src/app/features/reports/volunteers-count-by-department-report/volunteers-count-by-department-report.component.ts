@@ -70,8 +70,16 @@ export class VolunteersCountByDepartmentReportComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadBranches();
-        this.loadPrograms();
         this.loadReport();
+    }
+
+    onTaskBranchChange(values: any[]): void {
+        this.selectedTaskBranch = values || [];
+        this.selectedPrograms = [];
+        this.programOptions = [];
+        if (this.selectedTaskBranch.length) {
+            this.loadPrograms(String(this.selectedTaskBranch[0]));
+        }
     }
 
     private loadBranches(): void {
@@ -87,8 +95,8 @@ export class VolunteersCountByDepartmentReportComponent implements OnInit {
         });
     }
 
-    private loadPrograms(): void {
-        this.dataService.get<any>('v1/options/programs').pipe(
+    private loadPrograms(branchId: string): void {
+        this.dataService.get<any>('v1/options/programs', { params: { branch_id: branchId } }).pipe(
             catchError(() => of({ data: [] }))
         ).subscribe((response) => {
             const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
@@ -103,11 +111,12 @@ export class VolunteersCountByDepartmentReportComponent implements OnInit {
     private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
         const payload: Record<string, any> = {
             branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
-            program_ids: this.selectedPrograms?.length ? this.selectedPrograms.map((id) => String(id)) : [],
+            program_id: this.selectedPrograms?.length ? this.selectedPrograms.map((id) => String(id)).join(',') : '',
+            search: '',
             sortByColumn: this.sortField || '',
             orderBy: this.sortField ? this.sortDirection : '',
-            per_page: String(this.pageSize),
-            page: String(this.currentPage),
+            per_page: this.pageSize,
+            page: this.currentPage,
             is_export: '0',
             exportChoice: 'web'
         };
@@ -118,7 +127,7 @@ export class VolunteersCountByDepartmentReportComponent implements OnInit {
         this.isLoading = true;
         this.error = null;
 
-        this.dataService.post<any>('v1/reports/volunteers-count-by-department', this.buildPayload()).pipe(
+        this.dataService.post<any>('v1/reports/volunteers-attending-sewa', this.buildPayload()).pipe(
             catchError((err) => {
                 console.error('Error loading volunteers count by department report:', err);
                 this.error = err.error?.message || err.message || 'Failed to load report.';
@@ -203,20 +212,53 @@ export class VolunteersCountByDepartmentReportComponent implements OnInit {
 
     exportReport(choice: 'web' | 'email' = 'web'): void {
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/volunteers-count-by-department', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
-            catchError((err) => {
+        const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
+
+        this.dataService.post<any>('v1/reports/volunteers-attending-sewa', payload, { responseType: 'blob', observe: 'response' }).pipe(
+            catchError(async (err) => {
                 console.error('Error exporting volunteers count by department report:', err);
-                this.error = err.error?.message || err.message || 'Failed to export report.';
+                let message = err?.error?.message || err?.message || 'Failed to export report.';
+                if (err?.error instanceof Blob) {
+                    try {
+                        const text = await err.error.text();
+                        const json = JSON.parse(text);
+                        message = json?.message || json?.errors?.branch_id || message;
+                    } catch { /* ignore */ }
+                }
+                this.error = message;
                 this.isExporting = false;
-                return of(null);
+                return null;
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') window.open(url, '_blank');
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            const today = new Date();
+            const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            a.download = `volunteers-attending-sewa-${stamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 

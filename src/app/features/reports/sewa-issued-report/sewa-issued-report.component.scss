@@ -1,3 +1,77 @@
 @use '../report-listing' as r;
 
 @include r.report-listing('.reports');
+
+:host ::ng-deep .filters-grid--seven {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+
+    .filter-field--actions {
+        align-self: end;
+
+        .filter-actions {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 16px;
+            white-space: nowrap;
+
+            .btn { min-height: 40px; padding: 0 16px; }
+        }
+    }
+
+    @media (max-width: 1280px) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+:host ::ng-deep .selected-months-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+
+    &__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #1e3a8a;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    &__remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: #1e3a8a;
+        cursor: pointer;
+        padding: 0;
+
+        &:hover { background: rgba(30, 58, 138, 0.12); }
+    }
+}

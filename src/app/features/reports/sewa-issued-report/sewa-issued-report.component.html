@@ -55,7 +55,8 @@
                     placeholder="Select Months"
                     [searchable]="true"
                     [multiSelect]="true"
-                    (selectionChange)="selectedMonths = $event"
+                    [showSelectedItems]="false"
+                    (selectionChange)="onMonthSelectionChange($event)"
                     [closeOnSelect]="false">
                 </app-dropdown>
             </div>
@@ -81,6 +82,16 @@
                     <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
+        </div>
+
+        <div class="selected-months-row" *ngIf="selectedMonthLabels.length > 0">
+            <span class="selected-months-row__label">Selected Months:</span>
+            <span class="selected-months-row__chip" *ngFor="let label of selectedMonthLabels">
+                {{ label }}
+                <button type="button" class="selected-months-row__remove" (click)="removeSelectedMonth(label)" aria-label="Remove">
+                    <app-icon name="close" [size]="10" />
+                </button>
+            </span>
         </div>
     </div>
 

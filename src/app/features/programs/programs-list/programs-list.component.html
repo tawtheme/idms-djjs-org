@@ -1,9 +1,4 @@
 <div class="programs-container">
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-wrapper">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-    </div>
-
     <ng-container *ngIf="!isLoading">
         <!-- Error state -->
         <div *ngIf="error" class="error-state">

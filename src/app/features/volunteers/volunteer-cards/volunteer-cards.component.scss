@@ -75,16 +75,39 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 
+    &--five {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    &--six {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    @media (max-width: 1440px) {
+        &--six { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 1280px) {
+        &--five { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        &--six { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 992px) {
         grid-template-columns: repeat(3, 1fr);
+        &--five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        &--six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr 1fr;
+        &--five { grid-template-columns: 1fr 1fr; }
+        &--six { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 480px) {
         grid-template-columns: 1fr;
+        &--five { grid-template-columns: 1fr; }
+        &--six { grid-template-columns: 1fr; }
     }
 }
 
@@ -296,5 +319,38 @@
     padding: 40px 20px !important;
     color: $color-gray-500;
     font-style: italic;
+}
+
+.filter-field--actions {
+    align-self: end;
+
+    .filter-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 16px;
+        white-space: nowrap;
+
+        .btn { min-height: 40px; padding: 0 16px; }
+    }
+}
+
+.listing-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 12px 0;
+
+    .btn { min-height: 38px; padding: 0 16px; }
+}
+
+.checkbox-column {
+    width: 40px;
+    text-align: center;
+
+    input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: $color-primary-600;
+    }
 }
 
