@@ -291,9 +291,9 @@
                 </div>
                 <div class="visitor-card__hero">
                     <div class="visitor-card__photo">
-                        <img [src]="card?.user_image?.full_path || '/assets/img/placeholder.svg'"
+                        <img [src]="cardImage(card) || '/assets/img/placeholder.svg'"
                              [alt]="card?.name || 'Visitor'"
-                             [appImagePreview]="card?.user_image?.full_path"
+                             [appImagePreview]="cardImage(card)"
                              [previewTitle]="card?.name || 'Visitor Photo'"
                              onerror="this.src='/assets/img/placeholder.svg'" />
                     </div>

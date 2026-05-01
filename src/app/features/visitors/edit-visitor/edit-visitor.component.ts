@@ -1062,6 +1062,10 @@ private cleanPayload(payload: Record<string, any>): Record<string, any> {
   onIdProofFilesSelected(files: File[]): void {
     if (!this.idProofActiveKey || !files?.length) return;
     const key = this.idProofActiveKey;
+    // The file-upload component emits its accumulated selection on every change,
+    // so reset our arrays here to mirror that list rather than appending.
+    this.idProofs[key].files = [];
+    this.idProofs[key].previews = [];
     files.forEach(f => this.applyIdProofFile(key, f, 'upload'));
     this.closeIdProofModal();
   }
@@ -1092,6 +1096,20 @@ private cleanPayload(payload: Record<string, any>): Record<string, any> {
 
   removeAadhaarCroppedImage(): void {
     this.idProofs.aadhaar.croppedImage = null;
+  }
+
+  private collectAadhaarMedia(aad: any): string[] {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    const push = (v: any) => {
+      if (typeof v === 'string' && v && !seen.has(v)) {
+        seen.add(v);
+        out.push(v);
+      }
+    };
+    (aad.previews || []).forEach(push);
+    push(aad.croppedImage);
+    return out;
   }
 
   isPdf(value?: string | null): boolean {
@@ -1261,8 +1279,7 @@ private cleanPayload(payload: Record<string, any>): Record<string, any> {
       renewal_date: aad.renewal_date || null,
       remarks: aad.remarks || '',
       ashram_area_id: aad.ashram_area_id || '',
-      adhaar_media: aad.previews.length ? [...aad.previews] : [],
-      aadhaar_cropped_image: aad.croppedImage || ''
+      adhaar_media: this.collectAadhaarMedia(aad)
     };
 
     this.dataService.put<any>('v1/users/update-aadhaar', payload).pipe(

@@ -205,10 +205,10 @@ export class VisitorsComponent implements OnInit {
         list.length;
 
       this.allVisitors = list.map((item: any) => {
-        // Get first image from user_images array
-        const firstImage = item.user_images && item.user_images.length > 0
-          ? item.user_images[0].full_path
-          : null;
+        // Image can come as a singular `user_image` object or a `user_images` array.
+        const firstImage = item.user_image?.full_path
+          || (Array.isArray(item.user_images) && item.user_images[0]?.full_path)
+          || null;
 
         // Extract relation name from relation_of object
         let relationName = '';
@@ -251,14 +251,22 @@ export class VisitorsComponent implements OnInit {
 
   private buildVisitorQueryParams(): Record<string, string | number> {
     const params: Record<string, string | number> = {};
-    const term = this.searchTerm.trim();
-    if (term) {
-      if (/^\d{10}$/.test(term)) {
-        params['mobile_number'] = term;
-      } else if (/^\d+$/.test(term)) {
-        params['unique_id'] = parseInt(term, 10);
+
+    const name = (this.nameFilter || '').trim();
+    if (name) params['name'] = name;
+
+    const relationName = (this.relationNameFilter || '').trim();
+    if (relationName) params['relation_name'] = relationName;
+
+    const mobile = (this.mobileFilter || '').trim();
+    if (mobile) params['mobile_number'] = mobile;
+
+    const uid = (this.uidFilter || '').trim();
+    if (uid) {
+      if (/^\d+$/.test(uid)) {
+        params['unique_id'] = parseInt(uid, 10);
       } else {
-        params['name'] = term;
+        params['badge_id'] = uid;
       }
     }
 
@@ -780,6 +788,14 @@ export class VisitorsComponent implements OnInit {
 
   cardPhone(card: any): string {
     return card?.phone || card?.mobile || '';
+  }
+
+  cardImage(card: any): string {
+    return card?.user_image?.full_path
+      || card?.full_path
+      || card?.image
+      || (Array.isArray(card?.user_images) && card.user_images[0]?.full_path)
+      || '';
   }
 
   cardGender(card: any): string {
