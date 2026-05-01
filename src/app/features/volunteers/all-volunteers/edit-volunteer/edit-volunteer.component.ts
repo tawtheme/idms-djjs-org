@@ -349,6 +349,10 @@ export class EditVolunteerComponent implements OnInit {
         if (!this.idProofActiveKey || !files?.length) return;
         if (this.idProofActiveKey === 'aadhaar' || this.idProofActiveKey === 'voter' || this.idProofActiveKey === 'license') {
             const key = this.idProofActiveKey;
+            // The file-upload component emits its accumulated selection on every change,
+            // so reset our arrays here to mirror that list rather than appending.
+            this.idProofs[key].files = [];
+            this.idProofs[key].previews = [];
             files.forEach(f => this.applyIdProofFile(key, f));
             this.closeIdProofModal();
             return;
@@ -2177,8 +2181,7 @@ export class EditVolunteerComponent implements OnInit {
             renewal_date: this.formatDate(aad.renewal_date),
             remarks: aad.remarks || '',
             ashram_area_id: aad.ashram_area_id || '',
-            adhaar_media: [],
-            aadhaar_cropped_image: aad.mediaIsNew && aad.preview ? aad.preview : ''
+            adhaar_media: this.collectAadhaarMedia(aad)
         };
 
         const v = this.idProofs.voter;
@@ -2738,13 +2741,27 @@ export class EditVolunteerComponent implements OnInit {
         return Object.keys(errors).length === 0;
     }
 
+    private collectAadhaarMedia(aad: any): string[] {
+        const out: string[] = [];
+        const seen = new Set<string>();
+        const push = (v: any) => {
+            if (typeof v === 'string' && v && !seen.has(v)) {
+                seen.add(v);
+                out.push(v);
+            }
+        };
+        (aad?.previews || []).forEach(push);
+        if (aad?.preview) push(aad.preview);
+        return out;
+    }
+
     saveAadhaarSection(): void {
         if (!this.validateAadhaarSection()) {
             this.snackbarService.showError('Please fix the highlighted errors.');
             return;
         }
         const a = this.idProofs.aadhaar;
-        const newPreviews = a.mediaIsNew ? (a.previews?.length ? a.previews : (a.preview ? [a.preview] : [])) : [];
+        const newPreviews = a.mediaIsNew ? this.collectAadhaarMedia(a) : [];
         this.putSection('aadhaar', 'Aadhaar details', 'v1/users/update-aadhaar', {
             user_id: this.userId,
             aadhaar_number: a.number || '',
@@ -2755,8 +2772,7 @@ export class EditVolunteerComponent implements OnInit {
             renewal_date: this.formatDate(a.renewal_date),
             remarks: a.remarks || '',
             ashram_area_id: a.ashram_area_id || '',
-            adhaar_media: newPreviews,
-            aadhaar_cropped_image: newPreviews[0] || ''
+            adhaar_media: newPreviews
         });
     }
 

@@ -146,11 +146,12 @@
                     placeholder="Select Options"
                     [searchable]="true"
                     [autocomplete]="true"
+                    [multiSelect]="true"
+                    [showSelectedItems]="false"
                     (selectionChange)="moreFilters.options = $event"
-                    [closeOnSelect]="true">
+                    [closeOnSelect]="false">
                 </app-dropdown>
             </div>
-
             <div class="filter-field">
                 <label>Start From</label>
                 <app-datepicker
@@ -177,6 +178,15 @@
                     <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
                 </div>
             </div>
+    </div>
+
+    <div class="filter-options-selected" *ngIf="moreFilters.options?.length">
+        <span class="filter-options-selected__chip" *ngFor="let opt of getSelectedOptionLabels()">
+            {{ opt.label }}
+            <button type="button" class="filter-options-selected__remove" (click)="removeOption(opt.value)" aria-label="Remove">
+                <app-icon name="close" [size]="10" />
+            </button>
+        </span>
     </div>
 
     <!-- Volunteer Cards table -->

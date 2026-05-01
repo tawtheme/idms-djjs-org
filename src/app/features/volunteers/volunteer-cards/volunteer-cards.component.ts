@@ -77,7 +77,26 @@ export class VolunteerCardsComponent implements OnInit {
   branchSearchTypeOptions: DropdownOption[] = [
     { id: 'both', label: 'In Both', value: 'both' }
   ];
-  filterOptionsDropdown: DropdownOption[] = [];
+  filterOptionsDropdown: DropdownOption[] = [
+    { id: 'sewa_change', label: 'Sewa change/ New sewa', value: 'sewa_change' },
+    { id: 'profileChanged', label: 'Profile change', value: 'profileChanged' }
+  ];
+
+  getSelectedOptionLabels(): { label: string; value: string }[] {
+    const selected = (this.moreFilters.options || []) as any[];
+    return selected.map(v => {
+      const value = typeof v === 'object' ? (v.value ?? v.id ?? '') : v;
+      const match = this.filterOptionsDropdown.find(o => String(o.value) === String(value));
+      return { label: match?.label || String(value), value: String(value) };
+    });
+  }
+
+  removeOption(value: string): void {
+    this.moreFilters.options = (this.moreFilters.options || []).filter((v: any) => {
+      const cur = typeof v === 'object' ? (v.value ?? v.id ?? '') : v;
+      return String(cur) !== String(value);
+    });
+  }
 
   moreFilters: any = {
     taskBranch: [],
@@ -153,11 +172,25 @@ export class VolunteerCardsComponent implements OnInit {
     });
   }
 
-  private buildPayload(): Record<string, string> {
+  private buildPayload(): Record<string, string | string[]> {
     const firstValue = (arr: any[]): string => {
       const v = arr?.[0];
       if (v == null) return '';
       return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
+    };
+    const allValues = (arr: any[]): string[] => {
+      return (arr || []).map((v: any) => {
+        if (v == null) return '';
+        return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
+      }).filter(Boolean);
+    };
+    const formatDate = (d: any): string => {
+      if (!d) return '';
+      const date = d instanceof Date ? d : new Date(d);
+      if (isNaN(date.getTime())) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${date.getFullYear()}-${month}-${day}`;
     };
     const orderBy = this.sortField ? this.sortDirection : '';
     return {
@@ -171,7 +204,9 @@ export class VolunteerCardsComponent implements OnInit {
       relation_name: (this.moreFilters.relationName || '').trim(),
       mobile_number: (this.moreFilters.mobileNo || '').trim(),
       unique_id: (this.moreFilters.uid || '').trim(),
-      card_option: firstValue(this.moreFilters.options),
+      card_option: allValues(this.moreFilters.options),
+      start_from: formatDate(this.moreFilters.startFrom),
+      end_to: formatDate(this.moreFilters.endTo),
       sewa_assigned: '',
       sewa_mode: '',
       sortByColumn: this.sortField || '',

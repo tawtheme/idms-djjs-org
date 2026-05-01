@@ -213,14 +213,14 @@ export class ResignedSewasComponent implements OnInit {
     const sewa = this.moreFilters.sewa[0];
     const gender = this.selectedGender[0];
 
-    if (taskBranch !== undefined && taskBranch !== '') params['task_branch_id'] = String(taskBranch);
+    if (taskBranch !== undefined && taskBranch !== '') params['branch_id'] = String(taskBranch);
     if (sewa !== undefined && sewa !== '') params['sewa_id'] = String(sewa);
     if (gender !== undefined && gender !== '') params['gender'] = String(gender);
-    if (this.moreFilters.badgeNo) params['badge_no'] = this.moreFilters.badgeNo.trim();
+    if (this.moreFilters.badgeNo) params['badge_id'] = this.moreFilters.badgeNo.trim();
     if (this.moreFilters.name) params['name'] = this.moreFilters.name.trim();
     if (this.moreFilters.relationName) params['relation_name'] = this.moreFilters.relationName.trim();
-    if (this.moreFilters.mobileNo) params['mobile_no'] = this.moreFilters.mobileNo.trim();
-    if (this.moreFilters.uid) params['uid'] = this.moreFilters.uid.trim();
+    if (this.moreFilters.mobileNo) params['mobile_number'] = this.moreFilters.mobileNo.trim();
+    if (this.moreFilters.uid) params['unique_id'] = this.moreFilters.uid.trim();
     if (this.moreFilters.address) params['address'] = this.moreFilters.address.trim();
 
     return params;
