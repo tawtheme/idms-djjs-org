@@ -24,6 +24,7 @@ type TabId =
     | 'education'
     | 'medical'
     | 'spiritual'
+    | 'assignSewa'
     | 'sewa'
     | 'program'
     | 'donation';
@@ -67,6 +68,7 @@ export class EditVolunteerComponent implements OnInit {
         { id: 'spiritual', label: 'Spiritual Detail' },
         { id: 'education', label: 'Education & Work' },
         { id: 'medical', label: 'Medical' },
+        { id: 'assignSewa', label: 'Assign Sewa' },
         { id: 'sewa', label: 'Sewa Tracking' },
         { id: 'program', label: 'Program Journey' },
         { id: 'donation', label: 'Donations' }
@@ -312,8 +314,9 @@ export class EditVolunteerComponent implements OnInit {
     selectedIdProofUploadType: any[] = [];
 
     get idProofFileConfig(): FileUploadConfig {
-        const multi = this.idProofActiveKey === 'aadhaar' || this.idProofActiveKey === 'voter' || this.idProofActiveKey === 'license';
-        const allowPdf = this.idProofActiveKey === 'aadhaar';
+        const isIdProof = this.idProofActiveKey === 'aadhaar' || this.idProofActiveKey === 'voter' || this.idProofActiveKey === 'license';
+        const multi = isIdProof;
+        const allowPdf = isIdProof;
         return {
             multiple: multi,
             accept: allowPdf ? 'image/*,.pdf' : 'image/*',
@@ -394,73 +397,46 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     private applyIdProofFile(key: IdProofKey, file: File): void {
-        this.idProofs[key].file = file;
+        const proof = this.idProofs[key];
+        proof.file = file;
         const reader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {
             const dataUrl = e.target?.result as string | undefined;
             if (!dataUrl) return;
-            this.idProofs[key].preview = dataUrl;
-            if (key === 'aadhaar') {
-                this.idProofs.aadhaar.files = [...this.idProofs.aadhaar.files, file];
-                this.idProofs.aadhaar.previews = [...this.idProofs.aadhaar.previews, dataUrl];
-            }
-            if (key === 'voter') {
-                this.idProofs.voter.files = [...this.idProofs.voter.files, file];
-                this.idProofs.voter.previews = [...this.idProofs.voter.previews, dataUrl];
-            }
-            if (key === 'license') {
-                this.idProofs.license.files = [...this.idProofs.license.files, file];
-                this.idProofs.license.previews = [...this.idProofs.license.previews, dataUrl];
-            }
+            proof.preview = dataUrl;
+            proof.files = [...(proof.files || []), file];
+            proof.previews = [...(proof.previews || []), dataUrl];
         };
         reader.readAsDataURL(file);
-        if (key === 'aadhaar') this.idProofs.aadhaar.mediaIsNew = true;
-        if (key === 'voter') this.idProofs.voter.mediaIsNew = true;
-        if (key === 'license') this.idProofs.license.mediaIsNew = true;
-        if (key !== 'aadhaar' && key !== 'voter' && key !== 'license') this.closeIdProofModal();
+        proof.mediaIsNew = true;
     }
 
-    removeAadhaarPreview(index: number): void {
-        const a = this.idProofs.aadhaar;
-        a.files = a.files.filter((_, i) => i !== index);
-        a.previews = a.previews.filter((_, i) => i !== index);
-        if (a.previews.length === 0) {
-            a.file = null;
-            a.preview = null;
-            a.mediaIsNew = false;
+    private removeIdProofPreview(key: IdProofKey, index: number): void {
+        const p = this.idProofs[key];
+        p.files = (p.files || []).filter((_, i) => i !== index);
+        p.previews = (p.previews || []).filter((_, i) => i !== index);
+        if (p.previews.length === 0) {
+            p.file = null;
+            p.preview = null;
+            p.mediaIsNew = false;
         } else {
-            a.file = a.files[0] || null;
-            a.preview = a.previews[0] || null;
+            p.file = p.files[0] || null;
+            p.preview = p.previews[0] || null;
         }
     }
 
-    removeVoterPreview(index: number): void {
-        const v = this.idProofs.voter;
-        v.files = v.files.filter((_, i) => i !== index);
-        v.previews = v.previews.filter((_, i) => i !== index);
-        if (v.previews.length === 0) {
-            v.file = null;
-            v.preview = null;
-            v.mediaIsNew = false;
-        } else {
-            v.file = v.files[0] || null;
-            v.preview = v.previews[0] || null;
-        }
+    private clearIdProofUploads(key: IdProofKey): void {
+        const p = this.idProofs[key];
+        p.files = [];
+        p.previews = [];
+        p.file = null;
+        p.preview = null;
+        p.mediaIsNew = false;
     }
 
-    removeLicensePreview(index: number): void {
-        const l = this.idProofs.license;
-        l.files = l.files.filter((_, i) => i !== index);
-        l.previews = l.previews.filter((_, i) => i !== index);
-        if (l.previews.length === 0) {
-            l.file = null;
-            l.preview = null;
-            l.mediaIsNew = false;
-        } else {
-            l.file = l.files[0] || null;
-            l.preview = l.previews[0] || null;
-        }
-    }
+    removeAadhaarPreview(index: number): void { this.removeIdProofPreview('aadhaar', index); }
+    removeVoterPreview(index: number): void { this.removeIdProofPreview('voter', index); }
+    removeLicensePreview(index: number): void { this.removeIdProofPreview('license', index); }
 
     triggerLicenseImageUpload(): void {
         this.idProofActiveKey = 'license';
@@ -609,6 +585,54 @@ export class EditVolunteerComponent implements OnInit {
     sewaOptions: DropdownOption[] = [];
     branchOptions: DropdownOption[] = [];
 
+    // Assign Sewa section
+    assignSewa = {
+        program_id: '' as string,
+        sewas: [] as string[],
+        sewa_id: '' as string,
+        sewa_mode: '' as string,
+        sewa_head: '' as string,
+        sewa_assigned_branch: '' as string,
+        branch_remarks: '',
+        sewa_unAssigned_reason: '',
+        sewa_unAssigned_remarks: '',
+        badge_id: '' as string
+    };
+    assignSewaProgramOptions: DropdownOption[] = [];
+    assignSewaSewaOptions: DropdownOption[] = [];
+    assignSewaModeOptions: DropdownOption[] = [
+        { id: '1', label: 'Regular', value: '1' },
+        { id: '0', label: 'Annual', value: '0' }
+    ];
+    assignSewaExitTypeOptions: DropdownOption[] = [
+        { id: '1', label: 'Unassign from Sewa', value: '1' },
+        { id: '2', label: 'Unassign from Program Sewa', value: '2' }
+    ];
+    assignSewaHeadOptions: DropdownOption[] = [
+        { id: '1', label: 'Head', value: '1' },
+        { id: '2', label: 'Subhead', value: '2' }
+    ];
+    assignSewaUnassignReasonOptions: DropdownOption[] = [
+        { id: 'change_sewa', label: 'Change Sewa', value: 'Change Sewa' },
+        { id: 'dead', label: 'Dead', value: 'Dead' },
+        { id: 'left', label: 'Left', value: 'Left' },
+        { id: 'migrated', label: 'Migrated', value: 'Migrated' },
+        { id: 'married', label: 'Married', value: 'Married' },
+        { id: 'not_regular', label: 'Not Regular', value: 'Not Regular' },
+        { id: 'other', label: 'Other', value: 'Other' }
+    ];
+    selectedAssignSewaProgram: any[] = [];
+    selectedAssignSewaSewas: any[] = [];
+    selectedAssignSewaSewaId: any[] = [];
+    selectedAssignSewaMode: any[] = [];
+    selectedAssignSewaHead: any[] = [];
+    selectedAssignSewaBranch: any[] = [];
+    selectedAssignSewaUnassignReason: any[] = [];
+    selectedAssignSewaExitType: any[] = [];
+    assignSewaBaseline = { program_id: '', sewa_id: '' };
+    assignSewaReasonModalOpen = false;
+    assignSewaReasonRemarks = '';
+
     // Location dropdowns (one set per address scope)
     countryOptions: DropdownOption[] = [];
     licenseStateOptions: DropdownOption[] = [];
@@ -679,6 +703,11 @@ export class EditVolunteerComponent implements OnInit {
             case 'medical':
                 this.loadMedicalDetails();
                 break;
+            case 'assignSewa':
+                this.loadBranches();
+                this.loadAssignSewaPrograms();
+                this.loadAssignSewaAllSewas(() => this.loadAssignSewaDetails());
+                break;
             case 'idproofs':
                 this.loadAadhaarDetails();
                 this.loadElectoralDetails();
@@ -702,6 +731,8 @@ export class EditVolunteerComponent implements OnInit {
             catchError(() => of(null))
         ).subscribe((response) => {
             if (!response) return;
+            this.clearIdProofUploads('license');
+            this.licenseImages = [];
             const root = response?.data ?? response ?? {};
             const l = root?.user_driving_license ?? root?.user_driving_license_details ?? root?.driving_license_details ?? root?.user ?? root;
 
@@ -743,6 +774,8 @@ export class EditVolunteerComponent implements OnInit {
             catchError(() => of(null))
         ).subscribe((response) => {
             if (!response) return;
+            this.clearIdProofUploads('voter');
+            this.voterImages = [];
             const root = response?.data ?? response ?? {};
             const e = root?.user_electoral ?? root?.user_electoral_details ?? root?.electoral_details ?? root?.user ?? root;
 
@@ -783,6 +816,8 @@ export class EditVolunteerComponent implements OnInit {
             catchError(() => of(null))
         ).subscribe((response) => {
             if (!response) return;
+            this.clearIdProofUploads('aadhaar');
+            this.aadhaarImages = [];
             const root = response?.data ?? response ?? {};
             const a = root?.user_aadhaar ?? root?.user_aadhaar_details ?? root?.aadhaar_details ?? root?.user ?? root;
 
@@ -1194,8 +1229,10 @@ export class EditVolunteerComponent implements OnInit {
 
     /**
      * Loads user images from /v1/users/{id}/images and populates the gallery.
+     * `bustCache` appends a query param to the avatar URL so the browser
+     * doesn't reuse the cached old image (filenames are reused on re-upload).
      */
-    private loadUserImages(): void {
+    private loadUserImages(bustCache = false): void {
         this.dataService.get<any>(`v1/users/${this.userId}/images`).pipe(
             catchError(() => of(null))
         ).subscribe((response) => {
@@ -1210,10 +1247,16 @@ export class EditVolunteerComponent implements OnInit {
 
             const first = this.profileImages[0];
             if (first) {
-                this.profileImagePreview = first.url;
+                this.profileImagePreview = bustCache ? this.appendCacheBuster(first.url) : first.url;
                 this.profileImageDate = first.date || null;
             }
         });
+    }
+
+    private appendCacheBuster(url: string): string {
+        if (!url) return url;
+        const sep = url.includes('?') ? '&' : '?';
+        return `${url}${sep}v=${Date.now()}`;
     }
 
     triggerProfileImageUpload(): void {
@@ -1354,7 +1397,7 @@ export class EditVolunteerComponent implements OnInit {
 
     /** Tabs split into nav groups for the sidebar. */
     get profileTabs(): TabDef[] {
-        const editable: TabId[] = ['basic', 'address', 'personal', 'idproofs', 'spiritual', 'education', 'medical'];
+        const editable: TabId[] = ['basic', 'address', 'personal', 'idproofs', 'spiritual', 'education', 'medical', 'assignSewa'];
         return this.tabs.filter(t => editable.includes(t.id));
     }
     get activityTabs(): TabDef[] {
@@ -1496,6 +1539,213 @@ export class EditVolunteerComponent implements OnInit {
                 value: String(s.id)
             }));
         });
+    }
+
+    private loadAssignSewaDetails(): void {
+        if (!this.userId) return;
+        this.dataService.get<any>(`v1/users/${this.userId}/user_sewa`).pipe(
+            catchError(() => of(null))
+        ).subscribe((response) => {
+            if (!response) return;
+            const root = response?.data ?? response ?? {};
+            const list = Array.isArray(root?.user_sewas) ? root.user_sewas : [];
+            const a = list[0] || root?.user_sewa || root?.user_manage_sewas || root?.manage_sewas || root?.user_profile || root || {};
+
+            const programId = a?.program_id ?? a?.program?.id ?? '';
+            const sewaId = a?.sewa_id ?? a?.sewa?.id ?? '';
+
+            const rawSewaHead = a?.sewa_head;
+            let resolvedHead = '';
+            if (rawSewaHead !== undefined && rawSewaHead !== null && String(rawSewaHead).trim() !== '') {
+                resolvedHead = String(rawSewaHead);
+            } else if (Number(a?.head) > 0) {
+                resolvedHead = '1';
+            } else if (Number(a?.sub_head) > 0) {
+                resolvedHead = '2';
+            }
+
+            this.assignSewa.program_id = programId ? String(programId) : '';
+            this.assignSewa.sewa_id = sewaId ? String(sewaId) : '';
+            this.assignSewa.sewa_mode = a?.sewa_mode !== undefined && a?.sewa_mode !== null ? String(a.sewa_mode) : '';
+            this.assignSewa.sewa_head = resolvedHead;
+            this.assignSewa.branch_remarks = a?.branch_remarks || a?.remarks || '';
+            this.assignSewa.badge_id = a?.badge_id !== undefined && a?.badge_id !== null ? String(a.badge_id) : '';
+
+            this.selectedAssignSewaProgram = this.assignSewa.program_id ? [this.assignSewa.program_id] : [];
+            this.selectedAssignSewaSewas = this.assignSewa.sewa_id ? [this.assignSewa.sewa_id] : [];
+            this.selectedAssignSewaMode = this.assignSewa.sewa_mode !== '' ? [this.assignSewa.sewa_mode] : [];
+            this.selectedAssignSewaHead = this.assignSewa.sewa_head !== '' ? [this.assignSewa.sewa_head] : [];
+            const exitType = a?.sewa_exit_type;
+            this.selectedAssignSewaExitType = exitType !== undefined && exitType !== null && String(exitType) !== '' && String(exitType) !== '0'
+                ? [String(exitType)]
+                : [];
+            this.assignSewaBaseline = {
+                program_id: this.assignSewa.program_id || '',
+                sewa_id: this.assignSewa.sewa_id || ''
+            };
+
+            // Seed the Sewa dropdown with the saved sewa so its label shows even when
+            // it isn't in the loaded options list (e.g. inactive sewa or program-scoped only).
+            if (a?.sewa?.id || a?.sewa_id) {
+                const sewaOption = {
+                    id: String(a?.sewa?.id || a.sewa_id),
+                    label: a?.sewa?.name || a?.sewa_name || '',
+                    value: String(a?.sewa?.id || a.sewa_id)
+                };
+                const exists = this.assignSewaSewaOptions.some(o => o.value === sewaOption.value);
+                if (!exists) this.assignSewaSewaOptions = [sewaOption, ...this.assignSewaSewaOptions];
+            }
+
+            // Seed the Program dropdown similarly.
+            if (a?.program?.id || a?.program_id) {
+                const programOption = {
+                    id: String(a?.program?.id || a.program_id),
+                    label: a?.program?.name || a?.program_name || '',
+                    value: String(a?.program?.id || a.program_id)
+                };
+                const exists = this.assignSewaProgramOptions.some(o => o.value === programOption.value);
+                if (!exists) this.assignSewaProgramOptions = [programOption, ...this.assignSewaProgramOptions];
+            }
+
+            if (this.assignSewa.program_id) {
+                this.dataService.get<any>('v1/options/programSewas', { params: { program_id: this.assignSewa.program_id } }).pipe(
+                    catchError(() => of({ data: [] }))
+                ).subscribe((res) => {
+                    const sewas = res?.data?.sewas || res?.data || res || [];
+                    const opts = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+                        id: String(s.id),
+                        label: s.name || s.sewa_name || '',
+                        value: String(s.id)
+                    }));
+                    // Preserve any seeded sewa entry not present in the program list.
+                    const seeded = this.assignSewaSewaOptions.filter(o => !opts.some(n => n.value === o.value));
+                    this.assignSewaSewaOptions = [...seeded, ...opts];
+                });
+            }
+        });
+    }
+
+    private loadAssignSewaPrograms(): void {
+        this.dataService.get<any>('v1/programs/active-for-attendance', { params: { action: 'assign_sewa' } }).pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const data = response?.data || response?.results || response || [];
+            this.assignSewaProgramOptions = (Array.isArray(data) ? data : []).map((p: any) => ({
+                id: String(p.id),
+                label: p.name || p.program_name || '',
+                value: String(p.id)
+            }));
+        });
+    }
+
+    onAssignSewaProgramChange(values: any[]): void {
+        this.selectedAssignSewaProgram = values || [];
+        const programId = String(values?.[0] ?? '');
+        this.assignSewa.program_id = programId;
+        this.selectedAssignSewaSewas = [];
+        this.selectedAssignSewaSewaId = [];
+        this.assignSewa.sewas = [];
+        this.assignSewa.sewa_id = '';
+        if (!programId) {
+            this.loadAssignSewaAllSewas();
+            return;
+        }
+        this.dataService.get<any>('v1/options/programSewas', { params: { program_id: programId } }).pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const sewas = response?.data?.sewas || response?.data || response || [];
+            this.assignSewaSewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+                id: String(s.id),
+                label: s.name || s.sewa_name || '',
+                value: String(s.id)
+            }));
+        });
+    }
+
+    private loadAssignSewaAllSewas(then?: () => void): void {
+        this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'volunteer' } }).pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const sewas = response?.data?.sewas || response?.data || response || [];
+            this.assignSewaSewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+                id: String(s.id),
+                label: s.name || s.sewa_name || '',
+                value: String(s.id)
+            }));
+            if (then) then();
+        });
+    }
+
+    saveAssignSewaSection(): void {
+        if (!this.userId) return;
+        const programId = this.selectedAssignSewaProgram[0] ? String(this.selectedAssignSewaProgram[0]) : '';
+        const sewaId = this.selectedAssignSewaSewas[0] ? String(this.selectedAssignSewaSewas[0]) : '';
+        if (!sewaId) {
+            this.snackbarService.showError('Sewa is required.');
+            return;
+        }
+        const exitType = String(this.selectedAssignSewaExitType[0] ?? '');
+        if (exitType === '2' && !programId) {
+            this.snackbarService.showError('Active Program is required when exit type is "Unassign from Program Sewa".');
+            return;
+        }
+        if (exitType === '1' || exitType === '2') {
+            this.openAssignSewaReasonModal();
+            return;
+        }
+        const programChanged = programId !== this.assignSewaBaseline.program_id;
+        const sewaChanged = sewaId !== this.assignSewaBaseline.sewa_id;
+        if (programChanged || sewaChanged) {
+            this.openAssignSewaReasonModal();
+            return;
+        }
+        this.submitAssignSewa();
+    }
+
+    openAssignSewaReasonModal(): void {
+        this.selectedAssignSewaUnassignReason = [];
+        this.assignSewaReasonRemarks = '';
+        this.assignSewaReasonModalOpen = true;
+    }
+
+    closeAssignSewaReasonModal(): void {
+        this.assignSewaReasonModalOpen = false;
+    }
+
+    submitAssignSewaReason(): void {
+        if (!this.selectedAssignSewaUnassignReason.length) {
+            this.snackbarService.showError('Please select a reason.');
+            return;
+        }
+        this.assignSewaReasonModalOpen = false;
+        this.submitAssignSewa({
+            reason: String(this.selectedAssignSewaUnassignReason[0]),
+            remarks: this.assignSewaReasonRemarks || ''
+        });
+    }
+
+    private submitAssignSewa(extra?: { reason: string; remarks: string }): void {
+        const userId = this.userId;
+        if (!userId) return;
+        const a = this.assignSewa;
+        const sewa = this.selectedAssignSewaSewas[0] ? String(this.selectedAssignSewaSewas[0]) : '';
+        const headRaw = this.selectedAssignSewaHead[0];
+        const headStr = headRaw !== undefined && headRaw !== '' ? String(headRaw) : '';
+        const exitTypeRaw = this.selectedAssignSewaExitType[0];
+        const payload: Record<string, unknown> = {
+            program_id: this.selectedAssignSewaProgram[0] ? String(this.selectedAssignSewaProgram[0]) : '',
+            sewa_id: sewa,
+            sewa_mode: this.selectedAssignSewaMode[0] !== undefined && this.selectedAssignSewaMode[0] !== '' ? Number(this.selectedAssignSewaMode[0]) : 0,
+            head: headStr === '1' ? 1 : 0,
+            sub_head: headStr === '2' ? 1 : 0,
+            sewa_exit_type: exitTypeRaw !== undefined && exitTypeRaw !== '' ? Number(exitTypeRaw) : 0,
+            branch_remarks: a.branch_remarks || ''
+        };
+        if (extra) {
+            payload['reason'] = extra.reason;
+            payload['unAssigned_remarks'] = extra.remarks;
+        }
+        this.putSection('assignSewa', 'Assign Sewa', `v1/users/manage_sewas/${userId}`, payload);
     }
 
     private loadVolunteer(): void {
@@ -1850,7 +2100,7 @@ export class EditVolunteerComponent implements OnInit {
         this.uploadProfileImage().subscribe((response) => {
             if (response) {
                 this.snackbarService.showSuccess('Profile image uploaded.');
-                this.loadUserImages();
+                this.loadUserImages(true);
             }
         });
     }
@@ -2742,6 +2992,10 @@ export class EditVolunteerComponent implements OnInit {
     }
 
     private collectAadhaarMedia(aad: any): string[] {
+        return this.collectIdProofMedia(aad);
+    }
+
+    private collectIdProofMedia(p: any): string[] {
         const out: string[] = [];
         const seen = new Set<string>();
         const push = (v: any) => {
@@ -2750,8 +3004,8 @@ export class EditVolunteerComponent implements OnInit {
                 out.push(v);
             }
         };
-        (aad?.previews || []).forEach(push);
-        if (aad?.preview) push(aad.preview);
+        (p?.previews || []).forEach(push);
+        if (p?.preview) push(p.preview);
         return out;
     }
 
@@ -2791,7 +3045,7 @@ export class EditVolunteerComponent implements OnInit {
             return;
         }
         const v = this.idProofs.voter;
-        const newPreviews = v.mediaIsNew ? (v.previews?.length ? v.previews : (v.preview ? [v.preview] : [])) : [];
+        const newPreviews = v.mediaIsNew ? this.collectIdProofMedia(v) : [];
         this.putSection('electoral', 'Electoral details', 'v1/users/update-electoral', {
             user_id: this.userId,
             voter_number: v.voter_number || '',
@@ -2837,7 +3091,7 @@ export class EditVolunteerComponent implements OnInit {
             return;
         }
         const l = this.idProofs.license;
-        const newPreviews = l.mediaIsNew ? (l.previews?.length ? l.previews : (l.preview ? [l.preview] : [])) : [];
+        const newPreviews = l.mediaIsNew ? this.collectIdProofMedia(l) : [];
         this.putSection('license', 'Driving license', 'v1/users/update-driving-license', {
             user_id: this.userId,
             driving_license_number: l.license_number || '',

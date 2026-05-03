@@ -55,6 +55,7 @@
                     placeholder="Select Months"
                     [searchable]="true"
                     [multiSelect]="true"
+                    [showSelectAll]="true"
                     [showSelectedItems]="false"
                     (selectionChange)="onMonthSelectionChange($event)"
                     [closeOnSelect]="false">
@@ -95,19 +96,13 @@
         </div>
     </div>
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-wrapper">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
     </div>
 
-    <ng-container *ngIf="!isLoading">
-        <!-- Error state -->
-        <div *ngIf="error" class="error-state">
-            <p>{{ error }}</p>
-            <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
-        </div>
-
-        <ng-container *ngIf="!error">
+    <ng-container *ngIf="!error">
             <div class="listing-wrapper">
                 <div class="table-container">
                     <table class="table">
@@ -122,7 +117,6 @@
                                             [class.sort-icon--active]="sortField === 'id'" />
                                     </span>
                                 </th>
-                                <th>Image</th>
                                 <th class="sortable" (click)="sortBy('name')">
                                     <span class="th-content">
                                         Name
@@ -209,12 +203,16 @@
                         <tbody>
                             <tr *ngFor="let row of rows; trackBy: trackById">
                                 <td data-label="Id">{{ row.id }}</td>
-                                <td data-label="Image" class="name-with-image">
+                                <td data-label="Name" class="name-with-image">
                                     <div class="volunteer-image">
-                                        <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" [appImagePreview]="row.image" [previewTitle]="row.name || 'Volunteer Photo'" />
+                                        <img [src]="row.image || '/assets/img/placeholder.svg'"
+                                             [alt]="row.name"
+                                             [appImagePreview]="row.image"
+                                             [previewTitle]="row.name || 'Volunteer Photo'"
+                                             onerror="this.src='/assets/img/placeholder.svg'" />
                                     </div>
+                                    <span>{{ row.name }}</span>
                                 </td>
-                                <td data-label="Name">{{ row.name }}</td>
                                 <td data-label="Phone">{{ row.phone }}</td>
                                 <td data-label="Branch">{{ row.branch }}</td>
                                 <td data-label="Sewa">{{ row.sewa }}</td>
@@ -225,7 +223,7 @@
                                 <td data-label="Status">{{ row.status }}</td>
                             </tr>
                             <tr *ngIf="rows.length === 0" class="empty-row">
-                                <td colspan="11">
+                                <td colspan="10">
                                     <app-empty-state
                                         title="No data available in table"
                                         description="There are no records matching the selected filters."
@@ -248,5 +246,4 @@
                 </app-pager>
             </div>
         </ng-container>
-    </ng-container>
 </div>

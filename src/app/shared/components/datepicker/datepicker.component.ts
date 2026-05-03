@@ -36,6 +36,7 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() readonly: boolean = false;
   @Input() showToday: boolean = true;
   @Input() showClear: boolean = true;
+  @Input() showTriggerIcon: boolean = true;
   @Input() showWeekNumbers: boolean = false;
   @Output() dateChange = new EventEmitter<Date | null>();
   @Output() dateSelect = new EventEmitter<Date>();
@@ -192,6 +193,8 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   navigate(direction: number): void {
+    if (direction > 0 && !this.canNavigateNext) return;
+    if (direction < 0 && !this.canNavigatePrevious) return;
     if (this.viewMode === 'days') {
       this.navigateMonth(direction);
     } else if (this.viewMode === 'months') {
@@ -203,6 +206,57 @@ export class DatepickerComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       this.yearPageStart += direction * 12;
     }
+  }
+
+  get canNavigateNext(): boolean {
+    if (!this.maxDate) return true;
+    const max = this.maxDate;
+    if (this.viewMode === 'days') {
+      const cy = this.currentMonth.getFullYear();
+      const cm = this.currentMonth.getMonth();
+      return cy < max.getFullYear() || (cy === max.getFullYear() && cm < max.getMonth());
+    }
+    if (this.viewMode === 'months') {
+      return this.currentMonth.getFullYear() < max.getFullYear();
+    }
+    return this.yearPageStart + 12 <= max.getFullYear();
+  }
+
+  get canNavigatePrevious(): boolean {
+    if (!this.minDate) return true;
+    const min = this.minDate;
+    if (this.viewMode === 'days') {
+      const cy = this.currentMonth.getFullYear();
+      const cm = this.currentMonth.getMonth();
+      return cy > min.getFullYear() || (cy === min.getFullYear() && cm > min.getMonth());
+    }
+    if (this.viewMode === 'months') {
+      return this.currentMonth.getFullYear() > min.getFullYear();
+    }
+    return this.yearPageStart - 1 >= min.getFullYear();
+  }
+
+  isMonthDisabled(monthIndex: number): boolean {
+    const year = this.currentMonth.getFullYear();
+    if (this.maxDate) {
+      if (year > this.maxDate.getFullYear()) return true;
+      if (year === this.maxDate.getFullYear() && monthIndex > this.maxDate.getMonth()) return true;
+    }
+    if (this.minDate) {
+      if (year < this.minDate.getFullYear()) return true;
+      if (year === this.minDate.getFullYear() && monthIndex < this.minDate.getMonth()) return true;
+    }
+    return false;
+  }
+
+  isYearDisabled(year: number): boolean {
+    if (this.maxDate && year > this.maxDate.getFullYear()) return true;
+    if (this.minDate && year < this.minDate.getFullYear()) return true;
+    return false;
+  }
+
+  get isTodayDisabled(): boolean {
+    return this.isDateDisabled(new Date());
   }
 
   showMonthView(): void {

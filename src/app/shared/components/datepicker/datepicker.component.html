@@ -14,10 +14,17 @@
             class="datepicker-input"
         />
 
-        <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" class="datepicker-trigger"
-            aria-label="Open calendar">
-            <app-icon name="event" />
-        </button>
+        @if (showTriggerIcon) {
+            <button type="button" (click)="toggleCalendar($event)" [disabled]="disabled" class="datepicker-trigger"
+                aria-label="Open calendar">
+                <app-icon name="event" />
+            </button>
+        } @else if (displayValue && !disabled) {
+            <button type="button" (click)="clearDate(); $event.stopPropagation()" class="datepicker-trigger"
+                aria-label="Clear date">
+                <app-icon name="close" />
+            </button>
+        }
     </div>
 
     @if (isOpen) {
@@ -27,7 +34,7 @@
              #calendarElement>
             <!-- Calendar Header -->
             <div class="calendar-header">
-                <button type="button" (click)="navigate(-1)" class="calendar-nav-btn" aria-label="Previous">
+                <button type="button" (click)="navigate(-1)" [disabled]="!canNavigatePrevious" class="calendar-nav-btn" aria-label="Previous">
                     <app-icon name="chevron_left" />
                 </button>
 
@@ -46,7 +53,7 @@
                     </div>
                 }
 
-                <button type="button" (click)="navigate(1)" class="calendar-nav-btn" aria-label="Next">
+                <button type="button" (click)="navigate(1)" [disabled]="!canNavigateNext" class="calendar-nav-btn" aria-label="Next">
                     <app-icon name="chevron_right" />
                 </button>
             </div>
@@ -84,6 +91,7 @@
                         <button type="button"
                                 class="calendar-month"
                                 [class.selected]="i === currentMonth.getMonth()"
+                                [disabled]="isMonthDisabled(i)"
                                 (click)="selectMonth(i)">
                             {{ m.substr(0, 3) }}
                         </button>
@@ -98,6 +106,7 @@
                         <button type="button"
                                 class="calendar-year"
                                 [class.selected]="y === currentYear"
+                                [disabled]="isYearDisabled(y)"
                                 (click)="selectYear(y)">
                             {{ y }}
                         </button>
@@ -109,7 +118,7 @@
             @if ((showToday || showClear) && viewMode === 'days') {
                 <div class="calendar-actions">
                     @if (showToday) {
-                        <button type="button" (click)="selectToday()" class="calendar-action-btn">
+                        <button type="button" (click)="selectToday()" [disabled]="isTodayDisabled" class="calendar-action-btn">
                             <app-icon name="today" /> Today
                         </button>
                     }

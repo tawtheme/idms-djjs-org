@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -176,8 +177,7 @@ export class VolunteersSkillsReportComponent implements OnInit {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     getSortIcon(field: SortField): string {
@@ -198,20 +198,59 @@ export class VolunteersSkillsReportComponent implements OnInit {
 
     exportReport(choice: 'web' | 'email' = 'web'): void {
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/volunteers_skill', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
-            catchError((err) => {
-                console.error('Error exporting volunteers skills report:', err);
-                this.error = err.error?.message || err.message || 'Failed to export report.';
+        const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
+        this.dataService.post<any>('v1/reports/volunteers_skill', payload, { responseType: 'blob', observe: 'response' }).pipe(
+            catchError(async (err) => {
+                let message = err?.error?.message || err?.message || 'Failed to export report.';
+                if (err?.error instanceof Blob) {
+                    try {
+                        const text = await err.error.text();
+                        const json = JSON.parse(text);
+                        message = json?.message || message;
+                    } catch { /* ignore */ }
+                }
+                console.error('Error exporting volunteers skills report:', message);
+                this.error = message;
                 this.isExporting = false;
-                return of(null);
+                return null;
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.downloadLink || json.data?.download_link || json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.target = '_blank';
+                            a.rel = 'noopener';
+                            a.download = url.split('/').pop() || 'volunteers-skills-report';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            const today = new Date();
+            const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            a.download = `volunteers-skills-report-${stamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 

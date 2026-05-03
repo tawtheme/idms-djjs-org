@@ -11,6 +11,8 @@ import { DropdownComponent, DropdownOption } from '../../../shared/components/dr
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -40,7 +42,8 @@ export interface Program {
     MenuDropdownComponent,
     DropdownComponent,
     IconComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    ModalComponent
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',
@@ -51,6 +54,7 @@ export class ProgramsListComponent implements OnInit {
 
   private dataService = inject(DataService);
   private router = inject(Router);
+  private snackbarService = inject(SnackbarService);
 
   programs: Program[] = [];
   allPrograms: Program[] = [];
@@ -62,6 +66,20 @@ export class ProgramsListComponent implements OnInit {
   // Panel state
   showDeleteConfirm = false;
   deleteProgramTarget: Program | null = null;
+
+  // Assign Volunteer modal
+  assignVolunteerModalOpen = false;
+  assignVolunteerProgram: Program | null = null;
+  assignSewaOptions: DropdownOption[] = [];
+  selectedAssignSewas: any[] = [];
+  isLoadingAssignSewas = false;
+  assignLevelOptions: DropdownOption[] = [
+    { id: 'Visitor', label: 'Visitor', value: 'Visitor' },
+    { id: 'Volunteer', label: 'Volunteer', value: 'Volunteer' }
+  ];
+  selectedAssignLevel: any[] = [];
+  assignCode = '';
+  isSubmittingAssign = false;
 
   // Selection
   selectedPrograms = new Set<string>();
@@ -428,6 +446,7 @@ private formatDisplayDate(value: string | null | undefined): string {
   // Actions
   getActionOptions(program: Program): MenuOption[] {
     const options: MenuOption[] = [
+      { id: '0', label: 'Assign Volunteer', value: 'assign_volunteer', icon: 'person_add' },
       { id: '1', label: 'View', value: 'view', icon: 'visibility' }
     ];
     if (program.status !== 'Completed') {
@@ -443,8 +462,10 @@ private formatDisplayDate(value: string | null | undefined): string {
   onAction(program: Program, option: MenuOption) {
     if (!option) return;
     const actionId = typeof option === 'string' ? option : (option.value || option.id);
-    
-    if (actionId === 'view') {
+
+    if (actionId === 'assign_volunteer') {
+      this.assignVolunteer(program);
+    } else if (actionId === 'view') {
       this.viewProgram(program);
     } else if (actionId === 'edit') {
       this.editProgram(program);
@@ -453,6 +474,84 @@ private formatDisplayDate(value: string | null | undefined): string {
     } else if (actionId === 'delete') {
       this.deleteProgram(program);
     }
+  }
+
+  assignVolunteer(program: Program): void {
+    this.assignVolunteerProgram = program;
+    this.selectedAssignSewas = [];
+    this.selectedAssignLevel = [];
+    this.assignCode = '';
+    this.assignSewaOptions = [];
+    this.assignVolunteerModalOpen = true;
+    this.loadAssignSewaOptions(program.id);
+  }
+
+  private loadAssignSewaOptions(programId: string): void {
+    this.isLoadingAssignSewas = true;
+    this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
+      catchError(() => of({ data: [] }))
+    ).subscribe((response) => {
+      const sewas = response?.data?.sewas || response?.data || [];
+      this.assignSewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+        id: String(s.id),
+        label: s.name || s.sewa_name || '',
+        value: String(s.id)
+      }));
+      this.isLoadingAssignSewas = false;
+    });
+  }
+
+  closeAssignVolunteerModal(): void {
+    this.assignVolunteerModalOpen = false;
+    this.assignVolunteerProgram = null;
+    this.selectedAssignSewas = [];
+    this.selectedAssignLevel = [];
+    this.assignCode = '';
+    this.assignSewaOptions = [];
+  }
+
+  onAssignVolunteerFooterAction(action: string): void {
+    if (action === 'submit') {
+      this.submitAssignVolunteer();
+      return;
+    }
+    this.closeAssignVolunteerModal();
+  }
+
+  private async submitAssignVolunteer(): Promise<void> {
+    const program = this.assignVolunteerProgram;
+    if (!program?.id || this.isSubmittingAssign) return;
+    if (!this.selectedAssignLevel.length) return;
+
+    this.isSubmittingAssign = true;
+    const hashedCode = await this.hashSha256(this.assignCode || '');
+    const payload = {
+      sewa_ids: this.selectedAssignSewas.map((v: any) => String(v)),
+      level: String(this.selectedAssignLevel[0] || ''),
+      code: hashedCode
+    };
+
+    this.dataService.post(`v1/programs/${program.id}/users/sewas/assign`, payload).pipe(
+      catchError((err: any) => {
+        const msg = err?.error?.message || err?.message || 'Failed to assign volunteer.';
+        this.snackbarService.showError(msg);
+        this.isSubmittingAssign = false;
+        return of(null);
+      })
+    ).subscribe((response) => {
+      this.isSubmittingAssign = false;
+      if (!response) return;
+      this.snackbarService.showSuccess('Volunteer assigned successfully.');
+      this.closeAssignVolunteerModal();
+    });
+  }
+
+  private async hashSha256(value: string): Promise<string> {
+    const data = new TextEncoder().encode(value);
+    const buffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
   }
 
   viewProgram(program: Program): void {

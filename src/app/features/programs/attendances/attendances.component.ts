@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
@@ -15,7 +14,6 @@ import { of } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterModule,
-    BreadcrumbComponent,
     DropdownComponent
   ],
   templateUrl: './attendances.component.html',
@@ -24,11 +22,6 @@ import { of } from 'rxjs';
 export class AttendancesComponent implements OnInit {
   private dataService = inject(DataService);
   private router = inject(Router);
-
-  breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Programs', route: '/programs/programs-list' },
-    { label: 'Attendances', route: '/programs/attendances' }
-  ];
 
   selectedProgram: any[] = [];
   programOptions: DropdownOption[] = [];

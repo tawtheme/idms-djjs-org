@@ -300,6 +300,48 @@
 
 .ve-section .form-grid { padding: 16px 20px 18px; }
 
+.assign-sewa-badge-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    color: #1e3a8a;
+    box-shadow: 0 1px 2px rgba(30, 64, 175, 0.06);
+
+    &__content {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    &__label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    &__value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e3a8a;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.form-grid--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    @media (max-width: 1100px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
 .form-field {
     display: flex;
     flex-direction: column;

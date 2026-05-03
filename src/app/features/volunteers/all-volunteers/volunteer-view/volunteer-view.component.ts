@@ -17,6 +17,7 @@ type TabId =
   | 'education'
   | 'medical'
   | 'spiritual'
+  | 'assignSewa'
   | 'sewa'
   | 'program'
   | 'donation';
@@ -50,6 +51,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     { id: 'spiritual', label: 'Spiritual Detail' },
     { id: 'education', label: 'Education & Work' },
     { id: 'medical', label: 'Medical' },
+    { id: 'assignSewa', label: 'Assign Sewa' },
     { id: 'sewa', label: 'Sewa Tracking' },
     { id: 'program', label: 'Program Journey' },
     { id: 'donation', label: 'Donations' }
@@ -77,6 +79,10 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   workSkills: string[] = [];
   spiritual: any = {};
   medical: any = { blood_group: '', histories: [] as any[] };
+  assignSewa: any = {};
+
+  // Occupation lookup (loaded once and reused for father/mother occupation labels)
+  professionOptions: { id: string; name: string }[] = [];
 
   // Tracking tabs (existing)
   sewaBranches: any[] = [];
@@ -113,9 +119,34 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     this.loadSewa();
     this.loadProgram();
     this.loadDonation();
+    this.loadAssignSewa();
+    this.loadProfessions();
     this.loadedTabs.add('sewa');
     this.loadedTabs.add('program');
     this.loadedTabs.add('donation');
+    this.loadedTabs.add('assignSewa');
+  }
+
+  private loadProfessions(): void {
+    if (this.professionOptions.length) return;
+    this.dataService.get<any>('v1/options/professions').pipe(
+      catchError(() => of(null))
+    ).subscribe((response: any) => {
+      if (!response) return;
+      const data = response?.data?.professions || response?.data || response || [];
+      this.professionOptions = (Array.isArray(data) ? data : []).map((p: any) => ({
+        id: String(p.id ?? p.value ?? p.name),
+        name: p.name || p.label || p.title || ''
+      }));
+    });
+  }
+
+  /** Resolve an occupation id (or nested object) to a display name. */
+  getOccupationName(value: any): string {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'object') return String(value?.name || value?.label || '—');
+    const match = this.professionOptions.find(p => p.id === String(value));
+    return match?.name || String(value);
   }
 
   loadUser(): void {
@@ -221,7 +252,37 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
       if (id === 'sewa') this.loadSewa();
       else if (id === 'program') this.loadProgram();
       else if (id === 'donation') this.loadDonation();
+    } else if (id === 'assignSewa') {
+      this.loadedTabs.add(id);
+      this.loadAssignSewa();
     }
+  }
+
+  private loadAssignSewa(): void {
+    this.get(`v1/users/${this.userId}/user_sewa`).subscribe((res: any) => {
+      if (!res) return;
+      const r = res?.data ?? res ?? {};
+      const list = Array.isArray(r?.user_sewas) ? r.user_sewas : [];
+      const a = list[0] || r?.user_sewa || r?.user_manage_sewas || r?.manage_sewas || r?.user_profile || r || {};
+      const rawSewaHead = a?.sewa_head;
+      let sewaHead: any = '';
+      if (rawSewaHead !== undefined && rawSewaHead !== null && String(rawSewaHead).trim() !== '') {
+        sewaHead = rawSewaHead;
+      } else if (Number(a?.head) > 0) {
+        sewaHead = '1';
+      } else if (Number(a?.sub_head) > 0) {
+        sewaHead = '2';
+      }
+      this.assignSewa = {
+        program: a?.program || a?.active_program || null,
+        program_id: a?.program_id ?? '',
+        sewa: a?.sewa || null,
+        sewa_id: a?.sewa_id ?? '',
+        sewa_mode: a?.sewa_mode,
+        sewa_head: sewaHead,
+        branch_remarks: a?.branch_remarks || a?.remarks || ''
+      };
+    });
   }
 
   private get<T = any>(path: string) {
@@ -444,7 +505,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   }
 
   get profileTabs(): TabDef[] {
-    const editable: TabId[] = ['basic', 'address', 'personal', 'idproofs', 'spiritual', 'education', 'medical'];
+    const editable: TabId[] = ['basic', 'address', 'personal', 'idproofs', 'spiritual', 'education', 'medical', 'assignSewa'];
     return this.tabs.filter(t => editable.includes(t.id));
   }
 
@@ -462,6 +523,56 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   display(value: any): string {
     if (value === null || value === undefined || value === '') return '—';
     return String(value);
+  }
+
+  /** Map sewa_mode (1=Regular, 0=Annual) to a label. */
+  formatSewaMode(value: any): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const s = String(value);
+    if (s === '1') return 'Regular';
+    if (s === '0') return 'Annual';
+    return String(value);
+  }
+
+  /** Map sewa_head (1=Head, 2=Subhead) to a label. */
+  formatSewaHead(value: any): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const s = String(value);
+    if (s === '1') return 'Head';
+    if (s === '2') return 'Subhead';
+    return String(value);
+  }
+
+  /** Map a 0/1 (or boolean/yes-no) flag to "Yes"/"No". Returns "—" if empty. */
+  formatYesNo(value: any): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const s = String(value).trim().toLowerCase();
+    if (s === '1' || s === 'true' || s === 'yes' || s === 'y') return 'Yes';
+    if (s === '0' || s === 'false' || s === 'no' || s === 'n') return 'No';
+    return String(value);
+  }
+
+  /** Map experience_period code to a human-readable label. 1=Year, 2=Month, 3=Day. */
+  formatExperiencePeriod(value: any, count?: any): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const map: Record<string, string> = { '1': 'Year', '2': 'Month', '3': 'Day' };
+    const label = map[String(value)];
+    if (!label) return String(value);
+    const n = Number(count);
+    return Number.isFinite(n) && n !== 1 ? `${label}s` : label;
+  }
+
+  /** Calculate age in years from a date-of-birth value. Returns "—" if invalid/empty. */
+  calculateAge(dob: any): string {
+    if (!dob) return '—';
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return '—';
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+    if (age < 0) return '—';
+    return `${age} years`;
   }
 
   downloadDoc(doc: any): void {

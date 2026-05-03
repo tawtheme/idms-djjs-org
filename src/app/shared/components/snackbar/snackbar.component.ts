@@ -43,7 +43,7 @@ export interface SnackbarConfig {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 10000;
+      z-index: 10100;
       min-width: 300px;
       max-width: 500px;
       border-radius: 8px;

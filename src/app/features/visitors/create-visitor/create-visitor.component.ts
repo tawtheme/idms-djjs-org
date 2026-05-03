@@ -422,8 +422,18 @@ export class CreateVisitorComponent {
     ).subscribe((response: any) => {
       if (!response) return;
       if (this.handleDuplicateResponse(response)) return;
-      this.handleSubmitSuccess();
+      this.handleSubmitSuccess(response);
     });
+  }
+
+  private extractVisitorId(response: any): string | null {
+    const buckets = [response, response?.data, response?.data?.data, response?.result];
+    for (const b of buckets) {
+      if (!b || typeof b !== 'object') continue;
+      const id = b.uuid || b.id || b.visitor_id || b.user_id;
+      if (id) return String(id);
+    }
+    return null;
   }
 
   private handleDuplicateResponse(response: any): boolean {
@@ -561,12 +571,17 @@ export class CreateVisitorComponent {
   /**
    * Handles successful form submission
    */
-  private handleSubmitSuccess(): void {
+  private handleSubmitSuccess(response: any): void {
     this.snackbarService.showSuccess('Visitor created successfully!');
     this.visitorCreated.emit();
+    const newId = this.extractVisitorId(response);
     this.onReset();
     if (!this.hideFormActions) {
-      this.router.navigateByUrl('/visitors');
+      if (newId) {
+        this.router.navigate(['/visitors', newId, 'edit']);
+      } else {
+        this.router.navigateByUrl('/visitors');
+      }
     }
   }
 }

@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
@@ -132,7 +133,7 @@ export class ConsecutiveAbsenteesReportComponent implements OnInit {
     private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
         const payload: Record<string, any> = {
             branch_id: this.selectedProgramHoldingBranch?.length ? String(this.selectedProgramHoldingBranch[0]) : '',
-            user_branch_id: this.selectedCorrespondingBranch?.length ? String(this.selectedCorrespondingBranch[0]) : '',
+            user_branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
             sewa_id: this.selectedSewa?.length ? String(this.selectedSewa[0]) : '',
             branch_type: this.selectedBranchSearchType?.length ? String(this.selectedBranchSearchType[0]) : '',
             from_date: this.fromDate ? this.formatApiDate(this.fromDate) : '',
@@ -192,8 +193,7 @@ export class ConsecutiveAbsenteesReportComponent implements OnInit {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     getSortIcon(field: SortField): string {

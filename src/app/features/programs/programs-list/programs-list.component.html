@@ -161,6 +161,51 @@
     </div>
     </ng-container>
 
+    <!-- Assign Volunteer Modal -->
+    <app-modal
+        *ngIf="assignVolunteerModalOpen"
+        [isOpen]="assignVolunteerModalOpen"
+        [title]="'Assign Volunteer' + (assignVolunteerProgram?.name ? ' — ' + assignVolunteerProgram?.name : '')"
+        size="medium"
+        [showFooter]="true"
+        [footerButtons]="[
+            { text: 'Cancel', type: 'secondary', action: 'cancel' },
+            { text: isSubmittingAssign ? 'Saving…' : 'Save', type: 'primary', action: 'submit', disabled: isSubmittingAssign || !selectedAssignLevel.length }
+        ]"
+        (close)="closeAssignVolunteerModal()"
+        (footerAction)="onAssignVolunteerFooterAction($event)">
+        <div class="modal-dropdown-form">
+            <div class="form-field">
+                <label>Select Sewa</label>
+                <app-dropdown
+                    [options]="assignSewaOptions"
+                    [selectedValues]="selectedAssignSewas"
+                    [placeholder]="isLoadingAssignSewas ? 'Loading sewas…' : 'Select sewa'"
+                    [searchable]="true"
+                    [multiSelect]="true"
+                    [showSelectAll]="true"
+                    [loading]="isLoadingAssignSewas"
+                    (selectionChange)="selectedAssignSewas = $event"
+                    [closeOnSelect]="false">
+                </app-dropdown>
+            </div>
+            <div class="form-field">
+                <label>Level</label>
+                <app-dropdown
+                    [options]="assignLevelOptions"
+                    [selectedValues]="selectedAssignLevel"
+                    placeholder="Select level"
+                    (selectionChange)="selectedAssignLevel = $event"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="form-field">
+                <label for="assignCode">Code</label>
+                <input type="password" id="assignCode" class="form-control" autocomplete="new-password" [(ngModel)]="assignCode" [ngModelOptions]="{ standalone: true }" placeholder="Enter code">
+            </div>
+        </div>
+    </app-modal>
+
     <!-- Delete Confirmation Dialog -->
     <app-confirmation-dialog
         *ngIf="showDeleteConfirm"

@@ -4,6 +4,48 @@
 // Apply shared listing styles
 @include listing.listing('.programs');
 
+// Assign Volunteer modal form
+.modal-dropdown-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 4px 0 8px;
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-gray-700;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid $color-gray-300;
+            border-radius: 6px;
+            font-size: 14px;
+            color: $color-gray-900;
+            background: #fff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+            &::placeholder {
+                color: $color-gray-400;
+            }
+
+            &:focus {
+                outline: none;
+                border-color: $color-primary-600;
+                box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+            }
+        }
+    }
+}
+
 // Search Panel
 .search-panel {
     background: transparent;

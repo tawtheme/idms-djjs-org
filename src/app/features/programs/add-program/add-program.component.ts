@@ -186,7 +186,7 @@ export class AddProgramComponent implements OnInit {
         : [];
       this.startDateTime = data.start_date_time ? new Date(data.start_date_time) : null;
       this.endDateTime = data.end_date_time ? new Date(data.end_date_time) : null;
-      this.status = data.status === 1 ? 'Active' : (data.status === 2 ? 'Inactive' : (data.status || 'Active'));
+      this.status = data.status === 1 ? 'Active' : (data.status === 0 ? 'Inactive' : (data.status || 'Active'));
       this.repeats = (data.repeats || 'once').toLowerCase();
       this.repeatEndDate = data.repeat_ends ? new Date(data.repeat_ends) : null;
       this.remarks = data.remarks || '';
@@ -225,7 +225,7 @@ get isFormValid(): boolean {
       sewa_id: this.chooseSewa,
       start_date_time: this.formatDateOnly(this.startDateTime),
       end_date_time: this.formatDateOnly(this.endDateTime),
-      status: this.status === 'Active' ? 1 : 2,
+      status: this.status === 'Active' ? 1 : 0,
       repeats: this.repeats,
       repeat_ends: this.isRecurring ? this.formatDateOnly(this.repeatEndDate) : null,
       remarks: this.remarks.trim()
@@ -237,6 +237,8 @@ get isFormValid(): boolean {
         ? this.dataService.post(`v1/programs/duplicate/${this.duplicateFromId}`, payload)
         : this.dataService.post('v1/programs/store', payload));
 
+    const wasEditing = !!this.editProgramId;
+
     apiCall.pipe(
       catchError((err) => {
         console.error('Error saving program:', err);
@@ -246,8 +248,25 @@ get isFormValid(): boolean {
     ).subscribe((response) => {
       this.isSubmitting = false;
       if (response === null) return;
+      if (!wasEditing) {
+        const newId = this.extractProgramId(response);
+        if (newId) {
+          this.router.navigate(['/programs/edit-program', newId]);
+          return;
+        }
+      }
       this.router.navigate(['/programs/programs-list']);
     });
+  }
+
+  private extractProgramId(response: any): string | null {
+    const buckets = [response, response?.data, response?.data?.data, response?.result];
+    for (const b of buckets) {
+      if (!b || typeof b !== 'object') continue;
+      const id = b.uuid || b.id || b.program_id;
+      if (id) return String(id);
+    }
+    return null;
   }
 
   private formatDateOnly(date: Date | null): string | null {
