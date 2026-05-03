@@ -1,9 +1,11 @@
 /* Material Icons */
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-/* Ensure CDK overlay container exists and is visible (used by side-panel component) */
+/* Ensure CDK overlay container exists and is visible (used by side-panel component).
+   Sits above app-modal (z-index 10050/10051) so side panels open from inside a modal
+   stack on top of it instead of being hidden behind it. */
 .cdk-overlay-container {
-    z-index: 10000;
+    z-index: 10200;
     position: fixed;
     pointer-events: auto;
 }

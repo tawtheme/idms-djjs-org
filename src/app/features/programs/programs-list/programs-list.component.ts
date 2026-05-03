@@ -12,6 +12,8 @@ import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { VolunteerViewComponent } from '../../volunteers/all-volunteers/volunteer-view/volunteer-view.component';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -43,7 +45,9 @@ export interface Program {
     DropdownComponent,
     IconComponent,
     ConfirmationDialogComponent,
-    ModalComponent
+    ModalComponent,
+    SidePanelComponent,
+    VolunteerViewComponent
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',
@@ -80,6 +84,10 @@ export class ProgramsListComponent implements OnInit {
   selectedAssignLevel: any[] = [];
   assignCode = '';
   isSubmittingAssign = false;
+
+  assignVolunteerResults: { user_id: string; sewa_id: string; badge_id: string; sewa_name: string }[] = [];
+  assignVolunteerViewPanelOpen = false;
+  assignVolunteerViewUserId: string | null = null;
 
   // Selection
   selectedPrograms = new Set<string>();
@@ -482,6 +490,7 @@ private formatDisplayDate(value: string | null | undefined): string {
     this.selectedAssignLevel = [];
     this.assignCode = '';
     this.assignSewaOptions = [];
+    this.assignVolunteerResults = [];
     this.assignVolunteerModalOpen = true;
     this.loadAssignSewaOptions(program.id);
   }
@@ -508,6 +517,18 @@ private formatDisplayDate(value: string | null | undefined): string {
     this.selectedAssignLevel = [];
     this.assignCode = '';
     this.assignSewaOptions = [];
+    this.assignVolunteerResults = [];
+  }
+
+  openAssignVolunteerResultView(user: { user_id: string }): void {
+    if (!user?.user_id) return;
+    this.assignVolunteerViewUserId = String(user.user_id);
+    this.assignVolunteerViewPanelOpen = true;
+  }
+
+  closeAssignVolunteerResultView(): void {
+    this.assignVolunteerViewPanelOpen = false;
+    this.assignVolunteerViewUserId = null;
   }
 
   onAssignVolunteerFooterAction(action: string): void {
@@ -524,29 +545,40 @@ private formatDisplayDate(value: string | null | undefined): string {
     if (!this.selectedAssignLevel.length) return;
 
     this.isSubmittingAssign = true;
-    const hashedCode = await this.hashSha256(this.assignCode || '');
+
+    let codeToSend = this.assignCode || '';
+    try {
+      codeToSend = await this.hashSha256(codeToSend);
+    } catch {
+      // crypto.subtle unavailable (non-secure context); fall back to plaintext.
+    }
+
     const payload = {
       sewa_ids: this.selectedAssignSewas.map((v: any) => String(v)),
       level: String(this.selectedAssignLevel[0] || ''),
-      code: hashedCode
+      code: codeToSend
     };
 
-    this.dataService.post(`v1/programs/${program.id}/users/sewas/assign`, payload).pipe(
+    this.dataService.post<any>(`v1/programs/${program.id}/users/sewas/assign`, payload).pipe(
       catchError((err: any) => {
         const msg = err?.error?.message || err?.message || 'Failed to assign volunteer.';
         this.snackbarService.showError(msg);
         this.isSubmittingAssign = false;
         return of(null);
       })
-    ).subscribe((response) => {
+    ).subscribe((response: any) => {
       this.isSubmittingAssign = false;
       if (!response) return;
-      this.snackbarService.showSuccess('Volunteer assigned successfully.');
-      this.closeAssignVolunteerModal();
+      this.snackbarService.showSuccess(response?.message || 'Volunteer assigned successfully.');
+      const assigned = response?.data?.multiSewaUsers;
+      this.assignVolunteerResults = Array.isArray(assigned) ? assigned : [];
     });
   }
 
   private async hashSha256(value: string): Promise<string> {
+    if (typeof crypto === 'undefined' || !crypto.subtle?.digest) {
+      throw new Error('crypto.subtle.digest is not available in this context');
+    }
     const data = new TextEncoder().encode(value);
     const buffer = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(buffer))

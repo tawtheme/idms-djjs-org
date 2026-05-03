@@ -4,6 +4,49 @@
 // Apply shared listing styles
 @include listing.listing('.programs');
 
+.assign-result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 0 8px;
+
+    &__intro {
+        margin: 0 0 4px;
+        font-size: 13px;
+        color: $color-gray-700;
+    }
+}
+
+.assign-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid $color-gray-200;
+    border-radius: 8px;
+    background: #fff;
+
+    &__badge {
+        font-weight: 600;
+        color: $color-primary-700;
+        font-variant-numeric: tabular-nums;
+        flex-shrink: 0;
+    }
+
+    &__main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__sewa {
+        font-weight: 500;
+        color: $color-gray-900;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
 // Assign Volunteer modal form
 .modal-dropdown-form {
     display: flex;
