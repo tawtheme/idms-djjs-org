@@ -150,6 +150,7 @@
                         <div class="duplicate-item__name">{{ u.name }}</div>
                         <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
                     </div>
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="openDuplicateView(u)">View</button>
                 </div>
             </div>
         </div>
@@ -324,3 +325,24 @@
         </app-camera-upload>
     </ng-container>
 </app-modal>
+
+<!-- View Duplicate Volunteer Side Panel -->
+<app-side-panel
+    *ngIf="duplicateViewPanelOpen"
+    [isOpen]="duplicateViewPanelOpen"
+    title="View Volunteer"
+    [width]="'75%'"
+    position="right"
+    [closable]="true"
+    [showBackdrop]="true"
+    [closeOnBackdropClick]="true"
+    [showFooter]="false"
+    (close)="closeDuplicateView()">
+
+    <app-volunteer-view
+        *ngIf="duplicateViewUserId"
+        [embedded]="true"
+        [userIdInput]="duplicateViewUserId"
+        (closed)="closeDuplicateView()">
+    </app-volunteer-view>
+</app-side-panel>

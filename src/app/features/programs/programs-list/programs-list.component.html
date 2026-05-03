@@ -169,7 +169,7 @@
         size="medium"
         [showFooter]="true"
         [footerButtons]="[
-            { text: 'Cancel', type: 'secondary', action: 'cancel' },
+            { text: 'Close', type: 'secondary', action: 'cancel' },
             { text: isSubmittingAssign ? 'Saving…' : 'Save', type: 'primary', action: 'submit', disabled: isSubmittingAssign || !selectedAssignLevel.length }
         ]"
         (close)="closeAssignVolunteerModal()"
@@ -203,8 +203,39 @@
                 <label for="assignCode">Code</label>
                 <input type="password" id="assignCode" class="form-control" autocomplete="new-password" [(ngModel)]="assignCode" [ngModelOptions]="{ standalone: true }" placeholder="Enter code">
             </div>
+
+            <div class="assign-result-list" *ngIf="assignVolunteerResults.length">
+                <p class="assign-result-list__intro">{{ assignVolunteerResults.length }} volunteer(s) assigned.</p>
+                <div class="assign-result-item" *ngFor="let u of assignVolunteerResults">
+                    <div class="assign-result-item__badge">#{{ u.badge_id }}</div>
+                    <div class="assign-result-item__main">
+                        <div class="assign-result-item__sewa">{{ u.sewa_name }}</div>
+                    </div>
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="openAssignVolunteerResultView(u)">View</button>
+                </div>
+            </div>
         </div>
     </app-modal>
+
+    <!-- Assign Volunteer — view result side panel -->
+    <app-side-panel
+        *ngIf="assignVolunteerViewPanelOpen"
+        [isOpen]="assignVolunteerViewPanelOpen"
+        title="View Volunteer"
+        [width]="'75%'"
+        position="right"
+        [closable]="true"
+        [showBackdrop]="true"
+        [closeOnBackdropClick]="true"
+        [showFooter]="false"
+        (close)="closeAssignVolunteerResultView()">
+        <app-volunteer-view
+            *ngIf="assignVolunteerViewUserId"
+            [embedded]="true"
+            [userIdInput]="assignVolunteerViewUserId"
+            (closed)="closeAssignVolunteerResultView()">
+        </app-volunteer-view>
+    </app-side-panel>
 
     <!-- Delete Confirmation Dialog -->
     <app-confirmation-dialog

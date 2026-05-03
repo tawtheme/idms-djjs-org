@@ -7,6 +7,8 @@ import { DatepickerComponent } from '../../../../shared/components/datepicker/da
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
+import { VolunteerViewComponent } from '../volunteer-view/volunteer-view.component';
 import { DataService } from '../../../../data.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
@@ -35,7 +37,9 @@ export interface CreateVolunteerForm {
         DatepickerComponent,
         FileUploadComponent,
         CameraUploadComponent,
-        ModalComponent
+        ModalComponent,
+        SidePanelComponent,
+        VolunteerViewComponent
     ],
     selector: 'app-create-volunteer',
     templateUrl: './create-volunteer.component.html',
@@ -55,6 +59,20 @@ export class CreateVolunteerComponent implements OnInit {
     existingUsers: { id: string; unique_id: number; level?: string; name?: string }[] = [];
     showProceedToggle = false;
     proceedForcefully = false;
+
+    duplicateViewPanelOpen = false;
+    duplicateViewUserId: string | null = null;
+
+    openDuplicateView(user: { id: string }): void {
+        if (!user?.id) return;
+        this.duplicateViewUserId = String(user.id);
+        this.duplicateViewPanelOpen = true;
+    }
+
+    closeDuplicateView(): void {
+        this.duplicateViewPanelOpen = false;
+        this.duplicateViewUserId = null;
+    }
 
     form: CreateVolunteerForm = {
         name: '',
