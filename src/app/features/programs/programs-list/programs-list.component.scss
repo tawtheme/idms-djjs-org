@@ -17,6 +17,14 @@
     }
 }
 
+// Make the Assign Volunteer modal's body scrollable when content overflows.
+// The global modal style forces overflow: visible whenever .modal-dropdown-form is
+// present (so dropdown panels can escape); this override re-enables scrolling for
+// our use-case where the result list can grow past the viewport.
+:host ::ng-deep .modal__body:has(.assign-result-list) {
+    overflow-y: auto !important;
+}
+
 .assign-result-item {
     display: flex;
     align-items: center;
