@@ -6,10 +6,10 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 interface DonationRow {
@@ -30,7 +30,6 @@ type SortField = 'sewaName' | 'donationAmount';
         DropdownComponent,
         PagerComponent,
         EmptyStateComponent,
-        LoadingComponent,
         IconComponent
     ],
     templateUrl: './donation-dept-wise-report.component.html',
@@ -188,8 +187,7 @@ export class DonationDeptWiseReportComponent implements OnInit {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     onPageChange(page: number): void {

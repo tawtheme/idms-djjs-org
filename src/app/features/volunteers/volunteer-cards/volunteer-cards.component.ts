@@ -478,7 +478,7 @@ export class VolunteerCardsComponent implements OnInit {
     const hasSelection = this.selectedCards.size > 0;
     const url = hasSelection ? 'v1/export/batch/volunteer' : 'v1/export/all/volunteer';
     const payload: Record<string, unknown> = hasSelection
-      ? { ids: Array.from(this.selectedCards).map(String), exportChoice: choice }
+      ? { ids: Array.from(this.selectedCards).map(String), exportChoice: choice, is_export: '1' }
       : this.buildExportAllPayload(choice);
     this.dataService.post<any>(url, payload, { responseType: 'blob', observe: 'response' }).pipe(
       catchError(async (err) => {

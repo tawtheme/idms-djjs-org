@@ -40,12 +40,18 @@
                     <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
                 </div>
                 <div class="form-field">
-                    <label for="aadhaarNumber">Aadhaar Number</label>
-                    <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
+                    <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>
+                    <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required>
                 </div>
                 <div class="form-field">
-                    <label for="dob">Date of Birth</label>
-                    <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+                    <div class="field-label-row">
+                        <label for="dob">Date of Birth <span class="required">*</span></label>
+                        <small class="field-hint">Age must be at least {{ minAgeYears }} years</small>
+                    </div>
+                    <div class="form-field__inline form-field__inline--60-40">
+                        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></app-datepicker>
+                        <input type="text" id="age" class="form-control" [value]="ageDisplay" placeholder="Age" readonly>
+                    </div>
                 </div>
             </div>
         </div>
@@ -53,7 +59,8 @@
         <!-- Family Details -->
         <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">Family Details</h3>
+                <h3 class="section-title">Family Details <span class="required">*</span></h3>
+                <p class="section-subtitle">Provide at least one of Father, Mother, or Spouse name.</p>
             </div>
             <div class="form-grid">
                 <div class="form-field">
@@ -78,16 +85,32 @@
             </div>
             <div class="form-grid">
                 <div class="form-field">
-                    <label>Corresponding Branch</label>
+                    <label>Corresponding Branch <span class="required">*</span></label>
                     <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
                 </div>
                 <div class="form-field">
-                    <label>Task Branch</label>
+                    <label>Task Branch <span class="required">*</span></label>
                     <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
                 </div>
-                <div class="form-field form-field--full">
+                <div class="form-field">
+                    <label>Active Program</label>
+                    <app-dropdown [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></app-dropdown>
+                </div>
+                <div class="form-field">
                     <label>Allocate Sewa</label>
-                    <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSewas = $event"></app-dropdown>
+                    <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></app-dropdown>
+                </div>
+                <div class="form-field">
+                    <label>Sewa Mode</label>
+                    <app-dropdown [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></app-dropdown>
+                </div>
+                <div class="form-field">
+                    <label>Sewa Head</label>
+                    <app-dropdown [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></app-dropdown>
+                </div>
+                <div class="form-field form-field--full">
+                    <label for="branchRemarks">Branch Remarks</label>
+                    <input type="text" id="branchRemarks" class="form-control" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
                 </div>
             </div>
         </div>
@@ -181,13 +204,21 @@
         <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
     </div>
     <div class="form-field">
-        <label for="aadhaarNumber">Aadhaar Number</label>
-        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
+        <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>
+        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required>
     </div>
     <div class="form-field">
-        <label for="dob">Date of birth</label>
-        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+        <div class="field-label-row">
+            <label for="dob">Date of birth <span class="required">*</span></label>
+            <small class="field-hint">Age must be at least {{ minAgeYears }} years</small>
+        </div>
+        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></app-datepicker>
     </div>
+    <div class="form-field">
+        <label for="age-panel">Age</label>
+        <input type="text" id="age-panel" class="form-control" [value]="ageDisplay" placeholder="--" readonly>
+    </div>
+    <p class="section-subtitle">Provide at least one of Father, Mother, or Spouse name. <span class="required">*</span></p>
     <div class="form-field">
         <label for="fatherName">Father Name</label>
         <input type="text" id="fatherName" class="form-control" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
@@ -201,16 +232,32 @@
         <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
     </div>
     <div class="form-field">
-        <label>Allocate Sewa</label>
-        <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSewas = $event"></app-dropdown>
+        <label>Active Program</label>
+        <app-dropdown [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></app-dropdown>
     </div>
     <div class="form-field">
-        <label>Corresponding Branch</label>
+        <label>Allocate Sewa</label>
+        <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></app-dropdown>
+    </div>
+    <div class="form-field">
+        <label>Sewa Mode</label>
+        <app-dropdown [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></app-dropdown>
+    </div>
+    <div class="form-field">
+        <label>Sewa Head</label>
+        <app-dropdown [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></app-dropdown>
+    </div>
+    <div class="form-field">
+        <label>Corresponding Branch <span class="required">*</span></label>
         <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
     </div>
     <div class="form-field">
-        <label>Task Branch</label>
+        <label>Task Branch <span class="required">*</span></label>
         <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
+    </div>
+    <div class="form-field">
+        <label for="branchRemarksPanel">Branch Remarks</label>
+        <input type="text" id="branchRemarksPanel" class="form-control" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
     </div>
     <div class="form-field" *ngIf="!profileImagePreview">
         <label>Upload Profile Image</label>

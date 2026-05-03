@@ -136,10 +136,12 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     sewaReasonVolunteer: (Volunteer & { uuid?: string }) | null = null;
     sewaReasonForm = { reason: '', remarks: '' };
     sewaReasonOptions: DropdownOption[] = [
-        { id: 'none', label: 'None', value: 'None' },
-        { id: 'lack_of_time', label: 'Lack of time', value: 'Lack of time' },
-        { id: 'health', label: 'Health reasons', value: 'Health reasons' },
-        { id: 'personal', label: 'Personal reasons', value: 'Personal reasons' },
+        { id: 'change_sewa', label: 'Change Sewa', value: 'Change Sewa' },
+        { id: 'dead', label: 'Dead', value: 'Dead' },
+        { id: 'left', label: 'Left', value: 'Left' },
+        { id: 'migrated', label: 'Migrated', value: 'Migrated' },
+        { id: 'married', label: 'Married', value: 'Married' },
+        { id: 'not_regular', label: 'Not Regular', value: 'Not Regular' },
         { id: 'other', label: 'Other', value: 'Other' }
     ];
     selectedSewaReason: any[] = [];
@@ -842,8 +844,10 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
 
     getSelectedRoleLabel(): string {
         if (!this.selectedRole || this.selectedRole.length === 0) return '';
-        const opt = this.roleOptions.find(o => String(o.value) === String(this.selectedRole[0]));
-        return opt?.label || '';
+        return this.selectedRole
+            .map((v: any) => this.roleOptions.find(o => String(o.value) === String(v))?.label)
+            .filter((l: string | undefined) => !!l)
+            .join(', ');
     }
 
     getSelectedBranchLabel(): string {
@@ -1159,9 +1163,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         if (action === 'cancel') {
             this.closeCreateVolunteerModal();
         } else if (action === 'submit') {
-            // Trigger form submission in create-volunteer component
             if (this.createVolunteerComponent) {
-                this.createVolunteerComponent.submitForm();
+                this.createVolunteerComponent.onSubmit();
             }
         }
     }

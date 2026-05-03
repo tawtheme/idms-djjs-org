@@ -114,7 +114,6 @@
                                             <label>Upload date</label>
                                             <input type="text" class="form-control" [value]="img.date || '-'" readonly />
                                         </div>
-                                        <button type="button" class="btn btn--danger btn--sm" (click)="deleteProfileImage(img)" [disabled]="isSaving">Delete</button>
                                     </div>
                                 </div>
                                 <div class="profile-image-actions">
@@ -486,16 +485,34 @@
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="voterImages.length > 0 || idProofs.voter.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of voterImages">
-                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
-                                                     alt="Electoral document"
-                                                     [appImagePreview]="img.url" previewTitle="Electoral Document"
-                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <ng-container *ngIf="isPdf(img.url); else voterImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="img.url" previewTitle="Electoral Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #voterImg>
+                                                    <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                         alt="Electoral document"
+                                                         [appImagePreview]="img.url" previewTitle="Electoral Document"
+                                                         onerror="this.src='/assets/img/placeholder.svg'" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteVoterImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
                                                 </button>
                                             </div>
                                             <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.voter.previews; let i = index">
-                                                <img [src]="p" alt="Electoral preview (new)" />
+                                                <ng-container *ngIf="isPdf(p); else voterPendingImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="p" previewTitle="Electoral Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #voterPendingImg>
+                                                    <img [src]="p" alt="Electoral preview (new)" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="removeVoterPreview(i)" [disabled]="isSaving" aria-label="Remove">
                                                     <app-icon name="close" />
                                                 </button>
@@ -567,16 +584,34 @@
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="licenseImages.length > 0 || idProofs.license.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of licenseImages">
-                                                <img [src]="img.url || '/assets/img/placeholder.svg'"
-                                                     alt="License document"
-                                                     [appImagePreview]="img.url" previewTitle="License Document"
-                                                     onerror="this.src='/assets/img/placeholder.svg'" />
+                                                <ng-container *ngIf="isPdf(img.url); else licenseImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="img.url" previewTitle="License Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #licenseImg>
+                                                    <img [src]="img.url || '/assets/img/placeholder.svg'"
+                                                         alt="License document"
+                                                         [appImagePreview]="img.url" previewTitle="License Document"
+                                                         onerror="this.src='/assets/img/placeholder.svg'" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="deleteLicenseImage(img)" [disabled]="isSaving" aria-label="Delete">
                                                     <app-icon name="delete" />
                                                 </button>
                                             </div>
                                             <div class="thumb-tile thumb-tile--pending" *ngFor="let p of idProofs.license.previews; let i = index">
-                                                <img [src]="p" alt="License preview (new)" />
+                                                <ng-container *ngIf="isPdf(p); else licensePendingImg">
+                                                    <button type="button" class="thumb-tile__pdf"
+                                                        [appImagePreview]="p" previewTitle="License Document">
+                                                        <app-icon name="insert_drive_file" />
+                                                        <span>PDF</span>
+                                                    </button>
+                                                </ng-container>
+                                                <ng-template #licensePendingImg>
+                                                    <img [src]="p" alt="License preview (new)" />
+                                                </ng-template>
                                                 <button type="button" class="thumb-tile__delete" (click)="removeLicensePreview(i)" [disabled]="isSaving" aria-label="Remove">
                                                     <app-icon name="close" />
                                                 </button>
@@ -741,6 +776,82 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        </section>
+                    </ng-container>
+
+                    <!-- Assign Sewa -->
+                    <ng-container *ngIf="activeTab === 'assignSewa'">
+                        <section class="ve-section">
+                            <div class="ve-section__head">
+                                <h3>Assign Sewa</h3>
+                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAssignSewaSection()" [disabled]="savingSection === 'assignSewa'">{{ savingSection === 'assignSewa' ? 'Saving...' : 'Save' }}</button>
+                            </div>
+                            <div class="form-grid form-grid--four">
+                                <div class="form-field">
+                                    <label>Active Program <span class="required" *ngIf="selectedAssignSewaExitType[0] === '2'">*</span></label>
+                                    <app-dropdown
+                                        [options]="assignSewaProgramOptions"
+                                        [selectedValues]="selectedAssignSewaProgram"
+                                        placeholder="Select Program"
+                                        [searchable]="true"
+                                        (selectionChange)="onAssignSewaProgramChange($event)"
+                                        [closeOnSelect]="true">
+                                    </app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Sewas <span class="required">*</span></label>
+                                    <app-dropdown
+                                        [options]="assignSewaSewaOptions"
+                                        [selectedValues]="selectedAssignSewaSewas"
+                                        placeholder="Select Sewa"
+                                        [searchable]="true"
+                                        (selectionChange)="selectedAssignSewaSewas = $event"
+                                        [closeOnSelect]="true">
+                                    </app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Sewa Exit Type</label>
+                                    <app-dropdown
+                                        [options]="assignSewaExitTypeOptions"
+                                        [selectedValues]="selectedAssignSewaExitType"
+                                        placeholder="Select Exit Type"
+                                        (selectionChange)="selectedAssignSewaExitType = $event"
+                                        [closeOnSelect]="true">
+                                    </app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Sewa Mode</label>
+                                    <app-dropdown
+                                        [options]="assignSewaModeOptions"
+                                        [selectedValues]="selectedAssignSewaMode"
+                                        placeholder="Select Sewa Mode"
+                                        (selectionChange)="selectedAssignSewaMode = $event"
+                                        [closeOnSelect]="true">
+                                    </app-dropdown>
+                                </div>
+                                <div class="form-field">
+                                    <label>Sewa Head</label>
+                                    <app-dropdown
+                                        [options]="assignSewaHeadOptions"
+                                        [selectedValues]="selectedAssignSewaHead"
+                                        placeholder="Select Sewa Head"
+                                        (selectionChange)="selectedAssignSewaHead = $event"
+                                        [closeOnSelect]="true">
+                                    </app-dropdown>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label for="assignBranchRemarks">Branch Remarks</label>
+                                    <input type="text" id="assignBranchRemarks" class="form-control" [(ngModel)]="assignSewa.branch_remarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
+                                </div>
+                                <div class="form-field form-field--full" *ngIf="assignSewa.badge_id">
+                                    <div class="assign-sewa-badge-info">
+                                        <div class="assign-sewa-badge-info__content">
+                                            <span class="assign-sewa-badge-info__label">Current Badge ID</span>
+                                            <span class="assign-sewa-badge-info__value">{{ assignSewa.badge_id }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     </ng-container>
@@ -916,4 +1027,36 @@
             (imageCaptured)="onIdProofImageCaptured($event)">
         </app-camera-upload>
     </ng-container>
+</app-modal>
+
+<!-- Assign Sewa change-reason modal -->
+<app-modal
+    *ngIf="assignSewaReasonModalOpen"
+    [isOpen]="assignSewaReasonModalOpen"
+    title="Reason for changing assignment"
+    [size]="'small'"
+    [showFooter]="true"
+    [footerAlign]="'right'"
+    [footerButtons]="[
+        { text: 'Cancel', type: 'secondary', action: 'cancel' },
+        { text: savingSection === 'assignSewa' ? 'Saving...' : 'Confirm', type: 'primary', action: 'submit', disabled: savingSection === 'assignSewa' || !selectedAssignSewaUnassignReason.length }
+    ]"
+    (close)="closeAssignSewaReasonModal()"
+    (footerAction)="$event === 'submit' ? submitAssignSewaReason() : closeAssignSewaReasonModal()">
+    <div class="sewa-reason-form">
+        <div class="form-field">
+            <label>Reason <span class="required">*</span></label>
+            <app-dropdown
+                [options]="assignSewaUnassignReasonOptions"
+                [selectedValues]="selectedAssignSewaUnassignReason"
+                placeholder="Select reason"
+                (selectionChange)="selectedAssignSewaUnassignReason = $event"
+                [closeOnSelect]="true">
+            </app-dropdown>
+        </div>
+        <div class="form-field">
+            <label for="assignSewaReasonRemarks">Remarks</label>
+            <textarea id="assignSewaReasonRemarks" class="form-control" rows="4" [(ngModel)]="assignSewaReasonRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks"></textarea>
+        </div>
+    </div>
 </app-modal>

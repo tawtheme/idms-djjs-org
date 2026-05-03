@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
@@ -212,8 +213,7 @@ export class ProgramsReportComponent implements OnInit {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     getSortIcon(field: SortField): string {

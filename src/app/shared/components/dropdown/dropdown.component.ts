@@ -478,9 +478,14 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   selectAll(): void {
     if (!this.multiSelect) return;
 
-    this.selectedValues = this.filteredOptions
-      .filter(option => !option.disabled)
-      .map(option => option.value);
+    if (this.allSelected) {
+      if (this.minSelections > 0) return;
+      this.selectedValues = [];
+    } else {
+      this.selectedValues = this.filteredOptions
+        .filter(option => !option.disabled)
+        .map(option => option.value);
+    }
 
     this.updateSelectedOptions();
     this.updateSelectionState();

@@ -2,6 +2,14 @@
 
 @include r.report-listing('.reports');
 
+.text-right {
+    text-align: right;
+}
+
+.th-content--right {
+    justify-content: flex-end;
+}
+
 .total-bar {
     position: sticky;
     bottom: 0;

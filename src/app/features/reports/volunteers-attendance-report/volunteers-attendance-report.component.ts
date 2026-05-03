@@ -8,6 +8,7 @@ import { HttpParams } from '@angular/common/http';
 
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
@@ -102,9 +103,9 @@ export class VolunteersAttendanceReportComponent implements OnInit {
     programOptions: DropdownOption[] = [];
     sewaOptions: DropdownOption[] = [];
     attendanceStatusOptions: DropdownOption[] = [
-        { id: 'present', label: 'Present', value: 'present' },
-        { id: 'absent', label: 'Absent', value: 'absent' },
-        { id: 'leave', label: 'On Leave', value: 'leave' }
+        { id: '1', label: 'Present', value: '1' },
+        { id: '2', label: 'Absent', value: '2' },
+        { id: '0', label: 'On Leave', value: '0' }
     ];
 
     // Data
@@ -192,6 +193,7 @@ export class VolunteersAttendanceReportComponent implements OnInit {
             sewa_id: this.selectedSewas?.length ? String(this.selectedSewas[0]) : '',
             branch_type: this.selectedBranchSearchType?.length ? String(this.selectedBranchSearchType[0]) : '',
             program_id: this.selectedPrograms?.length ? String(this.selectedPrograms[0]) : '',
+            attendance_status: this.selectedAttendanceStatus?.length ? String(this.selectedAttendanceStatus[0]) : '',
             from_date: this.fromDate ? this.formatApiDate(this.fromDate) : '',
             to_date: this.toDate ? this.formatApiDate(this.toDate) : '',
             search: this.quickSearch.trim(),
@@ -335,8 +337,7 @@ private resolveStatusLabel(status: any): string {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     onPageChange(page: number): void {

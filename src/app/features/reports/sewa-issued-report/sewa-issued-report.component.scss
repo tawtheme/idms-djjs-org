@@ -1,6 +1,31 @@
 @use '../report-listing' as r;
+@import '../../../../assets/scss/variable';
 
 @include r.report-listing('.reports');
+
+.name-with-image {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+
+    .volunteer-image {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: $color-gray-100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+}
 
 :host ::ng-deep .filters-grid--seven {
     grid-template-columns: repeat(6, minmax(0, 1fr)) auto;

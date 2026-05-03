@@ -6,10 +6,10 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
+import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
@@ -49,7 +49,6 @@ type SortField =
         DropdownComponent,
         PagerComponent,
         EmptyStateComponent,
-        LoadingComponent,
         IconComponent,
         ImagePreviewDirective
     ],
@@ -80,7 +79,6 @@ export class SewaIssuedReportComponent implements OnInit {
         { id: 'no', label: 'No', value: '0' }
     ];
     monthOptions: DropdownOption[] = [
-        { id: 'all', label: 'Select All', value: 'all' },
         { id: '1', label: 'January', value: '1' },
         { id: '2', label: 'February', value: '2' },
         { id: '3', label: 'March', value: '3' },
@@ -184,17 +182,17 @@ export class SewaIssuedReportComponent implements OnInit {
             const meta = response.meta || response.pagination || null;
 
             this.rows = (Array.isArray(data) ? data : []).map((item: any) => ({
-                id: String(item.id ?? ''),
-                image: item.image || item.profile_image || '',
-                name: item.name || '',
+                id: String(item.unique_id ?? item.user_id ?? item.id ?? ''),
+                image: item.full_path || item.image || item.profile_image || '',
+                name: item.user_name || item.name || '',
                 phone: item.phone || item.mobile || '',
                 branch: item.branch?.name || item.branch_name || '',
                 sewa: item.sewa?.name || item.sewa_name || '',
-                badgeNo: item.badge_no || item.badge_number || '',
-                issuedDate: this.formatDisplayDate(item.issued_date || item.unallocated_date || item.allocated_date),
-                reason: item.reason || '',
-                enterBy: item.enter_by || item.entered_by || item.created_by_name || '',
-                status: item.status || ''
+                badgeNo: item.badge_id || item.badge_no || item.badge_number || '',
+                issuedDate: this.formatDisplayDate(item.issued_date || item.unallocated_date || item.allocated_date || item.created_at),
+                reason: item.remarks || item.reason || '',
+                enterBy: item.updated_by_name || item.enter_by || item.entered_by || item.created_by_name || '',
+                status: item.current_status || item.status || ''
             }));
 
             this.totalItems = meta ? (meta.total ?? meta.total_count ?? this.rows.length) : this.rows.length;
@@ -227,8 +225,7 @@ export class SewaIssuedReportComponent implements OnInit {
             this.sortField = field;
             this.sortDirection = 'asc';
         }
-        this.currentPage = 1;
-        this.loadReport();
+        this.rows = applyTableSort(this.rows, this.sortField, this.sortDirection);
     }
 
     getSortIcon(field: SortField): string {
@@ -249,20 +246,59 @@ export class SewaIssuedReportComponent implements OnInit {
 
     exportReport(choice: 'web' | 'email' = 'web'): void {
         this.isExporting = true;
-        this.dataService.post<any>('v1/reports/list_of_sewa_issued', this.buildPayload({ is_export: '1', exportChoice: choice })).pipe(
-            catchError((err) => {
-                console.error('Error exporting sewa issued report:', err);
-                this.error = err.error?.message || err.message || 'Failed to export report.';
+        const payload = this.buildPayload({ is_export: '1', exportChoice: choice });
+        this.dataService.post<any>('v1/reports/list_of_sewa_issued', payload, { responseType: 'blob', observe: 'response' }).pipe(
+            catchError(async (err) => {
+                let message = err?.error?.message || err?.message || 'Failed to export report.';
+                if (err?.error instanceof Blob) {
+                    try {
+                        const text = await err.error.text();
+                        const json = JSON.parse(text);
+                        message = json?.message || message;
+                    } catch { /* ignore */ }
+                }
+                console.error('Error exporting sewa issued report:', message);
+                this.error = message;
                 this.isExporting = false;
-                return of(null);
+                return null;
             })
-        ).subscribe((response) => {
+        ).subscribe((response: any) => {
             this.isExporting = false;
             if (!response) return;
-            const url = response.data?.url || response.url || response.file_url;
-            if (url && choice === 'web') {
-                window.open(url, '_blank');
+            const body: Blob = response.body;
+            if (!body) return;
+
+            if (body.type && body.type.includes('application/json')) {
+                body.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        const url = json.data?.downloadLink || json.data?.download_link || json.data?.url || json.url || json.file_url;
+                        if (url && choice === 'web') {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.target = '_blank';
+                            a.rel = 'noopener';
+                            a.download = url.split('/').pop() || 'sewa-issued-report';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+                    } catch { /* ignore */ }
+                });
+                return;
             }
+
+            const blob = new Blob([body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            const today = new Date();
+            const stamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            a.download = `sewa-issued-report-${stamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
         });
     }
 
@@ -295,36 +331,15 @@ export class SewaIssuedReportComponent implements OnInit {
         const target = this.monthOptions.find((o) => o.label === label);
         if (!target) return;
         const targetValue = String(target.value);
-        const current = this.selectedMonths.map(String);
-        if (current.includes('all')) {
-            // expand "all" to explicit list, then drop the target
-            this.selectedMonths = this.monthOptions
-                .filter((o) => o.value !== 'all' && String(o.value) !== targetValue)
-                .map((o) => String(o.value));
-            return;
-        }
-        this.selectedMonths = current.filter((v) => v !== targetValue);
+        this.selectedMonths = this.selectedMonths.map(String).filter((v) => v !== targetValue);
     }
 
     private resolveSelectedMonths(): string[] {
         if (!this.selectedMonths?.length) return [];
-        const values = this.selectedMonths.map(String);
-        if (values.includes('all')) {
-            return ['1','2','3','4','5','6','7','8','9','10','11','12'];
-        }
-        return values;
+        return this.selectedMonths.map(String);
     }
 
     onMonthSelectionChange(values: any[]): void {
-        const next = (values || []).map(String);
-        const previouslyAll = this.selectedMonths.map(String).includes('all');
-        const nowAll = next.includes('all');
-        if (nowAll && !previouslyAll) {
-            this.selectedMonths = ['all'];
-        } else if (nowAll && next.length > 1) {
-            this.selectedMonths = next.filter(v => v !== 'all');
-        } else {
-            this.selectedMonths = next;
-        }
+        this.selectedMonths = (values || []).map(String);
     }
 }

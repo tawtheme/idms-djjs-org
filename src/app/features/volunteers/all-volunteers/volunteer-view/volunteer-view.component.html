@@ -100,6 +100,7 @@
                     <div class="view-grid">
                         <div class="view-field"><label>Gender</label><div class="view-value">{{ display(personal?.gender) }}</div></div>
                         <div class="view-field"><label>Date of Birth</label><div class="view-value">{{ display((personal?.dob || personal?.date_of_birth) | date:'MMM d, y') }}</div></div>
+                        <div class="view-field"><label>Age</label><div class="view-value">{{ calculateAge(personal?.dob || personal?.date_of_birth) }}</div></div>
                         <div class="view-field"><label>Marital Status</label><div class="view-value">{{ display(personal?.marital_status) }}</div></div>
                     </div>
                 </section>
@@ -110,11 +111,11 @@
                         <div class="view-field"><label>Father Name</label><div class="view-value">{{ display(family?.father_name) }}</div></div>
                         <div class="view-field"><label>Father Email</label><div class="view-value">{{ display(family?.father_email) }}</div></div>
                         <div class="view-field"><label>Father Mobile</label><div class="view-value">{{ display(family?.father_phone || family?.father_mobile) }}</div></div>
-                        <div class="view-field"><label>Father Occupation</label><div class="view-value">{{ display(family?.father_occupation?.name || family?.father_occupation_id) }}</div></div>
+                        <div class="view-field"><label>Father Occupation</label><div class="view-value">{{ getOccupationName(family?.father_occupation || family?.father_occupation_id) }}</div></div>
                         <div class="view-field"><label>Mother Name</label><div class="view-value">{{ display(family?.mother_name) }}</div></div>
                         <div class="view-field"><label>Mother Email</label><div class="view-value">{{ display(family?.mother_email) }}</div></div>
                         <div class="view-field"><label>Mother Mobile</label><div class="view-value">{{ display(family?.mother_phone || family?.mother_mobile) }}</div></div>
-                        <div class="view-field"><label>Mother Occupation</label><div class="view-value">{{ display(family?.mother_occupation?.name || family?.mother_occupation_id) }}</div></div>
+                        <div class="view-field"><label>Mother Occupation</label><div class="view-value">{{ getOccupationName(family?.mother_occupation || family?.mother_occupation_id) }}</div></div>
                         <div class="view-field"><label>Spouse Name</label><div class="view-value">{{ display(family?.spouse_name) }}</div></div>
                         <div class="view-field"><label>Sibling's (Brother)</label><div class="view-value">{{ display(family?.brother_siblings) }}</div></div>
                         <div class="view-field"><label>Sibling's (Sister)</label><div class="view-value">{{ display(family?.sister_siblings) }}</div></div>
@@ -223,7 +224,7 @@
                     <div class="view-grid">
                         <div class="view-field"><label>Profession</label><div class="view-value">{{ display(work?.profession?.name || work?.profession_id) }}</div></div>
                         <div class="view-field"><label>Work Experience</label><div class="view-value">{{ display(work?.experience) }}</div></div>
-                        <div class="view-field"><label>Experience Period</label><div class="view-value">{{ display(work?.experience_period) }}</div></div>
+                        <div class="view-field"><label>Experience Period</label><div class="view-value">{{ formatExperiencePeriod(work?.experience_period, work?.experience) }}</div></div>
                         <div class="view-field view-field--full"><label>Skills</label><div class="view-value">{{ display(workSkills.join(', ')) }}</div></div>
                         <div class="view-field view-field--full"><label>Remarks</label><div class="view-value">{{ display(work?.profession_skill_remarks) }}</div></div>
                     </div>
@@ -250,7 +251,7 @@
                         <tbody>
                             <tr *ngFor="let h of medical.histories; let i = index">
                                 <td class="col-index">{{ i + 1 }}</td>
-                                <td class="col-illness">{{ display(h.major_illness) }}</td>
+                                <td class="col-illness">{{ formatYesNo(h.major_illness) }}</td>
                                 <td class="col-note">{{ display(h.note) }}</td>
                                 <td class="col-docs">
                                     <div class="view-image" *ngIf="h.docs?.length; else noDocs">
@@ -284,11 +285,20 @@
                         <div class="view-field"><label>Date of Initiation</label><div class="view-value">{{ display(spiritual?.date_of_initiation) }}</div></div>
                         <div class="view-field"><label>Place of Initiation</label><div class="view-value">{{ display(spiritual?.place_of_initiation) }}</div></div>
                         <div class="view-field"><label>Initiation Branch</label><div class="view-value">{{ display(spiritual?.initiation_branch?.name || spiritual?.initiation_branch_id) }}</div></div>
-                        <div class="view-field"><label>Date of Joining</label><div class="view-value">{{ display(spiritual?.date_of_joining) }}</div></div>
-                        <div class="view-field"><label>Date of Registration</label><div class="view-value">{{ display(spiritual?.date_of_registration) }}</div></div>
-                        <div class="view-field"><label>Dress Code Ordained Date</label><div class="view-value">{{ display(spiritual?.dress_code_ordained_date) }}</div></div>
-                        <div class="view-field"><label>Gyan Agya Date</label><div class="view-value">{{ display(spiritual?.gyan_agya_date) }}</div></div>
-                        <div class="view-field"><label>Name Changing Date</label><div class="view-value">{{ display(spiritual?.name_changing_date) }}</div></div>
+                    </div>
+                </section>
+            </ng-container>
+
+            <!-- Assign Sewa -->
+            <ng-container>
+                <section id="section-assignSewa" class="vv-section">
+                    <div class="vv-section__head"><h3>Assign Sewa</h3></div>
+                    <div class="view-grid view-grid--four">
+                        <div class="view-field"><label>Active Program</label><div class="view-value">{{ display(assignSewa?.program?.name || assignSewa?.program_id) }}</div></div>
+                        <div class="view-field"><label>Sewa</label><div class="view-value">{{ display(assignSewa?.sewa?.name || assignSewa?.sewa_id) }}</div></div>
+                        <div class="view-field"><label>Sewa Mode</label><div class="view-value">{{ formatSewaMode(assignSewa?.sewa_mode) }}</div></div>
+                        <div class="view-field"><label>Sewa Head</label><div class="view-value">{{ formatSewaHead(assignSewa?.sewa_head) }}</div></div>
+                        <div class="view-field view-field--full"><label>Branch Remarks</label><div class="view-value">{{ display(assignSewa?.branch_remarks) }}</div></div>
                     </div>
                 </section>
             </ng-container>

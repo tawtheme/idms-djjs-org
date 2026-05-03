@@ -40,17 +40,11 @@
         </div>
     </div>
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-wrapper">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
     </div>
-
-    <ng-container *ngIf="!isLoading">
-        <!-- Error state -->
-        <div *ngIf="error" class="error-state">
-            <p>{{ error }}</p>
-            <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
-        </div>
 
         <ng-container *ngIf="!error">
             <!-- Reports Table -->
@@ -68,8 +62,8 @@
                                             [class.sort-icon--active]="sortField === 'sewaName'" />
                                     </span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('donationAmount')">
-                                    <span class="th-content">
+                                <th class="sortable text-right" (click)="sortBy('donationAmount')">
+                                    <span class="th-content th-content--right">
                                         Donation Amount
                                         <app-icon
                                             [name]="sortField === 'donationAmount' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'donationAmount' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
@@ -82,7 +76,7 @@
                         <tbody>
                             <tr *ngFor="let row of rows; trackBy: trackById">
                                 <td data-label="Sewa Name">{{ row.sewaName }}</td>
-                                <td data-label="Donation Amount">{{ formatCurrency(row.donationAmount) }}</td>
+                                <td data-label="Donation Amount" class="text-right">{{ formatCurrency(row.donationAmount) }}</td>
                             </tr>
                             <tr *ngIf="rows.length === 0" class="empty-row">
                                 <td colspan="2">
@@ -113,5 +107,4 @@
                 </app-pager>
             </div>
         </ng-container>
-    </ng-container>
 </div>

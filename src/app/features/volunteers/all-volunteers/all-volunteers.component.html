@@ -382,7 +382,6 @@
         (footerAction)="onFooterAction($event)">
         
         <app-create-volunteer
-            [hideBreadcrumbs]="true"
             [hideFormActions]="true"
             (volunteerCreated)="onVolunteerCreated()"
             #createVolunteerComponent>
@@ -529,9 +528,10 @@
                     [selectedValues]="selectedRole"
                     placeholder="Select role"
                     [searchable]="true"
-                    [autocomplete]="true"
+                    [multiSelect]="true"
+                    [showSelectAll]="true"
                     (selectionChange)="selectedRole = $event"
-                    [closeOnSelect]="true">
+                    [closeOnSelect]="false">
                 </app-dropdown>
             </div>
         </div>
