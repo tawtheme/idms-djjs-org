@@ -3,34 +3,55 @@ import { inject } from '@angular/core';
 import { AuthService } from './services/auth.service';
 
 /**
- * Route guard that ensures user is authenticated
- * Redirects to login if not authenticated
+ * Route guard that ensures user is authenticated.
+ * Redirects to login if not authenticated.
+ * VMS Users are bounced to the attendance page on every other route.
+ *
+ * Returns a UrlTree (instead of `false` + imperative navigation) so Angular
+ * cancels the in-flight navigation cleanly and doesn't fall through to the
+ * wildcard route, which would otherwise loop back into the same guard.
  */
-const authOnly = () => {
+const authOnly = (route?: any) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  
+
+  console.log('[authOnly] route.path =', route?.path, 'authed =', auth.isAuthenticated(), 'isVms =', auth.isVmsUser());
+
   if (!auth.checkAuth()) {
-    router.navigateByUrl('/login');
-    return false;
+    console.log('[authOnly] not authed → /login');
+    return router.parseUrl('/login');
   }
-  
+
+  if (auth.isVmsUser()) {
+    const path = route?.path || '';
+    const allowed = path === 'programs/attendances' || path === 'programs/attendances/:id';
+    console.log('[authOnly] VMS user, allowed =', allowed);
+    if (!allowed) {
+      return router.parseUrl('/programs/attendances');
+    }
+  }
+
+  console.log('[authOnly] allow', route?.path);
   return true;
 };
 
 /**
  * Route guard that ensures user is NOT authenticated (guest only)
- * Redirects to dashboard if already authenticated
+ * Redirects to the appropriate landing page if already authenticated.
  */
 const guestOnly = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  
+
+  console.log('[guestOnly] authed =', auth.isAuthenticated(), 'isVms =', auth.isVmsUser());
+
   if (auth.isAuthenticated()) {
-    router.navigateByUrl('/dashboard');
-    return false;
+    const target = auth.isVmsUser() ? '/programs/attendances' : '/dashboard';
+    console.log('[guestOnly] already authed → redirect', target);
+    return router.parseUrl(target);
   }
-  
+
+  console.log('[guestOnly] allow login');
   return true;
 };
 
@@ -407,10 +428,10 @@ export const routes: Routes = [
   },
 
   // ============================================
-  // Wildcard Route (404 - redirect to dashboard)
+  // Wildcard Route (404 - redirect to dashboard; authOnly bounces VMS users to attendances)
   // ============================================
-  { 
-    path: '**', 
-    redirectTo: 'dashboard' 
+  {
+    path: '**',
+    redirectTo: 'dashboard'
   },
 ];

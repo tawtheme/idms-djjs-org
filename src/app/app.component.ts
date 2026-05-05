@@ -146,12 +146,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private buildBreadcrumbs(basePath: string, pageTitle: string): void {
     const crumbs: { label: string; route?: string }[] = [];
-    // Find parent by checking each parentMap key
-    for (const key of Object.keys(this.parentMap)) {
-      if (basePath === key || basePath.startsWith(key + '/')) {
-        const parent = this.parentMap[key];
-        crumbs.push({ label: parent.label, route: parent.route });
-        break;
+    // VMS Users only have access to Attendances, so the "Programs List" parent
+    // crumb would be a dead-end link for them — skip it.
+    if (!this.auth.isVmsUser()) {
+      for (const key of Object.keys(this.parentMap)) {
+        if (basePath === key || basePath.startsWith(key + '/')) {
+          const parent = this.parentMap[key];
+          crumbs.push({ label: parent.label, route: parent.route });
+          break;
+        }
       }
     }
     if (pageTitle) {

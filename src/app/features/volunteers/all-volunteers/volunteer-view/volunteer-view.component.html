@@ -6,8 +6,24 @@
                 <img *ngIf="profileImage" [src]="profileImage" alt="Profile" />
                 <span *ngIf="!profileImage">{{ nameInitials }}</span>
             </div>
-            <div class="vv-profile__name">{{ user?.name || 'Volunteer' }}</div>
-            <div class="vv-profile__id" *ngIf="user?.unique_id">#{{ user.unique_id }}</div>
+            <div class="vv-profile__info">
+                <div class="vv-profile__name">{{ user?.name || 'Volunteer' }}</div>
+                <div class="vv-profile__id" *ngIf="user?.unique_id">#{{ user.unique_id }}</div>
+            </div>
+        </div>
+
+        <div class="vv-sewa-status" *ngIf="sewaStatusList.length">
+            <div class="vv-sewa-status__label">Current Sewa Status</div>
+            <div class="vv-sewa-status__item" *ngFor="let s of sewaStatusList">
+                <div class="vv-sewa-status__row" *ngIf="s.name">
+                    <span class="vv-sewa-status__key">Sewa</span>
+                    <span class="vv-sewa-status__val">{{ s.name }}</span>
+                </div>
+                <div class="vv-sewa-status__row" *ngIf="s.badge_id">
+                    <span class="vv-sewa-status__key">Badge Number</span>
+                    <span class="vv-sewa-status__val">{{ s.badge_id }}</span>
+                </div>
+            </div>
         </div>
 
         <div class="vv-nav-group">

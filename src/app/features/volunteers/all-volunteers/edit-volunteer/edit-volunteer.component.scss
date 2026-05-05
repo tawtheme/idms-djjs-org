@@ -61,16 +61,14 @@
 
 .ve-profile {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-    gap: 6px;
-    padding: 14px 8px 18px;
-    border-bottom: 1px solid $color-gray-100;
+    text-align: left;
+    gap: 12px;
 
     &__avatar {
-        width: 64px;
-        height: 64px;
+        width: 52px;
+        height: 52px;
         border-radius: 50%;
         background: $color-primary-50;
         color: $color-primary-700;
@@ -78,12 +76,20 @@
         align-items: center;
         justify-content: center;
         font-weight: 600;
-        font-size: 22px;
+        font-size: 18px;
         letter-spacing: 0.5px;
         overflow: hidden;
-        margin-bottom: 4px;
+        flex-shrink: 0;
 
         img { width: 100%; height: 100%; object-fit: cover; }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        flex: 1 1 auto;
     }
 
     &__name {
@@ -98,6 +104,58 @@
         font-size: 12px;
         font-weight: 500;
         color: $color-gray-500;
+    }
+}
+
+.ve-sewa-status {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 12px 14px;
+    background: $color-primary-50;
+    border: 1px solid $color-primary-100;
+    border-radius: 8px;
+
+    &__label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: $color-primary-700;
+        margin-bottom: 2px;
+    }
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 0;
+        border-top: 1px solid $color-primary-100;
+
+        &:first-of-type { border-top: 0; padding-top: 0; }
+        &:last-of-type { padding-bottom: 0; }
+    }
+
+    &__row {
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    &__key {
+        font-size: 11px;
+        font-weight: 500;
+        color: $color-gray-500;
+        flex-shrink: 0;
+    }
+
+    &__val {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-900;
+        word-break: break-word;
+        min-width: 0;
     }
 }
 

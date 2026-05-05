@@ -621,6 +621,8 @@ export class EditVolunteerComponent implements OnInit {
         { id: 'not_regular', label: 'Not Regular', value: 'Not Regular' },
         { id: 'other', label: 'Other', value: 'Other' }
     ];
+    assignSewaSewaNames: string[] = [];
+    sewaStatusList: { name: string; badge_id: string }[] = [];
     selectedAssignSewaProgram: any[] = [];
     selectedAssignSewaSewas: any[] = [];
     selectedAssignSewaSewaId: any[] = [];
@@ -1222,6 +1224,17 @@ export class EditVolunteerComponent implements OnInit {
             const sewas = (user?.sewas ?? user?.user_sewas) || [];
             if (Array.isArray(sewas) && sewas.length) {
                 this.selectedSewas = sewas.map((s: any) => String(s?.sewa?.id ?? s?.sewa_id ?? s?.id ?? s)).filter(Boolean);
+                this.sewaStatusList = sewas
+                    .map((item: any) => {
+                        const s = item?.sewa;
+                        const name = (s && typeof s === 'object' && !Array.isArray(s))
+                            ? (s?.name || '')
+                            : (Array.isArray(s) ? s.map((x: any) => x?.name).filter(Boolean).join(', ') : (item?.name || ''));
+                        const badge = item?.badge_id ?? item?.badge_no ?? item?.badge_number ?? '';
+                        return { name, badge_id: badge !== null && badge !== undefined ? String(badge) : '' };
+                    })
+                    .filter((x: { name: string; badge_id: string }) => x.name || x.badge_id);
+                this.assignSewaSewaNames = this.sewaStatusList.map(s => s.name).filter(Boolean);
             }
             this.snapshotSection('basic');
         });

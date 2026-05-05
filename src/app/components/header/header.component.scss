@@ -24,6 +24,17 @@
     gap: 8px;
 }
 
+.header-user-email {
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-gray-700;
+    padding: 0 6px;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .header-action-btn {
     display: inline-flex;
     align-items: center;

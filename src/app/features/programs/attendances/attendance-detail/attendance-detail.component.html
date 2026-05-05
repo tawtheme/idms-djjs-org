@@ -121,7 +121,7 @@
                         <th>Name</th>
                         <th>Badge No</th>
                         <th>Sewa</th>
-                        <th>Donation</th>
+                        <th *ngIf="!isVmsUser">Donation</th>
                         <th>Status</th>
                         <th>CheckIn</th>
                         <th>Remarks</th>
@@ -130,7 +130,10 @@
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let record of pagedRecords; trackBy: trackById">
+                        <ng-container *ngFor="let record of pagedRecords; trackBy: trackById">
+                        <tr class="data-row"
+                            [class.is-expanded]="expandedIds.has(record.id)"
+                            (click)="toggleExpand(record.id)">
                             <td data-label="ID">{{ record.id }}</td>
                             <td data-label="Name" class="name-cell">
                                 <div class="volunteer-image">
@@ -146,7 +149,7 @@
                             </td>
                             <td data-label="Badge No">{{ record.badgeNo || '-' }}</td>
                             <td data-label="Sewa">{{ record.sewa }}</td>
-                            <td data-label="Donation" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'donation')">
+                            <td *ngIf="!isVmsUser" data-label="Donation" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'donation')">
                                 <ng-container *ngIf="!isEditing(record.id, 'donation')">
                                     <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
                                     <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
@@ -155,11 +158,12 @@
                                     type="number" class="inline-input"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
+                                    (click)="$event.stopPropagation()"
                                     (keydown)="onEditKeydown($event, record)"
                                     (blur)="saveEditing(record)"
                                     [disabled]="isSaving" />
                             </td>
-                            <td data-label="Status" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'status')">
+                            <td data-label="Status" [class.editable-cell]="attendanceMode === 'checkin' && !isVmsUser" (dblclick)="attendanceMode === 'checkin' && !isVmsUser && startEditing(record, 'status')">
                                 <ng-container *ngIf="!isEditing(record.id, 'status')">
                                     <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
                                         {{ getStatusLabel(record.status) }}
@@ -170,6 +174,7 @@
                                     class="inline-select"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
+                                    (click)="$event.stopPropagation()"
                                     (keydown)="onEditKeydown($event, record)"
                                     (change)="saveEditing(record)"
                                     (blur)="saveEditing(record)"
@@ -192,6 +197,7 @@
                                     type="text" class="inline-input"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
+                                    (click)="$event.stopPropagation()"
                                     (keydown)="onEditKeydown($event, record)"
                                     (blur)="saveEditing(record)"
                                     [disabled]="isSaving" />
@@ -199,15 +205,34 @@
                             <!-- Action -->
                             <td data-label="Action" class="action-cell" *ngIf="attendanceMode === 'checkin'">
                                 <div class="action-btns">
-                                    <button class="btn-action btn-action--view" (click)="viewVolunteer(record)" title="View Details">
+                                    <button class="btn-action btn-action--view" (click)="$event.stopPropagation(); viewVolunteer(record)" title="View Details">
                                         <app-icon name="visibility" />
                                     </button>
-                                    <button class="btn-action btn-action--delete" (click)="confirmDelete(record)" title="Delete">
+                                    <button class="btn-action btn-action--delete" (click)="$event.stopPropagation(); confirmDelete(record)" title="Delete">
                                         <app-icon name="delete" />
                                     </button>
                                 </div>
                             </td>
                         </tr>
+                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row">
+                            <td [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
+                                <div class="expanded-info">
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Phone</span>
+                                        <span class="expanded-info__value">{{ record.phone || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Home Branch</span>
+                                        <span class="expanded-info__value">{{ record.homeBranch || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Address</span>
+                                        <span class="expanded-info__value">{{ formatAddress(record) || '-' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </ng-container>
                         <!-- Empty state -->
                         <tr *ngIf="pagedRecords.length === 0">
                             <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="empty-state-cell">

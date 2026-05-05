@@ -52,6 +52,9 @@ export class HeaderComponent {
   private router = inject(Router);
   protected headerActions = inject(HeaderActionsService);
 
+  get isVmsUser(): boolean { return this.auth.isVmsUser(); }
+  get userEmail(): string { return this.auth.user()?.email || ''; }
+
   constructor(private elementRef: ElementRef) {}
 
   toggleMenu(): void {
@@ -69,6 +72,7 @@ export class HeaderComponent {
   @HostListener('document:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'F2') {
+      if (this.isVmsUser) return;
       event.preventDefault();
       this.toggleMenu();
     } else if (event.key === 'Escape' && this.isMenuOpen) {
@@ -90,8 +94,13 @@ export class HeaderComponent {
   }
 
   onLogout(): void {
+    console.log('[Header] onLogout clicked');
     this.auth.logout();
-    this.router.navigateByUrl('/login');
+    console.log('[Header] navigating to /login');
+    this.router.navigateByUrl('/login').then(
+      ok => console.log('[Header] navigation result =', ok),
+      err => console.error('[Header] navigation error', err)
+    );
   }
 
   getHeight(): number {
@@ -112,6 +121,7 @@ export class HeaderComponent {
 
   @HostListener('document:keydown.F2', ['$event'])
   onF2(event: Event): void {
+    if (this.isVmsUser) return;
     event.preventDefault();
     this.isMenuOpen = true;
   }

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -11,6 +10,7 @@ import { ViewAttendanceModalComponent } from '../view-attendance-modal/view-atte
 import { BarcodeScannerModalComponent } from '../../../../shared/components/barcode-scanner-modal/barcode-scanner-modal.component';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
+import { AuthService } from '../../../../services/auth.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { catchError, finalize } from 'rxjs/operators';
@@ -27,6 +27,12 @@ interface AttendanceRecord {
   status: string;
   checkIn: string;
   remarks: string;
+  phone: string;
+  homeBranch: string;
+  address1: string;
+  city: string;
+  district: string;
+  state: string;
 }
 
 interface EditingCell {
@@ -53,7 +59,6 @@ interface AttendanceSummary {
     FormsModule,
     RouterModule,
     EmptyStateComponent,
-    LoadingComponent,
     IconComponent,
     ModalComponent,
     ConfirmationDialogComponent,
@@ -70,6 +75,17 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
+  private auth = inject(AuthService);
+
+  get isVmsUser(): boolean {
+    const user = this.auth.user();
+    const roles: any[] = (user?.['roles'] ?? user?.['user_roles']) || [];
+    if (!Array.isArray(roles)) return false;
+    return roles.some(r => {
+      const name = typeof r === 'string' ? r : (r?.name || r?.role?.name || '');
+      return String(name).trim().toLowerCase() === 'vms user';
+    });
+  }
 
   programId = '';
   attendanceMode: 'checkin' | 'checkout' = 'checkin';
@@ -103,6 +119,20 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   editingCell: EditingCell | null = null;
   isSaving = false;
   private editStarted = false;
+
+  // Expanded rows (volunteer details panel)
+  expandedIds = new Set<string>();
+  toggleExpand(id: string): void {
+    if (!id) return;
+    if (this.expandedIds.has(id)) this.expandedIds.delete(id);
+    else this.expandedIds.add(id);
+  }
+  formatAddress(record: AttendanceRecord): string {
+    return [record.address1, record.city, record.district, record.state]
+      .map(p => (p || '').trim())
+      .filter(Boolean)
+      .join(', ');
+  }
 
   // Enter ID
   enterId = '';
@@ -206,7 +236,13 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         donation: item.donation || item.donation_amount || 0,
         status: item.status ?? '',
         checkIn: item.checked_in || item.check_in || item.checkin_time || '',
-        remarks: item.remarks || ''
+        remarks: item.remarks || '',
+        phone: item.user_phone || item.phone || item.mobile || item.mobile_number || '',
+        homeBranch: item.home_branch?.name || item.home_branch || item.branch?.name || item.branch || '',
+        address1: item.address_1 || item.address1 || item.address || '',
+        city: item.city?.name || item.city || '',
+        district: item.district?.name || item.district || '',
+        state: item.state?.name || item.state || ''
       }));
 
       this.records = [...this.allRecords];
@@ -245,10 +281,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.leaveMode = false;
       this.enterId = '';
 
-      // On checkout, skip the volunteer-detail modal and submit directly so the
-      // updated record shows up in the listing the same way check-in does.
-      if (this.attendanceMode === 'checkout' && this.fetchedUser && !this.fetchUserWarning) {
-        this.submitAttendance(2);
+      // Auto-submit on barcode scan: check-in → status 1, checkout → status 2.
+      if (this.fetchedUser && !this.fetchUserWarning) {
+        this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
         return;
       }
 
@@ -320,7 +355,13 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       donation,
       status: String(status),
       checkIn: attendanceData?.check_in || attendanceData?.checked_in || attendanceData?.checkin_time || new Date().toISOString(),
-      remarks
+      remarks,
+      phone: user?.user_phone || user?.phone || user?.mobile || user?.mobile_number || '',
+      homeBranch: user?.home_branch?.name || user?.home_branch || user?.branch?.name || user?.branch || '',
+      address1: user?.address_1 || user?.address1 || user?.address || '',
+      city: user?.city?.name || user?.city || '',
+      district: user?.district?.name || user?.district || '',
+      state: user?.state?.name || user?.state || ''
     };
 
     const existingIndex = this.allRecords.findIndex(r => r.id && r.id === id);
@@ -448,6 +489,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   // ── Inline Editing ──
   startEditing(record: AttendanceRecord, field: 'donation' | 'status' | 'remarks'): void {
     if (this.isSaving) return;
+    if (this.isVmsUser && (field === 'status' || field === 'donation')) return;
     this.editingCell = {
       recordId: record.id,
       field,

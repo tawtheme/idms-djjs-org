@@ -6,9 +6,9 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
+import { AuthService } from '../../../../services/auth.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -47,7 +47,6 @@ interface VolunteerRecord {
     DropdownComponent,
     PagerComponent,
     EmptyStateComponent,
-    LoadingComponent,
     ImagePreviewDirective
   ],
   templateUrl: './view-attendance-modal.component.html',
@@ -55,6 +54,17 @@ interface VolunteerRecord {
 })
 export class ViewAttendanceModalComponent implements OnChanges {
   private dataService = inject(DataService);
+  private auth = inject(AuthService);
+
+  get isVmsUser(): boolean {
+    const user = this.auth.user();
+    const roles: any[] = (user?.['roles'] ?? user?.['user_roles']) || [];
+    if (!Array.isArray(roles)) return false;
+    return roles.some(r => {
+      const name = typeof r === 'string' ? r : (r?.name || r?.role?.name || '');
+      return String(name).trim().toLowerCase() === 'vms user';
+    });
+  }
 
   @Input() isOpen = false;
   @Input() programId = '';
@@ -274,12 +284,109 @@ export class ViewAttendanceModalComponent implements OnChanges {
   }
 
   exportDetailsCSV(): void {
-    const headers = ['ID', 'Name', 'Sewa', 'Badge No', 'Donation', 'Status', 'CheckIn', 'Remarks'];
-    const rows = this.volunteerRecords.map(r => [
-      r.id, r.name, r.sewa, r.badgeNo, r.donation, r.status, r.checkIn, r.remarks
-    ]);
-    const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
-    this.downloadFile(csv, 'volunteer-attendance-details.csv');
+    const body: any = {
+      program_id: this.programId,
+      is_export: 1
+    };
+
+    if (this.filterTerm.trim()) {
+      body.search = this.filterTerm.trim();
+    }
+
+    const listView = this.selectedListViewType.length > 0 ? this.selectedListViewType[0] : null;
+    if (listView && listView !== 'none') {
+      body.type = listView;
+    }
+
+    if (this.selectedSewaType.length > 0) {
+      body.sewaIds = this.selectedSewaType.map(v => String(v));
+    }
+
+    // Request as a blob so we can save whatever the server emits (xlsx binary,
+    // csv text, or a JSON-wrapped download URL — handled below).
+    this.dataService.post<Blob>(
+      `v1/programs/${this.programId}/volunteers/attendance-details`,
+      body,
+      { responseType: 'blob' as 'json', observe: 'response' as const }
+    ).pipe(
+      catchError(() => of(null))
+    ).subscribe(async (response: any) => {
+      if (!response) return;
+      const blob: Blob = response.body instanceof Blob ? response.body : new Blob([response.body || '']);
+      const contentType = (response.headers?.get?.('content-type') || blob.type || '').toLowerCase();
+
+      // If the server returned JSON instead of a binary file, it's most likely
+      // a wrapper containing a download URL or inline records. Handle both.
+      if (contentType.includes('application/json') || contentType.includes('text/json')) {
+        const text = await blob.text();
+        let parsed: any = null;
+        try { parsed = JSON.parse(text); } catch { /* not JSON, fall through */ }
+        const url: string = parsed?.data?.url || parsed?.data?.file_url || parsed?.data?.path || parsed?.url || '';
+        if (url) {
+          window.open(url, '_blank', 'noopener');
+          return;
+        }
+        // Inline records → build an .xls file from HTML (Excel opens these natively)
+        const records = parsed?.data?.records || parsed?.records || parsed?.data || [];
+        const rows = (Array.isArray(records) ? records : []).map((item: any) => ({
+          ID: item.unique_id || item.id || '',
+          Name: item.name || item.volunteer_name || '',
+          Sewa: item.sewa || item.sewa_name || '',
+          'Badge No': String(item.badge ?? item.badge_id ?? item.badge_no ?? item.badge_number ?? ''),
+          Donation: item.donation ?? item.donation_amount ?? 0,
+          Status: item.status ?? '',
+          CheckIn: item.checked_in || item.check_in || item.checkin_time || '',
+          Remarks: item.remarks || ''
+        }));
+        this.downloadAsExcel(rows, 'volunteer-attendance-details.xls');
+        return;
+      }
+
+      // Binary file from server — save with a sensible extension based on the
+      // content type the server advertised.
+      const ext = contentType.includes('spreadsheet') || contentType.includes('officedocument') ? 'xlsx'
+        : contentType.includes('ms-excel') ? 'xls'
+        : contentType.includes('csv') ? 'csv'
+        : 'xlsx';
+      const fname = `volunteer-attendance-details.${ext}`;
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
+    });
+  }
+
+  /**
+   * Build a minimal HTML table that Excel opens as a workbook. Saved with an
+   * .xls extension, this gives us an Excel-friendly download without bringing
+   * in a heavy xlsx library.
+   */
+  private downloadAsExcel(rows: Record<string, any>[], filename: string): void {
+    const headers = rows.length ? Object.keys(rows[0]) : [];
+    const escape = (v: any) => String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const html =
+      `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">` +
+      `<head><meta charset="utf-8" /></head>` +
+      `<body><table>` +
+      `<thead><tr>${headers.map(h => `<th>${escape(h)}</th>`).join('')}</tr></thead>` +
+      `<tbody>${rows.map(r => `<tr>${headers.map(h => `<td>${escape(r[h])}</td>`).join('')}</tr>`).join('')}</tbody>` +
+      `</table></body></html>`;
+    const blob = new Blob(['﻿', html], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   printDetails(): void {

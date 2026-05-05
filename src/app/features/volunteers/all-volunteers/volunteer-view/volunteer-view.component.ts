@@ -80,6 +80,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   spiritual: any = {};
   medical: any = { blood_group: '', histories: [] as any[] };
   assignSewa: any = {};
+  sewaStatusList: { name: string; badge_id: string }[] = [];
 
   // Occupation lookup (loaded once and reused for father/mother occupation labels)
   professionOptions: { id: string; name: string }[] = [];
@@ -120,6 +121,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     this.loadProgram();
     this.loadDonation();
     this.loadAssignSewa();
+    this.loadSewaStatus();
     this.loadProfessions();
     this.loadedTabs.add('sewa');
     this.loadedTabs.add('program');
@@ -258,6 +260,27 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     }
   }
 
+  private loadSewaStatus(): void {
+    if (!this.userId) return;
+    this.get(`v1/users/${this.userId}/basic_details`).subscribe((res: any) => {
+      if (!res) return;
+      const root = res?.data ?? res ?? {};
+      const user = root?.user_basic_details ?? root?.user ?? root?.basic_details ?? root?.user_basic ?? root;
+      const sewas = (user?.user_sewas ?? user?.sewas) || [];
+      if (!Array.isArray(sewas) || !sewas.length) return;
+      this.sewaStatusList = sewas
+        .map((item: any) => {
+          const s = item?.sewa;
+          const name = (s && typeof s === 'object' && !Array.isArray(s))
+            ? (s?.name || '')
+            : (Array.isArray(s) ? s.map((x: any) => x?.name).filter(Boolean).join(', ') : (item?.name || ''));
+          const badge = item?.badge_id ?? item?.badge_no ?? item?.badge_number ?? '';
+          return { name, badge_id: badge !== null && badge !== undefined ? String(badge) : '' };
+        })
+        .filter((x: { name: string; badge_id: string }) => x.name || x.badge_id);
+    });
+  }
+
   private loadAssignSewa(): void {
     this.get(`v1/users/${this.userId}/user_sewa`).subscribe((res: any) => {
       if (!res) return;
@@ -280,6 +303,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
         sewa_id: a?.sewa_id ?? '',
         sewa_mode: a?.sewa_mode,
         sewa_head: sewaHead,
+        badge_id: a?.badge_id ?? a?.badge_no ?? a?.badge_number ?? '',
         branch_remarks: a?.branch_remarks || a?.remarks || ''
       };
     });
