@@ -55,8 +55,9 @@ export class LoginComponent {
     
     this.auth.login(this.email, this.password, this.rememberMe).subscribe({
       next: (response) => {
-        // Login successful - navigate to dashboard
-        this.router.navigate(['/dashboard'], { replaceUrl: true });
+        // VMS Users are restricted to the attendance page; everyone else goes to the dashboard.
+        const target = this.auth.isVmsUser() ? '/programs/attendances' : '/dashboard';
+        this.router.navigate([target], { replaceUrl: true });
       },
       error: (error) => {
         // Error is already handled in AuthService, but we can add additional handling here if needed

@@ -112,41 +112,57 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('[AuthService] logout called');
     this.user.set(null);
     this.isAuthenticated.set(false);
     localStorage.removeItem(this.storageKey);
     localStorage.removeItem(this.tokenKey);
+    console.log('[AuthService] logout done — isAuthenticated =', this.isAuthenticated());
   }
 
   private hydrateFromStorage(): void {
     if (this.isHydrated) return; // Prevent multiple hydrations
-    
+
     try {
       const raw = localStorage.getItem(this.storageKey);
       const token = localStorage.getItem(this.tokenKey);
-      
+
+      console.log('[AuthService] hydrateFromStorage — raw =', !!raw, 'token =', !!token);
+
       if (!raw || !token) {
         this.isHydrated = true;
         return;
       }
-      
+
       const parsed = JSON.parse(raw) as { user: AuthUser; remember?: boolean };
       if (parsed?.user && token) {
         // Ensure token is included in user object
         parsed.user.token = token;
         this.user.set(parsed.user);
         this.isAuthenticated.set(true);
+        console.log('[AuthService] hydrated user =', parsed.user);
       }
       this.isHydrated = true;
-    } catch {
+    } catch (e) {
+      console.error('[AuthService] hydrate error', e);
       this.isHydrated = true;
-      // ignore
     }
   }
 
   // Public method to check if service is ready
   isReady(): boolean {
     return this.isHydrated;
+  }
+
+  /** True when the logged-in user has the "VMS User" role. */
+  isVmsUser(): boolean {
+    const u = this.user();
+    const roles: any[] = (u?.['roles'] ?? u?.['user_roles']) || [];
+    if (!Array.isArray(roles)) return false;
+    return roles.some(r => {
+      const name = typeof r === 'string' ? r : (r?.name || r?.role?.name || '');
+      return String(name).trim().toLowerCase() === 'vms user';
+    });
   }
 
   // Comprehensive check that includes localStorage fallback

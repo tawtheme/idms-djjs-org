@@ -42,6 +42,35 @@ export class SidenavComponent implements OnInit, OnDestroy {
   // Subscription for route changes
   private routeSubscription?: Subscription;
 
+  /**
+   * Memoized list of menu groups visible to the user.
+   * VMS Users only see the Attendances entry; everyone else gets the full menu.
+   * Cached so we don't return new array refs on every CD cycle (which would
+   * force *ngFor to thrash through the whole menu repeatedly).
+   */
+  private _visibleMenuGroupsCache: typeof this.menuGroups | null = null;
+  private _visibleMenuGroupsForVms: boolean | null = null;
+  get visibleMenuGroups(): typeof this.menuGroups {
+    const isVms = this.auth.isVmsUser();
+    if (this._visibleMenuGroupsCache && this._visibleMenuGroupsForVms === isVms) {
+      return this._visibleMenuGroupsCache;
+    }
+    let result: typeof this.menuGroups;
+    if (!isVms) {
+      result = this.menuGroups;
+    } else {
+      const filtered: typeof this.menuGroups = [];
+      for (const group of this.menuGroups) {
+        const items = group.items.filter(i => i.route === '/programs/attendances');
+        if (items.length) filtered.push({ ...group, items });
+      }
+      result = filtered;
+    }
+    this._visibleMenuGroupsCache = result;
+    this._visibleMenuGroupsForVms = isVms;
+    return result;
+  }
+
   // Menu structure
   menuGroups = [
     {
