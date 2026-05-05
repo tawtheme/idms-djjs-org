@@ -23,9 +23,21 @@ export interface VolunteerCard {
   phone?: string;
   mobileNo?: string;
   uid?: string;
-  sewa?: string;
+  sewas?: Array<{
+    sewaName: string;
+    branchName?: string;
+    badgeId?: string | number;
+    allocationDate?: string;
+  }>;
   gender?: string;
-  unallocationReason?: string;
+  unallocations?: Array<{
+    sewaName: string;
+    branchName?: string;
+    badgeId?: string | number;
+    reason?: string;
+    remarks?: string;
+    updatedAt?: string;
+  }>;
   enterBy?: string;
   createdAt?: Date;
   address?: {
@@ -237,22 +249,42 @@ export class VolunteerCardsComponent implements OnInit {
 
   private mapCard(item: any): VolunteerCard {
     const profile = item.user_profile || {};
+    const sewas = Array.isArray(item.user_sewas)
+      ? item.user_sewas.map((u: any) => ({
+          sewaName: u?.sewa?.name || '',
+          branchName: u?.branch?.name || u?.sewa?.branch?.name || '',
+          badgeId: u?.badge_id ?? '',
+          allocationDate: u?.allocation_date || u?.created_at || ''
+        }))
+      : [];
+    const unallocations = Array.isArray(item.user_all_sewas)
+      ? item.user_all_sewas.map((u: any) => ({
+          sewaName: u?.sewa?.name || '',
+          branchName: u?.branch?.name || u?.sewa?.branch?.name || '',
+          badgeId: u?.badge_id ?? '',
+          reason: u?.reason || '',
+          remarks: u?.remarks || '',
+          updatedAt: u?.updated_at || ''
+        }))
+      : [];
     return {
       id: item.user_unique_id ?? item.unique_id ?? item.id ?? 0,
-      image: item.full_path || item.image_url || item.image || '',
+      image: item?.user_image?.full_path || item?.user_image?.image_url || item?.user_image?.image || '',
       name: item.user_name || item.name || '',
       relationName: item.relation_name || item.spouse_name || profile.spouse_name || '',
       fatherName: item.father_name || profile.father_name || '',
       phone: item.phone || item.mobile_number || '',
       mobileNo: item.mobile_number || item.phone || '',
       uid: String(item.user_unique_id ?? item.unique_id ?? ''),
-      sewa: item.sewa_name || '',
+      sewas,
+      enterBy: item.updated_by.name || '',
       gender: item.gender || profile.gender || '',
       address: {
         taskBranch: item.working_branch || '',
         correspondingBranch: item.home_branch || ''
       },
-      createdAt: item.created_at ? new Date(item.created_at) : undefined
+      createdAt: item.created_at ? new Date(item.created_at) : undefined,
+      unallocations
     };
   }
 
@@ -450,6 +482,20 @@ export class VolunteerCardsComponent implements OnInit {
       if (v == null) return '';
       return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
     };
+    const allValues = (arr: any[]): string[] => {
+      return (arr || []).map((v: any) => {
+        if (v == null) return '';
+        return typeof v === 'object' ? String(v.value ?? v.id ?? '') : String(v);
+      }).filter(Boolean);
+    };
+    const formatDate = (d: any): string => {
+      if (!d) return '';
+      const date = d instanceof Date ? d : new Date(d);
+      if (isNaN(date.getTime())) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${date.getFullYear()}-${month}-${day}`;
+    };
     return {
       exportChoice: choice,
       is_export: '1',
@@ -469,7 +515,10 @@ export class VolunteerCardsComponent implements OnInit {
       sewa_assigned: '',
       sewa_mode: '',
       sortByColumn: this.sortField || '',
-      orderBy: this.sortField ? this.sortDirection : ''
+      orderBy: this.sortField ? this.sortDirection : '',
+      card_option: allValues(this.moreFilters.options),
+      start_from: formatDate(this.moreFilters.startFrom),
+      end_to: formatDate(this.moreFilters.endTo)
     };
   }
 

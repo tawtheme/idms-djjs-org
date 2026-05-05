@@ -1,12 +1,8 @@
-@use '../../../../../assets/scss/pages' as listing;
 @import '../../../../../assets/scss/variable';
 @import '../../../../../assets/scss/table';
 
-@include listing.listing('.attendance-detail');
-
 .attendance-detail-container {
     overflow: visible;
-    min-height: 100%;
     display: flex;
     flex-direction: column;
     gap: 16px;

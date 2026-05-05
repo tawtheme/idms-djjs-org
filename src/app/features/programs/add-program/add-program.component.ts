@@ -8,7 +8,7 @@ import { DatepickerComponent } from '../../../shared/components/datepicker/datep
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-
+import { SnackbarService } from '../../../shared/services/snackbar.service';
 @Component({
   selector: 'app-add-program',
   standalone: true,
@@ -26,7 +26,7 @@ export class AddProgramComponent implements OnInit {
   private dataService = inject(DataService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-
+  private snackbarService = inject(SnackbarService);
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Programs', route: '/programs/programs-list' },
     { label: 'Add New Program', route: '/programs/add-program' }
@@ -53,7 +53,7 @@ export class AddProgramComponent implements OnInit {
 
   isSubmitting = false;
   isLoading = false;
-
+  error: string | null = null;
   // Dropdown options
   programCoordinatorOptions: DropdownOption[] = [];
   initiativeOptions: DropdownOption[] = [];
@@ -241,13 +241,29 @@ get isFormValid(): boolean {
 
     apiCall.pipe(
       catchError((err) => {
-        console.error('Error saving program:', err);
+        console.error('HTTP Error:', err);
         this.isSubmitting = false;
+    
+        // Show alert for network/server errors
+        this.handleSubmitError(err)
+        // alert(err?.error?.message || 'Something went wrong');
         return of(null);
       })
-    ).subscribe((response) => {
+    ).subscribe((response: any) => {
       this.isSubmitting = false;
-      if (response === null) return;
+    
+      if (!response) return;
+    
+      // Check if API returned success false
+      if (response.success === false) {
+        // Show error message to user
+        this.handleSubmitError(response)
+        // this.snackbar.showError(response.message);
+        // alert(response.message || 'Failed to save program.');
+        return;
+      }
+    
+      // Success: navigate
       if (!wasEditing) {
         const newId = this.extractProgramId(response);
         if (newId) {
@@ -357,4 +373,19 @@ get isFormValid(): boolean {
     }
     return this.endDateMin;
   }
+  private handleSubmitError(error: unknown): void {
+    const apiError = error as { error?: { message?: string; error?: string }; message?: string };
+    const errorMessage =
+        apiError.error?.message ||
+        apiError.error?.error ||
+        apiError.message ||
+        'Failed to create volunteer. Please try again.';
+
+    this.error = errorMessage;
+    this.snackbarService.showError(errorMessage);
+}
+
+    private handleSubmitSuccess(response: any): void {
+        this.snackbarService.showSuccess('Volunteer created successfully!');
+    }
 }

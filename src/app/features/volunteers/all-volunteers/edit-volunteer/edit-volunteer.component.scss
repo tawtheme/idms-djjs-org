@@ -1133,7 +1133,30 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
         font-weight: 600;
     }
 }
+.ve-sewa-status {
+    /* Smooth animation ke liye transition add karein */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #eee; /* Optional: halki border */
+    border-radius: 8px;      /* Optional: thode round corners */
+    padding: 10px;
+    background-color: #fff;
+}
 
+/* Hover karne par ye effect dikhega */
+.ve-sewa-status:hover {
+    /* Div thoda bada (zoom) dikhega */
+    transform: scale(1.05); 
+    
+    position: relative;
+    z-index: 10;
+
+    /* Shadow ko thoda faila diya hai taaki ye "hava mein" utha hua lage */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    
+    /* Content ko clearly dikhane ke liye thoda brightness ya background change */
+    background-color: #f9f9f9;
+}
 /* ---------- Responsive: collapse sidebar to top strip ---------- */
 @media (max-width: 900px) {
     .ve-shell { grid-template-columns: 1fr; }

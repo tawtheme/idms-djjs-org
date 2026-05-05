@@ -68,7 +68,7 @@ export class EditVolunteerComponent implements OnInit {
         { id: 'spiritual', label: 'Spiritual Detail' },
         { id: 'education', label: 'Education & Work' },
         { id: 'medical', label: 'Medical' },
-        { id: 'assignSewa', label: 'Assign Sewa' },
+        { id: 'assignSewa', label: "Assign-Change Sewa" },
         { id: 'sewa', label: 'Sewa Tracking' },
         { id: 'program', label: 'Program Journey' },
         { id: 'donation', label: 'Donations' }
@@ -87,7 +87,7 @@ export class EditVolunteerComponent implements OnInit {
         phone: '',
         whatsappNumber: '',
         email: '',
-        personal_email: '',
+        personalEmail: '',
         aadhaarNumber: '',
         dob: null as Date | null
     };
@@ -632,6 +632,7 @@ export class EditVolunteerComponent implements OnInit {
     selectedAssignSewaUnassignReason: any[] = [];
     selectedAssignSewaExitType: any[] = [];
     assignSewaBaseline = { program_id: '', sewa_id: '' };
+    hasExistingAssignSewa = false;
     assignSewaReasonModalOpen = false;
     assignSewaReasonRemarks = '';
 
@@ -1211,7 +1212,7 @@ export class EditVolunteerComponent implements OnInit {
             if (email !== undefined) this.basic.email = String(email);
 
             const personalEmail = pick('personal_email');
-            if (personalEmail !== undefined) this.basic.personal_email = String(personalEmail);
+            if (personalEmail !== undefined) this.basic.personalEmail = String(personalEmail);
 
             const level = pick('level');
             if (level !== undefined) this.selectedLevel = [String(level)];
@@ -1596,6 +1597,7 @@ export class EditVolunteerComponent implements OnInit {
                 program_id: this.assignSewa.program_id || '',
                 sewa_id: this.assignSewa.sewa_id || ''
             };
+            this.hasExistingAssignSewa = !!this.assignSewa.sewa_id;
 
             // Seed the Sewa dropdown with the saved sewa so its label shows even when
             // it isn't in the loaded options list (e.g. inactive sewa or program-scoped only).
@@ -1708,7 +1710,7 @@ export class EditVolunteerComponent implements OnInit {
         }
         const programChanged = programId !== this.assignSewaBaseline.program_id;
         const sewaChanged = sewaId !== this.assignSewaBaseline.sewa_id;
-        if (programChanged || sewaChanged) {
+        if (this.hasExistingAssignSewa && (programChanged || sewaChanged)) {
             this.openAssignSewaReasonModal();
             return;
         }
@@ -1758,7 +1760,7 @@ export class EditVolunteerComponent implements OnInit {
             payload['reason'] = extra.reason;
             payload['unAssigned_remarks'] = extra.remarks;
         }
-        this.putSection('assignSewa', 'Assign Sewa', `v1/users/manage_sewas/${userId}`, payload);
+        this.putSection('assignSewa', 'Assign\Change Sewa', `v1/users/manage_sewas/${userId}`, payload);
     }
 
     private loadVolunteer(): void {
@@ -1788,7 +1790,7 @@ export class EditVolunteerComponent implements OnInit {
             if (!this.basic.whatsappNumber) this.basic.whatsappNumber = user?.alternate_phone || user?.whatsapp_number || '';
             this.copyAsWhatsapp = !!this.basic.phone && this.basic.phone === this.basic.whatsappNumber;
             if (!this.basic.email) this.basic.email = user?.email || '';
-            if (!this.basic.personal_email) this.basic.personal_email = user?.personal_email || profile?.personal_email || '';
+            if (!this.basic.personalEmail) this.basic.personalEmail = user?.personal_email || profile?.personal_email || '';
             if (!this.basic.aadhaarNumber) this.basic.aadhaarNumber = user?.aadhaar_number || '';
             if (!this.basic.dob) {
                 this.basic.dob = profile?.dob ? new Date(profile.dob) : (profile?.date_of_birth ? new Date(profile.date_of_birth) : null);
@@ -1961,7 +1963,7 @@ export class EditVolunteerComponent implements OnInit {
                         badgeId: t?.badge_id ?? '',
                         allocatedDate: t?.created_at || '',
                         unallocatedDate: t?.status === 0 ? (t?.updated_at || '') : '',
-                        reason: t?.reason || ''
+                        reason: [t?.reason, t?.remarks].filter(Boolean).join(' | ')
                     }))
                 }))
             }));
@@ -2279,7 +2281,7 @@ export class EditVolunteerComponent implements OnInit {
     get phoneError(): string { return mobileError(this.basic.phone); }
     get whatsappError(): string { return mobileError(this.basic.whatsappNumber); }
     get emailError(): string { return emailError(this.basic.email); }
-    get personalEmailError(): string { return emailError(this.basic.personal_email); }
+    get personalEmailError(): string { return emailError(this.basic.personalEmail); }
     get fatherEmailError(): string { return emailError(this.personal.father_email); }
     get motherEmailError(): string { return emailError(this.personal.mother_email); }
     get emergencyEmailError(): string { return emailError(this.emergency.email); }
@@ -2858,6 +2860,7 @@ export class EditVolunteerComponent implements OnInit {
                 break;
             case 'work': this.loadWorkExperience(); break;
             case 'spiritual': this.loadSpiritualDetails(); break;
+            case 'assignSewa': this.loadAssignSewaDetails(); break;
         }
     }
 
@@ -3223,7 +3226,7 @@ export class EditVolunteerComponent implements OnInit {
             phone: this.basic.phone || null,
             alternate_phone: this.basic.whatsappNumber || null,
             email: this.basic.email || null,
-            personal_email: this.basic.personal_email || null,
+            personal_email: this.basic.personalEmail || null,
             date_of_reinstatement: null,
             date_of_leaving: null,
             date_of_expired: null,
@@ -3241,7 +3244,7 @@ export class EditVolunteerComponent implements OnInit {
         if (this.phoneError) return false;
         if (this.basic.whatsappNumber && this.whatsappError) return false;
         if (this.basic.email && this.emailError) return false;
-        if (this.basic.personal_email && this.personalEmailError) return false;
+        if (this.basic.personalEmail && this.personalEmailError) return false;
         if (this.personal.father_email && this.fatherEmailError) return false;
         if (this.personal.mother_email && this.motherEmailError) return false;
         if (this.emergency.email && this.emergencyEmailError) return false;
@@ -3263,7 +3266,7 @@ export class EditVolunteerComponent implements OnInit {
             phone: this.basic.phone,
             alternate_phone: this.basic.whatsappNumber || '',
             email: this.basic.email || '',
-            personal_email: this.basic.personal_email || '',
+            personal_email: this.basic.personalEmail || '',
             home_branch: this.selectedCorrespondingBranch[0] || '',
             working_branch: this.selectedTaskBranch[0] || '',
             aadhaar_number: this.basic.aadhaarNumber || '',

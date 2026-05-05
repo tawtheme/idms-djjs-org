@@ -248,11 +248,24 @@
                         placeholder="Search and select sewas"
                         [searchable]="true"
                         [autocomplete]="true"
-                        [multiSelect]="true"
+                        [multiSelect]="false"
                         (selectionChange)="reinstateForm.sewa = $event"
                         [closeOnSelect]="false">
                     </app-dropdown>
-                    <small class="hint">You can select multiple sewas.</small>
+                    <small class="hint">You can select multiple sewa.</small>
+                </div>
+                <div class="reinstate-field">
+                    <label>Sewa Mode<span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="sewaModeOptions"
+                        [selectedValues]="reinstateForm.sewaMode ? [reinstateForm.sewaMode] : []"
+                        placeholder="Search and select sewa mode"
+                        [searchable]="true"
+                        [autocomplete]="true"
+                        [multiSelect]="false"
+                        (selectionChange)="reinstateForm.sewaMode = $event[0]"
+                        [closeOnSelect]="false">
+                    </app-dropdown>
                 </div>
             </div>
 

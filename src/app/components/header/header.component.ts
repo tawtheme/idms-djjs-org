@@ -54,6 +54,9 @@ export class HeaderComponent {
 
   get isVmsUser(): boolean { return this.auth.isVmsUser(); }
   get userEmail(): string { return this.auth.user()?.email || ''; }
+  get highestRole(): string | null {
+    return this.auth.getPositionRoleName('lowest');
+  }
 
   constructor(private elementRef: ElementRef) {}
 

@@ -39,6 +39,15 @@
                     <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
                     <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
                 </div>
+                 <div class="form-field">
+                    <label for="personalEmail">Personal Email Address</label>
+                    <input type="personalEmail" id="personalEmail" class="form-control" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email">
+                    <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
+                </div>
+                <div class="form-field">
+                    <label>Gender <span class="required">*</span></label>
+                    <app-dropdown [options]="genderOptions" [selectedValues]="selectedUserGender" placeholder="Select Gender" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedUserGender = $event" [closeOnSelect]="true"></app-dropdown>
+                </div>
                 <div class="form-field">
                     <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>
                     <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required>
@@ -203,6 +212,11 @@
         <label for="email">Email Address</label>
         <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
         <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+    </div>
+    <div class="form-field">
+        <label for="personalEmail">Personal Email Address</label>
+        <input type="personalEmail" id="personalEmail" class="form-control" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email">
+        <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
     </div>
     <div class="form-field">
         <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>

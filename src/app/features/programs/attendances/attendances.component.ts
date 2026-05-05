@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { DataService } from '../../../data.service';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -22,6 +23,7 @@ import { of } from 'rxjs';
 export class AttendancesComponent implements OnInit {
   private dataService = inject(DataService);
   private router = inject(Router);
+  private snackbar = inject(SnackbarService);
 
   selectedProgram: any[] = [];
   programOptions: DropdownOption[] = [];
@@ -32,7 +34,10 @@ export class AttendancesComponent implements OnInit {
 
   private loadPrograms(): void {
     this.dataService.get<any>('v1/programs/active-for-attendance?action=attendance').pipe(
-      catchError(() => of({ data: [] }))
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to load programs.');
+        return of({ data: [] });
+      })
     ).subscribe((response) => {
       const data = response.data || response.results || response || [];
       this.programOptions = (Array.isArray(data) ? data : []).map((item: any) => ({

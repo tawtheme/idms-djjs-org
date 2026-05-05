@@ -11,6 +11,7 @@ import { BarcodeScannerModalComponent } from '../../../../shared/components/barc
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
 import { AuthService } from '../../../../services/auth.service';
+import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { catchError, finalize } from 'rxjs/operators';
@@ -71,11 +72,14 @@ interface AttendanceSummary {
 })
 export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   @ViewChild('enterIdInput') enterIdInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('donationInput') donationInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('remarksInput') remarksInput?: ElementRef<HTMLInputElement>;
   private dataService = inject(DataService);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
   private auth = inject(AuthService);
+  private snackbar = inject(SnackbarService);
 
   get isVmsUser(): boolean {
     const user = this.auth.user();
@@ -163,7 +167,39 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.focusEnterId();
+  }
+
+  private focusDonation(): void {
+    setTimeout(() => this.donationInput?.nativeElement?.focus(), 50);
+  }
+
+  private focusRemarks(): void {
+    setTimeout(() => this.remarksInput?.nativeElement?.focus(), 50);
+  }
+
+  private focusEnterId(): void {
+    if (
+      this.showFetchUserModal ||
+      this.showViewDetail ||
+      this.showAttendanceModal ||
+      this.showDeleteConfirm ||
+      this.scannerModalOpen ||
+      this.editingCell
+    ) {
+      return;
+    }
     setTimeout(() => this.enterIdInput?.nativeElement?.focus(), 0);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    setTimeout(() => {
+      const ae = document.activeElement;
+      if (!ae || ae === document.body) {
+        this.focusEnterId();
+      }
+    }, 0);
   }
 
   // Barcode scanner modal
@@ -175,6 +211,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   closeScannerModal(): void {
     this.scannerModalOpen = false;
+    this.focusEnterId();
   }
 
   onBarcodeScanned(code: string): void {
@@ -187,7 +224,10 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   loadSummary(): void {
     this.dataService.get<any>(`v1/attendances/${this.programId}`).pipe(
-      catchError(() => of({ data: {} }))
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to load summary.');
+        return of({ data: {} });
+      })
     ).subscribe((response) => {
       const data = response?.data || {};
       this.summary = {
@@ -219,6 +259,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     this.dataService.get<any>(`v1/attendances/checkedin/volunteers/${this.programId}`, { params }).pipe(
       catchError((err) => {
         this.error = err.error?.message || 'Failed to load attendance data.';
+        this.snackbar.showError(this.error || 'Failed to load attendance data.');
         return of({ data: [] });
       }),
       finalize(() => {
@@ -263,9 +304,10 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
     this.dataService.post<any>('v1/fetch-user', body).pipe(
       catchError((err) => {
-        this.fetchUserWarning = err?.error?.message || 'User not found';
+        this.snackbar.showError(err?.error?.message || 'User not found');
         this.fetchedUser = null;
-        this.showFetchUserModal = true;
+        this.fetchUserWarning = null;
+        this.focusEnterId();
         return of(null);
       }),
       finalize(() => {
@@ -276,6 +318,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       const data = response.data || response;
       this.fetchedUser = data?.user || data;
       this.fetchUserWarning = data?.show_blocker ? (data?.blocker_message || null) : null;
+      if (this.fetchUserWarning) {
+        this.snackbar.showWarning(this.fetchUserWarning);
+      }
       this.fetchUserDonation = '';
       this.fetchUserRemarks = '';
       this.leaveMode = false;
@@ -288,6 +333,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       }
 
       this.showFetchUserModal = true;
+      if (this.fetchedUser) {
+        this.focusDonation();
+      }
     });
   }
 
@@ -304,9 +352,8 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     this.isSubmitting = true;
     this.dataService.post<any>('v1/attendances/store', body).pipe(
       catchError((err) => {
-        this.fetchedUser = null;
-        this.fetchUserWarning = err?.error?.message || 'Unable to mark attendance';
-        this.showFetchUserModal = true;
+        this.snackbar.showError(err?.error?.message || 'Unable to mark attendance');
+        this.closeFetchUserModal();
         return of(null);
       }),
       finalize(() => this.isSubmitting = false)
@@ -319,6 +366,8 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.closeFetchUserModal();
       this.applyScanLocally(user, status, donation, remarks, response?.data);
       this.loadSummary();
+      const fallback = status === 0 ? 'Leave marked successfully.' : status === 2 ? 'Check-out marked successfully.' : 'Attendance marked successfully.';
+      this.snackbar.showSuccess(response?.message || fallback);
     });
   }
 
@@ -393,6 +442,12 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   }
 
   markAttendance(): void {
+    const donation = Number(this.fetchUserDonation);
+    if (!this.fetchUserDonation || isNaN(donation) || donation <= 0) {
+      this.fetchUserError = 'Donation amount is required.';
+      return;
+    }
+    this.fetchUserError = null;
     this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
   }
 
@@ -400,6 +455,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     if (!this.leaveMode) {
       this.leaveMode = true;
       this.fetchUserError = null;
+      this.focusRemarks();
       return;
     }
     if (!this.fetchUserRemarks.trim()) {
@@ -417,6 +473,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     this.fetchUserError = null;
     this.fetchUserRemarks = '';
     this.leaveMode = false;
+    this.focusEnterId();
   }
 
   applyFilter(): void {
@@ -542,8 +599,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     }
 
     this.dataService.put<any>(endpoint, body).pipe(
-      catchError(() => {
+      catchError((err) => {
         this.editingCell = null;
+        this.snackbar.showError(err?.error?.message || err?.message || `Failed to update ${field}.`);
         return of(null);
       }),
       finalize(() => this.isSaving = false)
@@ -553,6 +611,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         this.allRecords = this.allRecords.map(r => r.id === record.id ? { ...record } : r);
         this.records = [...this.allRecords];
         if (field === 'status') this.loadSummary();
+        this.snackbar.showSuccess(response?.message || `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully.`);
       }
       this.editingCell = null;
     });
@@ -576,6 +635,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   closeViewDetail(): void {
     this.showViewDetail = false;
     this.viewRecord = null;
+    this.focusEnterId();
   }
 
   confirmDelete(record: AttendanceRecord): void {
@@ -591,17 +651,24 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     };
     this.showDeleteConfirm = false;
     this.http.delete<any>(`${environment.apiUrl}/v1/attendances/revert`, { body }).pipe(
-      catchError(() => of(null))
-    ).subscribe(() => {
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to revert attendance.');
+        return of(null);
+      })
+    ).subscribe((response) => {
       this.deleteTarget = null;
+      this.focusEnterId();
+      if (response === null) return;
       this.loadSummary();
       this.loadAttendanceData();
+      this.snackbar.showSuccess(response?.message || 'Attendance reverted successfully.');
     });
   }
 
   onDeleteCancel(): void {
     this.showDeleteConfirm = false;
     this.deleteTarget = null;
+    this.focusEnterId();
   }
 
   openAttendanceModal(): void {
@@ -610,5 +677,6 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   closeAttendanceModal(): void {
     this.showAttendanceModal = false;
+    this.focusEnterId();
   }
 }

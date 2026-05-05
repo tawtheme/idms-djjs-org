@@ -247,14 +247,40 @@
                         <td data-label="Phone">
                             {{ card.phone || '-' }}
                         </td>
-                        <td data-label="Sewa">
-                            {{ card.sewa || '-' }}
+                        <td data-label="Sewa" class="sewa-column">
+                            <div class="sewa-content" *ngIf="card.sewas && card.sewas.length; else noSewa">
+                                <div class="sewa-entry" *ngFor="let s of card.sewas">
+                                    <div class="sewa-name">{{ s.sewaName }}<span *ngIf="s.branchName">({{ s.branchName }})</span></div>
+                                    <span class="sewa-badge has-tooltip"
+                                          *ngIf="s.badgeId !== '' && s.badgeId !== null && s.badgeId !== undefined">
+                                        {{ s.badgeId }}
+                                        <span class="custom-tooltip" *ngIf="s.allocationDate">
+                                            Allocation Date: <strong>{{ s.allocationDate }}</strong>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <ng-template #noSewa>-</ng-template>
                         </td>
                         <td data-label="Gender">
                             {{ card.gender || '-' }}
                         </td>
-                        <td data-label="Unallocation Reason">
-                            {{ card.unallocationReason || '-' }}
+                        <td data-label="Unallocation Reason" class="unallocation-column">
+                            <div class="unallocation-content" *ngIf="card.unallocations && card.unallocations.length; else noUnallocation">
+                                <div class="unallocation-entry" *ngFor="let u of card.unallocations">
+                                    <div class="unallocation-name">{{ u.sewaName }}<span *ngIf="u.branchName">({{ u.branchName }})</span></div>
+                                    <span class="unallocation-badge has-tooltip"
+                                          *ngIf="u.badgeId !== '' && u.badgeId !== null && u.badgeId !== undefined">
+                                        {{ u.badgeId }}
+                                        <span class="custom-tooltip" *ngIf="u.reason || u.remarks || u.updatedAt">
+                                            <span *ngIf="u.updatedAt">Unallocated At: <strong>{{ u.updatedAt }}</strong></span>
+                                            <span *ngIf="u.reason"><br/>Reason: <strong>{{ u.reason }}</strong></span>
+                                            <span *ngIf="u.remarks"><br/>Remarks: <strong>{{ u.remarks }}</strong></span>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <ng-template #noUnallocation>-</ng-template>
                         </td>
                         <td data-label="Enter By">
                             {{ card.enterBy || '-' }}

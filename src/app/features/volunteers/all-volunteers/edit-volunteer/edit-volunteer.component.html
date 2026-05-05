@@ -105,6 +105,11 @@
                                     <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
                                 </div>
                                 <div class="form-field">
+                                    <label>Personal Email</label>
+                                    <input type="personalEmail" class="form-control" [(ngModel)]="basic.personalEmail" [ngModelOptions]="{ standalone: true }">
+                                    <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
+                                </div>
+                                <div class="form-field">
                                     <label>Level</label>
                                     <app-dropdown [options]="levelOptions" [selectedValues]="selectedLevel" placeholder="Select Level" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedLevel = $event" [closeOnSelect]="true"></app-dropdown>
                                 </div>
@@ -800,7 +805,7 @@
                     <ng-container *ngIf="activeTab === 'assignSewa'">
                         <section class="ve-section">
                             <div class="ve-section__head">
-                                <h3>Assign Sewa</h3>
+                                <h3>Assign\Change Sewa</h3>
                                 <button type="button" class="btn btn--primary btn--sm" (click)="saveAssignSewaSection()" [disabled]="savingSection === 'assignSewa'">{{ savingSection === 'assignSewa' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid form-grid--four">
@@ -927,7 +932,7 @@
                                                 <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
                                                 <td>{{ row.allocatedDate || 'N/A' }}</td>
                                                 <td>{{ row.unallocatedDate || 'N/A' }}</td>
-                                                <td>{{ row.reason || 'N/A' }}</td>
+                                                <td>{{ row?.reason }}</td>
                                             </tr>
                                         </tbody>
                                     </ng-container>

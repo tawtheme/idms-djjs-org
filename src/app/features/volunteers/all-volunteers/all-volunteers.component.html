@@ -144,7 +144,7 @@
                 <app-dropdown
                     [options]="sewaInterestOptions"
                     [selectedValues]="moreFilters.sewaInterest"
-                    placeholder="Interested"
+                    placeholder="None"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
@@ -156,7 +156,7 @@
                 <app-dropdown
                     [options]="sewaAllocatedOptions"
                     [selectedValues]="moreFilters.sewaAllocated"
-                    placeholder="Allocated"
+                    placeholder="None"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
@@ -173,6 +173,18 @@
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-field">
+                <label>Sewa Head</label>
+                <app-dropdown
+                    [options]="sewaHeadOptions"
+                    [selectedValues]="moreFilters.sewaHead"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="moreFilters.sewaHead = $event; onSearchChange()"
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
@@ -629,6 +641,71 @@
             <strong>{{ changeBranchVolunteer?.name }}</strong>
             to <strong>{{ getSelectedBranchLabel() }}</strong>?
         </p>
+    </app-modal>
+
+    <!-- Reinstate User Modal -->
+    <app-modal
+        [isOpen]="isReinstateModalOpen"
+        [title]="'Reinstate User'"
+        [size]="'medium'"
+        (close)="closeReinstateModal()">
+        <div class="reinstate-form">
+            <div class="reinstate-grid">
+                <div class="reinstate-field">
+                    <label>Date <span class="required">*</span></label>
+                    <app-datepicker
+                        [value]="reinstateForm.date"
+                        placeholder="Select Date"
+                        format="dd/MM/yyyy"
+                        (dateChange)="reinstateForm.date = $event">
+                    </app-datepicker>
+                </div>
+                <div class="reinstate-field">
+                    <label>Sewa <span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="sewaOptions"
+                        [selectedValues]="reinstateForm.sewa"
+                        placeholder="Search and select sewas"
+                        [searchable]="true"
+                        [autocomplete]="true"
+                        [multiSelect]="false"
+                        (selectionChange)="reinstateForm.sewa = $event"
+                        [closeOnSelect]="false">
+                    </app-dropdown>
+                </div>
+                <div class="reinstate-field">
+                    <label>Sewa Mode<span class="required">*</span></label>
+                    <app-dropdown
+                        [options]="reinstateSewaModeOptions"
+                        [selectedValues]="reinstateForm.sewaMode ? [reinstateForm.sewaMode] : []"
+                        placeholder="Search and select sewa mode"
+                        [searchable]="true"
+                        [autocomplete]="true"
+                        [multiSelect]="false"
+                        (selectionChange)="reinstateForm.sewaMode = $event[0]"
+                        [closeOnSelect]="false">
+                    </app-dropdown>
+                </div>
+            </div>
+
+            <div class="reinstate-field reinstate-field--full">
+                <label>Remarks</label>
+                <textarea
+                    class="form-control"
+                    rows="3"
+                    placeholder="Add any context for this reinstatement (optional)"
+                    [(ngModel)]="reinstateForm.remarks"
+                    [ngModelOptions]="{ standalone: true }">
+                </textarea>
+            </div>
+
+            <div class="reinstate-actions">
+                <button class="btn btn--secondary btn--md" type="button" (click)="closeReinstateModal()">Cancel</button>
+                <button class="btn btn--primary btn--md" type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
+                    {{ isSubmittingReinstate ? 'Reinstating...' : 'Reinstate User' }}
+                </button>
+            </div>
+        </div>
     </app-modal>
 </div>
 

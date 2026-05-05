@@ -71,10 +71,11 @@ export class ResignedSewasComponent implements OnInit {
   isReinstateModalOpen = false;
   isSubmittingReinstate = false;
   reinstateTarget: ResignedSewa | null = null;
-  reinstateForm: { date: Date | null; sewa: any[]; remarks: string } = {
+  reinstateForm: { date: Date | null; sewa: any[]; remarks: string , sewaMode: string | number} = {
     date: new Date(),
     sewa: [],
-    remarks: ''
+    remarks: '',
+    sewaMode: ''
   };
 
   // Selection
@@ -105,8 +106,8 @@ export class ResignedSewasComponent implements OnInit {
     { id: '2', label: 'No', value: 'no' }
   ];
   sewaModeOptions: DropdownOption[] = [
-    { id: '1', label: 'Regular', value: 'regular' },
-    { id: '2', label: 'Occasional', value: 'occasional' }
+    { id: '1', label: 'Regular', value: '1' },
+    { id: '0', label: 'Annual', value: '0' }
   ];
 
   moreFilters: any = {
@@ -115,7 +116,7 @@ export class ResignedSewasComponent implements OnInit {
     sewa: [],
     sewaInterest: [],
     sewaAllocated: [],
-    sewaMode: [],
+    sewaMode: '',
     badgeNo: '',
     name: '',
     relationName: '',
@@ -328,7 +329,7 @@ export class ResignedSewasComponent implements OnInit {
       sewa: [],
       sewaInterest: [],
       sewaAllocated: [],
-      sewaMode: [],
+      sewaMode: '',
       badgeNo: '',
       name: '',
       relationName: '',
@@ -531,7 +532,8 @@ export class ResignedSewasComponent implements OnInit {
     this.reinstateForm = {
       date: new Date(),
       sewa: [],
-      remarks: ''
+      remarks: '',
+      sewaMode: ''
     };
     this.isReinstateModalOpen = true;
   }
@@ -555,6 +557,10 @@ export class ResignedSewasComponent implements OnInit {
       this.snackbar.showError('Please select a date.');
       return;
     }
+    if (this.reinstateForm.sewaMode === '' || this.reinstateForm.sewaMode === null) {
+      this.snackbar.showError('Please select sewa Mode');
+      return;
+    }
 
     this.isSubmittingReinstate = true;
     const payload = {
@@ -562,7 +568,8 @@ export class ResignedSewasComponent implements OnInit {
       reinstatement_user_id: this.reinstateTarget.userId,
       reinstatement_status_change: 'Active',
       date: this.formatDateIso(this.reinstateForm.date),
-      remarks: (this.reinstateForm.remarks || '').trim()
+      remarks: (this.reinstateForm.remarks || '').trim(),
+      sewa_mode: this.reinstateForm.sewaMode
     };
 
     this.dataService.put<any>('v1/users/reinstatement', payload).pipe(

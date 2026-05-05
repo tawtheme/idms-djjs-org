@@ -9,6 +9,7 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
 import { AuthService } from '../../../../services/auth.service';
+import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -55,6 +56,7 @@ interface VolunteerRecord {
 export class ViewAttendanceModalComponent implements OnChanges {
   private dataService = inject(DataService);
   private auth = inject(AuthService);
+  private snackbar = inject(SnackbarService);
 
   get isVmsUser(): boolean {
     const user = this.auth.user();
@@ -139,7 +141,10 @@ export class ViewAttendanceModalComponent implements OnChanges {
     this.isLoadingAggregated = true;
     this.aggregatedLoaded = true;
     this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
-      catchError(() => of({ data: [] })),
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to load attendance summary.');
+        return of({ data: [] });
+      }),
       finalize(() => this.isLoadingAggregated = false)
     ).subscribe((response) => {
       const data = response.data || {};
@@ -221,7 +226,10 @@ export class ViewAttendanceModalComponent implements OnChanges {
     }
 
     this.dataService.post<any>(`v1/programs/${this.programId}/volunteers/attendance-details`, body).pipe(
-      catchError(() => of({ data: [] })),
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to load volunteer details.');
+        return of({ data: [] });
+      }),
       finalize(() => this.isLoadingDetails = false)
     ).subscribe((response) => {
       const records = response.data?.records || response.records || response.data || [];
@@ -309,7 +317,10 @@ export class ViewAttendanceModalComponent implements OnChanges {
       body,
       { responseType: 'blob' as 'json', observe: 'response' as const }
     ).pipe(
-      catchError(() => of(null))
+      catchError((err) => {
+        this.snackbar.showError(err?.error?.message || err?.message || 'Failed to export attendance details.');
+        return of(null);
+      })
     ).subscribe(async (response: any) => {
       if (!response) return;
       const blob: Blob = response.body instanceof Blob ? response.body : new Blob([response.body || '']);

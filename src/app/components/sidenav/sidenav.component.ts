@@ -106,11 +106,11 @@ export class SidenavComponent implements OnInit, OnDestroy {
       title: 'Programs & Services',
       items: [
         {
-          label: 'Manage Sewa',
+          label: 'Manage Department',
           icon: 'favorite',
           children: [
             { label: 'All Sewa', icon: 'list', route: '/sewa/all-sewa' },
-            { label: 'Allocate Sewa', icon: 'assignment', route: '/sewa/allocate-sewa' }
+           // { label: 'Allocate Sewa', icon: 'assignment', route: '/sewa/allocate-sewa' }
           ]
         },
         {
@@ -119,7 +119,7 @@ export class SidenavComponent implements OnInit, OnDestroy {
           children: [
             { label: 'Programs List', icon: 'list', route: '/programs/programs-list' },
             { label: 'Add Program', icon: 'add_circle', route: '/programs/add-program' },
-            { label: 'Sewa Volunteers', icon: 'people', route: '/programs/sewa-volunteers' }
+            // { label: 'Sewa Volunteers', icon: 'people', route: '/programs/sewa-volunteers' }
           ]
         },
         { label: 'Attendances', icon: 'checklist', route: '/programs/attendances' }

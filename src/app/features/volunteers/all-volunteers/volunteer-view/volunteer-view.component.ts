@@ -51,7 +51,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     { id: 'spiritual', label: 'Spiritual Detail' },
     { id: 'education', label: 'Education & Work' },
     { id: 'medical', label: 'Medical' },
-    { id: 'assignSewa', label: 'Assign Sewa' },
+    { id: 'assignSewa', label: 'Assign\Change Sewa' },
     { id: 'sewa', label: 'Sewa Tracking' },
     { id: 'program', label: 'Program Journey' },
     { id: 'donation', label: 'Donations' }
@@ -442,7 +442,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
             badgeId: t?.badge_id ?? '',
             allocatedDate: t?.created_at || '',
             unallocatedDate: t?.status === 0 ? (t?.updated_at || '') : '',
-            reason: t?.reason || ''
+            reason: [t?.reason, t?.remarks].filter(Boolean).join(' | ')
           }))
         }))
       }));

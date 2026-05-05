@@ -169,7 +169,7 @@ export class SewaTrackingModalComponent implements OnChanges {
             badgeId: t?.badge_id ?? '',
             allocatedDate: t?.created_at || '',
             unallocatedDate: t?.status === 0 ? (t?.updated_at || '') : '',
-            reason: t?.reason || ''
+            reason: [t?.reason, t?.remarks].filter(Boolean).join(' | ')
           }))
         }))
       }));

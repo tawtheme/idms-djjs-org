@@ -27,6 +27,7 @@
             <span>{{ act.label }}</span>
         </button>
         <span class="header-user-email" *ngIf="userEmail">{{ userEmail }}</span>
+        <span class="header-user-role" *ngIf="highestRole">{{ highestRole }}</span>
         <button class="logout-btn" (click)="onLogout()" type="button" title="Logout">
             <app-icon name="logout" />
             <span class="logout-label">Logout</span>

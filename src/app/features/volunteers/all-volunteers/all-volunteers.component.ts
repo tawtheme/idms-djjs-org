@@ -19,6 +19,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
 import { HeaderActionsService } from '../../../services/header-actions.service';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { SnackbarService } from '../../../shared/services/snackbar.service';
 
 export interface Volunteer {
     id: number;
@@ -54,6 +55,7 @@ export interface Volunteer {
     }>;
     enterBy?: string;
     sewaInterest: boolean;
+    sewaNoInterestReason?: string;
     sewaAllocated?: boolean;
     sewaMode?: string;
     roleId?: string;
@@ -90,6 +92,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     private dataService = inject(DataService);
     private headerActions = inject(HeaderActionsService);
     private router = inject(Router);
+    private snackbar = inject(SnackbarService);
 
     volunteers: Volunteer[] = [];
     allVolunteers: Volunteer[] = [];
@@ -166,6 +169,12 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         { id: '1', label: 'Regular', value: '1' },
         { id: '0', label: 'Annual', value: '0' }
     ];
+    sewaHeadOptions: DropdownOption[] = [
+        { id: 'none', label: 'None', value: '' },
+        { id: '1', label: 'Head', value: '1' },
+        { id: '2', label: 'SubHead', value: '2' }
+    ];
+    selectedSewaInterest = 'none';
 
     moreFilters: any = {
         correspondingBranch: [],
@@ -173,7 +182,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         sewa: [],
         sewaInterest: [],
         sewaAllocated: [],
-        sewaMode: []
+        sewaMode: [],
+        sewaHead:[]
     };
 
     // Pagination
@@ -273,9 +283,11 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         const setIfPresent = (key: string, value: any) => {
             if (value !== undefined && value !== null && value !== '') params[key] = value;
         };
-        setIfPresent('sewa_interest', this.moreFilters.sewaInterest[0]);
-        setIfPresent('sewa_assigned', this.moreFilters.sewaAllocated[0]);
+        setIfPresent('sewa_interest', this.moreFilters.sewaInterest[0] ?? 'none');
+        setIfPresent('sewa_assigned', this.moreFilters.sewaAllocated[0] ?? 'none'
+        );
         setIfPresent('sewa_mode', this.moreFilters.sewaMode[0]);
+        setIfPresent('sewa_head', this.moreFilters.sewaHead[0]);
         setIfMeaningful('sortByColumn', this.sortByField[0]);
         setIfMeaningful('orderBy', this.orderByDirection[0]);
 
@@ -402,6 +414,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
                 userSewas,
                 enterBy: item.user_created_by?.name || '',
                 sewaInterest: item.user_profile?.sewa_interest === 1 || item.sewa_interest === true,
+                sewaNoInterestReason: item.user_profile?.sewa_no_interest_reason || item.sewa_no_interest_reason || '',
                 sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
                 sewaMode: item.sewa_mode || primarySewa.mode || '',
                 roleId: roleId || undefined,
@@ -495,8 +508,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
             correspondingBranch: [],
             branchSearchType: [],
             sewa: [],
-            sewaInterest: [],
-            sewaAllocated: [],
+            sewaInterest: ['none'],
+            sewaAllocated: ['none'],
             sewaMode: []
         };
         this.currentPage = 1;
@@ -577,14 +590,18 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
 
     // Action handlers
     getActionOptions(volunteer: Volunteer): MenuOption[] {
-        return [
+        const options: MenuOption[] = [
             { id: 'view', label: 'View', value: 'view', icon: 'visibility' },
             { id: 'edit', label: 'Edit', value: 'edit', icon: 'edit' },
             { id: 'convert_desiring', label: 'Convert to Desiring Devotee', value: 'convert_desiring', icon: 'swap_horiz' },
             { id: 'change_role', label: 'Change Role', value: 'change_role', icon: 'trending_up' },
-            { id: 'change_branch', label: 'Change Branch', value: 'change_branch', icon: 'trending_up' },
+            // { id: 'change_branch', label: 'Change Branch', value: 'change_branch', icon: 'trending_up' },
             { id: 'generate_password', label: 'Generate Password', value: 'generate_password', icon: 'bolt' }
         ];
+        if (!volunteer.sewaInterest && (volunteer.sewaNoInterestReason || '').trim().toLowerCase() !== 'dead') {
+            options.push({ id: 'reinstate', label: 'Reinstate User', value: 'reinstate', icon: 'refresh' });
+        }
+        return options;
     }
 
     onAction(volunteer: Volunteer, action: any): void {
@@ -598,7 +615,92 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
             case 'change_role': this.changeRole(volunteer); break;
             case 'change_branch': this.changeBranch(volunteer); break;
             case 'generate_password': this.generatePassword(volunteer); break;
+            case 'reinstate': this.openReinstateModal(volunteer); break;
         }
+    }
+
+    // ── Reinstate User ──
+    isReinstateModalOpen = false;
+    isSubmittingReinstate = false;
+    reinstateTarget: Volunteer | null = null;
+    reinstateForm: { date: Date | null; sewa: any[]; remarks: string; sewaMode: string | number } = {
+        date: new Date(),
+        sewa: [],
+        remarks: '',
+        sewaMode: ''
+    };
+
+    reinstateSewaModeOptions: DropdownOption[] = [
+        { id: '1', label: 'Regular', value: '1' },
+        { id: '0', label: 'Annual', value: '0' }
+    ];
+
+    openReinstateModal(volunteer: Volunteer): void {
+        this.reinstateTarget = volunteer;
+        this.reinstateForm = {
+            date: new Date(),
+            sewa: [],
+            remarks: '',
+            sewaMode: ''
+        };
+        this.isReinstateModalOpen = true;
+    }
+
+    closeReinstateModal(): void {
+        this.isReinstateModalOpen = false;
+        this.reinstateTarget = null;
+        this.isSubmittingReinstate = false;
+    }
+
+    submitReinstate(): void {
+        if (this.isSubmittingReinstate || !this.reinstateTarget) return;
+
+        const sewaIds = (this.reinstateForm.sewa || []).map((s: any) => String(s));
+        if (sewaIds.length === 0) {
+            this.snackbar.showError('Please select at least one sewa.');
+            return;
+        }
+        if (!this.reinstateForm.date) {
+            this.snackbar.showError('Please select a date.');
+            return;
+        }
+        if (this.reinstateForm.sewaMode === '' || this.reinstateForm.sewaMode === null) {
+            this.snackbar.showError('Please select sewa mode.');
+            return;
+        }
+
+        const target = this.reinstateTarget as (Volunteer & { uuid?: string });
+        const original = this.allVolunteers.find(v => v.id === target.id) as (Volunteer & { uuid?: string }) | undefined;
+        const userId = target.uuid || original?.uuid || String(target.id);
+
+        this.isSubmittingReinstate = true;
+        const payload = {
+            reinst_sewa: sewaIds,
+            reinstatement_user_id: userId,
+            reinstatement_status_change: 'Active',
+            date: this.formatReinstateDate(this.reinstateForm.date),
+            remarks: (this.reinstateForm.remarks || '').trim(),
+            sewa_mode: this.reinstateForm.sewaMode
+        };
+
+        this.dataService.put<any>('v1/users/reinstatement', payload).pipe(
+            catchError((err) => {
+                this.snackbar.showError(err?.error?.message || 'Failed to reinstate user.');
+                return of(null);
+            }),
+            finalize(() => { this.isSubmittingReinstate = false; })
+        ).subscribe((response: any) => {
+            if (!response) return;
+            this.snackbar.showSuccess(response?.message || 'User reinstated successfully.');
+            this.closeReinstateModal();
+            this.loadVolunteers();
+        });
+    }
+
+    private formatReinstateDate(d: Date): string {
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return `${d.getFullYear()}-${month}-${day}`;
     }
 
     // Convert to Desiring Devotee confirmation modal state

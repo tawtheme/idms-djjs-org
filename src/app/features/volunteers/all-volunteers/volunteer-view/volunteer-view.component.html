@@ -308,7 +308,7 @@
             <!-- Assign Sewa -->
             <ng-container>
                 <section id="section-assignSewa" class="vv-section">
-                    <div class="vv-section__head"><h3>Assign Sewa</h3></div>
+                    <div class="vv-section__head"><h3>Assign\Change Sewa</h3></div>
                     <div class="view-grid view-grid--four">
                         <div class="view-field"><label>Active Program</label><div class="view-value">{{ display(assignSewa?.program?.name || assignSewa?.program_id) }}</div></div>
                         <div class="view-field"><label>Sewa</label><div class="view-value">{{ display(assignSewa?.sewa?.name || assignSewa?.sewa_id) }}</div></div>
@@ -352,7 +352,7 @@
                                         <td><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
                                         <td>{{ row.allocatedDate || 'N/A' }}</td>
                                         <td>{{ row.unallocatedDate || 'N/A' }}</td>
-                                        <td>{{ row.reason || 'N/A' }}</td>
+                                        <td>{{ row?.reason }}</td>
                                     </tr>
                                 </ng-container>
                             </tbody>

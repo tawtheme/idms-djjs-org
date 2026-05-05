@@ -165,6 +165,28 @@ export class AuthService {
     });
   }
 
+  getPositionRoleName(mode: 'highest' | 'lowest'): string | null {
+    const u = this.user(); // your user object
+  
+    // Access roles safely using ['roles'] or ['user_roles']
+    const roles: any[] = u?.['roles'] ?? u?.['user_roles'] ?? [];
+  
+    if (!Array.isArray(roles) || roles.length === 0) return null;
+  
+    const roleWithExtremePosition = roles.reduce((extremeRole, currentRole) => {
+      const extremePos = Number(extremeRole?.['position'] ?? (mode === 'lowest' ? Infinity : -Infinity));
+      const currentPos = Number(currentRole?.['position'] ?? (mode === 'lowest' ? Infinity : -Infinity));
+  
+      if (mode === 'lowest') {
+        return currentPos < extremePos ? currentRole : extremeRole;
+      } else {
+        return currentPos > extremePos ? currentRole : extremeRole;
+      }
+    }, roles[0]);
+  
+    return roleWithExtremePosition?.['name'] ?? null;
+  }
+
   // Comprehensive check that includes localStorage fallback
   // This prevents logout during development file changes/reloads
   checkAuth(): boolean {

@@ -45,7 +45,7 @@
                                 <td class="col-badge"><span class="badge-pill" *ngIf="row.badgeId !== ''">{{ row.badgeId }}</span></td>
                                 <td>{{ row.allocatedDate || 'N/A' }}</td>
                                 <td>{{ row.unallocatedDate || 'N/A' }}</td>
-                                <td>{{ row.reason || 'N/A' }}</td>
+                                <td>{{ row?.reason }}</td>
                             </tr>
                             <tr *ngIf="group.rows.length === 0">
                                 <td colspan="5" class="empty-row">No records</td>

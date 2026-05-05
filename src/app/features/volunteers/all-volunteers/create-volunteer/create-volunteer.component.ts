@@ -26,6 +26,8 @@ export interface CreateVolunteerForm {
     email: string;
     aadhaarNumber: string;
     branchRemarks: string;
+    personalEmail: string;
+    gender: string;
 }
 
 @Component({
@@ -84,7 +86,9 @@ export class CreateVolunteerComponent implements OnInit {
         whatsappNumber: '',
         email: '',
         aadhaarNumber: '',
-        branchRemarks: ''
+        branchRemarks: '',
+        personalEmail: '',
+        gender: ''
     };
 
     copyAsWhatsapp: boolean = false;
@@ -126,13 +130,18 @@ export class CreateVolunteerComponent implements OnInit {
         { id: '1', label: 'Regular', value: 1 },
         { id: '0', label: 'Annual', value: 0 }
     ];
+    genderOptions: DropdownOption[] = [
+        { id: '1', label: 'MALE', value: 'MALE' },
+        { id: '2', label: 'FEMALE', value: 'FEMALE' },
+        { id: '3', label: 'OTHER', value: 'OTHER' }
+      ];
     sewaHeadOptions: DropdownOption[] = [
         { id: '1', label: 'Header', value: 1 },
         { id: '2', label: 'Subhead', value: 2 }
     ];
     selectedSewaMode: any[] = [];
     selectedSewaHead: any[] = [];
-
+    selectedUserGender: any[] = [];
     readonly minAgeYears = 13;
     readonly dobMaxDate: Date = (() => {
         const d = new Date();
@@ -317,12 +326,15 @@ export class CreateVolunteerComponent implements OnInit {
     get emailError(): string {
         return emailError(this.form.email);
     }
-
+    get personalEmailError(): string {
+        return emailError(this.form.personalEmail);
+    }
     onReset(): void {
         this.resetForm();
         this.selectedSewas = [];
         this.selectedSewaMode = [];
         this.selectedSewaHead = [];
+        this.selectedUserGender = [];
         this.selectedProgram = [];
         this.selectedCorrespondingBranch = [];
         this.selectedTaskBranch = [];
@@ -346,7 +358,9 @@ export class CreateVolunteerComponent implements OnInit {
             whatsappNumber: '',
             email: '',
             aadhaarNumber: '',
-            branchRemarks: ''
+            branchRemarks: '',
+            personalEmail: '',
+            gender: '',
         };
     }
 
@@ -435,8 +449,13 @@ export class CreateVolunteerComponent implements OnInit {
         if (!this.form.fatherName && !this.form.motherName && !this.form.spouseName) {
             return 'Provide at least one of Father, Mother, or Spouse name.';
         }
+        if (this.selectedSewas[0] && (this.selectedSewaMode[0] === undefined || this.selectedSewaMode[0] === '')) {
+            return 'Sewa Mode is required.';
+        }
         if (!this.selectedCorrespondingBranch[0]) return 'Corresponding Branch is required.';
         if (!this.selectedTaskBranch[0]) return 'Task Branch is required.';
+        if (!this.selectedUserGender[0]) return 'Gender is required.';
+        if (this.form.personalEmail && this.personalEmailError) return this.personalEmailError;
         return null;
     }
 
@@ -468,6 +487,8 @@ export class CreateVolunteerComponent implements OnInit {
             sewa_id: this.selectedSewas[0],
             sewa_mode: this.selectedSewaMode[0],
             sewa_head: this.selectedSewaHead[0],
+            gender: this.selectedUserGender[0],
+            personal_email: this.form.personalEmail,
             proceed_forcefully: this.proceedForcefully ? 1 : 0
         };
 
