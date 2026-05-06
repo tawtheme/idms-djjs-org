@@ -662,9 +662,14 @@ export class EditVolunteerComponent implements OnInit {
     /** Tracks which tabs have already triggered their data fetches. */
     private loadedTabs = new Set<TabId>();
 
+   
     ngOnInit(): void {
         this.userId = this.route.snapshot.paramMap.get('id');
-        if (this.userId) this.loadTabData(this.activeTab);
+        if (this.userId){ 
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab)  this.activeTab = savedTab as TabId;
+            this.loadTabData(this.activeTab);
+        }
     }
 
     /** Lazily fetches the data needed for the given tab — first visit only. */
@@ -1376,6 +1381,7 @@ export class EditVolunteerComponent implements OnInit {
     setTab(id: TabId): void {
         this.activeTab = id;
         this.loadTabData(id);
+        localStorage.setItem(`activeTab`, id);
     }
 
     /** Read-only tabs (sewa/program/donation) hide the Save bar. */
@@ -1695,8 +1701,15 @@ export class EditVolunteerComponent implements OnInit {
         if (!this.userId) return;
         const programId = this.selectedAssignSewaProgram[0] ? String(this.selectedAssignSewaProgram[0]) : '';
         const sewaId = this.selectedAssignSewaSewas[0] ? String(this.selectedAssignSewaSewas[0]) : '';
-        if (!sewaId) {
-            this.snackbarService.showError('Sewa is required.');
+        const sewaMode = this.selectedAssignSewaMode[0] ? String(this.selectedAssignSewaMode[0]) : '';
+        if (!sewaId || !sewaMode) {
+            if (!sewaId && !sewaMode) {
+                this.snackbarService.showError('Sewa and Sewa Mode are required.');
+            } else if (!sewaId) {
+                this.snackbarService.showError('Sewa is required.');
+            } else {
+                this.snackbarService.showError('Sewa Mode is required.');
+            }
             return;
         }
         const exitType = String(this.selectedAssignSewaExitType[0] ?? '');
@@ -2839,6 +2852,7 @@ export class EditVolunteerComponent implements OnInit {
                 // Reload from server so newly-saved rows pick up their backend ids
                 // and we don't re-create duplicates on the next save.
                 this.reloadSection(sectionKey);
+                this.loadSewaTab();
             }
             this.savingSection = null;
         });
