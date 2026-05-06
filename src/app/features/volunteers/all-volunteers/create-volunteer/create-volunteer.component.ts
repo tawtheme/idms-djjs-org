@@ -136,7 +136,7 @@ export class CreateVolunteerComponent implements OnInit {
         { id: '3', label: 'OTHER', value: 'OTHER' }
       ];
     sewaHeadOptions: DropdownOption[] = [
-        { id: '1', label: 'Header', value: 1 },
+        { id: '1', label: 'Head', value: 1 },
         { id: '2', label: 'Subhead', value: 2 }
     ];
     selectedSewaMode: any[] = [];
