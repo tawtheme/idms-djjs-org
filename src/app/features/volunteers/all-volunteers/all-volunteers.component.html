@@ -319,6 +319,9 @@
                                                     Allocation Date: <strong>{{ us.allocationDate }}</strong>
                                                 </span>
                                             </span>
+                                            <span class="sewa-badge has-tooltip" *ngIf="us.head"> {{ us.head }}</span>
+                                            <span class="sewa-badge has-tooltip" *ngIf="us.subHead"> {{ us.subHead }}</span>
+                                            <span class="sewa-badge has-tooltip" *ngIf="us.sewaMode"> {{ us.sewaMode }}</span>
                                         </div>
                                     </ng-container>
                                 </div>

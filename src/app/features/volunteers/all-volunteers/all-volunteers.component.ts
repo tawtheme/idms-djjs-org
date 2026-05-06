@@ -52,6 +52,9 @@ export interface Volunteer {
         sewaName: string;
         branchName: string;
         badgeId: number | string;
+        head: number | string;
+        subHead: number | string;
+        sewaMode: number | string;
     }>;
     enterBy?: string;
     sewaInterest: boolean;
@@ -376,6 +379,9 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
                 sewaName: us?.sewa?.name || '',
                 branchName: us?.branch?.name || '',
                 badgeId: us?.badge_id ?? '',
+                head: us?.head ? "Head" : '',
+                subHead: us?.sub_head ? "SubHead": '',
+                sewaMode: us?.sewa_mode && us.sewa_mode == 1 ? 'Regular' : "Annual",
                 allocationDate: this.formatAllocationDate(us?.created_at)
             }));
 

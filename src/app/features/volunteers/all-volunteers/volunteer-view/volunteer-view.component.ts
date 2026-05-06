@@ -563,7 +563,7 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
     if (value === null || value === undefined || value === '') return '—';
     const s = String(value);
     if (s === '1') return 'Head';
-    if (s === '2') return 'Subhead';
+    if (s === '2') return 'SubHead';
     return String(value);
   }
 
