@@ -290,7 +290,26 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.totalItems = response.total || response.meta?.total || this.allRecords.length;
     });
   }
-
+  onDonationInput(event: any) {
+    let value = event.target.value;
+  
+    // Remove non-digit characters (no decimals, no letters)
+    value = value.replace(/\D/g, '');
+  
+    // Limit to max 4 digits
+    if (value.length > 4) {
+      value = value.slice(0, 4);
+    }
+  
+    // Ensure max 5000
+    if (Number(value) > 5000) {
+      value = '5000';
+    }
+  
+    // Update the model and input
+    this.fetchUserDonation = value;
+    event.target.value = value;
+  }
   onEnterId(): void {
     if (!this.enterId.trim()) return;
 
@@ -327,6 +346,10 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.leaveMode = false;
       this.enterId = '';
 
+      if (this.attendanceMode === 'checkout' && this.fetchedUser && !this.fetchUserWarning) {
+        this.snackbar.showSuccess('Checkout successfully!');
+        return; // skip submitAttendance
+      }
       // Auto-submit on barcode scan: check-in → status 1, checkout → status 2.
       if (this.fetchedUser && !this.fetchUserWarning && this.attendanceMode === 'checkout') {
         this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
@@ -452,6 +475,23 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.fetchUserError = 'Donation amount is required.';
       return;
     }
+    let numericValue = donation.toString().replace(/\D/g, '');
+
+    // Limit to max 4 digits
+    if (numericValue.length > 4) {
+      numericValue = numericValue.slice(0, 4);
+      this.fetchUserError = 'Donation cannot exceed 4 digits';
+      return
+    }
+
+    // Ensure number does not exceed 5000
+    if (Number(numericValue) > 5000) {
+      numericValue = '5000';
+      this.fetchUserError = 'Maximum donation allowed is 5000';
+      return
+    }
+
+    this.fetchUserDonation = numericValue;
     this.fetchUserError = null;
     this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
   }

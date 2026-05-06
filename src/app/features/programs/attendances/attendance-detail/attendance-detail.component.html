@@ -344,7 +344,8 @@
 
             <div class="fetch-user-form">
                 <label>Donation Amount <span class="required">*</span></label>
-                <input #donationInput type="number" class="form-control" [(ngModel)]="fetchUserDonation" (ngModelChange)="fetchUserError = null" placeholder="Enter amount" />
+                <input #donationInput type="text" (input)="onDonationInput($event)" class="form-control" [(ngModel)]="fetchUserDonation" (ngModelChange)="fetchUserError = null" placeholder="Enter amount" min="0"
+                max="5000"/>
                 <ng-container *ngIf="leaveMode">
                     <label>Remarks <span class="required">*</span></label>
                     <input #remarksInput type="text" class="form-control" [(ngModel)]="fetchUserRemarks" (ngModelChange)="fetchUserError = null" placeholder="Enter remarks" />
