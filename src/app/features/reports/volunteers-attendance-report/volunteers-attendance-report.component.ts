@@ -292,6 +292,7 @@ export class VolunteersAttendanceReportComponent implements OnInit {
             };
         });
     }
+    
 
 private resolveStatusLabel(status: any): string {
         const s = String(status ?? '').trim().toLowerCase();

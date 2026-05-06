@@ -495,20 +495,98 @@ private formatDisplayDate(value: string | null | undefined): string {
     this.loadAssignSewaOptions(program.id);
   }
 
-  private loadAssignSewaOptions(programId: string): void {
-    this.isLoadingAssignSewas = true;
-    this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
-      catchError(() => of({ data: [] }))
-    ).subscribe((response) => {
-      const sewas = response?.data?.sewas || response?.data || [];
-      this.assignSewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
-        id: String(s.id),
-        label: s.name || s.sewa_name || '',
-        value: String(s.id)
-      }));
-      this.isLoadingAssignSewas = false;
+  // private loadAssignSewaOptions(programId: string): void {
+  //   this.isLoadingAssignSewas = true;
+  //   this.dataService.get<any>(`v1/options/programSewas?program_id=${programId}`).pipe(
+  //     catchError(() => of({ data: [] }))
+  //   ).subscribe((response) => {
+  //     const sewas = response?.data?.sewas || response?.data || [];
+  //     this.assignSewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+  //       id: String(s.id),
+  //       label: s.name || s.sewa_name || '',
+  //       value: String(s.id)
+  //     }));
+  //     this.isLoadingAssignSewas = false;
+  //   });
+  // }
+
+private loadAssignSewaOptions(programId: string): void {
+  this.isLoadingAssignSewas = true;
+    this.dataService.get<any>(`v1/programs/${programId}/volunteers/attendance-summary`).pipe(
+    catchError(() => of({ data: [] }))
+  ).subscribe((response) => {
+    // 1. Extract data safely
+    const sewaList = response?.data?.sewa_Ids || response?.data || [];
+    const assignedDepartments = response?.data?.items || [];
+console.log('Assigned Departments:', assignedDepartments);
+    // 2. Map the options
+    this.assignSewaOptions = (Array.isArray(sewaList) ? sewaList : []).map((s: any) => {
+      const sewaId = s.sewa?.id;
+
+      // 3. Check if this Sewa ID exists in the assignedDepartments list
+      const isAlreadyAssigned = (Array.isArray(assignedDepartments) ? assignedDepartments : [])
+        .map((dept: any) => {
+          if(String(dept.sewa_id) === String(sewaId)){
+            return dept.total_volunteers +' assigned';
+          }
+          return null;
+        })
+        .filter((v): v is string => !!v)[0];
+
+
+      // 4. Return the formatted object
+      return {
+        id: String(sewaId),
+        label: s.sewa?.name || s.sewa?.sewa_name || 'Unknown Sewa',
+        value: String(sewaId),
+       description: isAlreadyAssigned // Grayed out if already assigned
+      };
     });
-  }
+
+    this.isLoadingAssignSewas = false;
+  });
+}
+
+
+  //  loadSewaList(): void {
+  //     this.isLoadingSewaList = true;
+  //     this.dataService.get<any>(`v1/programs/${this.programId}/volunteers/attendance-summary`).pipe(
+  //       catchError(() => of(null)),
+  //       finalize(() => this.isLoadingSewaList = false)
+  //     ).subscribe((response) => {
+  //       if (!response) {
+  //         this.sewaList = [];
+  //         return;
+  //       }
+  //       const data = response.data || {};
+  //       const items = data.items || [];
+  //       const summary = (Array.isArray(items) ? items : []).map((item: any) => ({
+  //         sewaId: String(item.sewa_id || ''),
+  //         sewaName: item.sewa_name || '',
+  //         totalVolunteers: item.total_volunteers || 0
+  //       }));
+  
+  //       const allSewas = data.sewa_Ids ?? data.sewaIds ?? data.sewa_ids ?? [];
+  //       const normalized: SewaListItem[] = this.normalizeSewaIds(allSewas);
+  
+  //       const byId = new Map<string, SewaListItem>();
+  //       // Seed from sewa_Ids first so order/coverage is preserved.
+  //       normalized.forEach((s) => { if (s.sewaId) byId.set(s.sewaId, s); });
+  //       // Overlay with items so we pick up real volunteer counts and any missing ids.
+  //       summary.forEach((s) => {
+  //         const existing = byId.get(s.sewaId);
+  //         byId.set(s.sewaId, {
+  //           sewaId: s.sewaId,
+  //           sewaName: s.sewaName || existing?.sewaName || '',
+  //           totalVolunteers: s.totalVolunteers
+  //         });
+  //       });
+  
+  //       this.sewaList = Array.from(byId.values());
+  //       this.activeSewaTabIndex = -1;
+  //       this.currentVolunteers = [];
+  //     });
+  //   }
 
   closeAssignVolunteerModal(): void {
     this.assignVolunteerModalOpen = false;
