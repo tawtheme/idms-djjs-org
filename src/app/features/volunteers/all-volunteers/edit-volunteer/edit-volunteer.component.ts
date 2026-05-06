@@ -595,7 +595,7 @@ export class EditVolunteerComponent implements OnInit {
         sewa_assigned_branch: '' as string,
         branch_remarks: '',
         sewa_unAssigned_reason: '',
-        sewa_unAssigned_remarks: '',
+        unAssigned_remarks: '',
         badge_id: '' as string
     };
     assignSewaProgramOptions: DropdownOption[] = [];
