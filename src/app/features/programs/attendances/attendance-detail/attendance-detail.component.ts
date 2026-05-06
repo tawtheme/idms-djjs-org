@@ -328,10 +328,10 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.enterId = '';
 
       // Auto-submit on barcode scan: check-in → status 1, checkout → status 2.
-      //if (this.fetchedUser && !this.fetchUserWarning) {
-        //this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
-        //return;
-      //}
+      if (this.fetchedUser && !this.fetchUserWarning && this.attendanceMode === 'checkout') {
+        this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
+        return;
+      }
 
       this.showFetchUserModal = true;
       if (this.fetchedUser) {
@@ -369,7 +369,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.loadSummary();
       const fallback = status === 0 ? 'Leave marked successfully.' : status === 2 ? 'Check-out marked successfully.' : 'Attendance marked successfully.';
       this.snackbar.showSuccess(response?.message || fallback);
+     
     });
+  
   }
 
   /**
@@ -446,7 +448,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     const donation = Number(this.fetchUserDonation);
 
     // !this.fetchUserDonation|| donation <= 0  || isNaN(donation)
-    if (donation=== null || donation  === undefined || String(donation).trim() === '' ) {
+    if (donation=== null || donation  === undefined || String(donation).trim() === '' || isNaN(donation) ) {
       this.fetchUserError = 'Donation amount is required.';
       return;
     }
