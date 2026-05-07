@@ -128,12 +128,14 @@
                         <th>CheckIn</th>
                         <th>Remarks</th>
                         <th>Mobile</th>
-                        <th>Address</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoadingDetails">
-                        <tr *ngFor="let record of volunteerRecords; trackBy: trackById">
+                        <ng-container *ngFor="let record of volunteerRecords; trackBy: trackById">
+                        <tr class="data-row"
+                        [class.is-expanded]="expandedIds.has(record.id)"
+                        (click)="toggleExpand(record.id)">
                             <td><span class="id-badge">{{ record.id }}</span></td>
                             <td>
                                 <div class="name-with-image">
@@ -168,11 +170,26 @@
                                 <span *ngIf="record.mobile">{{ record.mobile }}</span>
                                 <span *ngIf="!record.mobile" class="text-muted">-</span>
                             </td>
-                            <td>
-                                <span *ngIf="record.address">{{ record.address }}</span>
-                                <span *ngIf="!record.address" class="text-muted">-</span>
-                            </td>
                        </tr>
+                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row">
+                            <td [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
+                                <div class="expanded-info">
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Phone</span>
+                                        <span class="expanded-info__value">{{ record.mobile || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Home Branch</span>
+                                        <span class="expanded-info__value">{{ record.homeBranch || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Address</span>
+                                        <span class="expanded-info__value">{{ formatAddress(record) || '-' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                       </ng-container>
                         <tr *ngIf="volunteerRecords.length === 0">
                             <td colspan="8" class="empty-cell">
                                 <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>

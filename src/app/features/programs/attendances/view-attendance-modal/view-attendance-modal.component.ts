@@ -12,7 +12,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
-
+import { ActivatedRoute, RouterModule } from '@angular/router';
 interface AggregatedRow {
   sewaName: string;
   totalVolunteers: number;
@@ -37,6 +37,10 @@ interface VolunteerRecord {
   remarks: string;
   mobile: string;
   address: string;
+  city: string;
+  state: string;
+  district: string;
+  homeBranch: string;
 }
 
 @Component({
@@ -50,7 +54,8 @@ interface VolunteerRecord {
     DropdownComponent,
     PagerComponent,
     EmptyStateComponent,
-    ImagePreviewDirective
+    ImagePreviewDirective,
+    RouterModule
   ],
   templateUrl: './view-attendance-modal.component.html',
   styleUrls: ['./view-attendance-modal.component.scss']
@@ -59,7 +64,7 @@ export class ViewAttendanceModalComponent implements OnChanges {
   private dataService = inject(DataService);
   private auth = inject(AuthService);
   private snackbar = inject(SnackbarService);
-
+  private route = inject(ActivatedRoute);
   get isVmsUser(): boolean {
     const user = this.auth.user();
     const roles: any[] = (user?.['roles'] ?? user?.['user_roles']) || [];
@@ -77,11 +82,13 @@ export class ViewAttendanceModalComponent implements OnChanges {
 
   // Tabs
   activeTab: 'aggregated' | 'details' = 'aggregated';
-
+  attendanceMode: 'checkin' | 'checkout' = 'checkin';
   // Aggregated data
   aggregatedRows: AggregatedRow[] = [];
   isLoadingAggregated = false;
-
+  ngOnInit(): void {
+    this.attendanceMode = (this.route.snapshot.queryParamMap.get('mode') as 'checkin' | 'checkout') || 'checkin';
+  }
   // Volunteer details
   volunteerRecords: VolunteerRecord[] = [];
   isLoadingDetails = false;
@@ -107,6 +114,19 @@ export class ViewAttendanceModalComponent implements OnChanges {
   totalItems = 0;
 
   // Track which tabs have already loaded — avoids re-fetching when user toggles back
+
+  expandedIds = new Set<string>();
+  toggleExpand(id: string): void {
+    if (!id) return;
+    if (this.expandedIds.has(id)) this.expandedIds.delete(id);
+    else this.expandedIds.add(id);
+  }
+  formatAddress(record: VolunteerRecord): string {
+    return [record.address, record.city, record.district, record.state]
+      .map(p => (p || '').trim())
+      .filter(Boolean)
+      .join(', ');
+  }
   private aggregatedLoaded = false;
   private detailsLoaded = false;
 
@@ -248,7 +268,11 @@ export class ViewAttendanceModalComponent implements OnChanges {
         checkOut: item.checked_out || item.check_out || item.checkout_time || '',
         remarks: item.remarks || '',
         mobile: item.user_phone || item.user_alternate_phone || '',
-        address: item.address_1 || item.city || item.district || item.home_branch
+        address: item.address_1 || item.city || item.district || item.home_branch,
+        city: item.city || "",
+        state: item.state || "",
+        district: item.district || "",
+        homeBranch: item.home_branch || "",
       }));
       this.totalItems = response.total || response.meta?.total || response.meta?.itemsCount || this.volunteerRecords.length;
     });
@@ -353,7 +377,11 @@ export class ViewAttendanceModalComponent implements OnChanges {
           CheckIn: item.checked_in || item.check_in || item.checkin_time || '',
           Remarks: item.remarks || '',
           Mobile: item.user_phone || item.user_alternate_phone || '',
-          Address: item.address_1 || item.city || item.district || item.home_branch
+          Address: item.address_1 || item.city || item.district || item.home_branch,
+          City: item.city || "",
+          State: item.state || "",
+          District: item.district || "",
+          HomeBranch: item.home_branch || ""
         }));
         this.downloadAsExcel(rows, 'volunteer-attendance-details.xls');
         return;
