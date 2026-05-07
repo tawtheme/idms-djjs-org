@@ -1,4 +1,9 @@
 <div class="vv-shell">
+    <!-- Loading -->
+    <div class="vv-state vv-state--loading" *ngIf="isLoading">
+        <app-loading [size]="'medium'" [type]="'spinner'" [message]="'Loading volunteer…'"></app-loading>
+    </div>
+
     <!-- Sidebar -->
     <aside class="vv-sidebar" *ngIf="!isLoading && !error && user">
         <div class="vv-profile">
@@ -157,7 +162,15 @@
                 <section id="section-idproofs" class="vv-section">
                     <div class="vv-section__head"><h3>Id Proofs</h3></div>
                     <div class="view-grid">
-                        <div class="view-field"><label>Aadhar Number</label><div class="view-value">{{ display(aadhaar?.aadhaar_number) }}</div></div>
+                        <div class="view-field">
+                            <label>Aadhar Number</label>
+                            <div class="view-value view-value--with-action">
+                                <span>{{ aadhaar?.aadhaar_number ? (showAadhaarNumber ? aadhaar.aadhaar_number : maskAadhaar(aadhaar.aadhaar_number)) : '—' }}</span>
+                                <button *ngIf="aadhaar?.aadhaar_number" type="button" class="view-value__toggle" (click)="showAadhaarNumber = !showAadhaarNumber" [attr.aria-label]="showAadhaarNumber ? 'Hide Aadhar number' : 'Show Aadhar number'">
+                                    <app-icon [name]="showAadhaarNumber ? 'visibility_off' : 'visibility'" [size]="16" />
+                                </button>
+                            </div>
+                        </div>
                         <div class="view-field"><label>Aadhar Address</label><div class="view-value">{{ display(aadhaar?.address) }}</div></div>
                         <div class="view-field"><label>Aadhar Area</label><div class="view-value">{{ display(aadhaar?.ashram_adhaar_area_get_one?.name || aadhaar?.ashram_area_id) }}</div></div>
                         <div class="view-field view-field--full">
