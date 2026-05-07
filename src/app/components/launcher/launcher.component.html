@@ -39,3 +39,15 @@
         </div>
     </div>
 </div>
+
+<app-confirmation-dialog
+    [isOpen]="showLogoutConfirm"
+    title="Confirm Logout"
+    message="Are you sure you want to log out?"
+    confirmLabel="Logout"
+    cancelLabel="Cancel"
+    confirmType="danger"
+    icon="logout"
+    (confirm)="confirmLogout()"
+    (cancel)="cancelLogout()">
+</app-confirmation-dialog>

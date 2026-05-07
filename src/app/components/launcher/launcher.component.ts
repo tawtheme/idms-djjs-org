@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, inject, OnInit, OnDestroy } from '@ang
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { AuthService } from '../../services/auth.service';
 
 interface LauncherItem {
@@ -20,7 +21,7 @@ interface LauncherGroup {
 @Component({
   selector: 'app-launcher',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, ConfirmationDialogComponent],
   templateUrl: './launcher.component.html',
   styleUrls: ['./launcher.component.scss']
 })
@@ -32,6 +33,7 @@ export class LauncherComponent implements OnInit, OnDestroy {
 
   activeGroupIndex = 0;
   currentTime = '';
+  showLogoutConfirm = false;
 
   ngOnInit(): void {
     this.updateTime();
@@ -115,7 +117,16 @@ export class LauncherComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
+    this.showLogoutConfirm = true;
+  }
+
+  confirmLogout(): void {
+    this.showLogoutConfirm = false;
     this.auth.logout();
     this.router.navigateByUrl('/login');
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm = false;
   }
 }

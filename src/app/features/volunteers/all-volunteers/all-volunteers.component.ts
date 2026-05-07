@@ -190,6 +190,8 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         sewaHead:[]
     };
 
+    showAdvancedFilters = false;
+
     // Pagination
     pageSizeOptions: number[] = [20, 50, 100];
     pageSize = 20;
@@ -1258,6 +1260,82 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
 
     activeMoreFiltersCount(): number {
         return Object.values(this.moreFilters).filter((v: any) => Array.isArray(v) && v.length > 0).length;
+    }
+
+    activeFilterCount(): number {
+        return this.activeFilterChips().length;
+    }
+
+    activeFilterChips(): Array<{ key: string; label: string; value: string }> {
+        const chips: Array<{ key: string; label: string; value: string }> = [];
+        const labelOf = (opts: DropdownOption[], value: any): string => {
+            const v = String(value);
+            return opts.find(o => String(o.value) === v)?.label || v;
+        };
+
+        if (this.selectedTaskBranch.length > 0) {
+            chips.push({ key: 'taskBranch', label: 'Task Branch', value: labelOf(this.taskBranchOptions, this.selectedTaskBranch[0]) });
+        }
+        if (this.moreFilters.correspondingBranch?.length > 0) {
+            chips.push({ key: 'correspondingBranch', label: 'Corresponding Branch', value: labelOf(this.correspondingBranchOptions, this.moreFilters.correspondingBranch[0]) });
+        }
+        if (this.moreFilters.branchSearchType?.length > 0) {
+            chips.push({ key: 'branchSearchType', label: 'Branch Search Type', value: labelOf(this.branchSearchTypeOptions, this.moreFilters.branchSearchType[0]) });
+        }
+        if (this.moreFilters.sewa?.length > 0) {
+            chips.push({ key: 'sewa', label: 'Sewa', value: labelOf(this.sewaOptions, this.moreFilters.sewa[0]) });
+        }
+        if (this.filterFields.badgeNo) {
+            chips.push({ key: 'badgeNo', label: 'Badge No', value: this.filterFields.badgeNo });
+        }
+        if (this.filterFields.name) {
+            chips.push({ key: 'name', label: 'Name', value: this.filterFields.name });
+        }
+        if (this.selectedGender.length > 0) {
+            chips.push({ key: 'gender', label: 'Gender', value: labelOf(this.genderOptions, this.selectedGender[0]) });
+        }
+        if (this.filterFields.relationName) {
+            chips.push({ key: 'relationName', label: 'Relation Name', value: this.filterFields.relationName });
+        }
+        if (this.filterFields.mobileNo) {
+            chips.push({ key: 'mobileNo', label: 'Mobile No.', value: this.filterFields.mobileNo });
+        }
+        if (this.filterFields.uid) {
+            chips.push({ key: 'uid', label: 'UID', value: this.filterFields.uid });
+        }
+        if (this.moreFilters.sewaInterest?.length > 0) {
+            chips.push({ key: 'sewaInterest', label: 'Sewa Interest', value: labelOf(this.sewaInterestOptions, this.moreFilters.sewaInterest[0]) });
+        }
+        if (this.moreFilters.sewaAllocated?.length > 0) {
+            chips.push({ key: 'sewaAllocated', label: 'Sewa Allocated', value: labelOf(this.sewaAllocatedOptions, this.moreFilters.sewaAllocated[0]) });
+        }
+        if (this.moreFilters.sewaMode?.length > 0) {
+            chips.push({ key: 'sewaMode', label: 'Sewa Mode', value: labelOf(this.sewaModeOptions, this.moreFilters.sewaMode[0]) });
+        }
+        if (this.moreFilters.sewaHead?.length > 0) {
+            chips.push({ key: 'sewaHead', label: 'Sewa Head', value: labelOf(this.sewaHeadOptions, this.moreFilters.sewaHead[0]) });
+        }
+        return chips;
+    }
+
+    removeFilterChip(key: string): void {
+        switch (key) {
+            case 'taskBranch': this.selectedTaskBranch = []; break;
+            case 'correspondingBranch': this.moreFilters.correspondingBranch = []; break;
+            case 'branchSearchType': this.moreFilters.branchSearchType = []; break;
+            case 'sewa': this.moreFilters.sewa = []; break;
+            case 'badgeNo': this.filterFields.badgeNo = ''; break;
+            case 'name': this.filterFields.name = ''; break;
+            case 'gender': this.selectedGender = []; break;
+            case 'relationName': this.filterFields.relationName = ''; break;
+            case 'mobileNo': this.filterFields.mobileNo = ''; break;
+            case 'uid': this.filterFields.uid = ''; break;
+            case 'sewaInterest': this.moreFilters.sewaInterest = []; break;
+            case 'sewaAllocated': this.moreFilters.sewaAllocated = []; break;
+            case 'sewaMode': this.moreFilters.sewaMode = []; break;
+            case 'sewaHead': this.moreFilters.sewaHead = []; break;
+        }
+        this.onSearchChange();
     }
 
     hasAnyActiveFilter(): boolean {

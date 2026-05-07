@@ -1,7 +1,7 @@
 <div class="volunteers-container">
     <!-- Search & Filter Panel -->
     <div class="search-panel">
-        <div class="filters-grid filters-grid--four">
+        <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
                 <label>Task Branch</label>
                 <app-dropdown
@@ -50,7 +50,6 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-
             <div class="filter-field">
                 <label>Badge No</label>
                 <div class="input-wrap">
@@ -67,18 +66,6 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Gender</label>
-                <app-dropdown
-                    [options]="genderOptions"
-                    [selectedValues]="selectedGender"
-                    placeholder="None"
-                    [searchable]="true"
-                    [autocomplete]="true"
-                    (selectionChange)="selectedGender = $event; onSearchChange()"
-                    [closeOnSelect]="true">
-                </app-dropdown>
-            </div>
-            <div class="filter-field">
                 <label>Name</label>
                 <div class="input-wrap">
                     <input
@@ -93,7 +80,54 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-field filter-field--action">
+                <div class="filter-actions">
+                    <button
+                        type="button"
+                        class="filter-toggle"
+                        [class.filter-toggle--active]="showAdvancedFilters || activeFilterCount() > 0"
+                        (click)="showAdvancedFilters = !showAdvancedFilters">
+                        <app-icon name="tune" />
+                        <span>Filter</span>
+                        <span *ngIf="activeFilterCount() > 0" class="filter-count">{{ activeFilterCount() }}</span>
+                        <app-icon
+                            name="expand_more"
+                            class="filter-toggle__arrow"
+                            [class.filter-toggle__arrow--up]="showAdvancedFilters" />
+                    </button>
+                    <button
+                        *ngIf="activeFilterCount() > 0"
+                        type="button"
+                        class="filter-clear"
+                        (click)="resetFilter()">
+                        Clear all
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <app-side-panel
+        [isOpen]="showAdvancedFilters"
+        title="More Filters"
+        width="420px"
+        position="right"
+        (close)="showAdvancedFilters = false">
+        <div class="filter-panel">
+            <div class="filter-panel__field">
+                <label>Gender</label>
+                <app-dropdown
+                    [options]="genderOptions"
+                    [selectedValues]="selectedGender"
+                    placeholder="None"
+                    [searchable]="true"
+                    [autocomplete]="true"
+                    (selectionChange)="selectedGender = $event; onSearchChange()"
+                    [closeOnSelect]="true">
+                </app-dropdown>
+            </div>
+            <div class="filter-panel__field">
                 <label>Relation Name</label>
                 <div class="input-wrap">
                     <input
@@ -108,8 +142,7 @@
                     </button>
                 </div>
             </div>
-
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Mobile No.</label>
                 <div class="input-wrap">
                     <input
@@ -124,7 +157,7 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>UID</label>
                 <div class="input-wrap">
                     <input
@@ -139,7 +172,7 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Sewa Interest</label>
                 <app-dropdown
                     [options]="sewaInterestOptions"
@@ -151,7 +184,7 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Sewa Allocated</label>
                 <app-dropdown
                     [options]="sewaAllocatedOptions"
@@ -163,8 +196,7 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Sewa Mode</label>
                 <app-dropdown
                     [options]="sewaModeOptions"
@@ -176,7 +208,7 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Sewa Head</label>
                 <app-dropdown
                     [options]="sewaHeadOptions"
@@ -188,7 +220,8 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+
+            <div class="filter-panel__field">
                 <label>Sort By</label>
                 <app-dropdown
                     [options]="sortByOptions"
@@ -200,8 +233,8 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
-                <label>Order By</label>
+            <div class="filter-panel__field">
+                <label>Order</label>
                 <app-dropdown
                     [options]="orderByOptions"
                     [selectedValues]="orderByDirection"
@@ -213,6 +246,38 @@
                 </app-dropdown>
             </div>
         </div>
+        <div slot="footer" class="filter-panel__footer">
+            <button
+                type="button"
+                class="btn btn--secondary btn--md"
+                [disabled]="activeFilterCount() === 0"
+                (click)="resetFilter()">
+                Clear all
+            </button>
+            <button
+                type="button"
+                class="btn btn--primary btn--md"
+                (click)="showAdvancedFilters = false">
+                Done
+            </button>
+        </div>
+    </app-side-panel>
+
+    <!-- Active filter chips -->
+    <div *ngIf="activeFilterChips().length > 0" class="active-filters">
+        <span class="active-filters__label">Active filters:</span>
+        <span class="active-filters__chip" *ngFor="let chip of activeFilterChips()">
+            <span class="active-filters__chip-key">{{ chip.label }}:</span>
+            <span class="active-filters__chip-value">{{ chip.value }}</span>
+            <button
+                type="button"
+                class="active-filters__chip-remove"
+                (click)="removeFilterChip(chip.key)"
+                [attr.aria-label]="'Remove ' + chip.label + ' filter'">
+                <app-icon name="close" [size]="12" />
+            </button>
+        </span>
+        <button type="button" class="active-filters__clear" (click)="resetFilter()">Clear all</button>
     </div>
 
     <!-- Error state -->
@@ -363,6 +428,10 @@
                                 <app-empty-state
                                     [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Volunteers Found'"
                                     [description]="hasAnyActiveFilter() ? 'No volunteers match your search criteria.' : 'There are no volunteers available at the moment.'"
+                                    [showButton]="hasAnyActiveFilter()"
+                                    [buttonText]="'Clear filters'"
+                                    [buttonIcon]="'close'"
+                                    (buttonClick)="resetFilter()"
                                     [size]="'small'">
                                 </app-empty-state>
                             </td>

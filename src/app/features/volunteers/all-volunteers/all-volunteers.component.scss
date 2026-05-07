@@ -151,6 +151,272 @@
             grid-template-columns: 1fr;
         }
     }
+
+    // Primary row: 6 filter fields + Filter toggle button (auto-width)
+    &--primary {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+
+        @media (max-width: 1280px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        }
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            .filter-field--action { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+
+            .filter-field--action { grid-column: auto; }
+        }
+    }
+
+    // Advanced row: 6 filter fields per row
+    &--advanced {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+
+        @media (max-width: 1280px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+.filter-field--action {
+    align-self: end;
+
+    .filter-toggle {
+        height: 32px;
+        white-space: nowrap;
+    }
+}
+
+.filter-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-clear {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: $color-primary-600;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 4px;
+    white-space: nowrap;
+
+    &:hover {
+        color: $color-primary-700;
+        text-decoration: underline;
+    }
+}
+
+// Filter side panel layout
+.filter-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    &__section-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: $color-gray-700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding-bottom: 4px;
+    }
+
+    &__divider {
+        height: 1px;
+        background: $color-gray-200;
+        margin: 8px 0 4px;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0;
+            color: $color-gray-600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid $color-gray-200;
+            border-radius: 6px;
+            font-size: 13px;
+            color: $color-gray-900;
+            background: $color-white;
+            outline: none;
+            height: 36px;
+
+            &:hover { border-color: $color-gray-300; }
+            &:focus { border-color: $color-primary-400; }
+        }
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+}
+
+// Active filter chips
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+
+    &__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 6px 4px 10px;
+        background: $color-primary-50;
+        color: $color-primary-700;
+        border: 1px solid $color-primary-100;
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 1.2;
+    }
+
+    &__chip-key {
+        font-weight: 600;
+    }
+
+    &__chip-value {
+        color: $color-primary-700;
+    }
+
+    &__chip-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        border-radius: 50%;
+        padding: 0;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+    }
+
+    &__clear {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: $color-primary-600;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 6px;
+        margin-left: 4px;
+
+        &:hover {
+            color: $color-primary-700;
+            text-decoration: underline;
+        }
+    }
+}
+
+// Results bar (sits between filters and table)
+.results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    margin-top: 4px;
+
+    &__count {
+        font-size: 13px;
+        color: $color-gray-600;
+        font-weight: 500;
+    }
+
+    &__sort {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .sort-field {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 160px;
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: $color-gray-600;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+        app-dropdown {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        &__sort {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sort-field { min-width: 0; }
+    }
 }
 
 .filter-field {
