@@ -163,6 +163,24 @@
                                 <span *ngIf="!record.remarks" class="text-muted">-</span>
                             </td>
                         </tr>
+                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row">
+                            <td [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
+                                <div class="expanded-info">
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Phone</span>
+                                        <span class="expanded-info__value">{{ record.phone || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Home Branch</span>
+                                        <span class="expanded-info__value">{{ record.homeBranch || '-' }}</span>
+                                    </div>
+                                    <div class="expanded-info__item">
+                                        <span class="expanded-info__label">Address</span>
+                                        <span class="expanded-info__value">{{ formatAddress(record) || '-' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                         <tr *ngIf="volunteerRecords.length === 0">
                             <td colspan="8" class="empty-cell">
                                 <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>

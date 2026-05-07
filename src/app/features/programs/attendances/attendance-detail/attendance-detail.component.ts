@@ -137,7 +137,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       .map(p => (p || '').trim())
       .filter(Boolean)
       .join(', ');
-  }
+  } 
 
   // Enter ID
   enterId = '';
@@ -163,6 +163,34 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   // Row flash highlights for newly added (check-in) / about-to-remove (checkout)
   flashAddedIds = new Set<string>();
   flashRemovedIds = new Set<string>();
+
+  lastKeyTimeDonation: number = 0;
+  lastKeyTimeRemarks: number = 0;
+  scannerThreshold: number = 30; // ms between keys, adjust as needed
+
+  blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks') {
+    const now = new Date().getTime();
+    const lastKeyTime = field === 'donation' ? this.lastKeyTimeDonation : this.lastKeyTimeRemarks;
+    const diff = now - lastKeyTime;
+
+    // If the input is coming too fast (scanner), block it
+    if (diff < this.scannerThreshold) {
+        event.preventDefault();
+        this.fetchUserError = `Manual input only! Scanner detected in ${field} field.`;
+        if (field === 'donation') this.fetchUserDonation = '';
+        else this.fetchUserRemarks = '';
+        return;
+    }
+
+    // Update last key time
+    if (field === 'donation') this.lastKeyTimeDonation = now;
+    else this.lastKeyTimeRemarks = now;
+
+    // Prevent Enter from submitting
+    if (event.key === 'Enter') {
+        event.preventDefault();
+    }
+}
 
   ngOnInit(): void {
     this.programId = this.route.snapshot.paramMap.get('id') || '';
