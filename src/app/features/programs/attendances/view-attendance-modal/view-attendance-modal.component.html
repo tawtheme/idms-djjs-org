@@ -127,6 +127,8 @@
                         <th>Status</th>
                         <th>CheckIn</th>
                         <th>Remarks</th>
+                        <th>Mobile</th>
+                        <th>Address</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,7 +164,15 @@
                                 <span *ngIf="record.remarks">{{ record.remarks }}</span>
                                 <span *ngIf="!record.remarks" class="text-muted">-</span>
                             </td>
-                        </tr>
+                            <td>
+                                <span *ngIf="record.mobile">{{ record.mobile }}</span>
+                                <span *ngIf="!record.mobile" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span *ngIf="record.address">{{ record.address }}</span>
+                                <span *ngIf="!record.address" class="text-muted">-</span>
+                            </td>
+                       </tr>
                         <tr *ngIf="volunteerRecords.length === 0">
                             <td colspan="8" class="empty-cell">
                                 <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>

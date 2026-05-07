@@ -35,6 +35,8 @@ interface VolunteerRecord {
   checkIn: string;
   checkOut: string;
   remarks: string;
+  mobile: string;
+  address: string;
 }
 
 @Component({
@@ -244,7 +246,9 @@ export class ViewAttendanceModalComponent implements OnChanges {
         status: item.status ?? '',
         checkIn: item.checked_in || item.check_in || item.checkin_time || '',
         checkOut: item.checked_out || item.check_out || item.checkout_time || '',
-        remarks: item.remarks || ''
+        remarks: item.remarks || '',
+        mobile: item.user_phone || item.user_alternate_phone || '',
+        address: item.address_1 || item.city || item.district || item.home_branch
       }));
       this.totalItems = response.total || response.meta?.total || response.meta?.itemsCount || this.volunteerRecords.length;
     });
@@ -347,7 +351,9 @@ export class ViewAttendanceModalComponent implements OnChanges {
           Donation: item.donation ?? item.donation_amount ?? 0,
           Status: item.status ?? '',
           CheckIn: item.checked_in || item.check_in || item.checkin_time || '',
-          Remarks: item.remarks || ''
+          Remarks: item.remarks || '',
+          Mobile: item.user_phone || item.user_alternate_phone || '',
+          Address: item.address_1 || item.city || item.district || item.home_branch
         }));
         this.downloadAsExcel(rows, 'volunteer-attendance-details.xls');
         return;
