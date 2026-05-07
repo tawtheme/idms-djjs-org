@@ -2,11 +2,10 @@ import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { AddMasterEntryModalComponent, MasterEntryFormData } from './add-master-entry-modal/add-master-entry-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataService } from '../../../data.service';
@@ -53,8 +52,8 @@ const ID_FIELD_MAPPINGS: Record<string, string> = {
 @Component({
   standalone: true,
   imports: [
-    CommonModule, FormsModule, BreadcrumbComponent, PagerComponent,
-    EmptyStateComponent, MenuDropdownComponent, LoadingComponent,
+    CommonModule, FormsModule, PagerComponent,
+    EmptyStateComponent, MenuDropdownComponent,
     AddMasterEntryModalComponent, ConfirmationDialogComponent,
     IconComponent
   ],

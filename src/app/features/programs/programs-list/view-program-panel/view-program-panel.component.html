@@ -5,11 +5,6 @@
     [closable]="true"
     (close)="onClose()">
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="modal-loading">
-        <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-    </div>
-
     <!-- Error -->
     <div *ngIf="error && !isLoading" class="modal-error">
         <app-icon name="error_outline" class="error-icon" />

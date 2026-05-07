@@ -6,7 +6,6 @@ import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../data.service';
 import { LocationService } from '../../../core/services/location.service';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { FileUploadComponent, FileUploadConfig } from '../../../shared/components/file-upload/file-upload.component';
@@ -22,7 +21,7 @@ type IdProofKey = 'aadhaar' | 'voter' | 'license';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent, IconComponent, FileUploadComponent, CameraUploadComponent, ModalComponent, DropdownComponent, DatepickerComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, FileUploadComponent, CameraUploadComponent, ModalComponent, DropdownComponent, DatepickerComponent, ImagePreviewDirective],
   selector: 'app-edit-visitor',
   templateUrl: './edit-visitor.component.html',
   styleUrls: ['./edit-visitor.component.scss']

@@ -5,8 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../data.service';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
@@ -114,7 +113,7 @@ interface Tab {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BreadcrumbComponent, LoadingComponent, IconComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, ImagePreviewDirective],
   selector: 'app-view-visitor',
   templateUrl: './view-visitor.component.html',
   styleUrls: ['./view-visitor.component.scss']

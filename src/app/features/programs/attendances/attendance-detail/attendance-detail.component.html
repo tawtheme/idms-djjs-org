@@ -133,6 +133,8 @@
                         <ng-container *ngFor="let record of pagedRecords; trackBy: trackById">
                         <tr class="data-row"
                             [class.is-expanded]="expandedIds.has(record.id)"
+                            [class.flash-added]="flashAddedIds.has(record.id)"
+                            [class.flash-removed]="flashRemovedIds.has(record.id)"
                             (click)="toggleExpand(record.id)">
                             <td data-label="ID">{{ record.id }}</td>
                             <td data-label="Name" class="name-cell">

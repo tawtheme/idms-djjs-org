@@ -10,7 +10,6 @@ import { applyTableSort } from '../../../shared/utils/table-sort';
 import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 interface HeadSubheadRow {
@@ -43,7 +42,6 @@ type SortField =
         DropdownComponent,
         PagerComponent,
         EmptyStateComponent,
-        LoadingComponent,
         IconComponent
     ],
     templateUrl: './head-subhead-volunteers-report.component.html',

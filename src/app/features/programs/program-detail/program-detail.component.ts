@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../data.service';
@@ -52,7 +51,7 @@ export interface Donation {
 @Component({
   selector: 'app-program-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, LoadingComponent, EmptyStateComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, IconComponent, EmptyStateComponent, ImagePreviewDirective],
   templateUrl: './program-detail.component.html',
   styleUrls: ['./program-detail.component.scss']
 })

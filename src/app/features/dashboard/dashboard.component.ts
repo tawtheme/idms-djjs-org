@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { IconComponent } from '../../shared/components/icon/icon.component';
-import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { DataService } from '../../data.service';
 
 interface DashboardStat {
@@ -30,7 +29,7 @@ interface DashboardData {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, IconComponent, LoadingComponent],
+  imports: [CommonModule, RouterModule, IconComponent],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']

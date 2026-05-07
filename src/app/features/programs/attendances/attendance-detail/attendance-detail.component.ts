@@ -159,6 +159,10 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   currentPage = 1;
   totalItems = 0;
 
+  // Row flash highlights for newly added (check-in) / about-to-remove (checkout)
+  flashAddedIds = new Set<string>();
+  flashRemovedIds = new Set<string>();
+
   ngOnInit(): void {
     this.programId = this.route.snapshot.paramMap.get('id') || '';
     this.attendanceMode = (this.route.snapshot.queryParamMap.get('mode') as 'checkin' | 'checkout') || 'checkin';
@@ -189,7 +193,18 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     ) {
       return;
     }
-    setTimeout(() => this.enterIdInput?.nativeElement?.focus(), 0);
+    // Defer until Angular finishes change detection and re-enables the input
+    // (the input is disabled while isSubmitting is true; calling focus() on a
+    // disabled element is a no-op, which is why focus was lost after submit).
+    setTimeout(() => {
+      const input = this.enterIdInput?.nativeElement;
+      if (!input) return;
+      if (input.disabled) {
+        setTimeout(() => this.enterIdInput?.nativeElement?.focus(), 100);
+        return;
+      }
+      input.focus();
+    }, 100);
   }
 
   @HostListener('document:click')
@@ -268,11 +283,11 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     ).subscribe((response) => {
       const records = response.data?.records || response.records || response.data || [];
       this.allRecords = (Array.isArray(records) ? records : []).map((item: any) => ({
-        id: item.unique_id || item.id || '',
+        id: String(item.unique_id ?? item.id ?? ''),
         name: item.name || item.volunteer_name || '',
         image: item.image || item.user_image || '',
         sewa: item.sewa || item.sewa_name || '',
-        sewaId: item.sewa_id || '',
+        sewaId: String(item.sewa_id ?? ''),
         badgeNo: String(item.badge ?? item.badge_id ?? item.badge_no ?? item.badge_number ?? ''),
         donation: item.donation || item.donation_amount || 0,
         status: item.status ?? '',
@@ -333,7 +348,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         this.isSubmitting = false;
       })
     ).subscribe((response) => {
-      
+
       if (!response) return;
       const data = response.data || response;
       this.fetchedUser = data?.user || data;
@@ -341,19 +356,19 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       if (this.fetchUserWarning) {
         this.snackbar.showWarning(this.fetchUserWarning);
       }
+      const scannedId = this.enterId.trim();
       this.fetchUserDonation = '';
       this.fetchUserRemarks = '';
       this.leaveMode = false;
       this.enterId = '';
 
       if (this.attendanceMode === 'checkout' && this.fetchedUser && !this.fetchUserWarning) {
+        this.removeRecordLocally(this.fetchedUser, scannedId);
+        this.loadSummary();
+        this.fetchedUser = null;
         this.snackbar.showSuccess('Checkout successfully!');
+        this.focusEnterId();
         return; // skip submitAttendance
-      }
-      // Auto-submit on barcode scan: check-in → status 1, checkout → status 2.
-      if (this.fetchedUser && !this.fetchUserWarning && this.attendanceMode === 'checkout') {
-        this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
-        return;
       }
 
       this.showFetchUserModal = true;
@@ -451,6 +466,64 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.totalItems += 1;
     }
     this.records = [...this.allRecords];
+    if (id) {
+      this.flashAddedIds = new Set([...this.flashAddedIds, id]);
+      setTimeout(() => {
+        const next = new Set(this.flashAddedIds);
+        next.delete(id);
+        this.flashAddedIds = next;
+      }, 1500);
+    }
+  }
+
+  private removeRecordLocally(user: any, fallbackId?: string): void {
+    if (!user) return;
+    if (this.currentPage !== 1 || this.filterTerm.trim()) {
+      this.loadAttendanceData();
+      return;
+    }
+    const candidates = new Set(
+      [
+        user?.unique_id,
+        user?.id,
+        user?.user_id,
+        user?.badge_id,
+        user?.badge_no,
+        user?.badge_number,
+        fallbackId
+      ]
+        .filter(v => v !== null && v !== undefined && String(v).trim() !== '')
+        .map(v => String(v).trim())
+    );
+    if (!candidates.size) return;
+    const index = this.allRecords.findIndex(r => {
+      const rid = String(r.id ?? '').trim();
+      const rbadge = String(r.badgeNo ?? '').trim();
+      return (rid && candidates.has(rid)) || (rbadge && candidates.has(rbadge));
+    });
+    if (index < 0) {
+      this.loadAttendanceData();
+      return;
+    }
+    const targetId = String(this.allRecords[index].id ?? '').trim();
+    if (targetId) {
+      this.flashRemovedIds = new Set([...this.flashRemovedIds, targetId]);
+    }
+    setTimeout(() => {
+      const removeIndex = this.allRecords.findIndex(r => String(r.id ?? '').trim() === targetId);
+      if (removeIndex < 0) return;
+      this.allRecords = [
+        ...this.allRecords.slice(0, removeIndex),
+        ...this.allRecords.slice(removeIndex + 1)
+      ];
+      this.records = [...this.allRecords];
+      this.totalItems = Math.max(0, this.totalItems - 1);
+      if (targetId) {
+        const next = new Set(this.flashRemovedIds);
+        next.delete(targetId);
+        this.flashRemovedIds = next;
+      }
+    }, 900);
   }
 
   @HostListener('document:keydown', ['$event'])

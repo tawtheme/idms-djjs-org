@@ -1,10 +1,4 @@
 <div class="vv-shell">
-    <ng-container *ngIf="isLoading">
-        <div class="vv-state">
-            <app-loading [size]="'medium'" [type]="'spinner'"></app-loading>
-        </div>
-    </ng-container>
-
     <!-- Sidebar -->
     <aside class="vv-sidebar" *ngIf="!isLoading && !error && user">
         <div class="vv-profile">

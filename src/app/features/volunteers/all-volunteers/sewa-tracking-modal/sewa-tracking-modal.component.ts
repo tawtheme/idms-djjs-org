@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { DataService } from '../../../../data.service';
 
 export interface SewaTrackRow {
@@ -43,7 +42,7 @@ export interface DonationRow {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, ModalComponent],
   selector: 'app-sewa-tracking-modal',
   templateUrl: './sewa-tracking-modal.component.html',
   styleUrls: ['./sewa-tracking-modal.component.scss']

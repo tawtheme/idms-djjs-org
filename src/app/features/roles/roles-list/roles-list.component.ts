@@ -2,10 +2,9 @@ import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { PagerComponent } from '../../../shared/components/pager/pager.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
 import { AddRoleModalComponent } from './add-role-modal/add-role-modal.component';
 import { DataService } from '../../../data.service';
@@ -25,10 +24,8 @@ export interface Role {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
     PagerComponent,
     EmptyStateComponent,
-    LoadingComponent,
     MenuDropdownComponent,
     AddRoleModalComponent,
     IconComponent

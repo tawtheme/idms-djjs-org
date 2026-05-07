@@ -1,8 +1,4 @@
 <div class="dashboard-container">
-    <div class="dashboard-loading" *ngIf="isLoading">
-        <app-loading [size]="'large'" [type]="'spinner'" [message]="'Loading dashboard...'"></app-loading>
-    </div>
-
     <ng-container *ngIf="!isLoading">
     <!-- Donation Amounts Section -->
     <div class="donation-section">

@@ -1117,6 +1117,33 @@
     &.is-expanded { background: $color-primary-50; }
 }
 
+// Higher specificity: the base table partial sets tbody tr/td backgrounds,
+// so the flash must target the cells directly (and use !important on the
+// animation property) to win against the cell-level white background.
+tbody tr.data-row.flash-added,
+tbody tr.data-row.flash-added > td {
+    animation: row-flash-added 1.5s ease-out !important;
+    background-color: rgba(34, 197, 94, 0.25) !important;
+}
+
+tbody tr.data-row.flash-removed,
+tbody tr.data-row.flash-removed > td {
+    animation: row-flash-removed 0.9s ease-out forwards !important;
+    background-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+@keyframes row-flash-added {
+    0%   { background-color: rgba(34, 197, 94, 0.45); }
+    60%  { background-color: rgba(34, 197, 94, 0.20); }
+    100% { background-color: transparent; }
+}
+
+@keyframes row-flash-removed {
+    0%   { background-color: rgba(239, 68, 68, 0.35); opacity: 1; }
+    70%  { background-color: rgba(239, 68, 68, 0.22); opacity: 0.85; }
+    100% { background-color: rgba(239, 68, 68, 0.05); opacity: 0; }
+}
+
 .expanded-row {
     background: $color-gray-50;
 
