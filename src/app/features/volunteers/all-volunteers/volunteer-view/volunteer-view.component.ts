@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../../data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ImagePreviewService } from '../../../../shared/services/image-preview.service';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 
@@ -26,7 +27,7 @@ interface TabDef { id: TabId; label: string; }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, IconComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, LoadingComponent, ImagePreviewDirective],
   selector: 'app-volunteer-view',
   templateUrl: './volunteer-view.component.html',
   styleUrls: ['./volunteer-view.component.scss']
@@ -547,6 +548,14 @@ export class VolunteerViewComponent implements OnInit, OnChanges {
   display(value: any): string {
     if (value === null || value === undefined || value === '') return '—';
     return String(value);
+  }
+
+  showAadhaarNumber = false;
+
+  maskAadhaar(value: any): string {
+    const str = value === null || value === undefined ? '' : String(value);
+    if (!str) return '—';
+    return '•'.repeat(str.length);
   }
 
   /** Map sewa_mode (1=Regular, 0=Annual) to a label. */
