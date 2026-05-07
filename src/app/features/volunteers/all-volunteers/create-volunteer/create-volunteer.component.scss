@@ -92,6 +92,36 @@
         max-width: 100%;
     }
 
+    .aadhaar-input-wrapper {
+        position: relative;
+
+        .form-control {
+            padding-right: 36px;
+        }
+
+        .aadhaar-toggle {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 0;
+            background: transparent;
+            color: $color-gray-500;
+            cursor: pointer;
+            border-radius: 4px;
+
+            &:hover {
+                color: $color-gray-700;
+                background: $color-gray-100;
+            }
+        }
+    }
+
     .field-label-row {
         display: flex;
         align-items: center;

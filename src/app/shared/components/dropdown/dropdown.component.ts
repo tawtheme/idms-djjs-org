@@ -52,7 +52,7 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   @Input() showClear: boolean = true;
   @Input() showSelectAll: boolean = false;
   @Input() closeOnSelect: boolean = true;
-  @Input() maxHeight: number = 200;
+  @Input() maxHeight: number = 300;
   @Input() noResultsText: string = 'No results found';
   @Input() minSelections: number = 0;
   @Input() showSelectedItems: boolean = true;
@@ -63,6 +63,13 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   @Input() openDirection: 'auto' | 'up' | 'down' = 'auto';
   // Autocomplete mode: shows as a text input with type-to-filter
   @Input() autocomplete: boolean = false;
+  // Render the open list as a child of document.body so it can escape
+  // overflow:hidden / scrollable parents (e.g. modal bodies).
+  @Input() appendToBody: boolean = false;
+  // CSS selector to use as the positioning anchor when portaled. Walks up
+  // from the dropdown's host. Falls back to the trigger when not set or
+  // when no matching ancestor is found.
+  @Input() anchorSelector?: string;
 
   @Output() selectionChange = new EventEmitter<any[]>();
   @Output() searchChange = new EventEmitter<string>();
@@ -86,7 +93,7 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     multiSelect: false,
     placeholder: 'Select an option',
     noResultsText: 'No results found',
-    maxHeight: 200,
+    maxHeight: 300,
     showClear: true,
     showSelectAll: false,
     closeOnSelect: true,
@@ -124,66 +131,35 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    // Ignore click if we just toggled a checkbox
     if (this.ignoreNextClick) {
       this.ignoreNextClick = false;
       return;
     }
-    
-    const target = event.target as HTMLElement;
-    
-    // Don't close if clicking on checkbox or label (for multi-select)
-    if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
-      return;
-    }
-    if (target.tagName === 'LABEL' || target.closest('label')) {
-      return;
-    }
-    
-    // Check if click is inside dropdown (including portaled dropdown)
-    const clickedInsideTrigger = this.elementRef.nativeElement.contains(target);
-    const dropdownElement = this.dropdownList?.nativeElement;
-    const clickedInsideDropdown = dropdownElement?.contains(target) || 
-                                  (dropdownElement?.parentElement === document.body && 
-                                   document.body.contains(target) && 
-                                   target.closest('.dropdown-list') === dropdownElement);
-    
-    if (!clickedInsideTrigger && !clickedInsideDropdown) {
-      this.closeDropdown();
-    }
+    this.closeIfClickOutside(event.target as HTMLElement);
   }
 
-  // Close immediately on mousedown (before another popover opens)
   @HostListener('document:mousedown', ['$event'])
   onDocumentMouseDown(event: Event): void {
     if (!this.isOpen) return;
-    
-    // Ignore mousedown if we just toggled a checkbox
-    if (this.ignoreNextClick) {
-      return;
-    }
-    
-    const target = event.target as HTMLElement;
-    
-    // Don't close if clicking on checkbox or label (for multi-select)
-    if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
-      return;
-    }
-    if (target.tagName === 'LABEL' || target.closest('label')) {
-      return;
-    }
-    
-    // Check if click is inside dropdown (including portaled dropdown)
-    const clickedInsideTrigger = this.elementRef.nativeElement.contains(target);
+    if (this.ignoreNextClick) return;
+    this.closeIfClickOutside(event.target as HTMLElement);
+  }
+
+  private closeIfClickOutside(target: HTMLElement): void {
     const dropdownElement = this.dropdownList?.nativeElement;
-    const clickedInsideDropdown = dropdownElement?.contains(target) || 
-                                  (dropdownElement?.parentElement === document.body && 
-                                   document.body.contains(target) && 
-                                   target.closest('.dropdown-list') === dropdownElement);
-    
-    if (!clickedInsideTrigger && !clickedInsideDropdown) {
-      this.closeDropdown();
+    const clickedInsideTrigger = this.elementRef.nativeElement.contains(target);
+    const clickedInsideDropdown = dropdownElement?.contains(target) ||
+      (dropdownElement?.parentElement === document.body &&
+        document.body.contains(target) &&
+        target.closest('.dropdown-list') === dropdownElement);
+
+    if (clickedInsideTrigger || clickedInsideDropdown) {
+      // Inside the dropdown — keep open. Checkbox/label clicks here are
+      // handled by their own change handlers.
+      return;
     }
+
+    this.closeDropdown();
   }
 
   // Close on focus moving outside (keyboard navigation)
@@ -358,7 +334,11 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
     // Check available space after a short delay to ensure dropdown is rendered
     setTimeout(() => {
       this.checkAvailableSpace();
-      
+
+      if (this.appendToBody) {
+        this.portalToBody();
+      }
+
       // Focus search input if searchable
       if (this.searchable && this.searchInput) {
         this.searchInput.nativeElement.focus();
@@ -367,11 +347,64 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   closeDropdown(): void {
+    this.teardownPortal();
     this.isOpen = false;
     this.searchQuery = '';
     this.filteredOptions = [...this.options];
     this.removeScrollListeners();
     this.close.emit();
+  }
+
+  private portalReposition?: () => void;
+
+  private portalToBody(): void {
+    const list = this.dropdownList?.nativeElement;
+    const trigger = this.elementRef.nativeElement.querySelector('.dropdown-trigger') as HTMLElement | null;
+    if (!list || !trigger) return;
+
+    const anchor: HTMLElement = (this.anchorSelector
+      ? (this.elementRef.nativeElement.closest(this.anchorSelector) as HTMLElement | null)
+      : null) || trigger;
+
+    document.body.appendChild(list);
+    list.style.position = 'fixed';
+    list.style.zIndex = '11000';
+    list.style.right = 'auto';
+    list.style.bottom = 'auto';
+
+    this.portalReposition = () => {
+      const triggerRect = trigger.getBoundingClientRect();
+      const anchorRect = anchor.getBoundingClientRect();
+      const margin = 4;
+      const maxH = list.offsetHeight || this.maxHeight;
+      // Width tracks the trigger; vertical position tracks the anchor's bottom
+      // (or top, when opening upward) so siblings inside the anchor sit between
+      // the trigger and the open list.
+      list.style.left = triggerRect.left + 'px';
+      list.style.width = triggerRect.width + 'px';
+      if (this.openUpward) {
+        list.style.top = Math.max(0, anchorRect.top - maxH - margin) + 'px';
+      } else {
+        list.style.top = (anchorRect.bottom + margin) + 'px';
+      }
+    };
+    this.portalReposition();
+
+    window.addEventListener('scroll', this.portalReposition, true);
+    window.addEventListener('resize', this.portalReposition);
+  }
+
+  private teardownPortal(): void {
+    if (this.portalReposition) {
+      window.removeEventListener('scroll', this.portalReposition, true);
+      window.removeEventListener('resize', this.portalReposition);
+      this.portalReposition = undefined;
+    }
+    const list = this.dropdownList?.nativeElement;
+    if (list && list.parentElement === document.body) {
+      // Detach from body so Angular's @if cleanup is a no-op on a stable tree.
+      list.parentElement.removeChild(list);
+    }
   }
 
   onSearchChange(event: Event): void {
@@ -600,10 +633,14 @@ export class DropdownComponent implements OnInit, OnChanges, OnDestroy {
   clearAutocomplete(event: Event): void {
     event.stopPropagation();
     this.searchQuery = '';
+    this.filteredOptions = [...this.options];
+    if (this.multiSelect) {
+      // Don't clear selections — chips have their own × removal.
+      return;
+    }
     this.selectedOptions = [];
     this.selectedValues = [];
     this.selectionChange.emit([]);
-    this.filteredOptions = [...this.options];
     this.closeDropdown();
   }
 

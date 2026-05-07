@@ -484,6 +484,14 @@ private formatDisplayDate(value: string | null | undefined): string {
     }
   }
 
+  getSelectedAssignSewaOptions(): DropdownOption[] {
+    return this.assignSewaOptions.filter(o => this.selectedAssignSewas.includes(o.value));
+  }
+
+  removeAssignSewa(value: any): void {
+    this.selectedAssignSewas = this.selectedAssignSewas.filter(v => v !== value);
+  }
+
   assignVolunteer(program: Program): void {
     this.assignVolunteerProgram = program;
     this.selectedAssignSewas = [];

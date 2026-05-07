@@ -9,6 +9,7 @@ import { CameraUploadComponent } from '../../../../shared/components/camera-uplo
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { VolunteerViewComponent } from '../volunteer-view/volunteer-view.component';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { DataService } from '../../../../data.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
@@ -41,7 +42,8 @@ export interface CreateVolunteerForm {
         CameraUploadComponent,
         ModalComponent,
         SidePanelComponent,
-        VolunteerViewComponent
+        VolunteerViewComponent,
+        IconComponent
     ],
     selector: 'app-create-volunteer',
     templateUrl: './create-volunteer.component.html',
@@ -75,6 +77,8 @@ export class CreateVolunteerComponent implements OnInit {
         this.duplicateViewPanelOpen = false;
         this.duplicateViewUserId = null;
     }
+
+    showAadhaarNumber = false;
 
     form: CreateVolunteerForm = {
         name: '',

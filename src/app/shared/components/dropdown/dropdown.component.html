@@ -2,15 +2,18 @@
     <!-- Autocomplete Trigger -->
     @if (autocomplete) {
         <div class="dropdown-trigger dropdown-trigger--autocomplete">
+            @if (loading) {
+                <app-icon name="refresh" class="dropdown-loading-spinner" />
+            }
             <input type="text"
                 class="autocomplete-input"
                 [placeholder]="placeholder"
-                [value]="searchQuery || (selectedOptions.length > 0 ? selectedOptions[0].label : '')"
+                [value]="searchQuery || (multiSelect ? '' : (selectedOptions.length > 0 ? selectedOptions[0].label : ''))"
                 (input)="onAutocompleteInput($event)"
                 (focus)="onAutocompleteFocus()"
-                [disabled]="disabled"
+                [disabled]="disabled || loading"
                 autocomplete="off" />
-            @if (searchQuery || selectedOptions.length > 0) {
+            @if (searchQuery || (!multiSelect && selectedOptions.length > 0)) {
                 <button type="button" class="autocomplete-clear" (click)="clearAutocomplete($event)">
                     <app-icon name="close" />
                 </button>
@@ -39,27 +42,6 @@
             }
         </div>
     </div>
-    }
-
-    <!-- Selected Values (Multi-select) -->
-    @if (showSelectedItems && multiSelect && selectedOptions.length > 0) {
-        <div class="dropdown-selected" [class]="'dropdown-selected-' + selectedItemsPosition + ' dropdown-selected-' + selectedItemsStyle">
-            @for (option of getVisibleSelectedItems(); track option.id) {
-                <span class="selected-item" [class]="'selected-item-' + selectedItemsStyle">
-                    {{ option.label }}
-                    <button type="button" class="selected-remove"
-                        (click)="removeSelectedValue(option.value); $event.stopPropagation()"
-                        [attr.aria-label]="'Remove ' + option.label">
-                        <app-icon name="close" />
-                    </button>
-                </span>
-            }
-            @if (hasMoreSelectedItems()) {
-                <span class="selected-more">
-                    +{{ getHiddenItemsCount() }} more
-                </span>
-            }
-        </div>
     }
 
     <!-- Dropdown List -->
@@ -144,6 +126,27 @@
                     }
                 }
             </div>
+        </div>
+    }
+
+    <!-- Selected Values (Multi-select) -->
+    @if (showSelectedItems && multiSelect && selectedOptions.length > 0) {
+        <div class="dropdown-selected" [class]="'dropdown-selected-' + selectedItemsPosition + ' dropdown-selected-' + selectedItemsStyle">
+            @for (option of getVisibleSelectedItems(); track option.id) {
+                <span class="selected-item" [class]="'selected-item-' + selectedItemsStyle">
+                    {{ option.label }}
+                    <button type="button" class="selected-remove"
+                        (click)="removeSelectedValue(option.value); $event.stopPropagation()"
+                        [attr.aria-label]="'Remove ' + option.label">
+                        <app-icon name="close" />
+                    </button>
+                </span>
+            }
+            @if (hasMoreSelectedItems()) {
+                <span class="selected-more">
+                    +{{ getHiddenItemsCount() }} more
+                </span>
+            }
         </div>
     }
 </div>
