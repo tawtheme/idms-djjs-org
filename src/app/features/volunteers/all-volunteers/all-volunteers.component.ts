@@ -424,6 +424,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
                 sewaNoInterestReason: item.user_profile?.sewa_no_interest_reason || item.sewa_no_interest_reason || '',
                 sewaAllocated: item.sewa_allocated === true || item.sewa_allocated === 1,
                 sewaMode: item.sewa_mode || primarySewa.mode || '',
+                loginAccess: item.is_special_login === true || item.is_special_login === 1,
                 roleId: roleId || undefined,
                 branchId: branchId || undefined
             };
@@ -1104,8 +1105,39 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
     }
 
     //toggle login access
-    toggleLoginAccess(volunteer: Volunteer, event: Event): void {
+    toggleLoginAccess(volunteer: any, event: Event): void {
         event.stopPropagation();
+
+        // 1. Save the current state in case we need to revert
+        const previousState = volunteer.loginAccess;
+
+        // 2. Optimistically update the UI
+        volunteer.loginAccess = !volunteer.loginAccess;
+
+        const loginAccess = volunteer.loginAccess ? 1 : 0;
+        const userId = volunteer.uuid || volunteer.id;
+
+        const payload = {
+            user_id: String(userId),
+            is_special_login: loginAccess,
+        };
+
+        this.dataService.put('v1/users/update-special-login-status', payload).pipe(
+            catchError((error) => {
+                console.error('Error updating status:', error);
+                // 3. Revert the UI if the API fails
+                volunteer.loginAccess = previousState; 
+                alert('Failed to update status. Reverting change.');
+                return of(null);
+            })
+        ).subscribe((response: any) => {
+            if (response && response.success) {
+                console.log('Update successful:', response.message);
+            } else if (response) {
+                // Handle case where API returns 200 but success is false
+                volunteer.loginAccess = previousState;
+            }
+        });
     }
     // Format address
     formatAddress(address: Volunteer['address']): string {

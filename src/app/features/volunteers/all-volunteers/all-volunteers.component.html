@@ -339,14 +339,17 @@
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
-                            <td data-label="Login Access" (click)="$event.stopPropagation()">
+                           <td data-label="Login Access" (click)="$event.stopPropagation()">
+                                 <!-- Clicking this span triggers the toggle logic -->
                                 <span class="toggle-switch" (click)="toggleLoginAccess(volunteer, $event)">
                                     <input
                                         type="checkbox"
                                         tabindex="-1"
-                                        [checked]="volunteer.loginAccess" />
+                                        [checked]="volunteer.loginAccess" 
+                                        style="pointer-events: none;" /> <!-- Let the span handle the click -->
                                     <span class="toggle-slider"></span>
                                 </span>
+                            </td>
                             <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
                                 <app-menu-dropdown
                                     [options]="getActionOptions(volunteer)"
