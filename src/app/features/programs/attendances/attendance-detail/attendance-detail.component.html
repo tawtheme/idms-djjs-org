@@ -345,9 +345,8 @@
             </div>
 
             <div class="fetch-user-form">
-                <label>Donation Amount <span class="required">*</span></label>
-                <input #donationInput type="text" (input)="onDonationInput($event)" class="form-control" [(ngModel)]="fetchUserDonation" (ngModelChange)="fetchUserError = null" placeholder="Enter amount" min="0"
-                max="5000"/>
+                <label>Donation Amount <span class="required">*</span></label><!--(input)="onDonationInput($event)"-->
+                <input #donationInput type="text"  class="form-control" [(ngModel)]="fetchUserDonation" (ngModelChange)="fetchUserError = null" placeholder="Enter amount" />
                 <ng-container *ngIf="leaveMode">
                     <label>Remarks <span class="required">*</span></label>
                     <input #remarksInput type="text" class="form-control" [(ngModel)]="fetchUserRemarks" (ngModelChange)="fetchUserError = null" placeholder="Enter remarks" />
@@ -359,9 +358,9 @@
                 <button type="button" class="btn btn--warning" (click)="markLeave()" [disabled]="isSubmitting">{{ leaveMode ? 'Mark Leave' : 'On Leave' }}</button>
                 <button type="button" class="btn btn--success" (click)="markAttendance()" [disabled]="isSubmitting">Mark Attendance</button>
             </div>
-            <div class="fetch-user-hint">
+            <!--<div class="fetch-user-hint">
                 Press <strong>Enter</strong> to mark attendance · Press <strong>Shift</strong> to mark leave
-            </div>
+            </div>-->
         </ng-container>
     </div>
 </app-modal>

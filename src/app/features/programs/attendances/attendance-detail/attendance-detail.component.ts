@@ -16,6 +16,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { Console } from '@hugeicons/core-free-icons';
 
 interface AttendanceRecord {
   id: string;
@@ -315,19 +316,22 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     if (value.length > 4) {
       value = value.slice(0, 4);
     }
-  
     // Ensure max 5000
-    if (Number(value) > 5000) {
-      value = '5000';
-    }
-  
+    // if (Number(value) > 5000) {
+    //   value = '5000';
+    // }
     // Update the model and input
     this.fetchUserDonation = value;
     event.target.value = value;
   }
   onEnterId(): void {
     if (!this.enterId.trim()) return;
-
+    if(this.enterId.length>12){
+      this.snackbar.showError('Invalid ID. Please enter a valid ID.');
+      this.enterId = '';
+      this.focusEnterId();
+      return;
+    }
     this.isSubmitting = true;
 
     const body = {
@@ -342,6 +346,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         this.fetchedUser = null;
         this.fetchUserWarning = null;
         this.focusEnterId();
+        
         return of(null);
       }),
       finalize(() => {
@@ -433,12 +438,12 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.loadAttendanceData();
       return;
     }
-
+    console.log('Applying scan locally for user:', user, 'status:', status, 'donation:', donation, 'remarks:', remarks, 'attendanceData:', attendanceData);
     const id = String(user?.unique_id || user?.id || attendanceData?.unique_id || '');
     const newRow: AttendanceRecord = {
       id,
       name: user?.name || user?.volunteer_name || '',
-      image: user?.image || user?.user_image || '',
+      image: user?.image?.full_path || user?.user_image || '',
       sewa: user?.program_sewa?.name || user?.program_sewa?.sewa?.name || user?.sewa?.name || user?.sewa || '',
       sewaId: user?.program_sewa?.id || user?.sewa_id || '',
       badgeNo: String(user?.badge_id || user?.badge_no || user?.badge_number || ''),
@@ -528,47 +533,87 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   @HostListener('document:keydown', ['$event'])
   handleFetchUserModalKeydown(event: KeyboardEvent): void {
+    console.log('Keydown event:', event.key);
     if (!this.showFetchUserModal || !this.fetchedUser || this.isSubmitting) {
       return;
     }
     if (event.key === 'Enter') {
       event.preventDefault();
       this.markAttendance();
-    } else if (event.key === 'Shift') {
-      event.preventDefault();
-      this.markLeave();
-    }
+    } 
+    // else if (event.key === 'Shift') {
+    //   event.preventDefault();
+    //   this.markLeave();
+    // }
   }
 
-  markAttendance(): void {
-    const donation = Number(this.fetchUserDonation);
+  // markAttendance(): void {
+  //   const donation = Number(this.fetchUserDonation);
 
-    // !this.fetchUserDonation|| donation <= 0  || isNaN(donation)
-    if (donation=== null || donation  === undefined || String(donation).trim() === '' || isNaN(donation) ) {
-      this.fetchUserError = 'Donation amount is required.';
-      return;
-    }
-    let numericValue = donation.toString().replace(/\D/g, '');
+  //   // !this.fetchUserDonation|| donation <= 0  || isNaN(donation)
+  //   if (donation=== null || donation  === undefined || String(donation).trim() === '' || isNaN(donation) ) {
+  //     this.fetchUserError = 'Donation amount is required.';
+  //     return;
+  //   }
+  //   let numericValue = donation.toString().replace(/\D/g, '');
+  //   console.log('Raw donation input:', this.fetchUserDonation, 'Numeric value extracted:', numericValue);
+  //   // Limit to max 4 digits
+  //   if (numericValue.length > 4) {
+  //     numericValue = numericValue.slice(0, 4);
+  //     console.log('Trimmed donation to 4 digits:', numericValue);
+  //     this.fetchUserError = 'Donation cannot exceed 4 digits';
+  //     return
+  //   }
 
-    // Limit to max 4 digits
-    if (numericValue.length > 4) {
-      numericValue = numericValue.slice(0, 4);
-      this.fetchUserError = 'Donation cannot exceed 4 digits';
-      return
-    }
+  //   // Ensure number does not exceed 5000
+  //   if (Number(numericValue) > 5000) {
+  //    // numericValue = '5000';
+  //     this.fetchUserError = 'Maximum donation allowed is 5000';
+  //     return
+  //   }
 
-    // Ensure number does not exceed 5000
-    if (Number(numericValue) > 5000) {
-      numericValue = '5000';
-      this.fetchUserError = 'Maximum donation allowed is 5000';
-      return
-    }
+  //   this.fetchUserDonation = numericValue;
+  //   this.fetchUserError = null;
+  //   this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
+  // }
+markAttendance(): void {
+  // 1. Get raw value and handle basic empty/null states
+  const rawValue = this.fetchUserDonation;
 
-    this.fetchUserDonation = numericValue;
-    this.fetchUserError = null;
-    this.submitAttendance(this.attendanceMode === 'checkout' ? 2 : 1);
+  if (rawValue === null || rawValue === undefined || String(rawValue).trim() === '') {
+    this.fetchUserError = 'Donation amount is required.';
+    return;
   }
 
+  // 2. Convert to numeric and check for validity
+  const donation = Number(rawValue);
+
+  if (isNaN(donation) || donation <= 0) {
+    this.fetchUserError = 'Please enter a valid donation amount.';
+    return;
+  }
+
+  // 3. Length and Range Validation
+  // Converting back to string to check digit length specifically
+  const digitCount = Math.floor(donation).toString().length;
+
+  if (digitCount > 4) {
+    this.fetchUserError = 'Donation cannot exceed 4 digits.';
+    return;
+  }
+
+  if (donation > 5000) {
+    this.fetchUserError = 'Maximum donation allowed is 5000.';
+    return;
+  }
+
+  // 4. Success - Finalize and Submit
+  this.fetchUserDonation = donation.toString();
+  this.fetchUserError = null;
+  
+  const mode = this.attendanceMode === 'checkout' ? 2 : 1;
+  this.submitAttendance(mode);
+}
   markLeave(): void {
     if (!this.leaveMode) {
       this.leaveMode = true;
