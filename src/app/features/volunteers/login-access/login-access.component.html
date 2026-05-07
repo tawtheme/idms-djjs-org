@@ -1,21 +1,52 @@
 <div class="page-container">
-    <div class="page-header">
-        <h2 class="page-title">Provide Login Access</h2>
-        <p class="page-subtitle">Fill in the details below to provide login access</p>
+    <div class="loginaccess-tabs" role="tablist">
+        <button
+            type="button"
+            role="tab"
+            class="loginaccess-tab"
+            [class.loginaccess-tab--active]="activeTab === 'provide'"
+            [attr.aria-selected]="activeTab === 'provide'"
+            (click)="activeTab = 'provide'">
+            Login Access
+        </button>
+        <button
+            type="button"
+            role="tab"
+            class="loginaccess-tab"
+            [class.loginaccess-tab--active]="activeTab === 'deactivate'"
+            [attr.aria-selected]="activeTab === 'deactivate'"
+            (click)="activeTab = 'deactivate'">
+            Deactivate Access
+        </button>
     </div>
 
-    <form (ngSubmit)="onSubmit()" class="loginaccess-form">
-        <!-- Branch Information -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Login Access Information</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="login-password">Password <span class="required">*</span></label>
-                    <input id="login-password" type="text" class="form-control" [(ngModel)]="password" [ngModelOptions]="{ standalone: true }" placeholder="Enter password" required>
+    <!-- Provide Login Access -->
+    <form *ngIf="activeTab === 'provide'" (ngSubmit)="onSubmit()" class="form-section">
+        <div class="section-header">
+            <h3 class="section-title">Login Access Information</h3>
+        </div>
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="login-password">Password <span class="required">*</span></label>
+                <div class="password-input">
+                    <input
+                        id="login-password"
+                        [type]="showPassword ? 'text' : 'password'"
+                        class="form-control"
+                        [(ngModel)]="password"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Enter password"
+                        required>
+                    <button
+                        type="button"
+                        class="password-input__toggle"
+                        (click)="showPassword = !showPassword"
+                        [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                        <app-icon [name]="showPassword ? 'visibility_off' : 'visibility'" [size]="18" />
+                    </button>
                 </div>
-                <div class="form-field">
+            </div>
+            <div class="form-field">
                 <label>Select Login Users</label>
                 <app-dropdown
                     [options]="assignLoginUsersOptions"
@@ -45,11 +76,7 @@
                     </div>
                 </div>
             </div>
-            </div>
         </div>
-
-        
-        <!-- Form Actions -->
         <div class="form-actions">
             <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
             <button type="submit" class="btn btn--primary" [disabled]="isLoading">
@@ -57,6 +84,50 @@
             </button>
         </div>
     </form>
+
+    <!-- Deactivate Login Access -->
+    <form *ngIf="activeTab === 'deactivate'" (ngSubmit)="onDeactivate()" class="form-section">
+        <div class="section-header">
+            <h3 class="section-title">Deactivate Login Access</h3>
+            <p class="section-subtitle">Select users whose login access should be revoked.</p>
+        </div>
+        <div class="form-grid">
+            <div class="form-field form-field--full">
+                <label>Select Users to Deactivate</label>
+                <app-dropdown
+                    [options]="deactivateUsersOptions"
+                    [selectedValues]="selectedDeactivateUsers"
+                    [placeholder]="isLoadingDeactivateUsers ? 'Loading users…' : 'Type to search users…'"
+                    [autocomplete]="true"
+                    [searchable]="true"
+                    [multiSelect]="true"
+                    [showSelectAll]="true"
+                    [showSelectedItems]="false"
+                    [loading]="isLoadingDeactivateUsers"
+                    (selectionChange)="selectedDeactivateUsers = $event"
+                    [closeOnSelect]="false">
+                </app-dropdown>
+                <div class="chips" *ngIf="getSelectedDeactivateUsersOptions().length">
+                    <div class="chips__list">
+                        <span class="chips__chip" *ngFor="let opt of getSelectedDeactivateUsersOptions()">
+                            {{ opt.label }}
+                            <button type="button" class="chips__remove" (click)="removeDeactivateUsers(opt.value)" [attr.aria-label]="'Remove ' + opt.label">
+                                <app-icon name="close" [size]="12" />
+                            </button>
+                        </span>
+                    </div>
+                    <div class="chips__footer">
+                        <span class="chips__count">{{ selectedDeactivateUsers.length }} selected</span>
+                        <button type="button" class="chips__clear" (click)="selectedDeactivateUsers = []">Clear all</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn--secondary" (click)="onDeactivateReset()" [disabled]="isDeactivating">Reset</button>
+            <button type="submit" class="btn btn--danger" [disabled]="isDeactivating">
+                {{ isDeactivating ? 'Deactivating...' : 'Deactivate Login Access' }}
+            </button>
+        </div>
+    </form>
 </div>
-
-

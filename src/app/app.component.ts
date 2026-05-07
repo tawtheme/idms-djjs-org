@@ -50,6 +50,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     '/volunteers/create': 'Create Volunteer',
     '/volunteers/branch-applications': 'Branch Applications',
     '/volunteers/resigned-sewas': 'Resigned Sewas',
+    '/volunteers/login-access': 'Provide Login Access',
     '/sewa/all-sewa': 'All Sewa',
     '/sewa/allocate-sewa': 'Allocate Sewa',
     '/programs/programs-list': 'Programs List',
@@ -88,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     '/volunteers/create': { label: 'All Volunteers', route: '/volunteers' },
     '/volunteers/branch-applications': { label: 'All Volunteers', route: '/volunteers' },
     '/volunteers/resigned-sewas': { label: 'All Volunteers', route: '/volunteers' },
+    '/volunteers/login-access': { label: 'All Volunteers', route: '/volunteers' },
     '/branches/create': { label: 'All Branches', route: '/branches' },
     '/branches/areas': { label: 'All Branches', route: '/branches' },
   };
