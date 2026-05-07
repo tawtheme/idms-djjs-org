@@ -97,7 +97,8 @@ export class SidenavComponent implements OnInit, OnDestroy {
             { label: 'All Volunteers', icon: 'list', route: '/volunteers' },
             { label: 'Add Volunteer', icon: 'person_add', route: '/volunteers/create' },
             { label: 'Branch Applications', icon: 'business', route: '/volunteers/branch-applications' },
-            { label: 'Resigned Sewas', icon: 'person_remove', route: '/volunteers/resigned-sewas' }
+            { label: 'Resigned Sewas', icon: 'person_remove', route: '/volunteers/resigned-sewas' },
+            { label: 'Login Access', icon: 'person_remove', route: '/volunteers/login-access' }
           ]
         }
       ]

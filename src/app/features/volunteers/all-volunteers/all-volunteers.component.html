@@ -266,6 +266,7 @@
                             </span>
                         </th>
                         <th>Sewa Interest</th>
+                        <th>Login Access</th>
                         <th class="action-column">Action</th>
                     </tr>
                 </thead>
@@ -338,6 +339,14 @@
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
+                            <td data-label="Login Access" (click)="$event.stopPropagation()">
+                                <span class="toggle-switch" (click)="toggleLoginAccess(volunteer, $event)">
+                                    <input
+                                        type="checkbox"
+                                        tabindex="-1"
+                                        [checked]="volunteer.loginAccess" />
+                                    <span class="toggle-slider"></span>
+                                </span>
                             <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
                                 <app-menu-dropdown
                                     [options]="getActionOptions(volunteer)"

@@ -77,6 +77,7 @@ export class ProgramsListComponent implements OnInit {
   assignSewaOptions: DropdownOption[] = [];
   selectedAssignSewas: any[] = [];
   isLoadingAssignSewas = false;
+  
   assignLevelOptions: DropdownOption[] = [
     { id: 'Visitor', label: 'Visitor', value: 'Visitor' },
     { id: 'Volunteer', label: 'Volunteer', value: 'Volunteer' }
@@ -492,12 +493,16 @@ private formatDisplayDate(value: string | null | undefined): string {
     this.selectedAssignSewas = this.selectedAssignSewas.filter(v => v !== value);
   }
 
+  
+
   assignVolunteer(program: Program): void {
     this.assignVolunteerProgram = program;
     this.selectedAssignSewas = [];
+   
     this.selectedAssignLevel = [];
     this.assignCode = '';
     this.assignSewaOptions = [];
+   
     this.assignVolunteerResults = [];
     this.assignVolunteerModalOpen = true;
     this.loadAssignSewaOptions(program.id);
@@ -554,6 +559,7 @@ console.log('Assigned Departments:', assignedDepartments);
     this.isLoadingAssignSewas = false;
   });
 }
+
 
 
   //  loadSewaList(): void {

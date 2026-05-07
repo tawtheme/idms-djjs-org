@@ -1,0 +1,85 @@
+
+@import '../../../../assets/scss/variable';
+@import '../../../../assets/scss/form';
+@import '../../../../assets/scss/button';   
+// Apply shared listing styles
+@include listing.listing('.login-access');
+.chips {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px dashed $color-gray-200;
+    border-radius: 6px;
+    background: $color-gray-50;
+
+    &__list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 8px;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 8px;
+        border-top: 1px solid $color-gray-200;
+    }
+
+    &__count {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-600;
+    }
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 4px 4px 10px;
+        font-size: 13px;
+        background: $color-white;
+        border: 1px solid $color-primary-200;
+        color: $color-primary-700;
+        border-radius: 999px;
+    }
+
+    &__remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        border: 0;
+        background: transparent;
+        color: $color-primary-600;
+        cursor: pointer;
+        border-radius: 50%;
+
+        &:hover {
+            background: $color-primary-50;
+        }
+
+        app-icon {
+            font-size: 10px;
+        }
+    }
+
+    &__clear {
+        font-size: 12px;
+        font-weight: 500;
+        color: $color-gray-600;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        padding: 4px 6px;
+
+        &:hover {
+            color: $color-primary-600;
+            text-decoration: underline;
+        }
+    }
+}

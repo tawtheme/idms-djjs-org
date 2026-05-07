@@ -191,6 +191,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'volunteers/login-access',
+    canMatch: [authOnly],
+    loadComponent: () =>
+      import('./features/volunteers/login-access/login-access.component').then(
+        (m) => m.LoginAccessComponent
+      ),
+  },
+  {
     path: 'volunteer-cards',
     canMatch: [authOnly],
     loadComponent: () =>

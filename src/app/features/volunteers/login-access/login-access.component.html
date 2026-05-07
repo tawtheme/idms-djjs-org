@@ -1,0 +1,62 @@
+<div class="page-container">
+    <div class="page-header">
+        <h2 class="page-title">Provide Login Access</h2>
+        <p class="page-subtitle">Fill in the details below to provide login access</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="loginaccess-form">
+        <!-- Branch Information -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">Login Access Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="login-password">Password <span class="required">*</span></label>
+                    <input id="login-password" type="text" class="form-control" [(ngModel)]="password" [ngModelOptions]="{ standalone: true }" placeholder="Enter password" required>
+                </div>
+                <div class="form-field">
+                <label>Select Login Users</label>
+                <app-dropdown
+                    [options]="assignLoginUsersOptions"
+                    [selectedValues]="selectedLoginUsers"
+                    [placeholder]="isLoadingLoginUsers ? 'Loading login users…' : 'Type to search login users…'"
+                    [autocomplete]="true"
+                    [searchable]="true"
+                    [multiSelect]="true"
+                    [showSelectAll]="true"
+                    [showSelectedItems]="false"
+                    [loading]="isLoadingLoginUsers"
+                    (selectionChange)="selectedLoginUsers = $event"
+                    [closeOnSelect]="false">
+                </app-dropdown>
+                <div class="chips" *ngIf="getSelectedLoginUsersOptions().length">
+                    <div class="chips__list">
+                        <span class="chips__chip" *ngFor="let opt of getSelectedLoginUsersOptions()">
+                            {{ opt.label }}
+                            <button type="button" class="chips__remove" (click)="removeLoginUsers(opt.value)" [attr.aria-label]="'Remove ' + opt.label">
+                                <app-icon name="close" [size]="12" />
+                            </button>
+                        </span>
+                    </div>
+                    <div class="chips__footer">
+                        <span class="chips__count">{{ selectedLoginUsers.length }} selected</span>
+                        <button type="button" class="chips__clear" (click)="selectedLoginUsers = []">Clear all</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
+            <button type="submit" class="btn btn--primary" [disabled]="isLoading">
+                {{ isLoading ? 'Submitting...' : 'Provide Login Access' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+

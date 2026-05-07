@@ -58,6 +58,7 @@ export interface Volunteer {
     }>;
     enterBy?: string;
     sewaInterest: boolean;
+    loginAccess?: boolean;
     sewaNoInterestReason?: string;
     sewaAllocated?: boolean;
     sewaMode?: string;
@@ -1049,6 +1050,7 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         }
     }
 
+
     private openSewaReasonModal(volunteer: Volunteer): void {
         this.sewaReasonVolunteer = volunteer as Volunteer & { uuid?: string };
         this.sewaReasonForm = { reason: '', remarks: '' };
@@ -1101,6 +1103,10 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         ).subscribe();
     }
 
+    //toggle login access
+    toggleLoginAccess(volunteer: Volunteer, event: Event): void {
+        event.stopPropagation();
+    }
     // Format address
     formatAddress(address: Volunteer['address']): string {
         const parts = [];
