@@ -182,6 +182,32 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   private focusRemarks(): void {
     setTimeout(() => this.remarksInput?.nativeElement?.focus(), 50);
   }
+  lastKeyTimeDonation = 0;
+  lastKeyTimeRemarks = 0;
+  scannerThreshold = 50;
+  blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks') {
+      const now = new Date().getTime();
+      const lastKeyTime = field === 'donation' ? this.lastKeyTimeDonation : this.lastKeyTimeRemarks;
+      const diff = now - lastKeyTime;
+
+      // If the input is coming too fast (scanner), block it
+      if (diff < this.scannerThreshold) {
+          event.preventDefault();
+          this.fetchUserError = `Manual input only! Scanner detected in ${field} field.`;
+          if (field === 'donation') this.fetchUserDonation = '';
+          else this.fetchUserRemarks = '';
+          return;
+      }
+
+      // Update last key time
+      if (field === 'donation') this.lastKeyTimeDonation = now;
+      else this.lastKeyTimeRemarks = now;
+
+      // Prevent Enter from submitting
+      if (event.key === 'Enter') {
+          event.preventDefault();
+      }
+  }
 
   private focusEnterId(): void {
     if (
@@ -587,11 +613,31 @@ markAttendance(): void {
 
   // 2. Convert to numeric and check for validity
   const donation = Number(rawValue);
-
-  if (isNaN(donation) || donation <= 0) {
-    this.fetchUserError = 'Please enter a valid donation amount.';
-    return;
+  if (donation === null || donation === undefined) {
+    this.fetchUserError = 'Donation cannot be empty.';
+    return ;
   }
+
+  // Convert to number
+  const donationNumber = Number(donation);
+
+  // Check if it's a valid number and non-negative
+  if (isNaN(donationNumber)) {
+    this.fetchUserError = 'Please enter a valid donation amount.';
+    return ;
+  }
+
+  if (donationNumber < 0) {
+    this.fetchUserError = 'Donation cannot be negative.';
+    return ;
+  }
+
+  // Passed all checks
+  this.fetchUserError = '';
+  // if (isNaN(donation) || donation <= 0) {
+  //   this.fetchUserError = 'Please enter a valid donation amount.';
+  //   return;
+  // }
 
   // 3. Length and Range Validation
   // Converting back to string to check digit length specifically
