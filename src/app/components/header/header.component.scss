@@ -418,3 +418,28 @@
         padding: 0 12px;
     }
 }
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #e74c3c;
+    font-weight: bold;
+    transition: background 0.2s;
+  
+    &:hover {
+      background: rgba(231, 76, 60, 0.1);
+      border-radius: 5px;
+    }
+  
+    .logout-label {
+      display: inline-block;
+    }
+  }
+  
+  /* Modal icon color */
+  app-confirmation-dialog .icon {
+    color: #e74c3c;
+  }
