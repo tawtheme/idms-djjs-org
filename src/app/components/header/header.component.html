@@ -32,18 +32,6 @@
             <app-icon name="logout" />
             <span class="logout-label">Logout</span>
         </button>
-        <app-confirmation-dialog
-            [isOpen]="showLogoutConfirm"
-            title="Logout Confirmation"
-            [message]="'Are you sure you want to logout from your account?'"
-            [icon]="'logout'"              
-            [confirmLabel]="'Yes, Logout'"
-            [cancelLabel]="'Cancel'"
-            [confirmType]="'danger'"         
-            [cancelType]="'secondary'"      
-            (confirm)="onLogoutConfirm()"
-            (cancel)="onLogoutCancel()">
-        </app-confirmation-dialog>
     </div>
 </header>
 

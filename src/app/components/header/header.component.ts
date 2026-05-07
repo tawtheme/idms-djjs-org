@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { AuthService } from '../../services/auth.service';
 import { HeaderActionsService } from '../../services/header-actions.service';
-import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 interface MenuGroupItem {
   label: string;
@@ -21,7 +20,7 @@ interface MenuGroup {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, IconComponent,ConfirmationDialogComponent],
+  imports: [CommonModule, IconComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -97,26 +96,15 @@ export class HeaderComponent {
     this.closePage.emit();
   }
 
-  showLogoutConfirm = false; // already there
-
-onLogout(): void {
-  // Only open modal, do NOT call logout yet
-  this.showLogoutConfirm = true;
-}
-
-onLogoutConfirm(): void {
-  this.showLogoutConfirm = false;
-  this.auth.logout();
-  this.router.navigateByUrl('/login').then(
-    ok => console.log('[Header] navigation result =', ok),
-    err => console.error('[Header] navigation error', err)
-  );
-}
-
-onLogoutCancel(): void {
-  this.showLogoutConfirm = false;
-  console.log('[Header] Logout cancelled');
-}
+  onLogout(): void {
+    console.log('[Header] onLogout clicked');
+    this.auth.logout();
+    console.log('[Header] navigating to /login');
+    this.router.navigateByUrl('/login').then(
+      ok => console.log('[Header] navigation result =', ok),
+      err => console.error('[Header] navigation error', err)
+    );
+  }
 
   getHeight(): number {
     const headerEl = this.headerElement?.nativeElement || this.elementRef.nativeElement.querySelector('.header');
