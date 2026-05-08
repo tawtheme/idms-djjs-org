@@ -134,12 +134,52 @@ export class VolunteersAttendanceReportComponent implements OnInit {
     showAdvancedFilters = false;
 
     activeFilterCount(): number {
-        let count = 0;
-        if (this.selectedSewas.length > 0) count++;
-        if (this.selectedAttendanceStatus.length > 0) count++;
-        if (this.fromDate) count++;
-        if (this.toDate) count++;
-        return count;
+        return this.activeFilterChips().length;
+    }
+
+    /** Chips for filters that live in the side panel only — primary-row inputs
+     *  are visible directly above, so duplicating them as chips is noise. */
+    activeFilterChips(): Array<{ key: string; label: string; value: string }> {
+        const chips: Array<{ key: string; label: string; value: string }> = [];
+        const labelOf = (opts: DropdownOption[], value: any): string => {
+            const v = String(value);
+            return opts.find(o => String(o.value) === v)?.label || v;
+        };
+        const formatDate = (d: Date | null): string => {
+            if (!d) return '';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            return `${day}/${month}/${d.getFullYear()}`;
+        };
+
+        if (this.selectedSewas.length > 0) {
+            const labels = this.selectedSewas.map(v => labelOf(this.sewaOptions, v));
+            chips.push({ key: 'sewas', label: 'Sewas', value: labels.join(', ') });
+        }
+        if (this.selectedAttendanceStatus.length > 0) {
+            chips.push({ key: 'attendanceStatus', label: 'Attendance Status', value: labelOf(this.attendanceStatusOptions, this.selectedAttendanceStatus[0]) });
+        }
+        if (this.fromDate) {
+            chips.push({ key: 'fromDate', label: 'From', value: formatDate(this.fromDate) });
+        }
+        if (this.toDate) {
+            chips.push({ key: 'toDate', label: 'To', value: formatDate(this.toDate) });
+        }
+        return chips;
+    }
+
+    trackChipByKey(_: number, chip: { key: string }): string {
+        return chip.key;
+    }
+
+    removeFilterChip(key: string): void {
+        switch (key) {
+            case 'sewas': this.selectedSewas = []; break;
+            case 'attendanceStatus': this.selectedAttendanceStatus = []; break;
+            case 'fromDate': this.fromDate = null; break;
+            case 'toDate': this.toDate = null; break;
+        }
+        this.applyFilter();
     }
 
     clearAllFilters(): void {

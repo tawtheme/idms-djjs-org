@@ -5,41 +5,53 @@
 // Apply shared listing styles
 @include listing.listing('.volunteer-cards');
 
-.filter-options-selected {
+// Active filter chips
+.active-filters {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
-    margin: 12px 0 0;
+    padding: 8px 0;
+
+    &__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 
     &__chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 10px;
+        padding: 4px 6px 4px 10px;
         background: $color-primary-50;
         color: $color-primary-700;
         border: 1px solid $color-primary-100;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 600;
+        line-height: 1.2;
     }
 
-    &__remove {
+    &__chip-key { font-weight: 600; }
+
+    &__chip-value { color: $color-primary-700; }
+
+    &__chip-remove {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 16px;
-        height: 16px;
-        padding: 0;
-        border: none;
-        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        border: 0;
         background: transparent;
-        color: $color-primary-700;
+        color: inherit;
         cursor: pointer;
+        border-radius: 50%;
+        padding: 0;
 
-        &:hover {
-            background: $color-primary-100;
-        }
+        &:hover { background: rgba(0, 0, 0, 0.06); }
     }
 }
 

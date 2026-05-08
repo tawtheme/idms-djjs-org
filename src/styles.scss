@@ -27,6 +27,15 @@
 @import 'assets/scss/animation';
 /* pages.scss is imported per-component using @use to avoid duplicate styles */
 
+/* Ensure inner SVG icons inside small clear/close buttons don't swallow the
+   click — click target must always be the button itself. */
+.input-clear,
+.active-filters__chip-remove,
+.chips__remove {
+    app-icon,
+    svg { pointer-events: none; }
+}
+
 * {
     box-sizing: border-box;
 }

@@ -343,6 +343,11 @@
         &:hover {
             background: rgba(0, 0, 0, 0.06);
         }
+
+        // Ensure clicks always land on the button, not the inner SVG icon
+        app-icon, svg {
+            pointer-events: none;
+        }
     }
 
     &__clear {

@@ -149,6 +149,22 @@
         </div>
     </app-side-panel>
 
+    <!-- Active filter chips -->
+    <div *ngIf="activeFilterChips().length > 0" class="active-filters">
+        <span class="active-filters__label">Active filters:</span>
+        <span class="active-filters__chip" *ngFor="let chip of activeFilterChips(); trackBy: trackChipByKey">
+            <span class="active-filters__chip-key">{{ chip.label }}:</span>
+            <span class="active-filters__chip-value">{{ chip.value }}</span>
+            <button
+                type="button"
+                class="active-filters__chip-remove"
+                (click)="removeFilterChip(chip.key); $event.stopPropagation()"
+                [attr.aria-label]="'Remove ' + chip.label + ' filter'">
+                <app-icon name="close" [size]="12" />
+            </button>
+        </span>
+    </div>
+
     <!-- Summary Stats -->
     <div class="stats-row">
         <div class="stat-item stat-item--total">

@@ -1304,6 +1304,10 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         return chips;
     }
 
+    trackChipByKey(_: number, chip: { key: string }): string {
+        return chip.key;
+    }
+
     removeFilterChip(key: string): void {
         switch (key) {
             case 'taskBranch': this.selectedTaskBranch = []; break;

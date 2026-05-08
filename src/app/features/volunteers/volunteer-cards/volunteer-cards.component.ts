@@ -324,16 +324,75 @@ export class VolunteerCardsComponent implements OnInit {
   }
 
   advancedFilterCount(): number {
-    let count = 0;
-    if (this.selectedGender.length > 0) count++;
-    if (this.moreFilters.name) count++;
-    if (this.moreFilters.relationName) count++;
-    if (this.moreFilters.mobileNo) count++;
-    if (this.moreFilters.uid) count++;
-    if (this.moreFilters.options.length > 0) count++;
-    if (this.moreFilters.startFrom) count++;
-    if (this.moreFilters.endTo) count++;
-    return count;
+    return this.activeFilterChips().length;
+  }
+
+  /** Chips for filters that live in the side panel only — primary-row inputs
+   *  are visible directly above. Options is multi-select, so each selected
+   *  value is its own chip for granular removal. */
+  activeFilterChips(): Array<{ key: string; label: string; value: string }> {
+    const chips: Array<{ key: string; label: string; value: string }> = [];
+    const labelOf = (opts: DropdownOption[], value: any): string => {
+      const v = String(value);
+      return opts.find(o => String(o.value) === v)?.label || v;
+    };
+    const formatDate = (d: any): string => {
+      if (!d) return '';
+      const date = d instanceof Date ? d : new Date(d);
+      if (isNaN(date.getTime())) return String(d);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}/${date.getFullYear()}`;
+    };
+
+    if (this.selectedGender.length > 0) {
+      chips.push({ key: 'gender', label: 'Gender', value: labelOf(this.genderOptions, this.selectedGender[0]) });
+    }
+    if (this.moreFilters.name) {
+      chips.push({ key: 'name', label: 'Name', value: this.moreFilters.name });
+    }
+    if (this.moreFilters.relationName) {
+      chips.push({ key: 'relationName', label: 'Relation Name', value: this.moreFilters.relationName });
+    }
+    if (this.moreFilters.mobileNo) {
+      chips.push({ key: 'mobileNo', label: 'Mobile No.', value: this.moreFilters.mobileNo });
+    }
+    if (this.moreFilters.uid) {
+      chips.push({ key: 'uid', label: 'UID', value: this.moreFilters.uid });
+    }
+    if (this.moreFilters.options?.length > 0) {
+      for (const opt of this.getSelectedOptionLabels()) {
+        chips.push({ key: `option:${opt.value}`, label: 'Option', value: opt.label });
+      }
+    }
+    if (this.moreFilters.startFrom) {
+      chips.push({ key: 'startFrom', label: 'Start From', value: formatDate(this.moreFilters.startFrom) });
+    }
+    if (this.moreFilters.endTo) {
+      chips.push({ key: 'endTo', label: 'End To', value: formatDate(this.moreFilters.endTo) });
+    }
+    return chips;
+  }
+
+  trackChipByKey(_: number, chip: { key: string }): string {
+    return chip.key;
+  }
+
+  removeFilterChip(key: string): void {
+    if (key.startsWith('option:')) {
+      this.removeOption(key.slice('option:'.length));
+    } else {
+      switch (key) {
+        case 'gender': this.selectedGender = []; break;
+        case 'name': this.moreFilters.name = ''; break;
+        case 'relationName': this.moreFilters.relationName = ''; break;
+        case 'mobileNo': this.moreFilters.mobileNo = ''; break;
+        case 'uid': this.moreFilters.uid = ''; break;
+        case 'startFrom': this.moreFilters.startFrom = null; break;
+        case 'endTo': this.moreFilters.endTo = null; break;
+      }
+    }
+    this.applyFilter();
   }
 
   clearAdvancedFilters(): void {
