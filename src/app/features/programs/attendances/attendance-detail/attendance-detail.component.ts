@@ -192,11 +192,13 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     // not a stale timestamp from a previous scan/session.
     this.lastKeyTimeRemarks = Date.now();
     this.prevRemarksValue = this.fetchUserRemarks || '';
+    this.remarksBurst = [];
   }
 
   onDonationFocus(): void {
     this.lastKeyTimeDonation = Date.now();
     this.prevDonationValue = String(this.fetchUserDonation ?? '');
+    this.donationBurst = [];
   }
 
   blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks') {
@@ -240,15 +242,22 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   /**
    * Safety net for scanners that bypass keydown (some HID modes use synthetic
-   * input events). If the input value jumps by more than 1 character between
-   * events, treat as paste/scanner and revert.
+   * input events) AND for the first 1-2 chars that the keydown timer can't
+   * catch. We track input timestamps in a sliding window — 2+ inputs within
+   * 200ms is treated as a scanner burst and the entire field is wiped.
    */
   private prevDonationValue = '';
   private prevRemarksValue = '';
+  private donationBurst: number[] = [];
+  private remarksBurst: number[] = [];
+  private burstWindowMs = 200;
 
   onDonationInputChange(event: any): void {
+    const now = Date.now();
     const newVal = String(event?.target?.value ?? '');
     const prev = this.prevDonationValue;
+
+    // Single bulk insertion (paste / autofill)
     if (newVal.length - prev.length > 1) {
       event.target.value = prev;
       this.fetchUserDonation = prev;
@@ -256,12 +265,27 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.snackbar.showError(`Bulk input blocked in donation (+${newVal.length - prev.length} chars)`);
       return;
     }
+
+    // Burst window: 2+ inputs in 200ms = scanner, wipe everything
+    this.donationBurst = [...this.donationBurst.filter(t => now - t < this.burstWindowMs), now];
+    if (this.donationBurst.length >= 2) {
+      event.target.value = '';
+      this.fetchUserDonation = '';
+      this.prevDonationValue = '';
+      this.fetchUserError = 'Scanner burst detected — donation cleared.';
+      this.snackbar.showError(`Donation cleared — ${this.donationBurst.length} inputs in ${this.burstWindowMs}ms`);
+      this.donationBurst = [];
+      return;
+    }
+
     this.prevDonationValue = newVal;
   }
 
   onRemarksInputChange(event: any): void {
+    const now = Date.now();
     const newVal = String(event?.target?.value ?? '');
     const prev = this.prevRemarksValue;
+
     if (newVal.length - prev.length > 1) {
       event.target.value = prev;
       this.fetchUserRemarks = prev;
@@ -269,6 +293,18 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       this.snackbar.showError(`Bulk input blocked in remarks (+${newVal.length - prev.length} chars)`);
       return;
     }
+
+    this.remarksBurst = [...this.remarksBurst.filter(t => now - t < this.burstWindowMs), now];
+    if (this.remarksBurst.length >= 2) {
+      event.target.value = '';
+      this.fetchUserRemarks = '';
+      this.prevRemarksValue = '';
+      this.fetchUserError = 'Scanner burst detected — remarks cleared.';
+      this.snackbar.showError(`Remarks cleared — ${this.remarksBurst.length} inputs in ${this.burstWindowMs}ms`);
+      this.remarksBurst = [];
+      return;
+    }
+
     this.prevRemarksValue = newVal;
   }
 
