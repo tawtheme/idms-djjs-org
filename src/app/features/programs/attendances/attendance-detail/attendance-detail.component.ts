@@ -185,28 +185,48 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   lastKeyTimeDonation = 0;
   lastKeyTimeRemarks = 0;
   scannerThreshold = 50;
+
+  onRemarksFocus(): void {
+    // Reset on focus so the first keystroke is measured against the focus event,
+    // not a stale timestamp from a previous scan/session.
+    this.lastKeyTimeRemarks = Date.now();
+  }
+
+  onDonationFocus(): void {
+    this.lastKeyTimeDonation = Date.now();
+  }
+
   blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks') {
-      const now = new Date().getTime();
+      // Always block Enter (prevents scanner's trailing CR from submitting)
+      if (event.key === 'Enter') {
+          event.preventDefault();
+          return;
+      }
+      // Allow control keys (Tab, arrows, Shift, Backspace, etc.)
+      if (event.key.length > 1) return;
+
+      const now = Date.now();
       const lastKeyTime = field === 'donation' ? this.lastKeyTimeDonation : this.lastKeyTimeRemarks;
       const diff = now - lastKeyTime;
 
-      // If the input is coming too fast (scanner), block it
+      // If the input is coming too fast (scanner), block AND keep updating the
+      // timestamp so subsequent scanner chars stay blocked too.
       if (diff < this.scannerThreshold) {
           event.preventDefault();
+          if (field === 'donation') {
+              this.lastKeyTimeDonation = now;
+              this.fetchUserDonation = '';
+          } else {
+              this.lastKeyTimeRemarks = now;
+              this.fetchUserRemarks = '';
+          }
           this.fetchUserError = `Manual input only! Scanner detected in ${field} field.`;
-          if (field === 'donation') this.fetchUserDonation = '';
-          else this.fetchUserRemarks = '';
           return;
       }
 
-      // Update last key time
+      // Real keystroke — record time
       if (field === 'donation') this.lastKeyTimeDonation = now;
       else this.lastKeyTimeRemarks = now;
-
-      // Prevent Enter from submitting
-      if (event.key === 'Enter') {
-          event.preventDefault();
-      }
   }
 
   private focusEnterId(): void {

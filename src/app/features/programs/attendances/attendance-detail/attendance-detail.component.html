@@ -346,13 +346,32 @@
 
             <div class="fetch-user-form">
                 <label>Donation Amount <span class="required">*</span></label><!--(input)="onDonationInput($event)"-->
-                <input #donationInput type="number"  min="0" step="any" class="form-control" [(ngModel)]="fetchUserDonation"  (keydown)="blockScannerInput($event, 'donation')"
-                (ngModelChange)="fetchUserError = null" placeholder="Enter amount" />
+                <input #donationInput type="number" min="0" step="any" class="form-control"
+                    [(ngModel)]="fetchUserDonation"
+                    (keydown)="blockScannerInput($event, 'donation')"
+                    (focus)="onDonationFocus()"
+                    (paste)="$event.preventDefault()"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    name="attendance-donation-no-autofill"
+                    (ngModelChange)="fetchUserError = null"
+                    placeholder="Enter amount" />
                 <ng-container *ngIf="leaveMode">
                     <label>Remarks <span class="required">*</span></label>
-                    <input #remarksInput type="text" class="form-control" [(ngModel)]="fetchUserRemarks"
-                    (keydown)="blockScannerInput($event, 'remarks')"
-                     (ngModelChange)="fetchUserError = null" placeholder="Enter remarks" />
+                    <input #remarksInput type="text" class="form-control"
+                        [(ngModel)]="fetchUserRemarks"
+                        (keydown)="blockScannerInput($event, 'remarks')"
+                        (focus)="onRemarksFocus()"
+                        (paste)="$event.preventDefault()"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        name="attendance-remarks-no-autofill"
+                        (ngModelChange)="fetchUserError = null"
+                        placeholder="Enter remarks" />
                 </ng-container>
                 <div *ngIf="fetchUserError" class="fetch-user-error">{{ fetchUserError }}</div>
             </div>
