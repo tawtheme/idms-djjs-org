@@ -152,9 +152,8 @@ export class VolunteersAttendanceReportComponent implements OnInit {
             return `${day}/${month}/${d.getFullYear()}`;
         };
 
-        if (this.selectedSewas.length > 0) {
-            const labels = this.selectedSewas.map(v => labelOf(this.sewaOptions, v));
-            chips.push({ key: 'sewas', label: 'Sewas', value: labels.join(', ') });
+        for (const v of this.selectedSewas) {
+            chips.push({ key: `sewa:${v}`, label: 'Sewa', value: labelOf(this.sewaOptions, v) });
         }
         if (this.selectedAttendanceStatus.length > 0) {
             chips.push({ key: 'attendanceStatus', label: 'Attendance Status', value: labelOf(this.attendanceStatusOptions, this.selectedAttendanceStatus[0]) });
@@ -173,11 +172,15 @@ export class VolunteersAttendanceReportComponent implements OnInit {
     }
 
     removeFilterChip(key: string): void {
-        switch (key) {
-            case 'sewas': this.selectedSewas = []; break;
-            case 'attendanceStatus': this.selectedAttendanceStatus = []; break;
-            case 'fromDate': this.fromDate = null; break;
-            case 'toDate': this.toDate = null; break;
+        if (key.startsWith('sewa:')) {
+            const value = key.slice('sewa:'.length);
+            this.selectedSewas = this.selectedSewas.filter(v => String(v) !== value);
+        } else {
+            switch (key) {
+                case 'attendanceStatus': this.selectedAttendanceStatus = []; break;
+                case 'fromDate': this.fromDate = null; break;
+                case 'toDate': this.toDate = null; break;
+            }
         }
         this.applyFilter();
     }
@@ -193,13 +196,13 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         this.fromDate = null;
         this.toDate = null;
         this.programOptions = [];
+        this.sewaOptions = [];
         this.holdingBranchError = null;
         this.programsError = null;
     }
 
     ngOnInit(): void {
         this.loadBranches();
-        this.loadSewaOptions();
     }
 
     private loadBranches(): void {
@@ -236,12 +239,26 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         this.selectedProgramHoldingBranch = value;
         this.holdingBranchError = null;
         this.selectedPrograms = [];
+        this.selectedSewas = [];
+        this.sewaOptions = [];
         const branchId = value?.length ? String(value[0]) : '';
         this.loadPrograms(branchId);
     }
 
-    private loadSewaOptions(): void {
-        this.dataService.get<any>('v1/options/sewasByType', { params: { sewa_type: 'volunteer' } }).pipe(
+    onProgramsChange(value: any[]): void {
+        this.selectedPrograms = value;
+        this.programsError = null;
+        this.selectedSewas = [];
+        const programId = value?.length ? String(value[0]) : '';
+        this.loadSewaOptions(programId);
+    }
+
+    private loadSewaOptions(programId?: string): void {
+        if (!programId) {
+            this.sewaOptions = [];
+            return;
+        }
+        this.dataService.get<any>('v1/options/programSewas', { params: { program_id: programId } }).pipe(
             catchError(() => of({ data: [] }))
         ).subscribe((response) => {
             const sewas = response?.data?.sewas || response?.data || response || [];

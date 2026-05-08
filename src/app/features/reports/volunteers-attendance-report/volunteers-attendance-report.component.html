@@ -57,7 +57,7 @@
                     placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
-                    (selectionChange)="selectedPrograms = $event; programsError = null"
+                    (selectionChange)="onProgramsChange($event)"
                     [closeOnSelect]="true">
                 </app-dropdown>
                 <div *ngIf="programsError" class="field-error">{{ programsError }}</div>

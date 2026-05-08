@@ -172,7 +172,6 @@
                     [searchable]="true"
                     [autocomplete]="true"
                     [multiSelect]="true"
-                    [showSelectedItems]="false"
                     (selectionChange)="moreFilters.options = $event"
                     [closeOnSelect]="false">
                 </app-dropdown>
@@ -201,7 +200,6 @@
             <button
                 type="button"
                 class="btn btn--secondary btn--md"
-                [disabled]="!hasAnyActiveFilter()"
                 (click)="clearAdvancedFilters()">
                 Clear all
             </button>
