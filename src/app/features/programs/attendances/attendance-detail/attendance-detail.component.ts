@@ -182,36 +182,37 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.remarksInput?.nativeElement?.focus(), 50);
   }
   // ── Scanner-input guard ──
-  // The donation and remarks inputs must accept manual typing only — barcode
-  // scanners (which fire keystrokes at ~5-15ms intervals) and browser autofill
-  // would otherwise pollute the values and auto-submit on the trailing CR.
+  // The donation and remarks inputs must accept manual keyboard typing at any
+  // speed — barcode scanners (which fire keystrokes at ~5-15ms intervals) and
+  // browser autofill must still be rejected so they can't pollute the values
+  // or auto-submit on the trailing CR.
   //
-  // Three layers of defence:
-  //   1. keydown timing — block any character that arrives within 50ms of the
-  //      previous keystroke; block Enter unconditionally.
-  //   2. input-burst detection — if 2+ input events fire within 200ms, wipe
-  //      the field entirely (catches the very first char that the keydown
-  //      timer can't measure against anything).
+  // Per-keystroke timing was too tight — fast typists overlap with scanner
+  // cadence in the 30-60ms range, so we no longer gate on single-key gaps.
+  //
+  // Three layers of defence remain:
+  //   1. keydown — block Enter unconditionally (scanner appends CR; manual
+  //      submit uses Tab/click).
+  //   2. input-burst detection — only flag as scanner if 5+ input events fire
+  //      within 100ms (avg ≥ 20ms/char sustained for 5 chars), or if a single
+  //      input event grows the value by more than one char (paste-mode scan).
   //   3. document-level Enter — refuse auto-submit if Enter arrives shortly
-  //      after a keystroke burst.
-  private lastKeyTimeDonation = 0;
-  private lastKeyTimeRemarks = 0;
+  //      after a keystroke burst (uses lastAnyKeyTime).
   private lastAnyKeyTime = 0;
   private prevDonationValue = '';
   private prevRemarksValue = '';
   private donationBurst: number[] = [];
   private remarksBurst: number[] = [];
   private readonly scannerThreshold = 50;
-  private readonly burstWindowMs = 200;
+  private readonly burstWindowMs = 100;
+  private readonly burstMinChars = 5;
 
   onRemarksFocus(): void {
-    this.lastKeyTimeRemarks = Date.now();
     this.prevRemarksValue = this.fetchUserRemarks || '';
     this.remarksBurst = [];
   }
 
   onDonationFocus(): void {
-    this.lastKeyTimeDonation = Date.now();
     this.prevDonationValue = String(this.fetchUserDonation ?? '');
     this.donationBurst = [];
   }
@@ -226,27 +227,11 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     // Let control keys through (Tab, arrows, Shift, Backspace, etc.)
     if (event.key.length > 1) return;
 
-    const now = Date.now();
-    const lastKeyTime = field === 'donation' ? this.lastKeyTimeDonation : this.lastKeyTimeRemarks;
-    const diff = now - lastKeyTime;
-
-    if (diff < this.scannerThreshold) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (field === 'donation') {
-        this.lastKeyTimeDonation = now;
-        this.fetchUserDonation = '';
-      } else {
-        this.lastKeyTimeRemarks = now;
-        this.fetchUserRemarks = '';
-      }
-      this.fetchUserError = `Manual input only — scanner detected.`;
-      return;
-    }
-
-    this.lastAnyKeyTime = now;
-    if (field === 'donation') this.lastKeyTimeDonation = now;
-    else this.lastKeyTimeRemarks = now;
+    // Track timing for the document-level Enter guard; do NOT block here on
+    // single-keystroke gaps — burst detection in the (input) handler is the
+    // authoritative scanner check.
+    void field;
+    this.lastAnyKeyTime = Date.now();
   }
 
   onDonationInputChange(event: any): void {
@@ -262,7 +247,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     }
 
     this.donationBurst = [...this.donationBurst.filter(t => now - t < this.burstWindowMs), now];
-    if (this.donationBurst.length >= 2) {
+    if (this.donationBurst.length >= this.burstMinChars) {
       event.target.value = '';
       this.fetchUserDonation = '';
       this.prevDonationValue = '';
@@ -271,7 +256,13 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.prevDonationValue = newVal;
+    // Digits only, max 4 characters.
+    const formatted = newVal.replace(/\D/g, '').slice(0, 4);
+    if (formatted !== newVal) {
+      event.target.value = formatted;
+    }
+    this.fetchUserDonation = formatted;
+    this.prevDonationValue = formatted;
   }
 
   onRemarksInputChange(event: any): void {
@@ -287,7 +278,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     }
 
     this.remarksBurst = [...this.remarksBurst.filter(t => now - t < this.burstWindowMs), now];
-    if (this.remarksBurst.length >= 2) {
+    if (this.remarksBurst.length >= this.burstMinChars) {
       event.target.value = '';
       this.fetchUserRemarks = '';
       this.prevRemarksValue = '';

@@ -172,6 +172,15 @@
         margin: 0;
         color: $color-gray-500;
     }
+
+    .form-control {
+        height: 40px;
+        padding: 0 12px;
+        line-height: 1;
+        box-sizing: border-box;
+    }
+
+    .input-wrap { min-height: 40px; }
 }
 
 .filter-input {
@@ -415,7 +424,15 @@
         gap: 8px;
         white-space: nowrap;
 
-        .btn { min-height: 40px; padding: 0 16px; }
+        .btn,
+        .filter-toggle {
+            height: 40px;
+            min-height: 40px;
+            line-height: 1;
+            box-sizing: border-box;
+        }
+
+        .btn { padding: 0 16px; }
     }
 }
 

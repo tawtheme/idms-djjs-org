@@ -518,9 +518,10 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
             correspondingBranch: [],
             branchSearchType: [],
             sewa: [],
-            sewaInterest: ['none'],
-            sewaAllocated: ['none'],
-            sewaMode: []
+            sewaInterest: [],
+            sewaAllocated: [],
+            sewaMode: [],
+            sewaHead: []
         };
         this.currentPage = 1;
         this.loadVolunteers();
@@ -1266,6 +1267,9 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         return this.activeFilterChips().length;
     }
 
+    /** Chips reflect only filters that live inside the side panel — primary
+     *  row inputs are visible directly above the chips list, so duplicating
+     *  them as chips is noise. */
     activeFilterChips(): Array<{ key: string; label: string; value: string }> {
         const chips: Array<{ key: string; label: string; value: string }> = [];
         const labelOf = (opts: DropdownOption[], value: any): string => {
@@ -1273,24 +1277,6 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
             return opts.find(o => String(o.value) === v)?.label || v;
         };
 
-        if (this.selectedTaskBranch.length > 0) {
-            chips.push({ key: 'taskBranch', label: 'Task Branch', value: labelOf(this.taskBranchOptions, this.selectedTaskBranch[0]) });
-        }
-        if (this.moreFilters.correspondingBranch?.length > 0) {
-            chips.push({ key: 'correspondingBranch', label: 'Corresponding Branch', value: labelOf(this.correspondingBranchOptions, this.moreFilters.correspondingBranch[0]) });
-        }
-        if (this.moreFilters.branchSearchType?.length > 0) {
-            chips.push({ key: 'branchSearchType', label: 'Branch Search Type', value: labelOf(this.branchSearchTypeOptions, this.moreFilters.branchSearchType[0]) });
-        }
-        if (this.moreFilters.sewa?.length > 0) {
-            chips.push({ key: 'sewa', label: 'Sewa', value: labelOf(this.sewaOptions, this.moreFilters.sewa[0]) });
-        }
-        if (this.filterFields.badgeNo) {
-            chips.push({ key: 'badgeNo', label: 'Badge No', value: this.filterFields.badgeNo });
-        }
-        if (this.filterFields.name) {
-            chips.push({ key: 'name', label: 'Name', value: this.filterFields.name });
-        }
         if (this.selectedGender.length > 0) {
             chips.push({ key: 'gender', label: 'Gender', value: labelOf(this.genderOptions, this.selectedGender[0]) });
         }

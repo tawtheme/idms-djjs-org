@@ -142,6 +142,21 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         return count;
     }
 
+    clearAllFilters(): void {
+        this.selectedProgramHoldingBranch = [];
+        this.selectedTaskBranch = [];
+        this.selectedCorrespondingBranch = [];
+        this.selectedBranchSearchType = [];
+        this.selectedPrograms = [];
+        this.selectedSewas = [];
+        this.selectedAttendanceStatus = [];
+        this.fromDate = null;
+        this.toDate = null;
+        this.programOptions = [];
+        this.holdingBranchError = null;
+        this.programsError = null;
+    }
+
     ngOnInit(): void {
         this.loadBranches();
         this.loadSewaOptions();

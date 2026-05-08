@@ -338,13 +338,20 @@ export class VolunteerCardsComponent implements OnInit {
 
   clearAdvancedFilters(): void {
     this.selectedGender = [];
-    this.moreFilters.name = '';
-    this.moreFilters.relationName = '';
-    this.moreFilters.mobileNo = '';
-    this.moreFilters.uid = '';
-    this.moreFilters.options = [];
-    this.moreFilters.startFrom = '';
-    this.moreFilters.endTo = '';
+    this.selectedSewa = [];
+    this.moreFilters = {
+      taskBranch: [],
+      correspondingBranch: [],
+      branchSearchType: [],
+      badgeNo: '',
+      name: '',
+      relationName: '',
+      mobileNo: '',
+      uid: '',
+      options: [],
+      startFrom: '',
+      endTo: ''
+    };
   }
 
   totalActiveFiltersCount(): number {
