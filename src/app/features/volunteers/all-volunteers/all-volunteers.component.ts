@@ -1308,6 +1308,10 @@ export class AllVolunteersComponent implements OnInit, OnDestroy {
         return chip.key;
     }
 
+    reloadPage(): void {
+        window.location.reload();
+    }
+
     removeFilterChip(key: string): void {
         switch (key) {
             case 'taskBranch': this.selectedTaskBranch = []; break;

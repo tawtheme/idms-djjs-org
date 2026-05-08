@@ -171,6 +171,10 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         return chip.key;
     }
 
+    reloadPage(): void {
+        window.location.reload();
+    }
+
     removeFilterChip(key: string): void {
         if (key.startsWith('sewa:')) {
             const value = key.slice('sewa:'.length);

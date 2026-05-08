@@ -378,6 +378,10 @@ export class VolunteerCardsComponent implements OnInit {
     return chip.key;
   }
 
+  reloadPage(): void {
+    window.location.reload();
+  }
+
   removeFilterChip(key: string): void {
     if (key.startsWith('option:')) {
       this.removeOption(key.slice('option:'.length));

@@ -231,6 +231,13 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     this.lastAnyKeyTime = Date.now();
   }
 
+  /** Digits only, max 4 chars, capped at 5000. */
+  private clampDonation(raw: string): string {
+    let v = String(raw ?? '').replace(/\D/g, '').slice(0, 4);
+    if (v && Number(v) > 5000) v = '5000';
+    return v;
+  }
+
   onDonationInputChange(event: any): void {
     const now = Date.now();
     const newVal = String(event?.target?.value ?? '');
@@ -253,10 +260,12 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Digits only, max 4 characters.
-    const formatted = newVal.replace(/\D/g, '').slice(0, 4);
+    const formatted = this.clampDonation(newVal);
     if (formatted !== newVal) {
       event.target.value = formatted;
+      if (Number(newVal.replace(/\D/g, '')) > 5000) {
+        this.fetchUserError = 'Maximum donation allowed is 5000.';
+      }
     }
     this.fetchUserDonation = formatted;
     this.prevDonationValue = formatted;
@@ -411,22 +420,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     });
   }
   onDonationInput(event: any) {
-    let value = event.target.value;
-  
-    // Remove non-digit characters (no decimals, no letters)
-    value = value.replace(/\D/g, '');
-  
-    // Limit to max 4 digits
-    if (value.length > 4) {
-      value = value.slice(0, 4);
-    }
-    // Ensure max 5000
-    // if (Number(value) > 5000) {
-    //   value = '5000';
-    // }
-    // Update the model and input
-    this.fetchUserDonation = value;
-    event.target.value = value;
+    const formatted = this.clampDonation(event?.target?.value ?? '');
+    this.fetchUserDonation = formatted;
+    event.target.value = formatted;
   }
   onEnterId(): void {
     if (!this.enterId.trim()) return;
@@ -919,7 +915,7 @@ markAttendance(): void {
   onEditDonationInput(event: any): void {
     if (!this.editingCell) return;
     const raw = String(event?.target?.value ?? '');
-    const formatted = raw.replace(/\D/g, '').slice(0, 4);
+    const formatted = this.clampDonation(raw);
     if (formatted !== raw) {
       event.target.value = formatted;
     }
