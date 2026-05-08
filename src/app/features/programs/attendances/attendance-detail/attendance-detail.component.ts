@@ -184,22 +184,28 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   }
   lastKeyTimeDonation = 0;
   lastKeyTimeRemarks = 0;
+  lastAnyKeyTime = 0;
   scannerThreshold = 50;
 
   onRemarksFocus(): void {
     // Reset on focus so the first keystroke is measured against the focus event,
     // not a stale timestamp from a previous scan/session.
     this.lastKeyTimeRemarks = Date.now();
+    this.prevRemarksValue = this.fetchUserRemarks || '';
   }
 
   onDonationFocus(): void {
     this.lastKeyTimeDonation = Date.now();
+    this.prevDonationValue = String(this.fetchUserDonation ?? '');
   }
 
   blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks') {
-      // Always block Enter (prevents scanner's trailing CR from submitting)
+      // Always block Enter (prevents scanner's trailing CR from submitting).
+      // stopPropagation prevents the document-level listener from auto-submitting.
       if (event.key === 'Enter') {
           event.preventDefault();
+          event.stopPropagation();
+          this.snackbar.showWarning(`Scanner Enter blocked in ${field}`);
           return;
       }
       // Allow control keys (Tab, arrows, Shift, Backspace, etc.)
@@ -213,6 +219,7 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       // timestamp so subsequent scanner chars stay blocked too.
       if (diff < this.scannerThreshold) {
           event.preventDefault();
+          event.stopPropagation();
           if (field === 'donation') {
               this.lastKeyTimeDonation = now;
               this.fetchUserDonation = '';
@@ -221,12 +228,48 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
               this.fetchUserRemarks = '';
           }
           this.fetchUserError = `Manual input only! Scanner detected in ${field} field.`;
+          this.snackbar.showError(`Scanner blocked (${diff}ms) in ${field}`);
           return;
       }
 
       // Real keystroke — record time
+      this.lastAnyKeyTime = now;
       if (field === 'donation') this.lastKeyTimeDonation = now;
       else this.lastKeyTimeRemarks = now;
+  }
+
+  /**
+   * Safety net for scanners that bypass keydown (some HID modes use synthetic
+   * input events). If the input value jumps by more than 1 character between
+   * events, treat as paste/scanner and revert.
+   */
+  private prevDonationValue = '';
+  private prevRemarksValue = '';
+
+  onDonationInputChange(event: any): void {
+    const newVal = String(event?.target?.value ?? '');
+    const prev = this.prevDonationValue;
+    if (newVal.length - prev.length > 1) {
+      event.target.value = prev;
+      this.fetchUserDonation = prev;
+      this.fetchUserError = 'Manual typing only — bulk input blocked.';
+      this.snackbar.showError(`Bulk input blocked in donation (+${newVal.length - prev.length} chars)`);
+      return;
+    }
+    this.prevDonationValue = newVal;
+  }
+
+  onRemarksInputChange(event: any): void {
+    const newVal = String(event?.target?.value ?? '');
+    const prev = this.prevRemarksValue;
+    if (newVal.length - prev.length > 1) {
+      event.target.value = prev;
+      this.fetchUserRemarks = prev;
+      this.fetchUserError = 'Manual typing only — bulk input blocked.';
+      this.snackbar.showError(`Bulk input blocked in remarks (+${newVal.length - prev.length} chars)`);
+      return;
+    }
+    this.prevRemarksValue = newVal;
   }
 
   private focusEnterId(): void {
@@ -579,18 +622,23 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
 
   @HostListener('document:keydown', ['$event'])
   handleFetchUserModalKeydown(event: KeyboardEvent): void {
-    console.log('Keydown event:', event.key);
     if (!this.showFetchUserModal || !this.fetchedUser || this.isSubmitting) {
       return;
     }
     if (event.key === 'Enter') {
+      // If Enter arrives right after a burst of keystrokes (scanner's trailing
+      // CR), block the auto-submit. Real users pause before pressing Enter.
+      const now = Date.now();
+      const sinceLastKey = now - this.lastAnyKeyTime;
+      if (this.lastAnyKeyTime && sinceLastKey < this.scannerThreshold * 4) {
+        event.preventDefault();
+        this.snackbar.showWarning(`Scanner auto-submit blocked (Enter ${sinceLastKey}ms after last key)`);
+        return;
+      }
       event.preventDefault();
+      this.snackbar.showInfo('Enter pressed → submitting attendance');
       this.markAttendance();
-    } 
-    // else if (event.key === 'Shift') {
-    //   event.preventDefault();
-    //   this.markLeave();
-    // }
+    }
   }
 
   // markAttendance(): void {
