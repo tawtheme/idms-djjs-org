@@ -218,12 +218,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
   }
 
   blockScannerInput(event: KeyboardEvent, field: 'donation' | 'remarks'): void {
-    // Always block Enter — prevents scanner's trailing CR from auto-submitting.
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
+    // Let Enter bubble — the document-level handler decides whether it's a
+    // manual submit or a scanner's trailing CR (based on timing).
+    if (event.key === 'Enter') return;
     // Let control keys through (Tab, arrows, Shift, Backspace, etc.)
     if (event.key.length > 1) return;
 
@@ -645,10 +642,11 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     }
     if (event.key === 'Enter') {
       event.preventDefault();
-      // Refuse Enter if it arrives right after a keystroke burst — that's the
-      // scanner's trailing CR, not a deliberate submit.
+      // Refuse Enter only if it arrives within scanner cadence (≤ 50ms) of
+      // the last keystroke — that's a scanner's trailing CR, not a manual
+      // submit. A human pressing Enter after typing takes 80ms+.
       const sinceLastKey = Date.now() - this.lastAnyKeyTime;
-      if (this.lastAnyKeyTime && sinceLastKey < this.scannerThreshold * 4) {
+      if (this.lastAnyKeyTime && sinceLastKey < this.scannerThreshold) {
         return;
       }
       this.markAttendance();
@@ -916,6 +914,16 @@ markAttendance(): void {
     } else if (event.key === 'Escape') {
       this.cancelEditing();
     }
+  }
+
+  onEditDonationInput(event: any): void {
+    if (!this.editingCell) return;
+    const raw = String(event?.target?.value ?? '');
+    const formatted = raw.replace(/\D/g, '').slice(0, 4);
+    if (formatted !== raw) {
+      event.target.value = formatted;
+    }
+    this.editingCell.value = formatted;
   }
 
   viewVolunteer(record: AttendanceRecord): void {

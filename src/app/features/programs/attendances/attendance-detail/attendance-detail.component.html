@@ -158,10 +158,13 @@
                                 </ng-container>
                                 <input *ngIf="attendanceMode === 'checkin' && isEditing(record.id, 'donation')"
                                     type="number" class="inline-input"
+                                    inputmode="numeric"
+                                    maxlength="4"
                                     [(ngModel)]="editingCell!.value"
                                     [ngModelOptions]="{ standalone: true }"
                                     (click)="$event.stopPropagation()"
                                     (keydown)="onEditKeydown($event, record)"
+                                    (input)="onEditDonationInput($event)"
                                     (blur)="saveEditing(record)"
                                     [disabled]="isSaving" />
                             </td>
