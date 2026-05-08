@@ -449,8 +449,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     }
     this.isSubmitting = true;
 
+    const scannedId = this.enterId.trim();
     const body = {
-      unique_id: this.enterId.trim(),
+      unique_id: scannedId,
       program_id: this.programId,
       action: this.attendanceMode
     };
@@ -461,11 +462,14 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
         this.fetchedUser = null;
         this.fetchUserWarning = null;
         this.focusEnterId();
-        
+
         return of(null);
       }),
       finalize(() => {
         this.isSubmitting = false;
+        // Always clear the scan input once the request settles, so the next
+        // scan starts fresh instead of appending to the previous value.
+        this.enterId = '';
       })
     ).subscribe((response) => {
 
@@ -476,11 +480,9 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       if (this.fetchUserWarning) {
         this.snackbar.showWarning(this.fetchUserWarning);
       }
-      const scannedId = this.enterId.trim();
       this.fetchUserDonation = '';
       this.fetchUserRemarks = '';
       this.leaveMode = false;
-      this.enterId = '';
 
       if (this.attendanceMode === 'checkout' && this.fetchedUser && !this.fetchUserWarning) {
         this.removeRecordLocally(this.fetchedUser, scannedId);
