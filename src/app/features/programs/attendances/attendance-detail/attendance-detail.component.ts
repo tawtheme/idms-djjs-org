@@ -231,11 +231,14 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     this.lastAnyKeyTime = Date.now();
   }
 
-  /** Digits only, max 4 chars, capped at 5000. */
-  private clampDonation(raw: string): string {
-    let v = String(raw ?? '').replace(/\D/g, '').slice(0, 4);
-    if (v && Number(v) > 5000) v = '5000';
-    return v;
+  /**
+   * Returns digits-only, max 4 chars. Returns null when the typed value
+   * exceeds 5000 — caller should clear the field and surface a toast.
+   */
+  private clampDonation(raw: string): string | null {
+    const digits = String(raw ?? '').replace(/\D/g, '').slice(0, 4);
+    if (digits && Number(digits) > 5000) return null;
+    return digits;
   }
 
   onDonationInputChange(event: any): void {
@@ -260,15 +263,21 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const formatted = this.clampDonation(newVal);
-    if (formatted !== newVal) {
-      event.target.value = formatted;
-      if (Number(newVal.replace(/\D/g, '')) > 5000) {
-        this.fetchUserError = 'Maximum donation allowed is 5000.';
-      }
+    const clamped = this.clampDonation(newVal);
+    if (clamped === null) {
+      // Over 5000 — clear and warn.
+      event.target.value = '';
+      this.fetchUserDonation = '';
+      this.prevDonationValue = '';
+      this.fetchUserError = 'Maximum donation allowed is 5000.';
+      this.snackbar.showError('Maximum donation allowed is 5000.');
+      return;
     }
-    this.fetchUserDonation = formatted;
-    this.prevDonationValue = formatted;
+    if (clamped !== newVal) {
+      event.target.value = clamped;
+    }
+    this.fetchUserDonation = clamped;
+    this.prevDonationValue = clamped;
   }
 
   onRemarksInputChange(event: any): void {
@@ -420,9 +429,15 @@ export class AttendanceDetailComponent implements OnInit, AfterViewInit {
     });
   }
   onDonationInput(event: any) {
-    const formatted = this.clampDonation(event?.target?.value ?? '');
-    this.fetchUserDonation = formatted;
-    event.target.value = formatted;
+    const clamped = this.clampDonation(event?.target?.value ?? '');
+    if (clamped === null) {
+      this.fetchUserDonation = '';
+      event.target.value = '';
+      this.snackbar.showError('Maximum donation allowed is 5000.');
+      return;
+    }
+    this.fetchUserDonation = clamped;
+    event.target.value = clamped;
   }
   onEnterId(): void {
     if (!this.enterId.trim()) return;
@@ -915,11 +930,17 @@ markAttendance(): void {
   onEditDonationInput(event: any): void {
     if (!this.editingCell) return;
     const raw = String(event?.target?.value ?? '');
-    const formatted = this.clampDonation(raw);
-    if (formatted !== raw) {
-      event.target.value = formatted;
+    const clamped = this.clampDonation(raw);
+    if (clamped === null) {
+      event.target.value = '';
+      this.editingCell.value = '';
+      this.snackbar.showError('Maximum donation allowed is 5000.');
+      return;
     }
-    this.editingCell.value = formatted;
+    if (clamped !== raw) {
+      event.target.value = clamped;
+    }
+    this.editingCell.value = clamped;
   }
 
   viewVolunteer(record: AttendanceRecord): void {
