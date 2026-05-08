@@ -109,10 +109,12 @@
     </div>
 
     <app-side-panel
+        *ngIf="showAdvancedFilters"
         [isOpen]="showAdvancedFilters"
         title="More Filters"
         width="420px"
         position="right"
+        [showFooter]="true"
         (close)="showAdvancedFilters = false">
         <div class="filter-panel">
             <div class="filter-panel__field">

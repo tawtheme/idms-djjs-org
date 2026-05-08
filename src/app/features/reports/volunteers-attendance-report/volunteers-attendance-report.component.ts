@@ -15,6 +15,7 @@ import { PagerComponent } from '../../../shared/components/pager/pager.component
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 
 interface VolunteerAttendanceRow {
     id: string;
@@ -67,7 +68,8 @@ type SortField =
         PagerComponent,
         EmptyStateComponent,
         IconComponent,
-        ImagePreviewDirective
+        ImagePreviewDirective,
+        SidePanelComponent
     ],
     templateUrl: './volunteers-attendance-report.component.html',
     styleUrls: ['./volunteers-attendance-report.component.scss']
@@ -127,6 +129,18 @@ export class VolunteersAttendanceReportComponent implements OnInit {
     pageSize = 100;
     currentPage = 1;
     totalItems = 0;
+
+    // Advanced filter side panel
+    showAdvancedFilters = false;
+
+    activeFilterCount(): number {
+        let count = 0;
+        if (this.selectedSewas.length > 0) count++;
+        if (this.selectedAttendanceStatus.length > 0) count++;
+        if (this.fromDate) count++;
+        if (this.toDate) count++;
+        return count;
+    }
 
     ngOnInit(): void {
         this.loadBranches();

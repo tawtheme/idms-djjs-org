@@ -121,6 +121,11 @@
         grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
+    // Primary row: 5 filter cells + actions cell (Search / Filter / Export)
+    &--primary {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    }
+
     @media (max-width: 1440px) {
         &--six { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     }
@@ -128,24 +133,31 @@
     @media (max-width: 1280px) {
         &--five { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         &--six { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        &--primary { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
     }
 
     @media (max-width: 992px) {
         grid-template-columns: repeat(3, 1fr);
         &--five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         &--six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        &--primary { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
     }
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr 1fr;
         &--five { grid-template-columns: 1fr 1fr; }
         &--six { grid-template-columns: 1fr 1fr; }
+        &--primary {
+            grid-template-columns: 1fr 1fr;
+            .filter-field--actions { grid-column: 1 / -1; }
+        }
     }
 
     @media (max-width: 480px) {
         grid-template-columns: 1fr;
         &--five { grid-template-columns: 1fr; }
         &--six { grid-template-columns: 1fr; }
+        &--primary { grid-template-columns: 1fr; }
     }
 }
 
@@ -399,10 +411,81 @@
     .filter-actions {
         display: flex;
         flex-wrap: nowrap;
-        gap: 16px;
+        align-items: center;
+        gap: 8px;
         white-space: nowrap;
 
         .btn { min-height: 40px; padding: 0 16px; }
+    }
+}
+
+// Filter toggle button (opens side panel)
+.filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 40px;
+    border: 1px solid $color-gray-300;
+    border-radius: 8px;
+    background: $color-white;
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-gray-700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: $color-gray-50;
+        border-color: $color-gray-400;
+    }
+
+    &--active {
+        border-color: $color-primary-500;
+        background: $color-primary-50;
+        color: $color-primary-700;
+    }
+
+    .filter-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 10px;
+        background: $color-primary-600;
+        color: $color-white;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+    }
+}
+
+// Side panel layout
+.filter-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0;
+            color: $color-gray-500;
+        }
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
     }
 }
 

@@ -1,6 +1,6 @@
 <div class="volunteer-cards-container">
     <!-- Search & Filter Panel -->
-    <div class="filters-grid filters-grid--six">
+    <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
                 <label>Task Branch</label>
                 <app-dropdown
@@ -49,7 +49,6 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-
             <div class="filter-field">
                 <label>Badge No</label>
                 <div class="input-wrap">
@@ -65,7 +64,33 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" [disabled]="!hasAnyActiveFilter()" (click)="applyFilter()">Search</button>
+                    <button
+                        type="button"
+                        class="filter-toggle"
+                        [class.filter-toggle--active]="showAdvancedFilters || advancedFilterCount() > 0"
+                        (click)="showAdvancedFilters = true">
+                        <app-icon name="tune" />
+                        <span>Filter</span>
+                        <span *ngIf="advancedFilterCount() > 0" class="filter-count">{{ advancedFilterCount() }}</span>
+                    </button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                </div>
+            </div>
+    </div>
+
+    <app-side-panel
+        [isOpen]="showAdvancedFilters"
+        title="More Filters"
+        width="420px"
+        position="right"
+        [showFooter]="true"
+        (close)="showAdvancedFilters = false">
+        <div class="filter-panel">
+            <div class="filter-panel__field">
                 <label>Gender</label>
                 <app-dropdown
                     [options]="genderOptions"
@@ -77,7 +102,7 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Name</label>
                 <div class="input-wrap">
                     <input
@@ -92,7 +117,7 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Relation Name</label>
                 <div class="input-wrap">
                     <input
@@ -107,8 +132,7 @@
                     </button>
                 </div>
             </div>
-
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Mobile No.</label>
                 <div class="input-wrap">
                     <input
@@ -123,7 +147,7 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>UID</label>
                 <div class="input-wrap">
                     <input
@@ -138,7 +162,7 @@
                     </button>
                 </div>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Options</label>
                 <app-dropdown
                     [options]="filterOptionsDropdown"
@@ -152,7 +176,7 @@
                     [closeOnSelect]="false">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Start From</label>
                 <app-datepicker
                     [value]="moreFilters.startFrom"
@@ -161,7 +185,7 @@
                     (dateChange)="moreFilters.startFrom = $event">
                 </app-datepicker>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>End To</label>
                 <app-datepicker
                     [value]="moreFilters.endTo"
@@ -171,14 +195,23 @@
                     (dateChange)="moreFilters.endTo = $event">
                 </app-datepicker>
             </div>
-            <div class="filter-field filter-field--actions">
-                <label>&nbsp;</label>
-                <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" [disabled]="!hasAnyActiveFilter()" (click)="applyFilter()">Search</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
-                </div>
-            </div>
-    </div>
+        </div>
+        <div slot="footer" class="filter-panel__footer">
+            <button
+                type="button"
+                class="btn btn--secondary btn--md"
+                [disabled]="advancedFilterCount() === 0"
+                (click)="clearAdvancedFilters()">
+                Clear all
+            </button>
+            <button
+                type="button"
+                class="btn btn--primary btn--md"
+                (click)="showAdvancedFilters = false; applyFilter()">
+                Apply
+            </button>
+        </div>
+    </app-side-panel>
 
     <div class="filter-options-selected" *ngIf="moreFilters.options?.length">
         <span class="filter-options-selected__chip" *ngFor="let opt of getSelectedOptionLabels()">

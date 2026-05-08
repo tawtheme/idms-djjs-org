@@ -100,6 +100,29 @@
             grid-template-columns: 1fr;
         }
     }
+
+    // Primary row: 5 dropdowns + actions cell (Search / Filter / Export)
+    &--primary {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+
+        @media (max-width: 1280px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        }
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            .filter-field--actions { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
 }
 
 .filter-field {
@@ -158,10 +181,83 @@
 
 .filter-field--actions .filter-actions {
     display: flex !important;
-    gap: 24px !important;
+    align-items: center;
+    gap: 8px !important;
 
     .btn + .btn {
         margin-left: 0;
+    }
+}
+
+// Filter toggle (used in the primary actions cell)
+.filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 38px;
+    border: 1px solid $color-gray-300;
+    border-radius: 6px;
+    background: $color-white;
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-gray-700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: $color-gray-50;
+        border-color: $color-gray-400;
+    }
+
+    &--active {
+        border-color: $color-primary-500;
+        background: $color-primary-50;
+        color: $color-primary-700;
+    }
+
+    .filter-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 10px;
+        background: $color-primary-600;
+        color: $color-white;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+    }
+}
+
+// Side panel layout
+.filter-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0;
+            color: $color-gray-600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
     }
 }
 
@@ -181,7 +277,6 @@
     flex-wrap: wrap;
     gap: 16px;
     padding: 0;
-    margin: 16px 0 24px;
     background: transparent;
     border: none;
 }

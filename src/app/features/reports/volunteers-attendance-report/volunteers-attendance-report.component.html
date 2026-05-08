@@ -1,13 +1,13 @@
 <div class="reports-container">
     <!-- Search & Filter Panel -->
     <div class="search-panel">
-        <div class="filters-grid filters-grid--five">
+        <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
                 <label>Program Holding Branch <span class="required">*</span></label>
                 <app-dropdown
                     [options]="branchOptions"
                     [selectedValues]="selectedProgramHoldingBranch"
-                    placeholder="Select Program Holding Branch"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="onProgramHoldingBranchChange($event)"
@@ -20,7 +20,7 @@
                 <app-dropdown
                     [options]="branchOptions"
                     [selectedValues]="selectedTaskBranch"
-                    placeholder="Select Task Branch"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event"
@@ -32,7 +32,7 @@
                 <app-dropdown
                     [options]="branchOptions"
                     [selectedValues]="selectedCorrespondingBranch"
-                    placeholder="Select Corresponding Branch"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event"
@@ -44,7 +44,7 @@
                 <app-dropdown
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="selectedBranchSearchType"
-                    placeholder="Select Branch Search Type"
+                    placeholder="Select"
                     (selectionChange)="selectedBranchSearchType = $event"
                     [closeOnSelect]="true">
                 </app-dropdown>
@@ -54,7 +54,7 @@
                 <app-dropdown
                     [options]="programOptions"
                     [selectedValues]="selectedPrograms"
-                    placeholder="Select Programs"
+                    placeholder="Select"
                     [searchable]="true"
                     [autocomplete]="true"
                     (selectionChange)="selectedPrograms = $event; programsError = null"
@@ -62,7 +62,35 @@
                 </app-dropdown>
                 <div *ngIf="programsError" class="field-error">{{ programsError }}</div>
             </div>
-            <div class="filter-field">
+            <div class="filter-field filter-field--actions">
+                <label>&nbsp;</label>
+                <div class="filter-actions">
+                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button
+                        type="button"
+                        class="filter-toggle"
+                        [class.filter-toggle--active]="showAdvancedFilters || activeFilterCount() > 0"
+                        (click)="showAdvancedFilters = !showAdvancedFilters">
+                        <app-icon name="tune" />
+                        <span>Filter</span>
+                        <span *ngIf="activeFilterCount() > 0" class="filter-count">{{ activeFilterCount() }}</span>
+                    </button>
+                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <app-side-panel
+        *ngIf="showAdvancedFilters"
+        [isOpen]="showAdvancedFilters"
+        title="More Filters"
+        width="420px"
+        position="right"
+        [showFooter]="true"
+        (close)="showAdvancedFilters = false">
+        <div class="filter-panel">
+            <div class="filter-panel__field">
                 <label>Sewas</label>
                 <app-dropdown
                     [options]="sewaOptions"
@@ -75,7 +103,7 @@
                     [closeOnSelect]="false">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>Attendance Status</label>
                 <app-dropdown
                     [options]="attendanceStatusOptions"
@@ -85,7 +113,7 @@
                     [closeOnSelect]="true">
                 </app-dropdown>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>From Date</label>
                 <app-datepicker
                     [value]="fromDate"
@@ -94,7 +122,7 @@
                     (dateChange)="fromDate = $event">
                 </app-datepicker>
             </div>
-            <div class="filter-field">
+            <div class="filter-panel__field">
                 <label>To Date</label>
                 <app-datepicker
                     [value]="toDate"
@@ -104,15 +132,23 @@
                     (dateChange)="toDate = $event">
                 </app-datepicker>
             </div>
-            <div class="filter-field filter-field--actions">
-                <label>&nbsp;</label>
-                <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
-                </div>
-            </div>
         </div>
-    </div>
+        <div slot="footer" class="filter-panel__footer">
+            <button
+                type="button"
+                class="btn btn--secondary btn--md"
+                [disabled]="activeFilterCount() === 0"
+                (click)="selectedSewas = []; selectedAttendanceStatus = []; fromDate = null; toDate = null">
+                Clear all
+            </button>
+            <button
+                type="button"
+                class="btn btn--primary btn--md"
+                (click)="showAdvancedFilters = false; applyFilter()">
+                Apply
+            </button>
+        </div>
+    </app-side-panel>
 
     <!-- Summary Stats -->
     <div class="stats-row">

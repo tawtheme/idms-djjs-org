@@ -12,6 +12,7 @@ import { DatepickerComponent } from '../../../shared/components/datepicker/datep
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 import { DataService } from '../../../data.service';
 
 export interface VolunteerCard {
@@ -57,7 +58,8 @@ export interface VolunteerCard {
     DatepickerComponent,
     EmptyStateComponent,
     IconComponent,
-    ImagePreviewDirective
+    ImagePreviewDirective,
+    SidePanelComponent
   ],
   selector: 'app-volunteer-cards',
   templateUrl: './volunteer-cards.component.html',
@@ -84,6 +86,7 @@ export class VolunteerCardsComponent implements OnInit {
   
   // Filters panel
   filtersExpanded = true;
+  showAdvancedFilters = false;
   taskBranchOptions: DropdownOption[] = [];
   correspondingBranchOptions: DropdownOption[] = [];
   branchSearchTypeOptions: DropdownOption[] = [
@@ -318,6 +321,30 @@ export class VolunteerCardsComponent implements OnInit {
       this.moreFilters.options.length > 0 ||
       !!this.moreFilters.startFrom ||
       !!this.moreFilters.endTo;
+  }
+
+  advancedFilterCount(): number {
+    let count = 0;
+    if (this.selectedGender.length > 0) count++;
+    if (this.moreFilters.name) count++;
+    if (this.moreFilters.relationName) count++;
+    if (this.moreFilters.mobileNo) count++;
+    if (this.moreFilters.uid) count++;
+    if (this.moreFilters.options.length > 0) count++;
+    if (this.moreFilters.startFrom) count++;
+    if (this.moreFilters.endTo) count++;
+    return count;
+  }
+
+  clearAdvancedFilters(): void {
+    this.selectedGender = [];
+    this.moreFilters.name = '';
+    this.moreFilters.relationName = '';
+    this.moreFilters.mobileNo = '';
+    this.moreFilters.uid = '';
+    this.moreFilters.options = [];
+    this.moreFilters.startFrom = '';
+    this.moreFilters.endTo = '';
   }
 
   totalActiveFiltersCount(): number {
