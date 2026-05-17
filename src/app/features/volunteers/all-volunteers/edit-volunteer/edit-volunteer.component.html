@@ -1,6 +1,17 @@
 <div class="ve-shell">
     <!-- Sidebar -->
     <aside class="ve-sidebar" *ngIf="!isLoading">
+        <div class="ve-approval" *ngIf="isFromBranchApplication">
+            <button
+                type="button"
+                class="btn btn--success btn--md ve-approval__btn"
+                (click)="openApprovalConfirm()"
+                [disabled]="isSubmittingApproval">
+                <app-icon name="check_circle" [size]="16" />
+                <span>{{ branchApplicationApproved ? 'Revoke Approval' : 'Application Approval' }}</span>
+            </button>
+        </div>
+
         <div class="ve-profile">
             <div class="ve-profile__avatar">
                 <img *ngIf="profileImagePreview" [src]="profileImagePreview" alt="Profile" [appImagePreview]="profileImagePreview" previewTitle="Profile Image" />
@@ -1081,3 +1092,16 @@
         </div>
     </div>
 </app-modal>
+
+<!-- Application Approval Confirmation -->
+<app-confirmation-dialog
+    [isOpen]="approvalConfirmOpen"
+    [title]="approvalConfirmTitle"
+    [message]="approvalConfirmMessage"
+    [confirmLabel]="isSubmittingApproval ? 'Submitting...' : 'Yes'"
+    cancelLabel="No"
+    confirmType="primary"
+    icon="check_circle"
+    (confirm)="onApprovalConfirm()"
+    (cancel)="onApprovalCancel()">
+</app-confirmation-dialog>

@@ -95,6 +95,14 @@
                 }
             }
 
+            &.success {
+                color: $color-green-600;
+
+                &:hover:not(.disabled) {
+                    background: $color-green-50;
+                }
+            }
+
             .menu-icon {
                 font-size: 14px;
                 width: 16px;
@@ -155,6 +163,14 @@
 
         &.danger:hover:not(.disabled) {
             background: $color-red-50;
+        }
+
+        &.success {
+            color: $color-green-600;
+        }
+
+        &.success:hover:not(.disabled) {
+            background: $color-green-50;
         }
 
         .menu-icon {

@@ -59,6 +59,32 @@
     }
 }
 
+.ve-approval {
+    display: flex;
+    margin-bottom: 12px;
+
+    &__btn {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: $color-green-600;
+        border: 1px solid $color-green-600;
+        color: $color-white;
+
+        &:hover:not(:disabled) {
+            background: $color-green-500;
+            border-color: $color-green-500;
+        }
+
+        &:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+    }
+}
+
 .ve-profile {
     display: flex;
     flex-direction: row;
@@ -1201,4 +1227,51 @@ textarea.form-control { height: auto; min-height: 72px; line-height: 1.5; }
     .ve-body { padding: 16px; }
     .ve-topbar { padding: 12px 16px; }
     .ve-footer { padding: 10px 16px; }
+}
+
+// Approved Branch Application toggle — sits in a form-field cell beside Level
+.toggle-switch.approved-branch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+    margin-top: 6px;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:checked + .toggle-slider {
+            background-color: #2563eb;
+
+            &::before {
+                transform: translateX(20px);
+            }
+        }
+    }
+
+    .toggle-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: 0.2s;
+        border-radius: 24px;
+
+        &::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            top: 3px;
+            background-color: #ffffff;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+    }
 }

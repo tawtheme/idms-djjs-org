@@ -9,6 +9,7 @@ export interface MenuOption {
   icon?: string;
   disabled?: boolean;
   danger?: boolean;
+  success?: boolean;
 }
 
 @Component({

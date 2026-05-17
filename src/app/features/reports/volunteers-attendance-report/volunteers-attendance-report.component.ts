@@ -1,11 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { HttpParams } from '@angular/common/http';
-
 
 import { DataService } from '../../../data.service';
 import { applyTableSort } from '../../../shared/utils/table-sort';
@@ -62,7 +60,6 @@ type SortField =
     imports: [
         CommonModule,
         FormsModule,
-        RouterModule,
         DropdownComponent,
         DatepickerComponent,
         PagerComponent,
@@ -77,14 +74,11 @@ type SortField =
 export class VolunteersAttendanceReportComponent implements OnInit {
     private dataService = inject(DataService);
 
-    isLoading = false;
     isExporting = false;
     error: string | null = null;
-    hasSearched = false;
     holdingBranchError: string | null = null;
     programsError: string | null = null;
 
-    // Filters
     selectedProgramHoldingBranch: any[] = [];
     selectedTaskBranch: any[] = [];
     selectedCorrespondingBranch: any[] = [];
@@ -95,7 +89,6 @@ export class VolunteersAttendanceReportComponent implements OnInit {
     fromDate: Date | null = null;
     toDate: Date | null = null;
 
-    // Filter options
     branchOptions: DropdownOption[] = [];
     branchSearchTypeOptions: DropdownOption[] = [
         { id: 'task', label: 'Task Branch', value: 'task' },
@@ -110,9 +103,7 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         { id: '0', label: 'On Leave', value: '0' }
     ];
 
-    // Data
     rows: VolunteerAttendanceRow[] = [];
-
     summary: AttendanceSummary = {
         totalVolunteers: 0,
         presentVolunteers: 0,
@@ -120,18 +111,19 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         onLeaveVolunteers: 0
     };
 
-    // Sort
     sortField: SortField | '' = '';
     sortDirection: 'asc' | 'desc' = 'asc';
 
-    // Pagination
     pageSizeOptions: number[] = [10, 25, 50, 100];
     pageSize = 100;
     currentPage = 1;
     totalItems = 0;
 
-    // Advanced filter side panel
     showAdvancedFilters = false;
+
+    ngOnInit(): void {
+        this.loadBranches();
+    }
 
     activeFilterCount(): number {
         return this.activeFilterChips().length;
@@ -141,16 +133,10 @@ export class VolunteersAttendanceReportComponent implements OnInit {
      *  are visible directly above, so duplicating them as chips is noise. */
     activeFilterChips(): Array<{ key: string; label: string; value: string }> {
         const chips: Array<{ key: string; label: string; value: string }> = [];
-        const labelOf = (opts: DropdownOption[], value: any): string => {
-            const v = String(value);
-            return opts.find(o => String(o.value) === v)?.label || v;
-        };
-        const formatDate = (d: Date | null): string => {
-            if (!d) return '';
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return `${day}/${month}/${d.getFullYear()}`;
-        };
+        const labelOf = (opts: DropdownOption[], value: any): string =>
+            opts.find(o => String(o.value) === String(value))?.label || String(value);
+        const formatDate = (d: Date): string =>
+            `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
         for (const v of this.selectedSewas) {
             chips.push({ key: `sewa:${v}`, label: 'Sewa', value: labelOf(this.sewaOptions, v) });
@@ -179,64 +165,14 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         if (key.startsWith('sewa:')) {
             const value = key.slice('sewa:'.length);
             this.selectedSewas = this.selectedSewas.filter(v => String(v) !== value);
-        } else {
-            switch (key) {
-                case 'attendanceStatus': this.selectedAttendanceStatus = []; break;
-                case 'fromDate': this.fromDate = null; break;
-                case 'toDate': this.toDate = null; break;
-            }
+        } else if (key === 'attendanceStatus') {
+            this.selectedAttendanceStatus = [];
+        } else if (key === 'fromDate') {
+            this.fromDate = null;
+        } else if (key === 'toDate') {
+            this.toDate = null;
         }
         this.applyFilter();
-    }
-
-    clearAllFilters(): void {
-        this.selectedProgramHoldingBranch = [];
-        this.selectedTaskBranch = [];
-        this.selectedCorrespondingBranch = [];
-        this.selectedBranchSearchType = [];
-        this.selectedPrograms = [];
-        this.selectedSewas = [];
-        this.selectedAttendanceStatus = [];
-        this.fromDate = null;
-        this.toDate = null;
-        this.programOptions = [];
-        this.sewaOptions = [];
-        this.holdingBranchError = null;
-        this.programsError = null;
-    }
-
-    ngOnInit(): void {
-        this.loadBranches();
-    }
-
-    private loadBranches(): void {
-        this.dataService.get<any>('v1/options/branches').pipe(
-            catchError(() => of({ data: [] }))
-        ).subscribe((response) => {
-            const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
-            this.branchOptions = (Array.isArray(data) ? data : []).map((branch: any) => ({
-                id: String(branch.id),
-                label: branch.name || branch.label || branch.title || '',
-                value: String(branch.id)
-            }));
-        });
-    }
-
-    private loadPrograms(branchId?: string): void {
-        if (!branchId) {
-            this.programOptions = [];
-            return;
-        }
-        this.dataService.get<any>('v1/options/programs', { params: { branch_id: branchId } }).pipe(
-            catchError(() => of({ data: [] }))
-        ).subscribe((response) => {
-            const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
-            this.programOptions = (Array.isArray(data) ? data : []).map((program: any) => ({
-                id: String(program.id),
-                label: program.name || program.label || program.title || '',
-                value: String(program.id)
-            }));
-        });
     }
 
     onProgramHoldingBranchChange(value: any[]): void {
@@ -245,180 +181,19 @@ export class VolunteersAttendanceReportComponent implements OnInit {
         this.selectedPrograms = [];
         this.selectedSewas = [];
         this.sewaOptions = [];
-        const branchId = value?.length ? String(value[0]) : '';
-        this.loadPrograms(branchId);
+        this.loadPrograms(value?.[0] ? String(value[0]) : '');
     }
 
     onProgramsChange(value: any[]): void {
         this.selectedPrograms = value;
         this.programsError = null;
         this.selectedSewas = [];
-        const programId = value?.length ? String(value[0]) : '';
-        this.loadSewaOptions(programId);
-    }
-
-    private loadSewaOptions(programId?: string): void {
-        if (!programId) {
-            this.sewaOptions = [];
-            return;
-        }
-        this.dataService.get<any>('v1/options/programSewas', { params: { program_id: programId } }).pipe(
-            catchError(() => of({ data: [] }))
-        ).subscribe((response) => {
-            const sewas = response?.data?.sewas || response?.data || response || [];
-            this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
-                id: String(s.id),
-                label: s.name || s.sewa_name || '',
-                value: String(s.id)
-            }));
-        });
-    }
-
-    quickSearch = '';
-
-    private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
-        const payload: Record<string, any> = {
-            branch_id: this.selectedTaskBranch?.length ? String(this.selectedTaskBranch[0]) : '',
-            user_branch_id: this.selectedProgramHoldingBranch?.length ? String(this.selectedProgramHoldingBranch[0]) : '',
-            sewa_id: this.selectedSewas?.length ? String(this.selectedSewas[0]) : '',
-            branch_type: this.selectedBranchSearchType?.length ? String(this.selectedBranchSearchType[0]) : '',
-            program_id: this.selectedPrograms?.length ? String(this.selectedPrograms[0]) : '',
-            attendance_status: this.selectedAttendanceStatus?.length ? String(this.selectedAttendanceStatus[0]) : '',
-            from_date: this.fromDate ? this.formatApiDate(this.fromDate) : '',
-            to_date: this.toDate ? this.formatApiDate(this.toDate) : '',
-            search: this.quickSearch.trim(),
-            sortByColumn: this.sortField || '',
-            orderBy: this.sortField ? this.sortDirection : '',
-            per_page: this.pageSize,
-            page: this.currentPage
-        };
-        return { ...payload, ...extra };
-    }
-
-    private validateRequired(): boolean {
-        let valid = true;
-        if (!this.selectedProgramHoldingBranch?.length) {
-            this.holdingBranchError = 'Program Holding Branch is required.';
-            valid = false;
-        } else {
-            this.holdingBranchError = null;
-        }
-        if (!this.selectedPrograms?.length) {
-            this.programsError = 'Programs is required.';
-            valid = false;
-        } else {
-            this.programsError = null;
-        }
-        return valid;
-    }
-
-    loadReport(): void {
-        if (!this.validateRequired()) {
-            this.hasSearched = false;
-            this.rows = [];
-            this.totalItems = 0;
-            return;
-        }
-        this.hasSearched = true;
-        this.isLoading = true;
-        this.error = null;
-
-        const payload = this.buildPayload({ is_export: '0', exportChoice: 'web' });
-
-        this.dataService.post<any>('v1/reports/volunteers_attendance', payload).pipe(
-            catchError((err) => {
-                console.error('Error loading volunteers attendance report:', err);
-                this.error = err.error?.message || err.message || 'Failed to load report.';
-                this.isLoading = false;
-                return of({ data: {} });
-            })
-        ).subscribe((response) => {
-            const payload = response?.data ?? response ?? {};
-            const records = payload?.records || payload?.rows || payload?.data || (Array.isArray(payload) ? payload : []);
-            const meta = response?.meta || response?.pagination || payload?.meta || null;
-
-            this.rows = (Array.isArray(records) ? records : []).map((item: any) => ({
-                id: String(item.user_unique_id ?? item.unique_id ?? item.uniqueId ?? item.user?.unique_id ?? item.id ?? ''),
-                userImage: item.full_path || item.image_url || item.user_image?.full_path || item.user?.image_url || item.image || item.profile_image || item.user?.image || '',
-                name: item.user_name || item.name || item.volunteer_name || item.user?.name || '',
-                father: item.father_name || item.father || item.user?.father_name || '',
-                mother: item.mother_name || item.mother || item.user?.mother_name || '',
-                spouse: item.spouse_name || item.spouse || item.user?.spouse_name || '',
-                phone: item.phone || item.mobile || item.mobile_number || item.user?.mobile || '',
-                sewa: item.sewa?.name || item.sewa_name || item.sewa || item.program_sewa?.name || item.program_sewa?.sewa?.name || '',
-                badgeId: String(item.badge_id ?? item.badge ?? item.badge_no ?? item.badge_number ?? item.user?.badge_id ?? ''),
-                donation: Number(item.donation ?? item.donation_amount ?? item.amount ?? 0),
-                taskBranch: item.working_branch || item.task_branch?.name || item.task_branch_name || item.taskBranch || item.user?.task_branch?.name || item.branch?.name || '',
-                correspondingBranch: item.home_branch || item.corresponding_branch?.name || item.corresponding_branch_name || item.correspondingBranch || item.user?.corresponding_branch?.name || '',
-                status: this.resolveStatusLabel(item.attendance_status ?? item.status),
-                checkIn: this.formatDisplayDateTime(item.check_in || item.checked_in || item.check_in_time || item.checkin_time)
-            }));
-
-            this.totalItems = meta
-                ? (meta.total ?? meta.total_count ?? meta.itemsCount ?? this.rows.length)
-                : (response?.total ?? payload?.total ?? this.rows.length);
-
-            this.isLoading = false;
-        });
-
-        this.loadAttendanceSummary();
-    }
-
-    private loadAttendanceSummary(): void {
-        const programId = this.selectedPrograms?.length ? String(this.selectedPrograms[0]) : '';
-        if (!programId) return;
-
-        const params = new HttpParams().set('mode', 'report');
-        this.dataService.get<any>(`v1/attendances/${programId}`, { params }).pipe(
-            catchError(() => of(null))
-        ).subscribe((response) => {
-            if (!response) return;
-            const payload = response?.data ?? response ?? {};
-            this.summary = {
-                totalVolunteers: Number(payload?.total_volunteers ?? payload?.summary?.total_volunteers ?? 0),
-                presentVolunteers: Number(payload?.total_check_in ?? payload?.summary?.present_volunteers ?? 0),
-                absentVolunteers: Number(payload?.total_absent ?? payload?.summary?.absent_volunteers ?? 0),
-                onLeaveVolunteers: Number(payload?.total_leaves ?? payload?.summary?.on_leave_volunteers ?? payload?.summary?.leave_volunteers ?? 0)
-            };
-        });
-    }
-    
-
-private resolveStatusLabel(status: any): string {
-        const s = String(status ?? '').trim().toLowerCase();
-        if (!s) return '';
-        if (s === '1' || s === 'present' || s === 'checkin' || s === 'check_in') return 'Present';
-        if (s === '0' || s === 'leave' || s === 'on leave') return 'Leave';
-        if (s === '2' || s === 'checkout' || s === 'check_out' || s === 'return') return 'CheckOut';
-        if (s === '3' || s === 'absent' || s === 'not_attended') return 'Absent';
-        return String(status);
+        this.loadSewaOptions(value?.[0] ? String(value[0]) : '');
     }
 
     applyFilter(): void {
         this.currentPage = 1;
         this.loadReport();
-    }
-
-    resetFilters(): void {
-        this.selectedProgramHoldingBranch = [];
-        this.selectedTaskBranch = [];
-        this.selectedCorrespondingBranch = [];
-        this.selectedBranchSearchType = [];
-        this.selectedPrograms = [];
-        this.selectedSewas = [];
-        this.selectedAttendanceStatus = [];
-        this.quickSearch = '';
-        this.fromDate = null;
-        this.toDate = null;
-        this.sortField = '';
-        this.sortDirection = 'asc';
-        this.currentPage = 1;
-        this.hasSearched = false;
-        this.rows = [];
-        this.totalItems = 0;
-        this.summary = { totalVolunteers: 0, presentVolunteers: 0, absentVolunteers: 0, onLeaveVolunteers: 0 };
-        this.holdingBranchError = null;
-        this.programsError = null;
     }
 
     sortBy(field: SortField): void {
@@ -442,6 +217,51 @@ private resolveStatusLabel(status: any): string {
         this.loadReport();
     }
 
+    loadReport(): void {
+        if (!this.validateRequired()) {
+            this.rows = [];
+            this.totalItems = 0;
+            return;
+        }
+        this.error = null;
+        const payload = this.buildPayload({ is_export: '0', exportChoice: 'web' });
+
+        this.dataService.post<any>('v1/reports/volunteers_attendance', payload).pipe(
+            catchError((err) => {
+                console.error('Error loading volunteers attendance report:', err);
+                this.error = err.error?.message || err.message || 'Failed to load report.';
+                return of({ data: {} });
+            })
+        ).subscribe((response) => {
+            const data = response?.data ?? response ?? {};
+            const records = data?.records || data?.rows || data?.data || (Array.isArray(data) ? data : []);
+            const meta = response?.meta || response?.pagination || data?.meta || null;
+
+            this.rows = (Array.isArray(records) ? records : []).map((item: any) => ({
+                id: String(item.user_unique_id ?? item.unique_id ?? item.uniqueId ?? item.user?.unique_id ?? item.id ?? ''),
+                userImage: item.full_path || item.image_url || item.user_image?.full_path || item.user?.image_url || item.image || item.profile_image || item.user?.image || '',
+                name: item.user_name || item.name || item.volunteer_name || item.user?.name || '',
+                father: item.father_name || item.father || item.user?.father_name || '',
+                mother: item.mother_name || item.mother || item.user?.mother_name || '',
+                spouse: item.spouse_name || item.spouse || item.user?.spouse_name || '',
+                phone: item.phone || item.mobile || item.mobile_number || item.user?.mobile || '',
+                sewa: item.sewa?.name || item.sewa_name || item.sewa || item.program_sewa?.name || item.program_sewa?.sewa?.name || '',
+                badgeId: String(item.badge_id ?? item.badge ?? item.badge_no ?? item.badge_number ?? item.user?.badge_id ?? ''),
+                donation: Number(item.donation ?? item.donation_amount ?? item.amount ?? 0),
+                taskBranch: item.working_branch || item.task_branch?.name || item.task_branch_name || item.taskBranch || item.user?.task_branch?.name || item.branch?.name || '',
+                correspondingBranch: item.home_branch || item.corresponding_branch?.name || item.corresponding_branch_name || item.correspondingBranch || item.user?.corresponding_branch?.name || '',
+                status: this.resolveStatusLabel(item.attendance_status ?? item.status),
+                checkIn: this.formatDisplayDateTime(item.check_in || item.checked_in || item.check_in_time || item.checkin_time)
+            }));
+
+            this.totalItems = meta
+                ? (meta.total ?? meta.total_count ?? meta.itemsCount ?? this.rows.length)
+                : (response?.total ?? data?.total ?? this.rows.length);
+        });
+
+        this.loadAttendanceSummary();
+    }
+
     exportReport(choice: 'web' | 'email' = 'web'): void {
         if (!this.validateRequired()) return;
         this.isExporting = true;
@@ -456,11 +276,10 @@ private resolveStatusLabel(status: any): string {
             })
         ).subscribe((response: any) => {
             this.isExporting = false;
-            if (!response) return;
-            const body: Blob = response.body;
+            const body: Blob | undefined = response?.body;
             if (!body) return;
 
-            if (body.type && body.type.includes('application/json')) {
+            if (body.type?.includes('application/json')) {
                 body.text().then(text => {
                     try {
                         const json = JSON.parse(text);
@@ -485,6 +304,131 @@ private resolveStatusLabel(status: any): string {
         });
     }
 
+    statusBadgeClass(status: string): string {
+        const s = (status || '').toLowerCase();
+        if (s === 'present') return 'badge--success';
+        if (s === 'absent') return 'badge--danger';
+        if (s === 'leave' || s === 'on leave') return 'badge--warning';
+        return 'badge--neutral';
+    }
+
+    trackById(_index: number, row: VolunteerAttendanceRow): string {
+        return row.id;
+    }
+
+    private loadBranches(): void {
+        this.dataService.get<any>('v1/options/branches').pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+            this.branchOptions = (Array.isArray(data) ? data : []).map((branch: any) => ({
+                id: String(branch.id),
+                label: branch.name || branch.label || branch.title || '',
+                value: String(branch.id)
+            }));
+        });
+    }
+
+    private loadPrograms(branchId: string): void {
+        if (!branchId) {
+            this.programOptions = [];
+            return;
+        }
+        this.dataService.get<any>('v1/options/programs', { params: { branch_id: branchId } }).pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const data = Array.isArray(response) ? response : (response?.data || response?.results || []);
+            this.programOptions = (Array.isArray(data) ? data : []).map((program: any) => ({
+                id: String(program.id),
+                label: program.name || program.label || program.title || '',
+                value: String(program.id)
+            }));
+        });
+    }
+
+    private loadSewaOptions(programId: string): void {
+        if (!programId) {
+            this.sewaOptions = [];
+            return;
+        }
+        this.dataService.get<any>('v1/options/programSewas', { params: { program_id: programId } }).pipe(
+            catchError(() => of({ data: [] }))
+        ).subscribe((response) => {
+            const sewas = response?.data?.sewas || response?.data || response || [];
+            this.sewaOptions = (Array.isArray(sewas) ? sewas : []).map((s: any) => ({
+                id: String(s.id),
+                label: s.name || s.sewa_name || '',
+                value: String(s.id)
+            }));
+        });
+    }
+
+    private loadAttendanceSummary(): void {
+        const programId = this.selectedPrograms?.[0] ? String(this.selectedPrograms[0]) : '';
+        if (!programId) return;
+
+        const params = new HttpParams().set('mode', 'report');
+        this.dataService.get<any>(`v1/attendances/${programId}`, { params }).pipe(
+            catchError(() => of(null))
+        ).subscribe((response) => {
+            if (!response) return;
+            const data = response?.data ?? response ?? {};
+            this.summary = {
+                totalVolunteers: Number(data?.total_volunteers ?? data?.summary?.total_volunteers ?? 0),
+                presentVolunteers: Number(data?.total_check_in ?? data?.summary?.present_volunteers ?? 0),
+                absentVolunteers: Number(data?.total_absent ?? data?.summary?.absent_volunteers ?? 0),
+                onLeaveVolunteers: Number(data?.total_leaves ?? data?.summary?.on_leave_volunteers ?? data?.summary?.leave_volunteers ?? 0)
+            };
+        });
+    }
+
+    private buildPayload(extra: Record<string, any> = {}): Record<string, any> {
+        const first = (arr: any[]) => (arr?.[0] ? String(arr[0]) : '');
+        return {
+            branch_id: first(this.selectedProgramHoldingBranch),
+            user_branch_id: first(this.selectedTaskBranch),
+            home_branch: first(this.selectedCorrespondingBranch),
+            sewa_id: first(this.selectedSewas),
+            branch_type: first(this.selectedBranchSearchType),
+            program_id: first(this.selectedPrograms),
+            attendance_status: first(this.selectedAttendanceStatus),
+            from_date: this.fromDate ? this.formatApiDate(this.fromDate) : '',
+            to_date: this.toDate ? this.formatApiDate(this.toDate) : '',
+            sortByColumn: this.sortField || '',
+            orderBy: this.sortField ? this.sortDirection : '',
+            per_page: this.pageSize,
+            page: this.currentPage,
+            ...extra
+        };
+    }
+
+    private validateRequired(): boolean {
+        let valid = true;
+        if (!this.selectedProgramHoldingBranch?.length) {
+            this.holdingBranchError = 'Program Holding Branch is required.';
+            valid = false;
+        } else {
+            this.holdingBranchError = null;
+        }
+        if (!this.selectedPrograms?.length) {
+            this.programsError = 'Programs is required.';
+            valid = false;
+        } else {
+            this.programsError = null;
+        }
+        return valid;
+    }
+
+    private resolveStatusLabel(status: any): string {
+        const s = String(status ?? '').trim().toLowerCase();
+        if (!s) return '';
+        if (s === '1' || s === 'present' || s === 'checkin' || s === 'check_in') return 'Present';
+        if (s === '0' || s === 'leave' || s === 'on leave') return 'Leave';
+        if (s === '2' || s === 'checkout' || s === 'check_out' || s === 'return') return 'CheckOut';
+        if (s === '3' || s === 'absent' || s === 'not_attended') return 'Absent';
+        return String(status);
+    }
+
     private formatApiDate(date: Date): string {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -507,17 +451,5 @@ private resolveStatusLabel(status: any): string {
         const hours12 = hours24 % 12 || 12;
         const min = String(d.getMinutes()).padStart(2, '0');
         return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()} ${hours12}:${min} ${ampm}`;
-    }
-
-    statusBadgeClass(status: string): string {
-        const s = (status || '').toLowerCase();
-        if (s === 'present') return 'badge--success';
-        if (s === 'absent') return 'badge--danger';
-        if (s === 'leave' || s === 'on leave') return 'badge--warning';
-        return 'badge--neutral';
-    }
-
-    trackById(_index: number, row: VolunteerAttendanceRow): string {
-        return row.id;
     }
 }

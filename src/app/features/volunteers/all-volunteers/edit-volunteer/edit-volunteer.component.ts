@@ -10,6 +10,7 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataService } from '../../../../data.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
@@ -45,7 +46,8 @@ interface TabDef { id: TabId; label: string; }
         FileUploadComponent,
         CameraUploadComponent,
         ModalComponent,
-        ImagePreviewDirective
+        ImagePreviewDirective,
+        ConfirmationDialogComponent
     ],
     selector: 'app-edit-volunteer',
     templateUrl: './edit-volunteer.component.html',
@@ -79,6 +81,63 @@ export class EditVolunteerComponent implements OnInit {
     isLoading = false;
     isSaving = false;
     error: string | null = null;
+
+    // When opened from the Branch Applications page, show the approval
+    // action in the sidebar.
+    isFromBranchApplication = false;
+    branchApplicationApproved = false;
+
+    // Approval confirmation dialog state
+    approvalConfirmOpen = false;
+    isSubmittingApproval = false;
+
+    get approvalConfirmTitle(): string {
+        return this.branchApplicationApproved ? 'Revoke Approval' : 'Application Approval';
+    }
+
+    get approvalConfirmMessage(): string {
+        const name = this.basic.name || 'this volunteer';
+        const verb = this.branchApplicationApproved ? 'revoke approval for' : 'approve';
+        return `Are you sure you want to ${verb} ${name}?`;
+    }
+
+    openApprovalConfirm(): void {
+        this.approvalConfirmOpen = true;
+    }
+
+    onApprovalCancel(): void {
+        this.approvalConfirmOpen = false;
+    }
+
+    onApprovalConfirm(): void {
+        const userId = this.userId || this.route.snapshot.paramMap.get('id') || '';
+        if (!userId) {
+            this.snackbarService.showError('Volunteer ID not available.');
+            return;
+        }
+        const needsApproval: '1' | '0' = this.branchApplicationApproved ? '0' : '1';
+
+        this.isSubmittingApproval = true;
+        this.dataService.put('v1/users/approve_branch_application', {
+            needs_approval: needsApproval,
+            user_id: String(userId)
+        }).pipe(
+            catchError((err) => {
+                this.snackbarService.showError(err?.error?.message || err?.message || 'Failed to update approval.');
+                return of(null);
+            }),
+            finalize(() => {
+                this.isSubmittingApproval = false;
+                this.approvalConfirmOpen = false;
+            })
+        ).subscribe((response) => {
+            if (response === null) return;
+            this.branchApplicationApproved = needsApproval === '1';
+            this.snackbarService.showSuccess(
+                needsApproval === '1' ? 'Application approved successfully.' : 'Approval revoked.'
+            );
+        });
+    }
 
     // Basic
     basic = {
@@ -665,7 +724,9 @@ export class EditVolunteerComponent implements OnInit {
    
     ngOnInit(): void {
         this.userId = this.route.snapshot.paramMap.get('id');
-        if (this.userId){ 
+        this.isFromBranchApplication =
+            this.route.snapshot.queryParamMap.get('from') === 'branch-application';
+        if (this.userId){
             const savedTab = localStorage.getItem('activeTab');
             if (savedTab)  this.activeTab = savedTab as TabId;
             this.loadTabData(this.activeTab);
@@ -1242,6 +1303,11 @@ export class EditVolunteerComponent implements OnInit {
                     .filter((x: { name: string; badge_id: string }) => x.name || x.badge_id);
                 this.assignSewaSewaNames = this.sewaStatusList.map(s => s.name).filter(Boolean);
             }
+
+            // Hydrate the Approved Branch Application toggle from the API value
+            const needsApproval = user?.needs_approval;
+            this.branchApplicationApproved = needsApproval === 1 || needsApproval === '1' || needsApproval === true;
+
             this.snapshotSection('basic');
         });
     }
@@ -2677,7 +2743,8 @@ export class EditVolunteerComponent implements OnInit {
                     level: this.selectedLevel,
                     roles: this.selectedRoles,
                     sewas: this.selectedSewas,
-                    copyAsWhatsapp: this.copyAsWhatsapp
+                    copyAsWhatsapp: this.copyAsWhatsapp,
+                    branchApplicationApproved: this.branchApplicationApproved
                 };
             case 'permanent':
                 return { permanent: this.permanent };
@@ -2884,7 +2951,9 @@ export class EditVolunteerComponent implements OnInit {
             return;
         }
         this.savingSection = 'basic';
-        this.dataService.put(`v1/users/basic/update/${this.userId}`, this.buildBasicPayload()).pipe(
+        const payload = this.buildBasicPayload();
+        console.log('[Basic Save] payload:', payload);
+        this.dataService.put(`v1/users/basic/update/${this.userId}`, payload).pipe(
             catchError((error: any) => {
                 const msg = error?.error?.message || error?.message || 'Failed to update basic information.';
                 this.snackbarService.showError(msg);
@@ -3248,8 +3317,7 @@ export class EditVolunteerComponent implements OnInit {
             start_date: null,
             valid_upto: null,
             current_status: null,
-            remarks: null,
-            needs_approval: null
+            remarks: null
         };
     }
 
