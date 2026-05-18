@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 /**
  * Component for adding new branch areas
@@ -14,11 +15,12 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmInputDirective,
+    HlmLabelDirective,
   ],
-  templateUrl: './add-branch-area-modal.component.html',
-  styleUrls: ['./add-branch-area-modal.component.scss']
+  templateUrl: './add-branch-area-modal.component.html'
 })
 export class AddBranchAreaModalComponent {
   /** Whether the modal is open */
@@ -134,4 +136,3 @@ export class AddBranchAreaModalComponent {
     this.status = 'Active';
   }
 }
-

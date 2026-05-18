@@ -4,18 +4,19 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../../shared/ui';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmAlertDialogComponent } from '../../../../shared/ui';
 import { DataService } from '../../../../data.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 type TabId =
     | 'basic'
@@ -40,14 +41,17 @@ interface TabDef { id: TabId; label: string; }
         CommonModule,
         FormsModule,
         RouterModule,
-        DropdownComponent,
-        DatepickerComponent,
+        HlmSelectComponent,
+        HlmDatepickerComponent,
         IconComponent,
         FileUploadComponent,
         CameraUploadComponent,
-        ModalComponent,
+        HlmDialogComponent,
         ImagePreviewDirective,
-        ConfirmationDialogComponent
+        HlmAlertDialogComponent,
+        HlmButtonDirective,
+        HlmInputDirective,
+        HlmLabelDirective
     ],
     selector: 'app-edit-volunteer',
     templateUrl: './edit-volunteer.component.html',

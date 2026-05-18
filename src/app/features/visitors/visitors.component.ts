@@ -4,14 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../shared/components/dropdown/dropdown.component';
-import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
-import { ModalComponent } from '../../shared/components/modal/modal.component';
-import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { BreadcrumbItem } from '../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../shared/ui';
+import { HlmEmptyStateComponent } from '../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../shared/ui';
+import { HlmSheetComponent } from '../../shared/ui';
+import { HlmDialogComponent } from '../../shared/ui';
+import { HlmAlertDialogComponent } from '../../shared/ui';
 import { CreateVisitorComponent } from './create-visitor/create-visitor.component';
 import { DataService } from '../../data.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -40,13 +40,13 @@ export interface Visitor {
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    DropdownComponent,
-    SidePanelComponent,
-    ModalComponent,
-    ConfirmationDialogComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    HlmSelectComponent,
+    HlmSheetComponent,
+    HlmDialogComponent,
+    HlmAlertDialogComponent,
     CreateVisitorComponent,
     IconComponent,
     ImagePreviewDirective

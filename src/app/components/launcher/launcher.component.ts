@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, inject, OnInit, OnDestroy } from '@ang
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
-import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmAlertDialogComponent } from '../../shared/ui';
 import { AuthService } from '../../services/auth.service';
 
 interface LauncherItem {
@@ -21,7 +21,7 @@ interface LauncherGroup {
 @Component({
   selector: 'app-launcher',
   standalone: true,
-  imports: [CommonModule, IconComponent, ConfirmationDialogComponent],
+  imports: [CommonModule, IconComponent, HlmAlertDialogComponent],
   templateUrl: './launcher.component.html',
   styleUrls: ['./launcher.component.scss']
 })

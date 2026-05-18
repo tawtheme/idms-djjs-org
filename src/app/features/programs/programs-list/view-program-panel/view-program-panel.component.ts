@@ -2,10 +2,11 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, injec
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../../data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective } from '../../../../shared/ui';
 
 export interface ProgramDetail {
   id: string;
@@ -48,7 +49,7 @@ export interface Donation {
 @Component({
   selector: 'app-view-program-panel',
   standalone: true,
-  imports: [CommonModule, IconComponent, ModalComponent, ImagePreviewDirective],
+  imports: [CommonModule, IconComponent, HlmDialogComponent, ImagePreviewDirective, HlmButtonDirective],
   templateUrl: './view-program-panel.component.html',
   styleUrls: ['./view-program-panel.component.scss']
 })

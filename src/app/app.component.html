@@ -1,4 +1,4 @@
-<app-loading *ngIf="loading$ | async" [size]="'medium'" [type]="'spinner'" [overlay]="true"></app-loading>
+<hlm-spinner *ngIf="loading$ | async" [overlay]="true" />
 
 <ng-container *ngIf="isAuthenticated; else authLayout">
     <app-header
@@ -26,3 +26,5 @@
 </ng-template>
 
 <app-image-preview></app-image-preview>
+<ngx-sonner-toaster position="top-right" richColors />
+

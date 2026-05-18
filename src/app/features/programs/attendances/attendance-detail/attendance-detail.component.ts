@@ -2,10 +2,10 @@ import { Component, inject, OnInit, AfterViewInit, ElementRef, HostListener, Vie
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { HlmEmptyStateComponent } from '../../../../shared/ui';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmAlertDialogComponent } from '../../../../shared/ui';
 import { ViewAttendanceModalComponent } from '../view-attendance-modal/view-attendance-modal.component';
 import { BarcodeScannerModalComponent } from '../../../../shared/components/barcode-scanner-modal/barcode-scanner-modal.component';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
@@ -16,6 +16,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective } from '../../../../shared/ui';
 
 interface AttendanceRecord {
   id: string;
@@ -59,13 +60,14 @@ interface AttendanceSummary {
     CommonModule,
     FormsModule,
     RouterModule,
-    EmptyStateComponent,
+    HlmEmptyStateComponent,
     IconComponent,
-    ModalComponent,
-    ConfirmationDialogComponent,
+    HlmDialogComponent,
+    HlmAlertDialogComponent,
     ViewAttendanceModalComponent,
     BarcodeScannerModalComponent,
-    ImagePreviewDirective
+    ImagePreviewDirective,
+    HlmButtonDirective
   ],
   templateUrl: './attendance-detail.component.html',
   styleUrls: ['./attendance-detail.component.scss']

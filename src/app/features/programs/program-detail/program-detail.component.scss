@@ -1,7 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-
-@include listing.listing('.detail');
 
 // Page state (loading/error)
 .page-state {

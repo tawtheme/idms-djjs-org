@@ -3,7 +3,7 @@
         <div class="filters-grid filters-grid--seven">
             <div class="filter-field">
                 <label>Skills</label>
-                <app-dropdown
+                <hlm-select
                     [options]="skillOptions"
                     [selectedValues]="selectedSkills"
                     placeholder="Select"
@@ -12,11 +12,11 @@
                     [showSelectAll]="true"
                     [showSelectedItems]="false"
                     (selectionChange)="selectedSkills = $event">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Task Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="Select"
@@ -24,11 +24,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Corresponding Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedCorrespondingBranch"
                     placeholder="Select"
@@ -36,24 +36,24 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Branch Search Type</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="selectedBranchSearchType"
                     placeholder="Select"
                     (selectionChange)="selectedBranchSearchType = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>City</label>
-                <div class="input-wrap">
+                <div class="relative">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter City"
                         [(ngModel)]="city"
                         [ngModelOptions]="{ standalone: true }"
@@ -65,11 +65,11 @@
             </div>
             <div class="filter-field">
                 <label>Age</label>
-                <div class="input-wrap">
+                <div class="relative">
                     <input
+                        hlmInput
                         type="number"
                         min="0"
-                        class="form-control"
                         placeholder="Enter Age"
                         [(ngModel)]="age"
                         [ngModelOptions]="{ standalone: true }"
@@ -82,8 +82,8 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                    <button hlmBtn type="button" (click)="applyFilter()">Search</button>
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
         </div>
@@ -100,91 +100,91 @@
 
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadReport()">Retry</button>
     </div>
 
     <ng-container *ngIf="!error">
-            <div class="listing-wrapper">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+                <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+                    <table class="w-full border-collapse text-sm">
+                        <thead class="bg-muted border-b border-border">
                             <tr>
-                                <th class="sortable" (click)="sortBy('id')">
-                                    <span class="th-content">Id <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('id')">
+                                    <span class="th-content inline-flex items-center gap-1">Id <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" [size]="14" /></span>
                                 </th>
-                                <th>Image</th>
-                                <th class="sortable" (click)="sortBy('userName')">
-                                    <span class="th-content">User Name <app-icon [name]="getSortIcon('userName')" class="sort-icon" [class.sort-icon--active]="sortField === 'userName'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('userName')">
+                                    <span class="th-content inline-flex items-center gap-1">User Name <app-icon [name]="getSortIcon('userName')" class="sort-icon" [class.sort-icon--active]="sortField === 'userName'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('fatherName')">
-                                    <span class="th-content">Father Name <app-icon [name]="getSortIcon('fatherName')" class="sort-icon" [class.sort-icon--active]="sortField === 'fatherName'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('fatherName')">
+                                    <span class="th-content inline-flex items-center gap-1">Father Name <app-icon [name]="getSortIcon('fatherName')" class="sort-icon" [class.sort-icon--active]="sortField === 'fatherName'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('motherName')">
-                                    <span class="th-content">Mother Name <app-icon [name]="getSortIcon('motherName')" class="sort-icon" [class.sort-icon--active]="sortField === 'motherName'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('motherName')">
+                                    <span class="th-content inline-flex items-center gap-1">Mother Name <app-icon [name]="getSortIcon('motherName')" class="sort-icon" [class.sort-icon--active]="sortField === 'motherName'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('spouseName')">
-                                    <span class="th-content">Spouse Name <app-icon [name]="getSortIcon('spouseName')" class="sort-icon" [class.sort-icon--active]="sortField === 'spouseName'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('spouseName')">
+                                    <span class="th-content inline-flex items-center gap-1">Spouse Name <app-icon [name]="getSortIcon('spouseName')" class="sort-icon" [class.sort-icon--active]="sortField === 'spouseName'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('phone')">
-                                    <span class="th-content">Phone <app-icon [name]="getSortIcon('phone')" class="sort-icon" [class.sort-icon--active]="sortField === 'phone'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('phone')">
+                                    <span class="th-content inline-flex items-center gap-1">Phone <app-icon [name]="getSortIcon('phone')" class="sort-icon" [class.sort-icon--active]="sortField === 'phone'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('sewa')">
-                                    <span class="th-content">Sewa <app-icon [name]="getSortIcon('sewa')" class="sort-icon" [class.sort-icon--active]="sortField === 'sewa'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('sewa')">
+                                    <span class="th-content inline-flex items-center gap-1">Sewa <app-icon [name]="getSortIcon('sewa')" class="sort-icon" [class.sort-icon--active]="sortField === 'sewa'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('badgeId')">
-                                    <span class="th-content">Badge Id <app-icon [name]="getSortIcon('badgeId')" class="sort-icon" [class.sort-icon--active]="sortField === 'badgeId'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('badgeId')">
+                                    <span class="th-content inline-flex items-center gap-1">Badge Id <app-icon [name]="getSortIcon('badgeId')" class="sort-icon" [class.sort-icon--active]="sortField === 'badgeId'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('skills')">
-                                    <span class="th-content">Skills <app-icon [name]="getSortIcon('skills')" class="sort-icon" [class.sort-icon--active]="sortField === 'skills'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('skills')">
+                                    <span class="th-content inline-flex items-center gap-1">Skills <app-icon [name]="getSortIcon('skills')" class="sort-icon" [class.sort-icon--active]="sortField === 'skills'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('taskBranch')">
-                                    <span class="th-content">Task Branch <app-icon [name]="getSortIcon('taskBranch')" class="sort-icon" [class.sort-icon--active]="sortField === 'taskBranch'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('taskBranch')">
+                                    <span class="th-content inline-flex items-center gap-1">Task Branch <app-icon [name]="getSortIcon('taskBranch')" class="sort-icon" [class.sort-icon--active]="sortField === 'taskBranch'" [size]="14" /></span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('correspondingBranch')">
-                                    <span class="th-content">Corresponding Branch <app-icon [name]="getSortIcon('correspondingBranch')" class="sort-icon" [class.sort-icon--active]="sortField === 'correspondingBranch'" /></span>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('correspondingBranch')">
+                                    <span class="th-content inline-flex items-center gap-1">Corresponding Branch <app-icon [name]="getSortIcon('correspondingBranch')" class="sort-icon" [class.sort-icon--active]="sortField === 'correspondingBranch'" [size]="14" /></span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let row of rows; trackBy: trackById">
-                                <td data-label="Id">{{ row.id }}</td>
-                                <td data-label="Image" class="name-with-image">
+                            <tr *ngFor="let row of rows; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">{{ row.id }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top name-with-image" data-label="Image">
                                     <div class="volunteer-image">
                                         <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.userName" [appImagePreview]="row.image" [previewTitle]="row.userName || 'Volunteer Photo'" />
                                     </div>
                                 </td>
-                                <td data-label="User Name">{{ row.userName }}</td>
-                                <td data-label="Father Name">{{ row.fatherName }}</td>
-                                <td data-label="Mother Name">{{ row.motherName }}</td>
-                                <td data-label="Spouse Name">{{ row.spouseName }}</td>
-                                <td data-label="Phone">{{ row.phone }}</td>
-                                <td data-label="Sewa">{{ row.sewa }}</td>
-                                <td data-label="Badge Id">{{ row.badgeId }}</td>
-                                <td data-label="Skills">{{ row.skills }}</td>
-                                <td data-label="Task Branch">{{ row.taskBranch }}</td>
-                                <td data-label="Corresponding Branch">{{ row.correspondingBranch }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="User Name">{{ row.userName }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Father Name">{{ row.fatherName }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Mother Name">{{ row.motherName }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Spouse Name">{{ row.spouseName }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Phone">{{ row.phone }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa">{{ row.sewa }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Badge Id">{{ row.badgeId }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Skills">{{ row.skills }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Task Branch">{{ row.taskBranch }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Corresponding Branch">{{ row.correspondingBranch }}</td>
                             </tr>
                             <tr *ngIf="rows.length === 0" class="empty-row">
-                                <td colspan="12">
-                                    <app-empty-state
+                                <td class="px-5 py-10 text-center" colspan="12">
+                                    <hlm-empty-state
                                         title="No Records"
                                         description="There are no volunteers matching the selected filters."
                                         [size]="'small'">
-                                    </app-empty-state>
+                                    </hlm-empty-state>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <app-pager
+                <hlm-pagination
                     [total]="totalItems"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                     [pageSizeOptions]="pageSizeOptions"
                     (pageChange)="onPageChange($event)"
                     (pageSizeChange)="onPageSizeChange($event)">
-                </app-pager>
+                </hlm-pagination>
             </div>
     </ng-container>
 </div>

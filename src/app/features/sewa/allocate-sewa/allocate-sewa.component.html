@@ -4,56 +4,56 @@
         <div class="filter-row">
             <div class="filter-group">
                 <label>Sewa Assignment Branch</label>
-                <app-dropdown [options]="branchOptions" [selectedValues]="selectedAssignmentBranch"
+                <hlm-select [options]="branchOptions" [selectedValues]="selectedAssignmentBranch"
                     placeholder="Select Branch" [searchable]="true"
                     (selectionChange)="selectedAssignmentBranch = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>Task Branch</label>
-                <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch"
+                <hlm-select [options]="branchOptions" [selectedValues]="selectedTaskBranch"
                     placeholder="Select Branch" [searchable]="true"
                     (selectionChange)="selectedTaskBranch = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>Corresponding Branch</label>
-                <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch"
+                <hlm-select [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch"
                     placeholder="None" [searchable]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>Branch Search Type</label>
-                <app-dropdown [options]="branchSearchTypeOptions" [selectedValues]="selectedBranchSearchType"
+                <hlm-select [options]="branchSearchTypeOptions" [selectedValues]="selectedBranchSearchType"
                     placeholder="Select Type" [searchable]="true"
                     (selectionChange)="selectedBranchSearchType = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
 
         <div class="filter-row">
             <div class="filter-group">
                 <label>Sewa Type</label>
-                <app-dropdown [options]="sewaTypeOptions" [selectedValues]="selectedSewaType" placeholder="Select Type"
+                <hlm-select [options]="sewaTypeOptions" [selectedValues]="selectedSewaType" placeholder="Select Type"
                     [searchable]="true" (selectionChange)="onSewaTypeChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>Sewas</label>
-                <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewa" placeholder="Select Sewa"
+                <hlm-select [options]="sewaOptions" [selectedValues]="selectedSewa" placeholder="Select Sewa"
                     [searchable]="true" (selectionChange)="selectedSewa = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>Gender</label>
-                <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="None"
+                <hlm-select [options]="genderOptions" [selectedValues]="selectedGender" placeholder="None"
                     [searchable]="true" (selectionChange)="selectedGender = $event; onSearch()">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-group">
                 <label>UID</label>
-                <input type="text" class="form-control" [(ngModel)]="uid" placeholder="UID" (keyup.enter)="onSearch()"
+                <input hlmInput type="text" [(ngModel)]="uid" placeholder="UID" (keyup.enter)="onSearch()"
                     (blur)="onSearch()">
             </div>
         </div>
@@ -79,8 +79,8 @@
                 <p class="confirmation-dialog__message">{{ unassignWarningMessage }}</p>
             </div>
             <div class="confirmation-dialog__footer">
-                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassignWarning()">YES, UNASSIGN</button>
-                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignWarning()">CANCEL</button>
+                <button hlmBtn variant="destructive" type="button" (click)="confirmUnassignWarning()">YES, UNASSIGN</button>
+                <button hlmBtn variant="secondary" type="button" (click)="closeUnassignWarning()">CANCEL</button>
             </div>
         </div>
     </div>
@@ -107,16 +107,16 @@
                 <div class="unassign-form">
                     <div class="form-group">
                         <label>Reason <span class="required">*</span></label>
-                        <app-dropdown
+                        <hlm-select
                             [options]="unassignReasonOptions"
                             [selectedValues]="selectedUnassignReason"
                             placeholder="Select reason"
                             [closeOnSelect]="true"
-                            (selectionChange)="onUnassignReasonChange($event)"></app-dropdown>
+                            (selectionChange)="onUnassignReasonChange($event)"></hlm-select>
                     </div>
                     <div class="form-group">
                         <label>Remarks</label>
-                        <textarea class="form-control" [(ngModel)]="unassignRemarks" placeholder="Enter remarks" rows="3"></textarea>
+                        <textarea hlmInput class="resize-y" [(ngModel)]="unassignRemarks" placeholder="Enter remarks" rows="3"></textarea>
                     </div>
                     <div class="form-group form-group--inline">
                         <label class="checkbox-inline">
@@ -129,8 +129,8 @@
             </div>
 
             <div class="confirmation-dialog__footer">
-                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
-                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
+                <button hlmBtn variant="secondary" type="button" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
+                <button hlmBtn variant="destructive" type="button" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
             </div>
         </div>
     </div>

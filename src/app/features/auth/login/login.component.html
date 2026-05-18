@@ -1,49 +1,57 @@
-<div class="login-container">
-    <div class="login-wrapper">
+<div class="flex min-h-screen bg-muted/40">
+    <div class="grid min-h-screen w-full grid-cols-1 lg:grid-cols-2">
         <!-- Left Side - Brand Section -->
-        <div class="login-visual">
-            <div class="visual-overlay"></div>
-            <div class="visual-content">
-                <div class="brand-logo">
-                    <img src="assets/img/logo.png" alt="DJJS Logo" class="logo-img" />
+        <div class="relative hidden flex-col justify-center overflow-hidden bg-gradient-to-br from-blue-900 via-blue-700 to-blue-600 px-14 py-12 text-white lg:flex">
+            <div class="pointer-events-none absolute inset-0"
+                 style="background: radial-gradient(circle at 15% 85%, rgba(255,255,255,0.08) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(255,255,255,0.06) 0%, transparent 45%);"></div>
+            <div class="pointer-events-none absolute -right-24 -top-28 h-[500px] w-[500px] rounded-full border border-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-20 -left-14 h-[350px] w-[350px] rounded-full border border-white/10"></div>
+
+            <div class="relative z-10 flex flex-col items-start gap-6">
+                <div>
+                    <img src="assets/img/logo.png" alt="DJJS Logo"
+                         class="h-24 w-24 rounded-2xl bg-white/15 object-contain p-3 shadow-lg backdrop-blur" />
                 </div>
-                <h1 class="brand-title">Divya Jyoti Jagrati Sansthan</h1>
-                <p class="brand-subtitle">Integrated Data Management System</p>
-                <div class="feature-pills">
-                    <div class="pill">
+                <h1 class="m-0 text-4xl font-bold leading-tight tracking-tight">Divya Jyoti Jagrati Sansthan</h1>
+                <p class="m-0 text-lg font-normal opacity-85">Integrated Data Management System</p>
+
+                <div class="mt-2 flex flex-wrap gap-2.5">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm backdrop-blur">
                         <app-icon name="groups" />
                         <span>Volunteer Management</span>
                     </div>
-                    <div class="pill">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm backdrop-blur">
                         <app-icon name="assignment" />
                         <span>Sewa Tracking</span>
                     </div>
-                    <div class="pill">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm backdrop-blur">
                         <app-icon name="insights" />
-                        <span>Reports & Analytics</span>
+                        <span>Reports &amp; Analytics</span>
                     </div>
                 </div>
             </div>
-            <div class="copyright">
+
+            <div class="absolute bottom-6 left-14 text-xs text-white/75">
                 © 2025 DJJS. All rights reserved.
             </div>
         </div>
 
         <!-- Right Side - Login Form -->
-        <div class="login-form-section">
-            <div class="form-center">
-                <div class="card-header">
-                    <h2 class="welcome-title">Welcome Back</h2>
-                    <p class="welcome-subtitle">Sign in to continue to IDMS portal</p>
+        <div class="flex items-center justify-center bg-background px-6 py-12 sm:px-10">
+            <div class="w-full max-w-md">
+                <div class="mb-8">
+                    <h2 class="m-0 mb-1.5 text-3xl font-bold text-foreground">Welcome Back</h2>
+                    <p class="m-0 text-sm text-muted-foreground">Sign in to continue to IDMS portal</p>
                 </div>
 
-                <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="login-form">
-                    <div class="form-group">
-                        <label for="email">
-                            <app-icon name="mail" class="label-icon" />
+                <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-1.5">
+                        <label hlmLabel for="email" class="inline-flex items-center gap-1.5">
+                            <app-icon name="mail" />
                             Email Address
                         </label>
                         <input
+                            hlmInput
                             type="email"
                             id="email"
                             name="email"
@@ -51,23 +59,23 @@
                             required
                             email
                             #emailField="ngModel"
-                            class="form-control"
                             placeholder="Enter your email"
-                            [class.input-error]="emailField.invalid && emailField.touched" />
-                        <div class="field-error" *ngIf="emailField.invalid && emailField.touched">
+                            [class.border-destructive]="emailField.invalid && emailField.touched" />
+                        <div *ngIf="emailField.invalid && emailField.touched" class="inline-flex items-center gap-1 text-xs text-destructive">
                             <app-icon name="error_outline" />
                             <span *ngIf="emailField.errors?.['required']">Email is required</span>
                             <span *ngIf="emailField.errors?.['email']">Please enter a valid email</span>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">
-                            <app-icon name="lock" class="label-icon" />
+                    <div class="flex flex-col gap-1.5">
+                        <label hlmLabel for="password" class="inline-flex items-center gap-1.5">
+                            <app-icon name="lock" />
                             Password
                         </label>
-                        <div class="password-input-wrapper">
+                        <div class="relative">
                             <input
+                                hlmInput
                                 [type]="showPassword ? 'text' : 'password'"
                                 id="password"
                                 name="password"
@@ -75,43 +83,41 @@
                                 required
                                 minlength="6"
                                 #passwordField="ngModel"
-                                class="form-control"
+                                class="pr-10"
                                 placeholder="Enter your password"
-                                [class.input-error]="passwordField.invalid && passwordField.touched" />
+                                [class.border-destructive]="passwordField.invalid && passwordField.touched" />
                             <button
                                 type="button"
-                                class="password-toggle"
+                                class="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
                                 (click)="togglePasswordVisibility()"
                                 [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
                                 <app-icon [name]="showPassword ? 'visibility_off' : 'visibility'" />
                             </button>
                         </div>
-                        <div class="field-error" *ngIf="passwordField.invalid && passwordField.touched">
+                        <div *ngIf="passwordField.invalid && passwordField.touched" class="inline-flex items-center gap-1 text-xs text-destructive">
                             <app-icon name="error_outline" />
                             <span *ngIf="passwordField.errors?.['required']">Password is required</span>
                             <span *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters</span>
                         </div>
                     </div>
 
-                    <div class="server-error" *ngIf="errorMessage">
+                    <div *ngIf="errorMessage" class="inline-flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                         <app-icon name="warning" />
                         <span>{{ errorMessage }}</span>
                     </div>
 
-                    <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading">
-                        <span *ngIf="!isLoading" class="btn-content">
+                    <button hlmBtn type="submit" class="mt-2 w-full" [disabled]="loginForm.invalid || isLoading">
+                        <span *ngIf="!isLoading" class="inline-flex items-center gap-2">
                             Sign In
                             <app-icon name="arrow_forward" />
                         </span>
-                        <span *ngIf="isLoading" class="btn-content">
-                            <span class="spinner"></span>
+                        <span *ngIf="isLoading" class="inline-flex items-center gap-2">
+                            <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
                             Signing in...
                         </span>
                     </button>
                 </form>
-
             </div>
-
         </div>
     </div>
 </div>

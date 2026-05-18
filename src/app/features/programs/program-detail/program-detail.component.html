@@ -1,10 +1,10 @@
-<div class="detail-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <ng-container *ngIf="!isLoading">
         <!-- Error -->
         <div *ngIf="error" class="page-state">
             <app-icon name="error_outline" class="error-icon" />
             <p>{{ error }}</p>
-            <button class="btn btn--primary btn--sm" (click)="loadProgramDetails()">Retry</button>
+            <button hlmBtn size="sm" (click)="loadProgramDetails()">Retry</button>
         </div>
 
         <!-- Program Details -->
@@ -76,11 +76,11 @@
 
                 <!-- Right: Volunteer list -->
                 <div class="sewa-list sewa-list--centered" *ngIf="!activeSewa">
-                    <app-empty-state
+                    <hlm-empty-state
                         title="Select a Sewa"
                         description="Choose a sewa from the list to view its volunteers"
                         size="medium">
-                    </app-empty-state>
+                    </hlm-empty-state>
                 </div>
                 <div class="sewa-list" *ngIf="activeSewa">
                     <div class="sewa-panel__title">

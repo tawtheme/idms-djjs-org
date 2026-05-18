@@ -1,34 +1,34 @@
-<app-modal [isOpen]="isOpen" [title]="'Add New Role'" [size]="'small'" [closable]="true" [showHeader]="true"
+<hlm-dialog [isOpen]="isOpen" [title]="'Add New Role'" [size]="'small'" [closable]="true" [showHeader]="true"
     (close)="onClose()">
 
-    <form class="add-role-form" (ngSubmit)="onSubmit()">
+    <form class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
         <!-- Role Name Field -->
-        <div class="form-group">
-            <label class="form-label" for="role-name">
-                Role Name <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="role-name">
+                Role Name <span class="text-destructive">*</span>
             </label>
-            <input id="role-name" type="text" class="form-control" [(ngModel)]="name"
+            <input hlmInput id="role-name" type="text" [(ngModel)]="name"
                 [ngModelOptions]="{ standalone: true }" placeholder="Enter role name" required autofocus>
         </div>
 
         <!-- Status Dropdown -->
-        <div class="form-group">
-            <label class="form-label" for="role-status">
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="role-status">
                 Status
             </label>
-            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+            <hlm-select [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
                 [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
 
         <!-- Form Footer -->
-        <div class="form-footer">
-            <button type="button" class="btn btn--secondary btn--md" (click)="onClose()">
+        <div class="mt-5 flex items-center justify-end gap-3 border-t border-border pt-5">
+            <button hlmBtn variant="secondary" type="button" (click)="onClose()">
                 Cancel
             </button>
-            <button type="submit" class="btn btn--primary btn--md" [disabled]="!name.trim()">
+            <button hlmBtn type="submit" [disabled]="!name.trim()">
                 Submit
             </button>
         </div>
     </form>
-</app-modal>
+</hlm-dialog>

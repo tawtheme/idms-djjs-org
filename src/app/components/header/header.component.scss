@@ -1,151 +1,29 @@
 @import '../../../assets/scss/variable';
 
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    height: 48px;
-    background: $color-white;
-    border-bottom: 1px solid $color-gray-200;
-    flex-shrink: 0;
-    width: 100%;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header-user-email {
-    font-size: 13px;
-    font-weight: 500;
-    color: $color-gray-700;
-    padding: 0 6px;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+// Role badge — gradient + hover transforms preserved in SCSS
 .header-user-role {
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #fff; /* text color */
-  background: linear-gradient(135deg, #ff7e5f, #feb47b); /* radiant gradient */
+  color: #fff;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* subtle shadow */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.header-user-email:hover {
-    transform: scale(1.05); /* slightly grows */
-    box-shadow: 0 6px 15px rgba(255,126,95,0.5), 0 6px 15px rgba(254,180,123,0.3);
-}
 
-.header-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    background: $color-gray-100;
-    color: $color-gray-800;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-
-    app-icon { font-size: 16px; }
-
-    &:hover {
-        background: $color-gray-200;
-    }
-
-    &--primary {
-        background: $color-primary-600;
-        color: $color-white;
-
-        &:hover {
-            background: $color-primary-700;
-        }
-    }
-}
-
-.header-divider {
-    width: 1px;
-    height: 24px;
-    background: $color-gray-200;
-}
-
-.header-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-
-    .breadcrumb-link {
-        color: $color-gray-500;
-        cursor: pointer;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 16px;
-
-        &:hover {
-            color: $color-primary-600;
-        }
-    }
-
-    .breadcrumb-sep {
-        color: $color-gray-300;
-        font-size: 16px;
-    }
-
-    .breadcrumb-current {
-        color: $color-gray-800;
-        font-weight: 600;
-        font-size: 16px;
-    }
-}
-
-// Menu button
-.menu-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    background: $color-gray-50;
-    border: 1px solid $color-gray-200;
-    border-radius: 6px;
-    cursor: pointer;
-    color: $color-gray-700;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.15s ease;
-
-    &:hover {
-        background: $color-gray-100;
-        border-color: $color-gray-300;
-    }
-
-    .menu-label {
-        @media (max-width: 480px) {
-            display: none;
-        }
+// Hide menu/logout labels on tiny screens
+@media (max-width: 480px) {
+    .menu-btn .menu-label,
+    .logout-btn .logout-label {
+        display: none;
     }
 }
 
 // ====================
-// Mega Menu Modal
+// Mega Menu Modal — keep here because of fixed-position transforms / animations
 // ====================
 .megamenu-backdrop {
     position: fixed;
@@ -253,80 +131,6 @@
             line-height: 1.2;
         }
     }
-
-    &__grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 36px 40px;
-    }
-
-    &__group {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        text-align: left;
-
-        &--full {
-            grid-column: span 2;
-        }
-    }
-
-    &__group-items--two-col {
-        columns: 2;
-        column-gap: 40px;
-    }
-
-    &__group-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: $color-gray-900;
-        margin-bottom: 10px;
-        padding-bottom: 6px;
-        border-bottom: 1px solid $color-gray-200;
-        width: 100%;
-        letter-spacing: 0.2px;
-    }
-
-    &__item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        padding: 10px 12px;
-        margin-bottom: 2px;
-        border: none;
-        background: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 500;
-        color: $color-gray-700;
-        transition: all 0.12s ease;
-        text-align: left;
-
-        &:hover {
-            color: $color-primary-600;
-            background: rgba($color-primary-500, 0.06);
-            transform: translateX(2px);
-        }
-
-        &--active {
-            color: $color-primary-700;
-            font-weight: 600;
-            background: rgba($color-primary-500, 0.1);
-        }
-
-        &-icon {
-            font-size: 18px;
-            color: $color-gray-400;
-            flex-shrink: 0;
-            display: none;
-        }
-
-        &--active &-icon {
-            color: $color-primary-600;
-        }
-    }
 }
 
 @media (max-width: 768px) {
@@ -354,67 +158,17 @@
                 font-size: 26px;
             }
         }
+    }
 
-        &__grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }
-
-        &__item {
-            font-size: 14px;
-        }
+    // Header height shrinks on mobile — keep here as load-bearing chrome dimension
+    .header {
+        height: 44px;
+        padding: 0 12px;
     }
 }
 
 @media (max-width: 480px) {
     .megamenu__tiles {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .megamenu__grid {
-        grid-template-columns: 1fr;
-    }
-
-    .megamenu__group-items--two-col {
-        columns: 1;
-    }
-
-    .megamenu__group--full {
-        grid-column: span 1;
-    }
-}
-
-// Logout button (header)
-.logout-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border: 1px solid $color-gray-200;
-    background: $color-gray-50;
-    border-radius: 6px;
-    cursor: pointer;
-    color: $color-gray-600;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.15s ease;
-
-    &:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: #dc2626;
-    }
-
-    .logout-label {
-        @media (max-width: 480px) {
-            display: none;
-        }
-    }
-}
-
-@media (max-width: 768px) {
-    .header {
-        height: 44px;
-        padding: 0 12px;
     }
 }

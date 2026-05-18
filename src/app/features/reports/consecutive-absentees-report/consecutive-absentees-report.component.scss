@@ -1,7 +1,4 @@
-@use '../report-listing' as r;
 @import '../../../../assets/scss/variable';
-
-@include r.report-listing('.reports');
 
 .required {
     color: #dc2626;

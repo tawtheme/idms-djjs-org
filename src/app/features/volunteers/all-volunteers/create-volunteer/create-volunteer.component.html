@@ -1,187 +1,187 @@
-<div class="page-container" *ngIf="!hideFormActions">
-    <div class="page-header">
-        <h2 class="page-title">Create Volunteer</h2>
-        <p class="page-subtitle">Fill in the details below to register a new volunteer</p>
+<div *ngIf="!hideFormActions" class="mx-auto max-w-[900px] px-4 py-6 md:px-0">
+    <div class="mb-8">
+        <h2 class="m-0 mb-1 text-2xl font-bold text-foreground">Create Volunteer</h2>
+        <p class="m-0 text-sm text-muted-foreground">Fill in the details below to register a new volunteer</p>
     </div>
 
-    <form (ngSubmit)="onSubmit()" #volunteerForm="ngForm" class="volunteer-form">
+    <form (ngSubmit)="onSubmit()" #volunteerForm="ngForm" class="flex flex-col gap-6">
         <!-- Personal Information -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Personal Information</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="name">Name <span class="required">*</span></label>
-                    <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Personal Information</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="name">Name <span class="text-destructive">*</span></label>
+                    <input hlmInput type="text" id="name" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required />
                 </div>
-                <div class="form-field">
-                    <div class="field-label-row">
-                        <label for="phone">Mobile Number <span class="required">*</span></label>
-                        <label class="copy-whatsapp">
-                            <input type="checkbox"
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <label hlmLabel for="phone">Mobile Number <span class="text-destructive">*</span></label>
+                        <label class="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-[11px] font-normal text-muted-foreground">
+                            <input type="checkbox" class="h-3.5 w-3.5 cursor-pointer"
                                    [(ngModel)]="copyAsWhatsapp"
                                    [ngModelOptions]="{ standalone: true }"
                                    (change)="onCopyAsWhatsappChange()" />
                             <span>Same as WhatsApp</span>
                         </label>
                     </div>
-                    <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
-                    <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
+                    <input hlmInput type="tel" id="phone" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required />
+                    <small *ngIf="phoneInputWarning || phoneError" class="text-xs text-destructive">{{ phoneInputWarning || phoneError }}</small>
                 </div>
-                <div class="form-field">
-                    <label for="whatsappNumber">Whatsapp Number</label>
-                    <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
-                    <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="whatsappNumber">Whatsapp Number</label>
+                    <input hlmInput type="tel" id="whatsappNumber" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp" />
+                    <small *ngIf="whatsappInputWarning || whatsappError" class="text-xs text-destructive">{{ whatsappInputWarning || whatsappError }}</small>
                 </div>
-                <div class="form-field">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
-                    <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="email">Email Address</label>
+                    <input hlmInput type="email" id="email" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email" />
+                    <small *ngIf="emailError" class="text-xs text-destructive">{{ emailError }}</small>
                 </div>
-                 <div class="form-field">
-                    <label for="personalEmail">Personal Email Address</label>
-                    <input type="personalEmail" id="personalEmail" class="form-control" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email">
-                    <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="personalEmail">Personal Email Address</label>
+                    <input hlmInput type="email" id="personalEmail" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email" />
+                    <small *ngIf="personalEmailError" class="text-xs text-destructive">{{ personalEmailError }}</small>
                 </div>
-                <div class="form-field">
-                    <label>Gender <span class="required">*</span></label>
-                    <app-dropdown [options]="genderOptions" [selectedValues]="selectedUserGender" placeholder="Select Gender" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedUserGender = $event" [closeOnSelect]="true"></app-dropdown>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Gender <span class="text-destructive">*</span></label>
+                    <hlm-select [options]="genderOptions" [selectedValues]="selectedUserGender" placeholder="Select Gender" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedUserGender = $event" [closeOnSelect]="true"></hlm-select>
                 </div>
-                <div class="form-field">
-                    <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>
-                    <div class="aadhaar-input-wrapper">
-                        <input [type]="showAadhaarNumber ? 'text' : 'password'" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required>
-                        <button type="button" class="aadhaar-toggle" (click)="showAadhaarNumber = !showAadhaarNumber" [attr.aria-label]="showAadhaarNumber ? 'Hide Aadhaar number' : 'Show Aadhaar number'">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="aadhaarNumber">Aadhaar Number <span class="text-destructive">*</span></label>
+                    <div class="relative">
+                        <input hlmInput [type]="showAadhaarNumber ? 'text' : 'password'" id="aadhaarNumber" class="pr-9" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required />
+                        <button type="button"
+                                class="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                                (click)="showAadhaarNumber = !showAadhaarNumber"
+                                [attr.aria-label]="showAadhaarNumber ? 'Hide Aadhaar number' : 'Show Aadhaar number'">
                             <app-icon [name]="showAadhaarNumber ? 'visibility_off' : 'visibility'" />
                         </button>
                     </div>
                 </div>
-                <div class="form-field">
-                    <div class="field-label-row">
-                        <label for="dob">Date of Birth <span class="required">*</span></label>
-                        <small class="field-hint">Age must be at least {{ minAgeYears }} years</small>
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <label hlmLabel for="dob">Date of Birth <span class="text-destructive">*</span></label>
+                        <small class="whitespace-nowrap text-[11px] font-normal text-muted-foreground">Age must be at least {{ minAgeYears }} years</small>
                     </div>
-                    <div class="form-field__inline form-field__inline--60-40">
-                        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></app-datepicker>
-                        <input type="text" id="age" class="form-control" [value]="ageDisplay" placeholder="Age" readonly>
+                    <div class="grid grid-cols-[60%_calc(40%-12px)] gap-3">
+                        <hlm-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></hlm-datepicker>
+                        <input hlmInput type="text" id="age" [value]="ageDisplay" placeholder="Age" readonly />
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Family Details -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Family Details <span class="required">*</span></h3>
-                <p class="section-subtitle">Provide at least one of Father, Mother, or Spouse name.</p>
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Family Details <span class="text-destructive">*</span></h3>
+                <p class="mt-1 text-sm text-muted-foreground">Provide at least one of Father, Mother, or Spouse name.</p>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="fatherName">Father Name</label>
+                    <input hlmInput type="text" id="fatherName" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="motherName">Mother Name</label>
+                    <input hlmInput type="text" id="motherName" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="spouseName">Spouse Name</label>
+                    <input hlmInput type="text" id="spouseName" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name" />
+                </div>
             </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="fatherName">Father Name</label>
-                    <input type="text" id="fatherName" class="form-control" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
-                </div>
-                <div class="form-field">
-                    <label for="motherName">Mother Name</label>
-                    <input type="text" id="motherName" class="form-control" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name">
-                </div>
-                <div class="form-field">
-                    <label for="spouseName">Spouse Name</label>
-                    <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
-                </div>
-            </div>
-        </div>
+        </section>
 
         <!-- Sewa & Branch -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Sewa &amp; Branch</h3>
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Sewa &amp; Branch</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Corresponding Branch <span class="text-destructive">*</span></label>
+                    <hlm-select [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Task Branch <span class="text-destructive">*</span></label>
+                    <hlm-select [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Active Program</label>
+                    <hlm-select [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Allocate Sewa</label>
+                    <hlm-select [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Sewa Mode</label>
+                    <hlm-select [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel>Sewa Head</label>
+                    <hlm-select [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></hlm-select>
+                </div>
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label hlmLabel for="branchRemarks">Branch Remarks</label>
+                    <input hlmInput type="text" id="branchRemarks" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks" />
+                </div>
             </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label>Corresponding Branch <span class="required">*</span></label>
-                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label>Task Branch <span class="required">*</span></label>
-                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label>Active Program</label>
-                    <app-dropdown [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label>Allocate Sewa</label>
-                    <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label>Sewa Mode</label>
-                    <app-dropdown [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field">
-                    <label>Sewa Head</label>
-                    <app-dropdown [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></app-dropdown>
-                </div>
-                <div class="form-field form-field--full">
-                    <label for="branchRemarks">Branch Remarks</label>
-                    <input type="text" id="branchRemarks" class="form-control" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
-                </div>
-            </div>
-        </div>
+        </section>
 
         <!-- Profile Image -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Profile Image</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field" *ngIf="!profileImagePreview">
-                    <label>Upload Method</label>
-                    <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Profile Image</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div *ngIf="!profileImagePreview" class="flex flex-col gap-1.5">
+                    <label hlmLabel>Upload Method</label>
+                    <hlm-select [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></hlm-select>
                 </div>
-                <div class="form-field form-field--full" *ngIf="selectedImageType && profileImagePreview">
-                    <div class="profile-image-preview">
-                        <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-                        <div class="profile-image-actions">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
+                <div *ngIf="selectedImageType && profileImagePreview" class="md:col-span-2">
+                    <div class="flex items-center gap-3">
+                        <img [src]="profileImagePreview" alt="Profile preview" class="h-24 w-24 rounded-lg border border-border object-cover" />
+                        <div class="flex gap-2">
+                            <button hlmBtn variant="secondary" size="sm" type="button" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
+                            <button hlmBtn variant="secondary" size="sm" type="button" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Possible Duplicate Volunteers -->
-        <div class="form-section duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
-            <div class="section-header">
-                <h3 class="section-title">Possible Duplicate Volunteers</h3>
-                <p class="section-subtitle">A volunteer with similar details already exists. Review the matches below — if you still want to proceed, turn on "Proceed with Possible Duplicate" in the form actions and submit again.</p>
-            </div>
-            <div class="duplicate-list">
-                <div class="duplicate-item" *ngFor="let u of existingUsers">
-                    <div class="duplicate-item__id">#{{ u.unique_id }}</div>
-                    <div class="duplicate-item__main">
-                        <div class="duplicate-item__name">{{ u.name }}</div>
-                        <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+        <section *ngIf="showProceedToggle && existingUsers.length" class="rounded-xl border border-amber-300 bg-amber-50 p-5">
+            <header class="mb-3">
+                <h3 class="m-0 mb-1 text-base font-bold text-amber-800">Possible Duplicate Volunteers</h3>
+                <p class="m-0 text-[13px] text-amber-800/85">A volunteer with similar details already exists. Review the matches below — if you still want to proceed, turn on "Proceed with Possible Duplicate" in the form actions and submit again.</p>
+            </header>
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+                <div *ngFor="let u of existingUsers" class="flex items-center gap-3 rounded-lg border border-amber-300 bg-card px-3.5 py-2.5">
+                    <div class="whitespace-nowrap font-mono text-[13px] font-bold text-amber-700">#{{ u.unique_id }}</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate text-sm font-semibold text-foreground">{{ u.name }}</div>
+                        <div *ngIf="u.level" class="mt-0.5 text-xs text-muted-foreground">{{ u.level }}</div>
                     </div>
-                    <button type="button" class="btn btn--secondary btn--sm" (click)="openDuplicateView(u)">View</button>
+                    <button hlmBtn variant="secondary" size="sm" type="button" (click)="openDuplicateView(u)">View</button>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button hlmBtn variant="secondary" type="button" (click)="onReset()" [disabled]="isLoading">Reset</button>
 
-            <label class="proceed-toggle" *ngIf="showProceedToggle">
-                <input type="checkbox" class="proceed-toggle__input"
-                       [(ngModel)]="proceedForcefully"
-                       [ngModelOptions]="{ standalone: true }" />
-                <span class="proceed-toggle__slider"></span>
-                <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
+            <label *ngIf="showProceedToggle" class="mr-auto inline-flex cursor-pointer select-none items-center gap-2.5 text-[13px] text-foreground">
+                <hlm-switch [checked]="proceedForcefully" (checkedChange)="proceedForcefully = $event" />
+                <span class="font-medium">Proceed with Possible Duplicate</span>
             </label>
 
-            <button type="submit" class="btn btn--primary" [disabled]="isLoading">
+            <button hlmBtn type="submit" [disabled]="isLoading">
                 {{ isLoading ? 'Submitting...' : 'Create Volunteer' }}
             </button>
         </div>
@@ -189,139 +189,133 @@
 </div>
 
 <!-- Side panel mode -->
-<form *ngIf="hideFormActions" (ngSubmit)="onSubmit()" #volunteerForm="ngForm" class="volunteer-form volunteer-form--panel">
-    <div class="form-field">
-        <label for="name">Name <span class="required">*</span></label>
-        <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
+<form *ngIf="hideFormActions" (ngSubmit)="onSubmit()" #volunteerForm="ngForm" class="flex flex-col gap-6">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="name">Name <span class="text-destructive">*</span></label>
+        <input hlmInput type="text" id="name" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required />
     </div>
-    <div class="form-field">
-        <div class="field-label-row">
-            <label for="phone">Mobile Number <span class="required">*</span></label>
-            <label class="copy-whatsapp">
-                <input type="checkbox"
+    <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between gap-2">
+            <label hlmLabel for="phone">Mobile Number <span class="text-destructive">*</span></label>
+            <label class="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-[11px] font-normal text-muted-foreground">
+                <input type="checkbox" class="h-3.5 w-3.5 cursor-pointer"
                        [(ngModel)]="copyAsWhatsapp"
                        [ngModelOptions]="{ standalone: true }"
                        (change)="onCopyAsWhatsappChange()" />
                 <span>Same as WhatsApp</span>
             </label>
         </div>
-        <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
-        <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
+        <input hlmInput type="tel" id="phone" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required />
+        <small *ngIf="phoneInputWarning || phoneError" class="text-xs text-destructive">{{ phoneInputWarning || phoneError }}</small>
     </div>
-    <div class="form-field">
-        <label for="whatsappNumber">Whatsapp Number</label>
-        <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
-        <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="whatsappNumber">Whatsapp Number</label>
+        <input hlmInput type="tel" id="whatsappNumber" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp" />
+        <small *ngIf="whatsappInputWarning || whatsappError" class="text-xs text-destructive">{{ whatsappInputWarning || whatsappError }}</small>
     </div>
-    <div class="form-field">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
-        <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="email">Email Address</label>
+        <input hlmInput type="email" id="email" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email" />
+        <small *ngIf="emailError" class="text-xs text-destructive">{{ emailError }}</small>
     </div>
-    <div class="form-field">
-        <label for="personalEmail">Personal Email Address</label>
-        <input type="personalEmail" id="personalEmail" class="form-control" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email">
-        <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="personalEmail">Personal Email Address</label>
+        <input hlmInput type="email" id="personalEmail" [(ngModel)]="form.personalEmail" [ngModelOptions]="{ standalone: true }" placeholder="Enter personal email" />
+        <small *ngIf="personalEmailError" class="text-xs text-destructive">{{ personalEmailError }}</small>
     </div>
-    <div class="form-field">
-        <label for="aadhaarNumber">Aadhaar Number <span class="required">*</span></label>
-        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="aadhaarNumber">Aadhaar Number <span class="text-destructive">*</span></label>
+        <input hlmInput type="text" id="aadhaarNumber" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12" required />
     </div>
-    <div class="form-field">
-        <div class="field-label-row">
-            <label for="dob">Date of birth <span class="required">*</span></label>
-            <small class="field-hint">Age must be at least {{ minAgeYears }} years</small>
+    <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between gap-2">
+            <label hlmLabel for="dob">Date of birth <span class="text-destructive">*</span></label>
+            <small class="whitespace-nowrap text-[11px] font-normal text-muted-foreground">Age must be at least {{ minAgeYears }} years</small>
         </div>
-        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></app-datepicker>
+        <hlm-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" [maxDate]="dobMaxDate" [initialViewDate]="dobMaxDate" [showTriggerIcon]="false" [showToday]="false" [showClear]="false" (dateChange)="onDobChange($event)"></hlm-datepicker>
     </div>
-    <div class="form-field">
-        <label for="age-panel">Age</label>
-        <input type="text" id="age-panel" class="form-control" [value]="ageDisplay" placeholder="--" readonly>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="age-panel">Age</label>
+        <input hlmInput type="text" id="age-panel" [value]="ageDisplay" placeholder="--" readonly />
     </div>
-    <p class="section-subtitle">Provide at least one of Father, Mother, or Spouse name. <span class="required">*</span></p>
-    <div class="form-field">
-        <label for="fatherName">Father Name</label>
-        <input type="text" id="fatherName" class="form-control" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
+    <p class="text-sm text-muted-foreground">Provide at least one of Father, Mother, or Spouse name. <span class="text-destructive">*</span></p>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="fatherName">Father Name</label>
+        <input hlmInput type="text" id="fatherName" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name" />
     </div>
-    <div class="form-field">
-        <label for="motherName">Mother Name</label>
-        <input type="text" id="motherName" class="form-control" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="motherName">Mother Name</label>
+        <input hlmInput type="text" id="motherName" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name" />
     </div>
-    <div class="form-field">
-        <label for="spouseName">Spouse Name</label>
-        <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="spouseName">Spouse Name</label>
+        <input hlmInput type="text" id="spouseName" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name" />
     </div>
-    <div class="form-field">
-        <label>Active Program</label>
-        <app-dropdown [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Active Program</label>
+        <hlm-select [options]="programOptions" [selectedValues]="selectedProgram" placeholder="Select Program" [searchable]="true" (selectionChange)="onProgramChange($event)" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label>Allocate Sewa</label>
-        <app-dropdown [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Allocate Sewa</label>
+        <hlm-select [options]="sewaOptions" [selectedValues]="selectedSewas" placeholder="Select Sewa" [searchable]="true" (selectionChange)="selectedSewas = $event" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label>Sewa Mode</label>
-        <app-dropdown [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Sewa Mode</label>
+        <hlm-select [options]="sewaModeOptions" [selectedValues]="selectedSewaMode" placeholder="Select Sewa Mode" (selectionChange)="selectedSewaMode = $event" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label>Sewa Head</label>
-        <app-dropdown [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Sewa Head</label>
+        <hlm-select [options]="sewaHeadOptions" [selectedValues]="selectedSewaHead" placeholder="Select Sewa Head" (selectionChange)="selectedSewaHead = $event" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label>Corresponding Branch <span class="required">*</span></label>
-        <app-dropdown [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Corresponding Branch <span class="text-destructive">*</span></label>
+        <hlm-select [options]="branchOptions" [selectedValues]="selectedCorrespondingBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedCorrespondingBranch = $event" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label>Task Branch <span class="required">*</span></label>
-        <app-dropdown [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Task Branch <span class="text-destructive">*</span></label>
+        <hlm-select [options]="branchOptions" [selectedValues]="selectedTaskBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedTaskBranch = $event" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label for="branchRemarksPanel">Branch Remarks</label>
-        <input type="text" id="branchRemarksPanel" class="form-control" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="branchRemarksPanel">Branch Remarks</label>
+        <input hlmInput type="text" id="branchRemarksPanel" [(ngModel)]="form.branchRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks" />
     </div>
-    <div class="form-field" *ngIf="!profileImagePreview">
-        <label>Upload Profile Image</label>
-        <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
+    <div *ngIf="!profileImagePreview" class="flex flex-col gap-1.5">
+        <label hlmLabel>Upload Profile Image</label>
+        <hlm-select [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field" *ngIf="selectedImageType && profileImagePreview">
-        <div class="profile-image-preview">
-            <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-            <div class="profile-image-actions">
-                <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
-                <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
+    <div *ngIf="selectedImageType && profileImagePreview">
+        <div class="flex items-center gap-3">
+            <img [src]="profileImagePreview" alt="Profile preview" class="h-24 w-24 rounded-lg border border-border object-cover" />
+            <div class="flex gap-2">
+                <button hlmBtn variant="secondary" size="sm" type="button" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
+                <button hlmBtn variant="secondary" size="sm" type="button" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
             </div>
         </div>
     </div>
 
     <!-- Possible Duplicate Volunteers (side-panel mode) -->
-    <div class="form-field duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
-        <h3 class="section-title">Possible Duplicate Volunteers</h3>
-        <p class="section-subtitle">A volunteer with similar details already exists. Review the matches below.</p>
-        <div class="duplicate-list">
-            <div class="duplicate-item" *ngFor="let u of existingUsers">
-                <div class="duplicate-item__id">#{{ u.unique_id }}</div>
-                <div class="duplicate-item__main">
-                    <div class="duplicate-item__name">{{ u.name }}</div>
-                    <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+    <div *ngIf="showProceedToggle && existingUsers.length" class="rounded-xl border border-amber-300 bg-amber-50 p-4">
+        <h3 class="m-0 mb-1 text-base font-bold text-amber-800">Possible Duplicate Volunteers</h3>
+        <p class="m-0 mb-3 text-[13px] text-amber-800/85">A volunteer with similar details already exists. Review the matches below.</p>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
+            <div *ngFor="let u of existingUsers" class="flex items-center gap-3 rounded-lg border border-amber-300 bg-card px-3.5 py-2.5">
+                <div class="whitespace-nowrap font-mono text-[13px] font-bold text-amber-700">#{{ u.unique_id }}</div>
+                <div class="min-w-0 flex-1">
+                    <div class="truncate text-sm font-semibold text-foreground">{{ u.name }}</div>
+                    <div *ngIf="u.level" class="mt-0.5 text-xs text-muted-foreground">{{ u.level }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="form-field" *ngIf="showProceedToggle">
-        <label class="proceed-toggle">
-            <input type="checkbox" class="proceed-toggle__input"
-                   [(ngModel)]="proceedForcefully"
-                   [ngModelOptions]="{ standalone: true }" />
-            <span class="proceed-toggle__slider"></span>
-            <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
-        </label>
+    <div *ngIf="showProceedToggle" class="flex items-center gap-2.5">
+        <hlm-switch [checked]="proceedForcefully" (checkedChange)="proceedForcefully = $event" />
+        <span class="text-[13px] font-medium text-foreground">Proceed with Possible Duplicate</span>
     </div>
-
 </form>
 
 <!-- Profile Image Upload Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="imageModalOpen"
     [isOpen]="imageModalOpen"
     [title]="selectedImageType === 'capture' ? 'Capture Live Photo' : 'Upload Profile Image'"
@@ -343,10 +337,10 @@
             (removed)="onCameraImageRemoved()">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>
 
 <!-- View Duplicate Volunteer Side Panel -->
-<app-side-panel
+<hlm-sheet
     *ngIf="duplicateViewPanelOpen"
     [isOpen]="duplicateViewPanelOpen"
     title="View Volunteer"
@@ -364,4 +358,4 @@
         [userIdInput]="duplicateViewUserId"
         (closed)="closeDuplicateView()">
     </app-volunteer-view>
-</app-side-panel>
+</hlm-sheet>

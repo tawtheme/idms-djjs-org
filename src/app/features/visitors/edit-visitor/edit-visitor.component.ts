@@ -10,9 +10,10 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { FileUploadComponent, FileUploadConfig } from '../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../shared/components/camera-upload/camera-upload.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { HlmDialogComponent } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 import { emailError } from '../../../shared/utils/validators';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 
@@ -21,7 +22,7 @@ type IdProofKey = 'aadhaar' | 'voter' | 'license';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, IconComponent, FileUploadComponent, CameraUploadComponent, ModalComponent, DropdownComponent, DatepickerComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, FileUploadComponent, CameraUploadComponent, HlmDialogComponent, HlmSelectComponent, HlmDatepickerComponent, ImagePreviewDirective, HlmButtonDirective, HlmInputDirective],
   selector: 'app-edit-visitor',
   templateUrl: './edit-visitor.component.html',
   styleUrls: ['./edit-visitor.component.scss']

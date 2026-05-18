@@ -1,10 +1,10 @@
-<div class="branch-applications-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Search & Filter Panel -->
     <div class="search-panel">
         <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
-                <label>Task Branch</label>
-                <app-dropdown
+                <label hlmLabel>Task Branch</label>
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="None"
@@ -12,11 +12,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Corresponding Branch</label>
-                <app-dropdown
+                <label hlmLabel>Corresponding Branch</label>
+                <hlm-select
                     [options]="correspondingBranchOptions"
                     [selectedValues]="moreFilters.correspondingBranch"
                     placeholder="None"
@@ -24,21 +24,21 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Branch Search Type</label>
-                <app-dropdown
+                <label hlmLabel>Branch Search Type</label>
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="moreFilters.branchSearchType"
                     placeholder="Select Branch Search Type"
                     (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Sewa</label>
-                <app-dropdown
+                <label hlmLabel>Sewa</label>
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="moreFilters.sewa"
                     placeholder="None"
@@ -46,14 +46,14 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Badge No</label>
+                <label hlmLabel>Badge No</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Badge No"
                         [(ngModel)]="filterFields.badgeNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -64,11 +64,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Name</label>
+                <label hlmLabel>Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Name"
                         [(ngModel)]="filterFields.name"
                         [ngModelOptions]="{ standalone: true }"
@@ -95,7 +95,7 @@
         </div>
     </div>
 
-    <app-side-panel
+    <hlm-sheet
         *ngIf="showAdvancedFilters"
         [isOpen]="showAdvancedFilters"
         title="More Filters"
@@ -105,21 +105,21 @@
         (close)="showAdvancedFilters = false">
         <div class="filter-panel">
             <div class="filter-panel__field">
-                <label>Gender</label>
-                <app-dropdown
+                <label hlmLabel>Gender</label>
+                <hlm-select
                     [options]="genderOptions"
                     [selectedValues]="selectedGender"
                     placeholder="None"
                     (selectionChange)="selectedGender = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Relation Name</label>
+                <label hlmLabel>Relation Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Relation Name"
                         [(ngModel)]="filterFields.relationName"
                         [ngModelOptions]="{ standalone: true }"
@@ -130,11 +130,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Mobile No.</label>
+                <label hlmLabel>Mobile No.</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Mobile No."
                         [(ngModel)]="filterFields.mobileNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -145,11 +145,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>UID</label>
+                <label hlmLabel>UID</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter UID"
                         [(ngModel)]="filterFields.uid"
                         [ngModelOptions]="{ standalone: true }"
@@ -160,71 +160,72 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Interest</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Interest</label>
+                <hlm-select
                     [options]="sewaInterestOptions"
                     [selectedValues]="moreFilters.sewaInterest"
                     placeholder="None"
                     (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Allocated</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Allocated</label>
+                <hlm-select
                     [options]="sewaAllocatedOptions"
                     [selectedValues]="moreFilters.sewaAllocated"
                     placeholder="None"
                     (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Mode</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Mode</label>
+                <hlm-select
                     [options]="sewaModeOptions"
                     [selectedValues]="moreFilters.sewaMode"
                     placeholder="None"
                     (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sort By</label>
-                <app-dropdown
+                <label hlmLabel>Sort By</label>
+                <hlm-select
                     [options]="sortOrderOptions"
                     [selectedValues]="sortOrder"
                     placeholder="None"
                     (selectionChange)="sortOrder = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Order By</label>
-                <app-dropdown
+                <label hlmLabel>Order By</label>
+                <hlm-select
                     [options]="orderByOptions"
                     [selectedValues]="orderByDirection"
                     placeholder="None"
                     (selectionChange)="orderByDirection = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
         <div slot="footer" class="filter-panel__footer">
             <button
+                hlmBtn
+                variant="secondary"
                 type="button"
-                class="btn btn--secondary btn--md"
                 (click)="reloadPage()">
                 Clear all
             </button>
             <button
+                hlmBtn
                 type="button"
-                class="btn btn--primary btn--md"
                 (click)="showAdvancedFilters = false">
                 Apply
             </button>
         </div>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Active filter chips -->
     <div *ngIf="activeFilterChips().length > 0" class="active-filters">
@@ -245,16 +246,16 @@
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadBranchApplications()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadBranchApplications()">Retry</button>
     </div>
 
     <!-- Applications table -->
-    <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th class="checkbox-column">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground checkbox-column whitespace-nowrap">
                             <input
                                 type="checkbox"
                                 [checked]="isAllSelected()"
@@ -262,30 +263,30 @@
                                 (change)="toggleSelectAll($event)"
                                 (click)="$event.stopPropagation()">
                         </th>
-                        <th>Id</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Relation Name</th>
-                        <th>Address</th>
-                        <th>Regular Sewa</th>
-                        <th>Enter By</th>
-                        <th>Sewa Interest</th>
-                        <th class="action-column">Action</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Id</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Relation Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Address</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Regular Sewa</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Enter By</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa Interest</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground text-right whitespace-nowrap">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let application of pagedApplications; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <tr *ngFor="let application of pagedApplications; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative" (click)="$event.stopPropagation()">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top checkbox-column" (click)="$event.stopPropagation()">
                                 <input
                                     type="checkbox"
                                     [checked]="selectedApplications.has(application.id)"
                                     (change)="toggleSelectApplication(application.id, $event)">
                             </td>
-                            <td data-label="Id">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">
                                 {{ application.id }}
                             </td>
-                            <td data-label="Image" class="image-column">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top image-column" data-label="Image">
                                 <div class="application-image">
                                     <img [src]="application.image || '/assets/img/placeholder.svg'"
                                          [alt]="application.name"
@@ -294,13 +295,13 @@
                                          onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                             </td>
-                            <td data-label="Name" class="name">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top name" data-label="Name">
                                 {{ application.name }}<span *ngIf="application.age">: Age({{ application.age }})</span>
                             </td>
-                            <td data-label="Relation Name">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Relation Name">
                                 {{ application.relationName }}
                             </td>
-                            <td data-label="Address" class="address-column">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top address-column" data-label="Address">
                                 <div class="address-content">
                                     <div *ngIf="application.address.street">{{ application.address.street }}</div>
                                     <div *ngIf="application.address.pincode">{{ application.address.pincode }}</div>
@@ -310,10 +311,10 @@
                                     <div *ngIf="application.address.mobileNumber">{{ application.address.mobileNumber }}</div>
                                 </div>
                             </td>
-                            <td data-label="Regular Sewa" class="sewa-column">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top sewa-column" data-label="Regular Sewa">
                                 <div class="sewa-content" *ngIf="application.regularSewa">
-                                    <a href="#" 
-                                       class="sewa-tracking" 
+                                    <a href="#"
+                                       class="sewa-tracking"
                                        *ngIf="application.regularSewa.tracking"
                                        (click)="openSewaTrackingModal(application, $event)">
                                         {{ application.regularSewa.tracking }}
@@ -327,10 +328,10 @@
                                 </div>
                                 <span *ngIf="!application.regularSewa">-</span>
                             </td>
-                            <td data-label="Enter By">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Enter By">
                                 {{ application.enterBy || '-' }}
                             </td>
-                            <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa Interest" (click)="$event.stopPropagation()">
                                 <span class="toggle-switch" (click)="toggleSewaInterest(application, $event)">
                                     <input
                                         type="checkbox"
@@ -339,21 +340,21 @@
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
-                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top text-right" data-label="Action" (click)="$event.stopPropagation()">
+                                <hlm-menu
                                     [options]="getActionOptions(application)"
                                     (selectionChange)="onAction(application, $event)">
-                                </app-menu-dropdown>
+                                </hlm-menu>
                             </td>
                         </tr>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedApplications.length === 0">
-                            <td [attr.colspan]="10" class="empty-state-cell">
-                                <app-empty-state
+                        <tr *ngIf="pagedApplications.length === 0" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td [attr.colspan]="10" class="px-5 py-10 text-center">
+                                <hlm-empty-state
                                     [title]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No Results Found' : 'No Applications Found'"
                                     [description]="searchTerm || selectedGender.length > 0 || selectedTaskBranch.length > 0 ? 'No applications match your search criteria.' : 'There are no branch applications to display at the moment.'"
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                     </ng-container>
@@ -362,14 +363,14 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
     </div>
 
     <!-- Sewa Tracking Modal -->
@@ -381,7 +382,7 @@
     </app-sewa-tracking-modal>
 
     <!-- Application Approval Confirmation -->
-    <app-confirmation-dialog
+    <hlm-alert-dialog
         [isOpen]="approvalConfirmOpen"
         [title]="approvalConfirmTitle"
         [message]="approvalConfirmMessage"
@@ -391,10 +392,10 @@
         icon="check_circle"
         (confirm)="onApprovalConfirm()"
         (cancel)="onApprovalCancel()">
-    </app-confirmation-dialog>
+    </hlm-alert-dialog>
 
     <!-- Sewa Interest Reason Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="sewaReasonModalOpen"
         [isOpen]="sewaReasonModalOpen"
         title="Why are you not interested in sewa?"
@@ -407,27 +408,28 @@
         ]"
         (close)="closeSewaReasonModal()"
         (footerAction)="$event === 'submit' ? submitSewaReason() : closeSewaReasonModal()">
-        <div class="sewa-reason-form">
-            <div class="form-field">
-                <label>Enter Reason</label>
-                <app-dropdown
+        <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel>Enter Reason</label>
+                <hlm-select
                     [options]="sewaReasonOptions"
                     [selectedValues]="selectedSewaReason"
                     placeholder="None"
                     (selectionChange)="onSewaReasonChange($event)"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
-            <div class="form-field">
-                <label for="sewaRemarks">Remarks</label>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="sewaRemarks">Remarks</label>
                 <textarea
+                    hlmInput
                     id="sewaRemarks"
-                    class="form-control"
+                    class="min-h-[80px] py-2"
                     rows="4"
                     [(ngModel)]="sewaReasonForm.remarks"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="Enter remarks"></textarea>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 </div>

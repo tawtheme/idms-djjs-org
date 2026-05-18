@@ -1,5 +1,5 @@
 import { Component,  OnInit, inject } from '@angular/core';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { DataService } from '../../../data.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 export interface LoginAccess {
   password: string;
@@ -16,9 +17,9 @@ export interface LoginAccess {
 @Component({
   selector: 'app-login-access',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownComponent,IconComponent],
+  imports: [CommonModule, FormsModule, HlmSelectComponent, IconComponent, HlmButtonDirective, HlmInputDirective, HlmLabelDirective],
   templateUrl: './login-access.component.html',
-  styleUrl: './login-access.component.scss'
+  host: { class: 'block w-full h-full overflow-y-auto bg-muted/40' }
 })
 
 export class LoginAccessComponent implements OnInit {

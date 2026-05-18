@@ -2,12 +2,13 @@ import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -27,11 +28,12 @@ export interface Department {
     CommonModule,
     RouterModule,
     FormsModule,
-    BreadcrumbComponent,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    IconComponent
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    IconComponent,
+    HlmButtonDirective,
+    HlmInputDirective
   ],
   selector: 'app-departments-list',
   templateUrl: './departments-list.component.html',

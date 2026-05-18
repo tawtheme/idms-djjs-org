@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../../shared/ui';
+import { HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 /**
  * Component for adding new programs
@@ -15,12 +16,13 @@ import { DatepickerComponent } from '../../../../shared/components/datepicker/da
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent,
-    DatepickerComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmDatepickerComponent,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './add-program-modal.component.html',
-  styleUrls: ['./add-program-modal.component.scss']
+  templateUrl: './add-program-modal.component.html'
 })
 export class AddProgramModalComponent {
   /** Whether the modal is open */

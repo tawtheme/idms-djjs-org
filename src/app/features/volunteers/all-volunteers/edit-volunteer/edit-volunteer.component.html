@@ -4,7 +4,7 @@
         <div class="ve-approval" *ngIf="isFromBranchApplication">
             <button
                 type="button"
-                class="btn btn--success btn--md ve-approval__btn"
+                hlmBtn class="ve-approval__btn"
                 (click)="openApprovalConfirm()"
                 [disabled]="isSubmittingApproval">
                 <app-icon name="check_circle" [size]="16" />
@@ -83,50 +83,50 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Basic Information</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveBasicSection()" [disabled]="savingSection === 'basic' || !isSectionDirty('basic')">{{ savingSection === 'basic' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveBasicSection()" [disabled]="savingSection === 'basic' || !isSectionDirty('basic')">{{ savingSection === 'basic' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Unique ID</label>
-                                    <input type="text" class="form-control" [value]="basic.unique_id" disabled>
+                                    <label hlmLabel>Unique ID</label>
+                                    <input type="text" hlmInput [value]="basic.unique_id" disabled>
                                 </div>
                                 <div class="form-field">
-                                    <label>Name <span class="required">*</span></label>
-                                    <input type="text" class="form-control" [(ngModel)]="basic.name" [ngModelOptions]="{ standalone: true }" required>
+                                    <label hlmLabel>Name <span class="required">*</span></label>
+                                    <input type="text" hlmInput [(ngModel)]="basic.name" [ngModelOptions]="{ standalone: true }" required>
                                 </div>
                                 <div class="form-field">
                                     <div class="field-label-row">
-                                        <label>Mobile Number <span class="required">*</span></label>
+                                        <label hlmLabel>Mobile Number <span class="required">*</span></label>
                                         <label class="copy-whatsapp">
                                             <input type="checkbox" [(ngModel)]="copyAsWhatsapp" [ngModelOptions]="{ standalone: true }" (change)="onCopyAsWhatsappChange()" />
                                             <span>Same as WhatsApp</span>
                                         </label>
                                     </div>
-                                    <input type="tel" class="form-control" [(ngModel)]="basic.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
+                                    <input type="tel" hlmInput [(ngModel)]="basic.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
                                     <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Whatsapp Number</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="basic.whatsappNumber" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
+                                    <label hlmLabel>Whatsapp Number</label>
+                                    <input type="tel" hlmInput [(ngModel)]="basic.whatsappNumber" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()" [disabled]="copyAsWhatsapp">
                                     <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Email</label>
-                                    <input type="email" class="form-control" [(ngModel)]="basic.email" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Email</label>
+                                    <input type="email" hlmInput [(ngModel)]="basic.email" [ngModelOptions]="{ standalone: true }">
                                     <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Personal Email</label>
-                                    <input type="personalEmail" class="form-control" [(ngModel)]="basic.personalEmail" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Personal Email</label>
+                                    <input type="personalEmail" hlmInput [(ngModel)]="basic.personalEmail" [ngModelOptions]="{ standalone: true }">
                                     <small class="field-error" *ngIf="personalEmailError">{{ personalEmailError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Level</label>
-                                    <app-dropdown [options]="levelOptions" [selectedValues]="selectedLevel" placeholder="Select Level" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedLevel = $event" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Level</label>
+                                    <hlm-select [options]="levelOptions" [selectedValues]="selectedLevel" placeholder="Select Level" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedLevel = $event" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Roles</label>
-                                    <app-dropdown [options]="rolesOptions" [selectedValues]="selectedRoles" placeholder="Select Roles" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedRoles = $event"></app-dropdown>
+                                    <label hlmLabel>Roles</label>
+                                    <hlm-select [options]="rolesOptions" [selectedValues]="selectedRoles" placeholder="Select Roles" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedRoles = $event"></hlm-select>
                                 </div>
                             </div>
                         </section>
@@ -143,14 +143,14 @@
                                                  onerror="this.src='/assets/img/placeholder.svg'" />
                                         </div>
                                         <div class="profile-image-meta">
-                                            <label>Upload date</label>
-                                            <input type="text" class="form-control" [value]="img.date || '-'" readonly />
+                                            <label hlmLabel>Upload date</label>
+                                            <input type="text" hlmInput [value]="img.date || '-'" readonly />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="profile-image-actions">
-                                    <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageUpload()" [disabled]="isSaving">Upload Profile Image</button>
-                                    <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageCapture()" [disabled]="isSaving">Capture Live Profile Image</button>
+                                    <button type="button" hlmBtn (click)="triggerProfileImageUpload()" [disabled]="isSaving">Upload Profile Image</button>
+                                    <button type="button" hlmBtn (click)="triggerProfileImageCapture()" [disabled]="isSaving">Capture Live Profile Image</button>
                                 </div>
                             </div>
                         </section>
@@ -166,44 +166,44 @@
                                         <input type="checkbox" [(ngModel)]="copyAddress" [ngModelOptions]="{ standalone: true }" />
                                         <span>Same as Permanent Address</span>
                                     </label>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveCorrespondenceSection()" [disabled]="savingSection === 'correspondence' || !isSectionDirty('correspondence')">{{ savingSection === 'correspondence' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" hlmBtn size="sm" (click)="saveCorrespondenceSection()" [disabled]="savingSection === 'correspondence' || !isSectionDirty('correspondence')">{{ savingSection === 'correspondence' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
                             <div class="form-grid">
-                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="correspondence.address_1" [ngModelOptions]="{ standalone: true }"></div>
-                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="correspondence.address_2" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Address 1</label><input hlmInput [(ngModel)]="correspondence.address_1" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Address 2</label><input hlmInput [(ngModel)]="correspondence.address_2" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Country</label>
-                                    <app-dropdown [options]="countryOptions" [selectedValues]="correspondence.country ? [correspondence.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('correspondence', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>Country</label>
+                                    <hlm-select [options]="countryOptions" [selectedValues]="correspondence.country ? [correspondence.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('correspondence', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>State</label>
-                                    <app-dropdown [options]="corrStateOptions" [selectedValues]="correspondence.state ? [correspondence.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('correspondence', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>State</label>
+                                    <hlm-select [options]="corrStateOptions" [selectedValues]="correspondence.state ? [correspondence.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('correspondence', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>District</label>
-                                    <app-dropdown [options]="corrDistrictOptions" [selectedValues]="correspondence.district ? [correspondence.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('correspondence', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>District</label>
+                                    <hlm-select [options]="corrDistrictOptions" [selectedValues]="correspondence.district ? [correspondence.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('correspondence', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>City</label>
-                                    <app-dropdown [options]="corrCityOptions" [selectedValues]="correspondence.city ? [correspondence.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('correspondence', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>City</label>
+                                    <hlm-select [options]="corrCityOptions" [selectedValues]="correspondence.city ? [correspondence.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('correspondence', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Pincode <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="correspondencePincodeError" inputmode="numeric" maxlength="6"
+                                    <label hlmLabel>Pincode <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="correspondencePincodeError" inputmode="numeric" maxlength="6"
                                         [(ngModel)]="correspondence.pincode" [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="onPincodeChange('correspondence', $event)" />
                                     <div class="field-error" *ngIf="correspondencePincodeError">{{ correspondencePincodeError }}</div>
                                 </div>
-                                <div class="form-field"><label>Tehsil</label><input class="form-control" [(ngModel)]="correspondence.tehsil" [ngModelOptions]="{ standalone: true }"></div>
-                                <div class="form-field"><label>Post Office</label><input class="form-control" [(ngModel)]="correspondence.post_office" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Tehsil</label><input hlmInput [(ngModel)]="correspondence.tehsil" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Post Office</label><input hlmInput [(ngModel)]="correspondence.post_office" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Branch</label>
-                                    <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.branch_id ? [correspondence.branch_id] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.branch_id = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Branch</label>
+                                    <hlm-select [options]="branchOptions" [selectedValues]="correspondence.branch_id ? [correspondence.branch_id] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.branch_id = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Home Branch</label>
-                                    <app-dropdown [options]="branchOptions" [selectedValues]="correspondence.home_branch ? [correspondence.home_branch] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.home_branch = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Home Branch</label>
+                                    <hlm-select [options]="branchOptions" [selectedValues]="correspondence.home_branch ? [correspondence.home_branch] : []" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="correspondence.home_branch = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                             </div>
                         </section>
@@ -211,30 +211,30 @@
                         <section class="ve-section" *ngIf="!copyAddress">
                             <div class="ve-section__head">
                                 <h3>Permanent Address</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent' || !isSectionDirty('permanent')">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="savePermanentSection()" [disabled]="savingSection === 'permanent' || !isSectionDirty('permanent')">{{ savingSection === 'permanent' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
-                                <div class="form-field"><label>Address 1</label><input class="form-control" [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
-                                <div class="form-field"><label>Address 2</label><input class="form-control" [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Address 1</label><input hlmInput [(ngModel)]="permanent.address_1" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Address 2</label><input hlmInput [(ngModel)]="permanent.address_2" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Country</label>
-                                    <app-dropdown [options]="countryOptions" [selectedValues]="permanent.country ? [permanent.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('permanent', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>Country</label>
+                                    <hlm-select [options]="countryOptions" [selectedValues]="permanent.country ? [permanent.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect('permanent', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>State</label>
-                                    <app-dropdown [options]="permStateOptions" [selectedValues]="permanent.state ? [permanent.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('permanent', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>State</label>
+                                    <hlm-select [options]="permStateOptions" [selectedValues]="permanent.state ? [permanent.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect('permanent', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>District</label>
-                                    <app-dropdown [options]="permDistrictOptions" [selectedValues]="permanent.district ? [permanent.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('permanent', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>District</label>
+                                    <hlm-select [options]="permDistrictOptions" [selectedValues]="permanent.district ? [permanent.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect('permanent', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>City</label>
-                                    <app-dropdown [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></app-dropdown>
+                                    <label hlmLabel>City</label>
+                                    <hlm-select [options]="permCityOptions" [selectedValues]="permanent.city ? [permanent.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect('permanent', $event[0] || '')"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Pincode <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="permanentPincodeError" inputmode="numeric" maxlength="6"
+                                    <label hlmLabel>Pincode <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="permanentPincodeError" inputmode="numeric" maxlength="6"
                                         [(ngModel)]="permanent.pincode" [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="onPincodeChange('permanent', $event)" />
                                     <div class="field-error" *ngIf="permanentPincodeError">{{ permanentPincodeError }}</div>
@@ -248,24 +248,24 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Personal Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="savePersonalSection()" [disabled]="savingSection === 'personal' || !isSectionDirty('personal')">{{ savingSection === 'personal' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="savePersonalSection()" [disabled]="savingSection === 'personal' || !isSectionDirty('personal')">{{ savingSection === 'personal' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Gender</label>
-                                    <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Gender</label>
+                                    <hlm-select [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Date of Birth</label>
-                                    <app-datepicker [value]="basic.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+                                    <label hlmLabel>Date of Birth</label>
+                                    <hlm-datepicker [value]="basic.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></hlm-datepicker>
                                 </div>
                                 <div class="form-field">
-                                    <label>Age</label>
-                                    <input class="form-control" [value]="computedAge" disabled placeholder="Auto from DOB">
+                                    <label hlmLabel>Age</label>
+                                    <input hlmInput [value]="computedAge" disabled placeholder="Auto from DOB">
                                 </div>
                                 <div class="form-field">
-                                    <label>Marital Status</label>
-                                    <app-dropdown [options]="maritalStatusOptions" [selectedValues]="selectedMaritalStatus" placeholder="Select Marital Status" (selectionChange)="selectedMaritalStatus = $event; personal.marital_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Marital Status</label>
+                                    <hlm-select [options]="maritalStatusOptions" [selectedValues]="selectedMaritalStatus" placeholder="Select Marital Status" (selectionChange)="selectedMaritalStatus = $event; personal.marital_status = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                             </div>
                         </section>
@@ -273,82 +273,82 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Family Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveFamilySection()" [disabled]="savingSection === 'family' || !isSectionDirty('family')">{{ savingSection === 'family' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveFamilySection()" [disabled]="savingSection === 'family' || !isSectionDirty('family')">{{ savingSection === 'family' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
-                                <div class="form-field"><label>Father Name</label><input class="form-control" [(ngModel)]="personal.father_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Father Name</label><input hlmInput [(ngModel)]="personal.father_name" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Father Email</label>
-                                    <input type="email" class="form-control" [(ngModel)]="personal.father_email" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Father Email</label>
+                                    <input type="email" hlmInput [(ngModel)]="personal.father_email" [ngModelOptions]="{ standalone: true }">
                                     <small class="field-error" *ngIf="fatherEmailError">{{ fatherEmailError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Father Mobile</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="personal.father_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <label hlmLabel>Father Mobile</label>
+                                    <input type="tel" hlmInput [(ngModel)]="personal.father_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                 </div>
                                 <div class="form-field">
-                                    <label>Father Occupation</label>
-                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupation = $event; personal.father_occupation = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Father Occupation</label>
+                                    <hlm-select [options]="professionOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupation = $event; personal.father_occupation = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Father Occupation Location</label>
-                                    <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupationLocation = $event; personal.father_occupation_location = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Father Occupation Location</label>
+                                    <hlm-select [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedFatherOccupationLocation = $event; personal.father_occupation_location = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Father Occupation Type</label>
-                                    <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" (selectionChange)="selectedFatherOccupationType = $event; personal.father_occupation_type = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Father Occupation Type</label>
+                                    <hlm-select [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" (selectionChange)="selectedFatherOccupationType = $event; personal.father_occupation_type = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Father Occupation Status</label>
-                                    <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedFatherOccupationStatus = $event; personal.father_occupation_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Father Occupation Status</label>
+                                    <hlm-select [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedFatherOccupationStatus = $event; personal.father_occupation_status = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
-                                <div class="form-field"><label>Mother Name</label><input class="form-control" [(ngModel)]="personal.mother_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Mother Name</label><input hlmInput [(ngModel)]="personal.mother_name" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Mother Email</label>
-                                    <input type="email" class="form-control" [(ngModel)]="personal.mother_email" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Mother Email</label>
+                                    <input type="email" hlmInput [(ngModel)]="personal.mother_email" [ngModelOptions]="{ standalone: true }">
                                     <small class="field-error" *ngIf="motherEmailError">{{ motherEmailError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mother Mobile</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="personal.mother_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <label hlmLabel>Mother Mobile</label>
+                                    <input type="tel" hlmInput [(ngModel)]="personal.mother_mobile" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                 </div>
                                 <div class="form-field">
-                                    <label>Mother Occupation</label>
-                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupation = $event; personal.mother_occupation = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Mother Occupation</label>
+                                    <hlm-select [options]="professionOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupation = $event; personal.mother_occupation = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mother Occupation Location</label>
-                                    <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupationLocation = $event; personal.mother_occupation_location = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Mother Occupation Location</label>
+                                    <hlm-select [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedMotherOccupationLocation = $event; personal.mother_occupation_location = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mother Occupation Type</label>
-                                    <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" (selectionChange)="selectedMotherOccupationType = $event; personal.mother_occupation_type = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Mother Occupation Type</label>
+                                    <hlm-select [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" (selectionChange)="selectedMotherOccupationType = $event; personal.mother_occupation_type = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mother Occupation Status</label>
-                                    <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedMotherOccupationStatus = $event; personal.mother_occupation_status = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Mother Occupation Status</label>
+                                    <hlm-select [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" (selectionChange)="selectedMotherOccupationStatus = $event; personal.mother_occupation_status = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
-                                <div class="form-field"><label>Spouse Name</label><input class="form-control" [(ngModel)]="personal.spouse_name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Spouse Name</label><input hlmInput [(ngModel)]="personal.spouse_name" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Sibling's (Brother)</label>
-                                    <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" (selectionChange)="selectedSiblingsBrother = $event; personal.siblings_brother = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Sibling's (Brother)</label>
+                                    <hlm-select [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" (selectionChange)="selectedSiblingsBrother = $event; personal.siblings_brother = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Sibling's (Sister)</label>
-                                    <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" (selectionChange)="selectedSiblingsSister = $event; personal.siblings_sister = $event[0] || ''" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Sibling's (Sister)</label>
+                                    <hlm-select [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" (selectionChange)="selectedSiblingsSister = $event; personal.siblings_sister = $event[0] || ''" [closeOnSelect]="true"></hlm-select>
                                 </div>
-                                <div class="form-field"><label>Earning Members</label><input class="form-control" [(ngModel)]="personal.earning_members" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Earning Members</label><input hlmInput [(ngModel)]="personal.earning_members" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field form-field--full">
-                                    <label>If married, how many family members live at home?</label>
-                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.family_members_at_home" [ngModelOptions]="{ standalone: true }"></textarea>
-                                </div>
-                                <div class="form-field form-field--full">
-                                    <label>Samarpit Member (if any)</label>
-                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.samarpit_member" [ngModelOptions]="{ standalone: true }"></textarea>
+                                    <label hlmLabel>If married, how many family members live at home?</label>
+                                    <textarea hlmInput rows="3" [(ngModel)]="personal.family_members_at_home" [ngModelOptions]="{ standalone: true }"></textarea>
                                 </div>
                                 <div class="form-field form-field--full">
-                                    <label>Remarks</label>
-                                    <textarea class="form-control" rows="3" [(ngModel)]="personal.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
+                                    <label hlmLabel>Samarpit Member (if any)</label>
+                                    <textarea hlmInput rows="3" [(ngModel)]="personal.samarpit_member" [ngModelOptions]="{ standalone: true }"></textarea>
+                                </div>
+                                <div class="form-field form-field--full">
+                                    <label hlmLabel>Remarks</label>
+                                    <textarea hlmInput rows="3" [(ngModel)]="personal.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
                                 </div>
                             </div>
                         </section>
@@ -356,18 +356,18 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Emergency Contact</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveEmergencySection()" [disabled]="savingSection === 'emergency' || !isSectionDirty('emergency')">{{ savingSection === 'emergency' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveEmergencySection()" [disabled]="savingSection === 'emergency' || !isSectionDirty('emergency')">{{ savingSection === 'emergency' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
-                                <div class="form-field"><label>Name</label><input class="form-control" [(ngModel)]="emergency.name" [ngModelOptions]="{ standalone: true }"></div>
+                                <div class="form-field"><label hlmLabel>Name</label><input hlmInput [(ngModel)]="emergency.name" [ngModelOptions]="{ standalone: true }"></div>
                                 <div class="form-field">
-                                    <label>Mobile Number</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="emergency.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <label hlmLabel>Mobile Number</label>
+                                    <input type="tel" hlmInput [(ngModel)]="emergency.phone" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                     <small class="field-error" *ngIf="emergencyPhoneError">{{ emergencyPhoneError }}</small>
                                 </div>
                                 <div class="form-field">
-                                    <label>Email</label>
-                                    <input type="email" class="form-control" [(ngModel)]="emergency.email" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Email</label>
+                                    <input type="email" hlmInput [(ngModel)]="emergency.email" [ngModelOptions]="{ standalone: true }">
                                     <small class="field-error" *ngIf="emergencyEmailError">{{ emergencyEmailError }}</small>
                                 </div>
                             </div>
@@ -379,12 +379,12 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Aadhaar Details</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAadhaarSection()" [disabled]="savingSection === 'aadhaar' || !isSectionDirty('aadhaar')">{{ savingSection === 'aadhaar' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveAadhaarSection()" [disabled]="savingSection === 'aadhaar' || !isSectionDirty('aadhaar')">{{ savingSection === 'aadhaar' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Aadhaar Number <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="aadhaarErrors.number"
+                                    <label hlmLabel>Aadhaar Number <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="aadhaarErrors.number"
                                         [(ngModel)]="idProofs.aadhaar.number"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="aadhaarErrors.number = ''"
@@ -392,23 +392,23 @@
                                     <div class="field-error" *ngIf="aadhaarErrors.number">{{ aadhaarErrors.number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Name <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="aadhaarErrors.name"
+                                    <label hlmLabel>Name <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="aadhaarErrors.name"
                                         [(ngModel)]="idProofs.aadhaar.name"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="aadhaarErrors.name = ''">
                                     <div class="field-error" *ngIf="aadhaarErrors.name">{{ aadhaarErrors.name }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Home Reason</label>
-                                    <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Home Reason</label>
+                                    <hlm-select [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mobile Linked</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="idProofs.aadhaar.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <label hlmLabel>Mobile Linked</label>
+                                    <input type="tel" hlmInput [(ngModel)]="idProofs.aadhaar.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                 </div>
                                 <div class="form-field form-field--full">
-                                    <label>Aadhaar Document</label>
+                                    <label hlmLabel>Aadhaar Document</label>
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="aadhaarImages.length > 0 || idProofs.aadhaar.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of aadhaarImages">
@@ -446,8 +446,8 @@
                                             </div>
                                         </div>
                                         <div class="profile-image-actions">
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageUpload()" [disabled]="isSaving">Upload Aadhaar Document</button>
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageCapture()" [disabled]="isSaving">Capture Live Aadhaar Document</button>
+                                            <button type="button" hlmBtn (click)="triggerAadhaarImageUpload()" [disabled]="isSaving">Upload Aadhaar Document</button>
+                                            <button type="button" hlmBtn (click)="triggerAadhaarImageCapture()" [disabled]="isSaving">Capture Live Aadhaar Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -457,36 +457,36 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Electoral Photo Identity Card</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveElectoralSection()" [disabled]="savingSection === 'electoral' || !isSectionDirty('electoral')">{{ savingSection === 'electoral' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveElectoralSection()" [disabled]="savingSection === 'electoral' || !isSectionDirty('electoral')">{{ savingSection === 'electoral' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Voter Number <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="voterErrors.voter_number"
+                                    <label hlmLabel>Voter Number <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="voterErrors.voter_number"
                                         [(ngModel)]="idProofs.voter.voter_number"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="voterErrors.voter_number = ''">
                                     <div class="field-error" *ngIf="voterErrors.voter_number">{{ voterErrors.voter_number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Name <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="voterErrors.name"
+                                    <label hlmLabel>Name <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="voterErrors.name"
                                         [(ngModel)]="idProofs.voter.name"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="voterErrors.name = ''">
                                     <div class="field-error" *ngIf="voterErrors.name">{{ voterErrors.name }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Part Number</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.voter.port_number" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Part Number</label>
+                                    <input hlmInput [(ngModel)]="idProofs.voter.port_number" [ngModelOptions]="{ standalone: true }">
                                 </div>
                                 <div class="form-field">
-                                    <label>Serial Number</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.voter.serial_number" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Serial Number</label>
+                                    <input hlmInput [(ngModel)]="idProofs.voter.serial_number" [ngModelOptions]="{ standalone: true }">
                                 </div>
                                 <!-- <div class="form-field">
-                                    <label>Voter Address</label>
-                                    <app-dropdown
+                                    <label hlmLabel>Voter Address</label>
+                                    <hlm-select
                                         [options]="[
                                             { id: 'Ashram', label: 'Ashram', value: 'Ashram' },
                                             { id: 'Home', label: 'Home', value: 'Home' }
@@ -494,26 +494,26 @@
                                         [selectedValues]="idProofs.voter.address ? [idProofs.voter.address] : []"
                                         placeholder="Select Address"
                                         (selectionChange)="idProofs.voter.address = ($event[0] || '')"
-                                        [closeOnSelect]="true"></app-dropdown>
+                                        [closeOnSelect]="true"></hlm-select>
                                 </div> -->
                                 <div class="form-field">
-                                    <label>Home Reason</label>
-                                    <app-dropdown [options]="voterHomeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Home Reason</label>
+                                    <hlm-select [options]="voterHomeReasonOptions" [selectedValues]="selectedVoterHomeReason" placeholder="Select Home Reason" (selectionChange)="onVoterHomeReasonChange($event)" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Mobile Linked</label>
-                                    <input type="tel" class="form-control" [(ngModel)]="idProofs.voter.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
+                                    <label hlmLabel>Mobile Linked</label>
+                                    <input type="tel" hlmInput [(ngModel)]="idProofs.voter.mobile_linked" [ngModelOptions]="{ standalone: true }" inputmode="numeric" maxlength="10">
                                 </div>
                                 <!-- <div class="form-field">
-                                    <label>Ashram Voter Area</label>
-                                    <input class="form-control" [(ngModel)]="idProofs.voter.ashram_voter_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Voter Area ID">
+                                    <label hlmLabel>Ashram Voter Area</label>
+                                    <input hlmInput [(ngModel)]="idProofs.voter.ashram_voter_area_id" [ngModelOptions]="{ standalone: true }" placeholder="Ashram Voter Area ID">
                                 </div> -->
                                 <div class="form-field form-field--full">
-                                    <label>Voter Remarks</label>
-                                    <textarea class="form-control" rows="3" [(ngModel)]="idProofs.voter.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
+                                    <label hlmLabel>Voter Remarks</label>
+                                    <textarea hlmInput rows="3" [(ngModel)]="idProofs.voter.remarks" [ngModelOptions]="{ standalone: true }"></textarea>
                                 </div>
                                 <div class="form-field form-field--full">
-                                    <label>Electoral Document</label>
+                                    <label hlmLabel>Electoral Document</label>
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="voterImages.length > 0 || idProofs.voter.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of voterImages">
@@ -551,8 +551,8 @@
                                             </div>
                                         </div>
                                         <div class="profile-image-actions">
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerVoterImageUpload()" [disabled]="isSaving">Upload Electoral Document</button>
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerVoterImageCapture()" [disabled]="isSaving">Capture Live Electoral Document</button>
+                                            <button type="button" hlmBtn (click)="triggerVoterImageUpload()" [disabled]="isSaving">Upload Electoral Document</button>
+                                            <button type="button" hlmBtn (click)="triggerVoterImageCapture()" [disabled]="isSaving">Capture Live Electoral Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -562,57 +562,57 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Driving License</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveLicenseSection()" [disabled]="savingSection === 'license' || !isSectionDirty('license')">{{ savingSection === 'license' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveLicenseSection()" [disabled]="savingSection === 'license' || !isSectionDirty('license')">{{ savingSection === 'license' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>License Number <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="licenseErrors.license_number"
+                                    <label hlmLabel>License Number <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="licenseErrors.license_number"
                                         [(ngModel)]="idProofs.license.license_number"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="licenseErrors.license_number = ''">
                                     <div class="field-error" *ngIf="licenseErrors.license_number">{{ licenseErrors.license_number }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>License Holder Name <span class="required">*</span></label>
-                                    <input class="form-control" [class.is-invalid]="licenseErrors.holder_name"
+                                    <label hlmLabel>License Holder Name <span class="required">*</span></label>
+                                    <input hlmInput [class.border-destructive]="licenseErrors.holder_name"
                                         [(ngModel)]="idProofs.license.holder_name"
                                         [ngModelOptions]="{ standalone: true }"
                                         (ngModelChange)="licenseErrors.holder_name = ''">
                                     <div class="field-error" *ngIf="licenseErrors.holder_name">{{ licenseErrors.holder_name }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>State <span class="required">*</span></label>
-                                    <app-dropdown
+                                    <label hlmLabel>State <span class="required">*</span></label>
+                                    <hlm-select
                                         [options]="licenseStateOptions"
                                         [selectedValues]="idProofs.license.state ? [idProofs.license.state] : []"
                                         placeholder="Select State"
                                         [searchable]="true"
                                         [autocomplete]="true"
                                         [closeOnSelect]="true"
-                                        (selectionChange)="idProofs.license.state = ($event[0] || ''); licenseErrors.state = ''"></app-dropdown>
+                                        (selectionChange)="idProofs.license.state = ($event[0] || ''); licenseErrors.state = ''"></hlm-select>
                                     <div class="field-error" *ngIf="licenseErrors.state">{{ licenseErrors.state }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>License Type <span class="required">*</span></label>
-                                    <app-dropdown
+                                    <label hlmLabel>License Type <span class="required">*</span></label>
+                                    <hlm-select
                                         [options]="licenseTypeOptions"
                                         [selectedValues]="idProofs.license.license_type ? [idProofs.license.license_type] : []"
                                         placeholder="Select License Type"
                                         (selectionChange)="idProofs.license.license_type = ($event[0] || ''); licenseErrors.license_type = ''"
-                                        [closeOnSelect]="true"></app-dropdown>
+                                        [closeOnSelect]="true"></hlm-select>
                                     <div class="field-error" *ngIf="licenseErrors.license_type">{{ licenseErrors.license_type }}</div>
                                 </div>
                                 <div class="form-field">
-                                    <label>Date of Issue</label>
-                                    <app-datepicker [value]="idProofs.license.date_of_issue" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('date_of_issue', $event)"></app-datepicker>
+                                    <label hlmLabel>Date of Issue</label>
+                                    <hlm-datepicker [value]="idProofs.license.date_of_issue" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('date_of_issue', $event)"></hlm-datepicker>
                                 </div>
                                 <div class="form-field">
-                                    <label>Expiry Date</label>
-                                    <app-datepicker [value]="idProofs.license.expiry_date" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('expiry_date', $event)"></app-datepicker>
+                                    <label hlmLabel>Expiry Date</label>
+                                    <hlm-datepicker [value]="idProofs.license.expiry_date" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onLicenseDateChange('expiry_date', $event)"></hlm-datepicker>
                                 </div>
                                 <div class="form-field form-field--full">
-                                    <label>License Document</label>
+                                    <label hlmLabel>License Document</label>
                                     <div class="profile-image-section">
                                         <div class="thumb-grid" *ngIf="licenseImages.length > 0 || idProofs.license.previews.length > 0">
                                             <div class="thumb-tile" *ngFor="let img of licenseImages">
@@ -650,8 +650,8 @@
                                             </div>
                                         </div>
                                         <div class="profile-image-actions">
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerLicenseImageUpload()" [disabled]="isSaving">Upload License Document</button>
-                                            <button type="button" class="btn btn--primary btn--md" (click)="triggerLicenseImageCapture()" [disabled]="isSaving">Capture Live License Document</button>
+                                            <button type="button" hlmBtn (click)="triggerLicenseImageUpload()" [disabled]="isSaving">Upload License Document</button>
+                                            <button type="button" hlmBtn (click)="triggerLicenseImageCapture()" [disabled]="isSaving">Capture Live License Document</button>
                                         </div>
                                     </div>
                                 </div>
@@ -665,8 +665,8 @@
                             <div class="ve-section__head">
                                 <h3>Education</h3>
                                 <div class="ve-section__head-actions">
-                                    <button type="button" class="btn btn--secondary btn--sm" (click)="addQualification()">+ Add Qualification</button>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveEducationSection()" [disabled]="savingSection === 'education' || !isSectionDirty('education')">{{ savingSection === 'education' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" hlmBtn variant="secondary" size="sm" (click)="addQualification()">+ Add Qualification</button>
+                                    <button type="button" hlmBtn size="sm" (click)="saveEducationSection()" [disabled]="savingSection === 'education' || !isSectionDirty('education')">{{ savingSection === 'education' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
 
@@ -679,13 +679,13 @@
                                 </div>
                                 <div class="qual-row" *ngFor="let q of qualifications; let i = index">
                                     <div class="qual-row__cell">
-                                        <app-dropdown [options]="degreeOptions" [selectedValues]="q.selectedDegree" placeholder="Select Degree" [searchable]="true" [autocomplete]="true" (selectionChange)="onQualDegreeChange(i, $event)" [closeOnSelect]="true"></app-dropdown>
+                                        <hlm-select [options]="degreeOptions" [selectedValues]="q.selectedDegree" placeholder="Select Degree" [searchable]="true" [autocomplete]="true" (selectionChange)="onQualDegreeChange(i, $event)" [closeOnSelect]="true"></hlm-select>
                                     </div>
                                     <div class="qual-row__cell">
-                                        <input class="form-control" [(ngModel)]="q.name" [ngModelOptions]="{ standalone: true }" placeholder="Qualification name">
+                                        <input hlmInput [(ngModel)]="q.name" [ngModelOptions]="{ standalone: true }" placeholder="Qualification name">
                                     </div>
                                     <div class="qual-row__cell">
-                                        <input class="form-control" [(ngModel)]="q.remarks" [ngModelOptions]="{ standalone: true }" placeholder="Optional">
+                                        <input hlmInput [(ngModel)]="q.remarks" [ngModelOptions]="{ standalone: true }" placeholder="Optional">
                                     </div>
                                     <div class="qual-row__actions">
                                         <button type="button" class="qual-row__delete" (click)="removeQualification(i)" title="Delete" aria-label="Delete qualification">
@@ -700,33 +700,33 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Work Experience</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveWorkSection()" [disabled]="savingSection === 'work' || !isSectionDirty('work')">{{ savingSection === 'work' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveWorkSection()" [disabled]="savingSection === 'work' || !isSectionDirty('work')">{{ savingSection === 'work' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Profession</label>
-                                    <app-dropdown [options]="professionOptions" [selectedValues]="selectedProfession" placeholder="Select Profession" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedProfession = $event" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Profession</label>
+                                    <hlm-select [options]="professionOptions" [selectedValues]="selectedProfession" placeholder="Select Profession" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedProfession = $event" [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Work Experience</label>
-                                    <input class="form-control" [(ngModel)]="work.work_experience" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Work Experience</label>
+                                    <input hlmInput [(ngModel)]="work.work_experience" [ngModelOptions]="{ standalone: true }">
                                 </div>
                                 <div class="form-field">
-                                    <label>Experience Period</label>
-                                    <app-dropdown
+                                    <label hlmLabel>Experience Period</label>
+                                    <hlm-select
                                         [options]="experiencePeriodOptions"
                                         [selectedValues]="work.experience_period ? [work.experience_period] : []"
                                         placeholder="Select Experience Period"
                                         (selectionChange)="work.experience_period = ($event[0] || '')"
-                                        [closeOnSelect]="true"></app-dropdown>
+                                        [closeOnSelect]="true"></hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Skill</label>
-                                    <app-dropdown [options]="skillOptions" [selectedValues]="selectedSkills" placeholder="Select Skills" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSkills = $event"></app-dropdown>
+                                    <label hlmLabel>Skill</label>
+                                    <hlm-select [options]="skillOptions" [selectedValues]="selectedSkills" placeholder="Select Skills" [searchable]="true" [multiSelect]="true" (selectionChange)="selectedSkills = $event"></hlm-select>
                                 </div>
                                 <div class="form-field form-field--full">
-                                    <label>Remarks</label>
-                                    <input class="form-control" [(ngModel)]="work.remarks" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Remarks</label>
+                                    <input hlmInput [(ngModel)]="work.remarks" [ngModelOptions]="{ standalone: true }">
                                 </div>
                             </div>
                         </section>
@@ -738,14 +738,14 @@
                             <div class="ve-section__head">
                                 <h3>Medical Details</h3>
                                 <div class="ve-section__head-actions">
-                                    <button type="button" class="btn btn--secondary btn--sm" (click)="addMedicalHistory()" [disabled]="savingSection === 'medical'">+ Add Medical History</button>
-                                    <button type="button" class="btn btn--primary btn--sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical' || !isSectionDirty('medical')">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
+                                    <button type="button" hlmBtn variant="secondary" size="sm" (click)="addMedicalHistory()" [disabled]="savingSection === 'medical'">+ Add Medical History</button>
+                                    <button type="button" hlmBtn size="sm" (click)="saveMedicalSection()" [disabled]="savingSection === 'medical' || !isSectionDirty('medical')">{{ savingSection === 'medical' ? 'Saving...' : 'Save' }}</button>
                                 </div>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Blood Group</label>
-                                    <app-dropdown [options]="bloodGroupOptions" [selectedValues]="selectedBloodGroup" placeholder="Select Blood Group" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedBloodGroup = $event" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Blood Group</label>
+                                    <hlm-select [options]="bloodGroupOptions" [selectedValues]="selectedBloodGroup" placeholder="Select Blood Group" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedBloodGroup = $event" [closeOnSelect]="true"></hlm-select>
                                 </div>
                             </div>
 
@@ -772,11 +772,11 @@
                                                 </label>
                                             </td>
                                             <td class="col-note">
-                                                <input class="form-control" [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }" placeholder="Note">
+                                                <input hlmInput [(ngModel)]="h.note" [ngModelOptions]="{ standalone: true }" placeholder="Note">
                                             </td>
                                             <td class="col-docs">
                                                 <div class="medical-history-row__docs">
-                                                    <button type="button" class="btn btn--secondary btn--sm" (click)="medicalDocInput.click()" [disabled]="isSaving">
+                                                    <button type="button" hlmBtn variant="secondary" size="sm" (click)="medicalDocInput.click()" [disabled]="isSaving">
                                                         <app-icon name="upload" /> Upload
                                                     </button>
                                                     <input #medicalDocInput type="file" accept="image/*,.pdf" multiple hidden
@@ -817,64 +817,64 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Assign\Change Sewa</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveAssignSewaSection()" [disabled]="savingSection === 'assignSewa'">{{ savingSection === 'assignSewa' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveAssignSewaSection()" [disabled]="savingSection === 'assignSewa'">{{ savingSection === 'assignSewa' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid form-grid--four">
                                 <div class="form-field">
-                                    <label>Active Program <span class="required" *ngIf="selectedAssignSewaExitType[0] === '2'">*</span></label>
-                                    <app-dropdown
+                                    <label hlmLabel>Active Program <span class="required" *ngIf="selectedAssignSewaExitType[0] === '2'">*</span></label>
+                                    <hlm-select
                                         [options]="assignSewaProgramOptions"
                                         [selectedValues]="selectedAssignSewaProgram"
                                         placeholder="Select Program"
                                         [searchable]="true"
                                         (selectionChange)="onAssignSewaProgramChange($event)"
                                         [closeOnSelect]="true">
-                                    </app-dropdown>
+                                    </hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Sewas <span class="required">*</span></label>
-                                    <app-dropdown
+                                    <label hlmLabel>Sewas <span class="required">*</span></label>
+                                    <hlm-select
                                         [options]="assignSewaSewaOptions"
                                         [selectedValues]="selectedAssignSewaSewas"
                                         placeholder="Select Sewa"
                                         [searchable]="true"
                                         (selectionChange)="selectedAssignSewaSewas = $event"
                                         [closeOnSelect]="true">
-                                    </app-dropdown>
+                                    </hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Sewa Exit Type</label>
-                                    <app-dropdown
+                                    <label hlmLabel>Sewa Exit Type</label>
+                                    <hlm-select
                                         [options]="assignSewaExitTypeOptions"
                                         [selectedValues]="selectedAssignSewaExitType"
                                         placeholder="Select Exit Type"
                                         (selectionChange)="selectedAssignSewaExitType = $event"
                                         [closeOnSelect]="true">
-                                    </app-dropdown>
+                                    </hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Sewa Mode<span class="required">*</span></label>
-                                    <app-dropdown
+                                    <label hlmLabel>Sewa Mode<span class="required">*</span></label>
+                                    <hlm-select
                                         [options]="assignSewaModeOptions"
                                         [selectedValues]="selectedAssignSewaMode"
                                         placeholder="Select Sewa Mode"
                                         (selectionChange)="selectedAssignSewaMode = $event"
                                         [closeOnSelect]="true">
-                                    </app-dropdown>
+                                    </hlm-select>
                                 </div>
                                 <div class="form-field">
-                                    <label>Sewa Head</label>
-                                    <app-dropdown
+                                    <label hlmLabel>Sewa Head</label>
+                                    <hlm-select
                                         [options]="assignSewaHeadOptions"
                                         [selectedValues]="selectedAssignSewaHead"
                                         placeholder="Select Sewa Head"
                                         (selectionChange)="selectedAssignSewaHead = $event"
                                         [closeOnSelect]="true">
-                                    </app-dropdown>
+                                    </hlm-select>
                                 </div>
                                 <div class="form-field form-field--full">
                                     <label for="assignBranchRemarks">Branch Remarks</label>
-                                    <input type="text" id="assignBranchRemarks" class="form-control" [(ngModel)]="assignSewa.branch_remarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
+                                    <input type="text" id="assignBranchRemarks" hlmInput [(ngModel)]="assignSewa.branch_remarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter branch remarks">
                                 </div>
                                 <div class="form-field form-field--full" *ngIf="assignSewa.badge_id">
                                     <div class="assign-sewa-badge-info">
@@ -893,24 +893,24 @@
                         <section class="ve-section">
                             <div class="ve-section__head">
                                 <h3>Spiritual Detail</h3>
-                                <button type="button" class="btn btn--primary btn--sm" (click)="saveSpiritualSection()" [disabled]="savingSection === 'spiritual' || !isSectionDirty('spiritual')">{{ savingSection === 'spiritual' ? 'Saving...' : 'Save' }}</button>
+                                <button type="button" hlmBtn size="sm" (click)="saveSpiritualSection()" [disabled]="savingSection === 'spiritual' || !isSectionDirty('spiritual')">{{ savingSection === 'spiritual' ? 'Saving...' : 'Save' }}</button>
                             </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label>Date of Initiation</label>
-                                    <app-datepicker [value]="spiritual.date_of_initiation" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onSpiritualDateChange('date_of_initiation', $event)"></app-datepicker>
+                                    <label hlmLabel>Date of Initiation</label>
+                                    <hlm-datepicker [value]="spiritual.date_of_initiation" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onSpiritualDateChange('date_of_initiation', $event)"></hlm-datepicker>
                                 </div>
                                 <div class="form-field">
-                                    <label>Years of Spiritual Initiation</label>
-                                    <input class="form-control" [value]="yearsSinceInitiation" disabled placeholder="Auto from Date of Initiation">
+                                    <label hlmLabel>Years of Spiritual Initiation</label>
+                                    <input hlmInput [value]="yearsSinceInitiation" disabled placeholder="Auto from Date of Initiation">
                                 </div>
                                 <div class="form-field">
-                                    <label>Place of Initiation</label>
-                                    <input class="form-control" [(ngModel)]="spiritual.place_of_initiation" [ngModelOptions]="{ standalone: true }">
+                                    <label hlmLabel>Place of Initiation</label>
+                                    <input hlmInput [(ngModel)]="spiritual.place_of_initiation" [ngModelOptions]="{ standalone: true }">
                                 </div>
                                 <div class="form-field">
-                                    <label>Initiation Branch</label>
-                                    <app-dropdown [options]="branchOptions" [selectedValues]="selectedInitiationBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedInitiationBranch = $event" [closeOnSelect]="true"></app-dropdown>
+                                    <label hlmLabel>Initiation Branch</label>
+                                    <hlm-select [options]="branchOptions" [selectedValues]="selectedInitiationBranch" placeholder="Select Branch" [searchable]="true" [autocomplete]="true" (selectionChange)="selectedInitiationBranch = $event" [closeOnSelect]="true"></hlm-select>
                                 </div>
                             </div>
                         </section>
@@ -1008,7 +1008,7 @@
 </div>
 
 <!-- Profile Image Upload Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="imageModalOpen"
     [isOpen]="imageModalOpen"
     [title]="selectedImageType === 'capture' ? 'Capture Live Photo' : 'Upload Profile Image'"
@@ -1030,10 +1030,10 @@
             (removed)="onCameraImageRemoved()">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>
 
 <!-- Id Proof Upload Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="idProofModalOpen"
     [isOpen]="idProofModalOpen"
     [title]="idProofUploadType === 'capture' ? 'Capture Live Photo' : 'Upload Document'"
@@ -1041,8 +1041,8 @@
     (close)="closeIdProofModal()">
     <div class="modal-dropdown-form">
         <div class="form-field" *ngIf="!idProofUploadType">
-            <label>Upload Method</label>
-            <app-dropdown [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true" [openDirection]="'down'"></app-dropdown>
+            <label hlmLabel>Upload Method</label>
+            <hlm-select [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true" [openDirection]="'down'"></hlm-select>
         </div>
     </div>
     <ng-container *ngIf="idProofUploadType === 'upload'">
@@ -1059,10 +1059,10 @@
             (imageCaptured)="onIdProofImageCaptured($event)">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>
 
 <!-- Assign Sewa change-reason modal -->
-<app-modal
+<hlm-dialog
     *ngIf="assignSewaReasonModalOpen"
     [isOpen]="assignSewaReasonModalOpen"
     title="Reason for changing assignment"
@@ -1077,24 +1077,24 @@
     (footerAction)="$event === 'submit' ? submitAssignSewaReason() : closeAssignSewaReasonModal()">
     <div class="sewa-reason-form">
         <div class="form-field">
-            <label>Reason <span class="required">*</span></label>
-            <app-dropdown
+            <label hlmLabel>Reason <span class="required">*</span></label>
+            <hlm-select
                 [options]="assignSewaUnassignReasonOptions"
                 [selectedValues]="selectedAssignSewaUnassignReason"
                 placeholder="Select reason"
                 (selectionChange)="selectedAssignSewaUnassignReason = $event"
                 [closeOnSelect]="true">
-            </app-dropdown>
+            </hlm-select>
         </div>
         <div class="form-field">
             <label for="assignSewaReasonRemarks">Remarks</label>
-            <textarea id="assignSewaReasonRemarks" class="form-control" rows="4" [(ngModel)]="assignSewaReasonRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks"></textarea>
+            <textarea id="assignSewaReasonRemarks" hlmInput rows="4" [(ngModel)]="assignSewaReasonRemarks" [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks"></textarea>
         </div>
     </div>
-</app-modal>
+</hlm-dialog>
 
 <!-- Application Approval Confirmation -->
-<app-confirmation-dialog
+<hlm-alert-dialog
     [isOpen]="approvalConfirmOpen"
     [title]="approvalConfirmTitle"
     [message]="approvalConfirmMessage"
@@ -1104,4 +1104,4 @@
     icon="check_circle"
     (confirm)="onApprovalConfirm()"
     (cancel)="onApprovalCancel()">
-</app-confirmation-dialog>
+</hlm-alert-dialog>

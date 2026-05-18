@@ -1,203 +1,203 @@
-<app-modal [isOpen]="isOpen" [title]="modalTitle" [size]="'small'" [closable]="true" [showHeader]="true"
+<hlm-dialog [isOpen]="isOpen" [title]="modalTitle" [size]="'small'" [closable]="true" [showHeader]="true"
     (close)="onClose()">
 
-    <form class="add-master-entry-form" (ngSubmit)="onSubmit()">
+    <form class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
         <!-- Name Field (generic, hidden for banks where we show a custom layout) -->
-        <div class="form-group" *ngIf="masterType !== 'banks'">
-            <label class="form-label" [for]="'name-' + masterType">
-                {{ nameFieldLabel }} <span class="required">*</span>
+        <div class="flex flex-col gap-1.5" *ngIf="masterType !== 'banks'">
+            <label hlmLabel [for]="'name-' + masterType">
+                {{ nameFieldLabel }} <span class="text-destructive">*</span>
             </label>
-            <input [id]="'name-' + masterType" type="text" class="form-control" [(ngModel)]="name"
+            <input hlmInput [id]="'name-' + masterType" type="text" [(ngModel)]="name"
                 [ngModelOptions]="{ standalone: true }" placeholder="Enter {{ nameFieldLabel.toLowerCase() }}" required
                 autofocus>
         </div>
 
         <!-- State Master specific fields (only for States master) -->
         <ng-container *ngIf="masterType === 'states'">
-            <div class="form-group">
-                <label class="form-label" for="state-country">
-                    Country <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="state-country">
+                    Country <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                <hlm-select [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
                     (selectionChange)="onCountryChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </ng-container>
 
         <!-- District Master specific fields (only for Districts master) -->
         <ng-container *ngIf="masterType === 'districts'">
-            <div class="form-group">
-                <label class="form-label" for="district-country">
-                    Country <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="district-country">
+                    Country <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                <hlm-select [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
                     (selectionChange)="onCountryChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="district-state">
-                    State <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="district-state">
+                    State <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                <hlm-select [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
                     (selectionChange)="onStateChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </ng-container>
 
         <!-- City Master specific fields (only for Cities master) -->
         <ng-container *ngIf="masterType === 'cities'">
-            <div class="form-group">
-                <label class="form-label" for="city-country">
-                    Country <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="city-country">
+                    Country <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                <hlm-select [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
                     (selectionChange)="onCountryChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="city-state">
-                    State <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="city-state">
+                    State <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                <hlm-select [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
                     (selectionChange)="onStateChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="city-district">
-                    District <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="city-district">
+                    District <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="districtOptions"
+                <hlm-select [options]="districtOptions"
                     [selectedValues]="selectedDistrictId ? [selectedDistrictId] : []" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select district" (selectionChange)="onDistrictChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </ng-container>
 
         <!-- Bank specific fields (only for Banks master) -->
         <ng-container *ngIf="masterType === 'banks'">
-            <div class="form-group">
-                <label class="form-label" for="bank-name">
-                    Bank <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-name">
+                    Bank <span class="text-destructive">*</span>
                 </label>
-                <input id="bank-name" type="text" class="form-control" [(ngModel)]="name"
+                <input hlmInput id="bank-name" type="text" [(ngModel)]="name"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter bank name" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-branch">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-branch">
                     Branch
                 </label>
-                <input id="bank-branch" type="text" class="form-control" [(ngModel)]="branch"
+                <input hlmInput id="bank-branch" type="text" [(ngModel)]="branch"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter branch">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-ifsc">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-ifsc">
                     IFSC Code
                 </label>
-                <input id="bank-ifsc" type="text" class="form-control" [(ngModel)]="ifsc_code"
+                <input hlmInput id="bank-ifsc" type="text" [(ngModel)]="ifsc_code"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter IFSC code">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-address">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-address">
                     Address
                 </label>
-                <input id="bank-address" type="text" class="form-control" [(ngModel)]="address"
+                <input hlmInput id="bank-address" type="text" [(ngModel)]="address"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-country">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-country">
                     Country
                 </label>
-                <app-dropdown [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
+                <hlm-select [options]="countryOptions" [selectedValues]="selectedCountryId ? [selectedCountryId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select country"
                     (selectionChange)="onCountryChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-state">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-state">
                     State
                 </label>
-                <app-dropdown [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
+                <hlm-select [options]="stateOptions" [selectedValues]="selectedStateId ? [selectedStateId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select state"
                     (selectionChange)="onStateChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-district">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-district">
                     District
                 </label>
-                <app-dropdown [options]="districtOptions"
+                <hlm-select [options]="districtOptions"
                     [selectedValues]="selectedDistrictId ? [selectedDistrictId] : []" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select district" (selectionChange)="onDistrictChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-city">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-city">
                     City
                 </label>
-                <app-dropdown [options]="cityOptions" [selectedValues]="selectedCityId ? [selectedCityId] : []"
+                <hlm-select [options]="cityOptions" [selectedValues]="selectedCityId ? [selectedCityId] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select city"
                     (selectionChange)="onCityChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-phone-primary">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-phone-primary">
                     Phone primary
                 </label>
-                <input id="bank-phone-primary" type="text" class="form-control" [(ngModel)]="phone_primary"
+                <input hlmInput id="bank-phone-primary" type="text" [(ngModel)]="phone_primary"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter primary phone">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-phone-secondary">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-phone-secondary">
                     Phone secondary
                 </label>
-                <input id="bank-phone-secondary" type="text" class="form-control" [(ngModel)]="phone_secondary"
+                <input hlmInput id="bank-phone-secondary" type="text" [(ngModel)]="phone_secondary"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter secondary phone">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="bank-remarks">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="bank-remarks">
                     Remarks
                 </label>
-                <input id="bank-remarks" type="text" class="form-control" [(ngModel)]="remarks"
+                <input hlmInput id="bank-remarks" type="text" [(ngModel)]="remarks"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks">
             </div>
         </ng-container>
 
         <!-- Status Dropdown -->
-        <div class="form-group">
-            <label class="form-label">
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel>
                 Status
             </label>
-            <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+            <hlm-select [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
                 [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
 
         <!-- Form Footer -->
-        <div class="form-footer">
-            <button type="button" class="btn btn--secondary btn--md" (click)="onClose()">
+        <div class="mt-2 flex items-center justify-end gap-3 border-t border-border pt-5">
+            <button hlmBtn variant="secondary" type="button" (click)="onClose()">
                 Cancel
             </button>
-            <button type="submit" class="btn btn--primary btn--md" [disabled]="!name.trim()">
+            <button hlmBtn type="submit" [disabled]="!name.trim()">
                 Submit
             </button>
         </div>
     </form>
-</app-modal>
+</hlm-dialog>

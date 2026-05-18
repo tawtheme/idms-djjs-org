@@ -2,11 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective, HlmLabelDirective } from '../../../shared/ui';
 
 @Component({
   selector: 'app-attendances',
@@ -15,10 +16,11 @@ import { of } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterModule,
-    DropdownComponent
+    HlmSelectComponent,
+    HlmButtonDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './attendances.component.html',
-  styleUrls: ['./attendances.component.scss']
+  templateUrl: './attendances.component.html'
 })
 export class AttendancesComponent implements OnInit {
   private dataService = inject(DataService);

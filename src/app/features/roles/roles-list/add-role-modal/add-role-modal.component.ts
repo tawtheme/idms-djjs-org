@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 /**
  * Component for adding new roles
@@ -14,11 +15,13 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './add-role-modal.component.html',
-  styleUrls: ['./add-role-modal.component.scss']
+  templateUrl: './add-role-modal.component.html'
 })
 export class AddRoleModalComponent {
   /** Whether the modal is open */

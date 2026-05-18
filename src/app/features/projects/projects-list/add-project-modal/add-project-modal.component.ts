@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 import { DataService } from '../../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -13,11 +14,12 @@ import { of } from 'rxjs';
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './add-project-modal.component.html',
-  styleUrls: ['./add-project-modal.component.scss']
+  templateUrl: './add-project-modal.component.html'
 })
 export class AddProjectModalComponent implements OnInit {
   @Input() isOpen = false;

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { DataService } from '../../data.service';
-import { DropdownOption } from '../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../shared/ui';
 
 @Injectable({
     providedIn: 'root'

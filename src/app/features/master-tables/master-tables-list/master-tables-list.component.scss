@@ -1,9 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
-
-// Apply shared listing styles
-@include listing.listing('.master-tables');
 
 .master-tables-layout {
     display: flex;
@@ -80,19 +75,6 @@
     background: $color-white;
     border: 1px solid $color-gray-100;
     border-radius: 12px;
-
-    .master-listing-search{
-        display: flex;
-        flex-direction: row;
-        gap: 16px;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
-
-        .form-control {
-            width: 300px;
-        }
-    }
 }
 
 // Sortable column headers
@@ -116,18 +98,6 @@
         width: 18px;
         height: 18px;
     }
-}
-
-// Name column
-.name {
-    font-weight: 500;
-    color: $color-gray-900;
-}
-
-// Date column
-.date {
-    color: $color-gray-700;
-    font-size: 13px;
 }
 
 // Status badge

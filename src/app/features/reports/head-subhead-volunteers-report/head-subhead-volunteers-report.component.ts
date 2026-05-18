@@ -7,10 +7,11 @@ import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
 import { applyTableSort } from '../../../shared/utils/table-sort';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective } from '../../../shared/ui';
 
 interface HeadSubheadRow {
     id: string;
@@ -39,13 +40,13 @@ type SortField =
         CommonModule,
         FormsModule,
         RouterModule,
-        DropdownComponent,
-        PagerComponent,
-        EmptyStateComponent,
-        IconComponent
+        HlmSelectComponent,
+        HlmPaginationComponent,
+        HlmEmptyStateComponent,
+        IconComponent,
+        HlmButtonDirective
     ],
-    templateUrl: './head-subhead-volunteers-report.component.html',
-    styleUrls: ['./head-subhead-volunteers-report.component.scss']
+    templateUrl: './head-subhead-volunteers-report.component.html'
 })
 export class HeadSubheadVolunteersReportComponent implements OnInit {
     private dataService = inject(DataService);

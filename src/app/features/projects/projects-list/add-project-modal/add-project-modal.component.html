@@ -1,52 +1,52 @@
-<app-modal [isOpen]="isOpen" [title]="'Add New Project'" [size]="'small'" [closable]="true" [showHeader]="true"
+<hlm-dialog [isOpen]="isOpen" [title]="'Add New Project'" [size]="'small'" [closable]="true" [showHeader]="true"
     [showFooter]="true" [footerButtons]="footerButtons" [footerAlign]="'right'" (close)="onClose()"
     (footerAction)="onFooterAction($event)">
 
-    <form class="add-project-form" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-            <label class="form-label" for="project-name">
-                Project Name <span class="required">*</span>
+    <form class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="project-name">
+                Project Name <span class="text-destructive">*</span>
             </label>
-            <input id="project-name" type="text" class="form-control" [(ngModel)]="name"
+            <input hlmInput id="project-name" type="text" [(ngModel)]="name"
                 [ngModelOptions]="{ standalone: true }" placeholder="Enter project name" required autofocus>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="project-head">
-                Project Head <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="project-head">
+                Project Head <span class="text-destructive">*</span>
             </label>
-            <app-dropdown [options]="projectHeadOptions" [selectedValues]="selectedProjectHead"
+            <hlm-select [options]="projectHeadOptions" [selectedValues]="selectedProjectHead"
                 [searchable]="true" [closeOnSelect]="true" placeholder="Select Project Head"
                 (selectionChange)="onProjectHeadChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="initiative">
-                Initiative <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="initiative">
+                Initiative <span class="text-destructive">*</span>
             </label>
-            <app-dropdown [options]="initiativeOptions" [selectedValues]="selectedInitiative"
+            <hlm-select [options]="initiativeOptions" [selectedValues]="selectedInitiative"
                 [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative"
                 (selectionChange)="onInitiativeChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="description">
-                Description <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="description">
+                Description <span class="text-destructive">*</span>
             </label>
-            <textarea id="description" class="form-control" [(ngModel)]="description"
+            <textarea hlmInput id="description" [(ngModel)]="description"
                 [ngModelOptions]="{ standalone: true }" placeholder="Enter project description" rows="4"
                 required></textarea>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="status">
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="status">
                 Status
             </label>
-            <app-dropdown [options]="statusOptions" [selectedValues]="[status]"
+            <hlm-select [options]="statusOptions" [selectedValues]="[status]"
                 [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
     </form>
-</app-modal>
+</hlm-dialog>

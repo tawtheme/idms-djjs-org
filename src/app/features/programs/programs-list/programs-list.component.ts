@@ -2,21 +2,22 @@ import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { HlmAlertDialogComponent } from '../../../shared/ui';
+import { HlmDialogComponent } from '../../../shared/ui';
+import { HlmSheetComponent } from '../../../shared/ui';
 import { VolunteerViewComponent } from '../../volunteers/all-volunteers/volunteer-view/volunteer-view.component';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 export interface Program {
   id: string;
@@ -39,15 +40,18 @@ export interface Program {
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    DropdownComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    HlmSelectComponent,
     IconComponent,
-    ConfirmationDialogComponent,
-    ModalComponent,
-    SidePanelComponent,
-    VolunteerViewComponent
+    HlmAlertDialogComponent,
+    HlmDialogComponent,
+    HlmSheetComponent,
+    VolunteerViewComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
   selector: 'app-programs-list',
   templateUrl: './programs-list.component.html',

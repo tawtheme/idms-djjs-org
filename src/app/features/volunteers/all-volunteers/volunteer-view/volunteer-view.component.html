@@ -1,7 +1,7 @@
 <div class="vv-shell">
     <!-- Loading -->
     <div class="vv-state vv-state--loading" *ngIf="isLoading">
-        <app-loading [size]="'medium'" [type]="'spinner'" [message]="'Loading volunteer…'"></app-loading>
+        <hlm-spinner message="Loading volunteer…" />
     </div>
 
     <!-- Sidebar -->
@@ -179,13 +179,13 @@
                                 <ng-container *ngIf="aadhaar?.user_doc_urls?.length; else noAadhaarFile">
                                     <button *ngFor="let doc of aadhaar.user_doc_urls; let i = index"
                                             type="button"
-                                            class="btn btn--primary btn--sm file-btn"
+                                            hlmBtn size="sm" class="file-btn"
                                             (click)="imagePreviewService.open(doc?.path, 'Aadhar Card Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
                                 <ng-template #noAadhaarFile>
-                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                    <span hlmBtn variant="secondary" size="sm" class="file-btn file-btn--empty">No File</span>
                                 </ng-template>
                             </div>
                         </div>
@@ -197,13 +197,13 @@
                                 <ng-container *ngIf="license?.user_doc_urls?.length; else noLicenseFile">
                                     <button *ngFor="let doc of license.user_doc_urls; let i = index"
                                             type="button"
-                                            class="btn btn--primary btn--sm file-btn"
+                                            hlmBtn size="sm" class="file-btn"
                                             (click)="imagePreviewService.open(doc?.path, 'Driving License Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
                                 <ng-template #noLicenseFile>
-                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                    <span hlmBtn variant="secondary" size="sm" class="file-btn file-btn--empty">No File</span>
                                 </ng-template>
                             </div>
                         </div>
@@ -215,13 +215,13 @@
                                 <ng-container *ngIf="voter?.user_doc_urls?.length; else noVoterFile">
                                     <button *ngFor="let doc of voter.user_doc_urls; let i = index"
                                             type="button"
-                                            class="btn btn--primary btn--sm file-btn"
+                                            hlmBtn size="sm" class="file-btn"
                                             (click)="imagePreviewService.open(doc?.path, 'Electoral Document Proof – File ' + (i + 1))">
                                         View File {{ i + 1 }}
                                     </button>
                                 </ng-container>
                                 <ng-template #noVoterFile>
-                                    <span class="btn btn--secondary btn--sm file-btn file-btn--empty">No File</span>
+                                    <span hlmBtn variant="secondary" size="sm" class="file-btn file-btn--empty">No File</span>
                                 </ng-template>
                             </div>
                         </div>

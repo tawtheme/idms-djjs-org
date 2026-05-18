@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
 import { Sewa } from '../sewa.interface';
+import { HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 /**
  * Component for adding or editing sewa
@@ -14,11 +15,12 @@ import { Sewa } from '../sewa.interface';
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './add-sewa-modal.component.html',
-  styleUrls: ['./add-sewa-modal.component.scss']
+  templateUrl: './add-sewa-modal.component.html'
 })
 export class AddSewaModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

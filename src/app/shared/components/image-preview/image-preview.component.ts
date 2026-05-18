@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { ModalComponent } from '../modal/modal.component';
+import { HlmDialogComponent } from '../../ui';
 import { ImagePreviewService, ImagePreviewState } from '../../services/image-preview.service';
 
 interface ViewModel extends ImagePreviewState {
@@ -13,7 +13,7 @@ interface ViewModel extends ImagePreviewState {
 @Component({
   selector: 'app-image-preview',
   standalone: true,
-  imports: [CommonModule, ModalComponent],
+  imports: [CommonModule, HlmDialogComponent],
   templateUrl: './image-preview.component.html',
   styleUrls: ['./image-preview.component.scss']
 })

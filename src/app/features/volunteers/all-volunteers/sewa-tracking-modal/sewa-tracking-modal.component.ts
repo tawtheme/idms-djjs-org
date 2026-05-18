@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
 import { DataService } from '../../../../data.service';
 
 export interface SewaTrackRow {
@@ -42,7 +42,7 @@ export interface DonationRow {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, HlmDialogComponent],
   selector: 'app-sewa-tracking-modal',
   templateUrl: './sewa-tracking-modal.component.html',
   styleUrls: ['./sewa-tracking-modal.component.scss']

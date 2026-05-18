@@ -1,15 +1,15 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmButtonDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, DropdownComponent],
+  imports: [CommonModule, FormsModule, HlmDialogComponent, HlmSelectComponent, HlmButtonDirective, HlmLabelDirective],
   selector: 'app-volunteer-cards-filters-modal',
-  templateUrl: './filters-modal.component.html',
-  styleUrls: ['./filters-modal.component.scss']
+  templateUrl: './filters-modal.component.html'
 })
 export class VolunteerCardsFiltersModalComponent implements OnChanges {
   @Input() isOpen: boolean = false;
@@ -78,4 +78,3 @@ export class VolunteerCardsFiltersModalComponent implements OnChanges {
     this.branchSearchType = [];
   }
 }
-

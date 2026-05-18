@@ -4,7 +4,7 @@
         <div class="filters-grid filters-grid--four">
             <div class="filter-field">
                 <label>Task Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="None"
@@ -12,11 +12,11 @@
                     [autocomplete]="true"
                     [closeOnSelect]="true"
                     (selectionChange)="onTaskBranchChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Programs</label>
-                <app-dropdown
+                <hlm-select
                     [options]="programOptions"
                     [selectedValues]="selectedProgram"
                     placeholder=""
@@ -24,15 +24,15 @@
                     [autocomplete]="true"
                     [closeOnSelect]="true"
                     (selectionChange)="selectedProgram = $event">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" [disabled]="isLoading" (click)="applyFilter()">
+                    <button hlmBtn type="button" [disabled]="isLoading" (click)="applyFilter()">
                         {{ isLoading ? 'Searching...' : 'Search' }}
                     </button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting" (click)="exportReport('web')">
                         {{ isExporting ? 'Exporting...' : 'Export' }}
                     </button>
                 </div>
@@ -43,48 +43,48 @@
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadReport()">Retry</button>
     </div>
 
         <ng-container *ngIf="!error">
             <!-- Reports Table -->
-            <div class="listing-wrapper">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+                <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+                    <table class="w-full border-collapse text-sm">
+                        <thead class="bg-muted border-b border-border">
                             <tr>
-                                <th class="sortable" (click)="sortBy('sewaName')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('sewaName')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Sewa Name
                                         <app-icon
                                             [name]="sortField === 'sewaName' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'sewaName' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'sewaName'" />
+                                            [class.sort-icon--active]="sortField === 'sewaName'" [size]="14" />
                                     </span>
                                 </th>
-                                <th class="sortable text-right" (click)="sortBy('donationAmount')">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-right text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('donationAmount')">
                                     <span class="th-content th-content--right">
                                         Donation Amount
                                         <app-icon
                                             [name]="sortField === 'donationAmount' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'donationAmount' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'donationAmount'" />
+                                            [class.sort-icon--active]="sortField === 'donationAmount'" [size]="14" />
                                     </span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let row of rows; trackBy: trackById">
-                                <td data-label="Sewa Name">{{ row.sewaName }}</td>
-                                <td data-label="Donation Amount" class="text-right">{{ formatCurrency(row.donationAmount) }}</td>
+                            <tr *ngFor="let row of rows; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa Name">{{ row.sewaName }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top text-right" data-label="Donation Amount">{{ formatCurrency(row.donationAmount) }}</td>
                             </tr>
                             <tr *ngIf="rows.length === 0" class="empty-row">
-                                <td colspan="2">
-                                    <app-empty-state
+                                <td class="px-5 py-10 text-center" colspan="2">
+                                    <hlm-empty-state
                                         title="No data available in table"
                                         description="There are no donations matching the selected filters."
                                         [size]="'small'">
-                                    </app-empty-state>
+                                    </hlm-empty-state>
                                 </td>
                             </tr>
                         </tbody>
@@ -97,14 +97,14 @@
                 </div>
 
                 <!-- Pagination -->
-                <app-pager
+                <hlm-pagination
                     [total]="totalItems"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                     [pageSizeOptions]="pageSizeOptions"
                     (pageChange)="onPageChange($event)"
                     (pageSizeChange)="onPageSizeChange($event)">
-                </app-pager>
+                </hlm-pagination>
             </div>
         </ng-container>
 </div>

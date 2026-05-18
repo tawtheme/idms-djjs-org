@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
-import { PagerComponent } from '../../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmPaginationComponent } from '../../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../../shared/ui';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../../data.service';
 import { AuthService } from '../../../../services/auth.service';
@@ -13,6 +13,7 @@ import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { HlmButtonDirective } from '../../../../shared/ui';
 interface AggregatedRow {
   sewaName: string;
   totalVolunteers: number;
@@ -49,13 +50,14 @@ interface VolunteerRecord {
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
+    HlmDialogComponent,
     IconComponent,
-    DropdownComponent,
-    PagerComponent,
-    EmptyStateComponent,
+    HlmSelectComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
     ImagePreviewDirective,
-    RouterModule
+    RouterModule,
+    HlmButtonDirective
   ],
   templateUrl: './view-attendance-modal.component.html',
   styleUrls: ['./view-attendance-modal.component.scss']

@@ -6,9 +6,9 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DataService } from '../../../../data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ImagePreviewService } from '../../../../shared/services/image-preview.service';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective, HlmSpinnerComponent } from '../../../../shared/ui';
 
 type TabId =
   | 'basic'
@@ -27,7 +27,7 @@ interface TabDef { id: TabId; label: string; }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, IconComponent, LoadingComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, HlmSpinnerComponent, ImagePreviewDirective, HlmButtonDirective],
   selector: 'app-volunteer-view',
   templateUrl: './volunteer-view.component.html',
   styleUrls: ['./volunteer-view.component.scss']

@@ -7,12 +7,13 @@ import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
 import { applyTableSort } from '../../../shared/utils/table-sort';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 
 interface AbsenteeRow {
     id: string;
@@ -32,12 +33,14 @@ type SortField = 'id' | 'name' | 'email' | 'phone' | 'createdAt';
         CommonModule,
         FormsModule,
         RouterModule,
-        DropdownComponent,
-        DatepickerComponent,
-        PagerComponent,
-        EmptyStateComponent,
+        HlmSelectComponent,
+        HlmDatepickerComponent,
+        HlmPaginationComponent,
+        HlmEmptyStateComponent,
         IconComponent,
-        ImagePreviewDirective
+        ImagePreviewDirective,
+        HlmButtonDirective,
+        HlmInputDirective
     ],
     templateUrl: './consecutive-absentees-report.component.html',
     styleUrls: ['./consecutive-absentees-report.component.scss']

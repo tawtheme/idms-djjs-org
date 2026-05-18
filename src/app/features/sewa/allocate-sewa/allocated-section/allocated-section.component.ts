@@ -8,11 +8,12 @@ import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective, HlmInputDirective } from '../../../../shared/ui';
 
 @Component({
     selector: 'app-allocated-section',
     standalone: true,
-    imports: [CommonModule, FormsModule, IconComponent, ImagePreviewDirective],
+    imports: [CommonModule, FormsModule, IconComponent, ImagePreviewDirective, HlmButtonDirective, HlmInputDirective],
     templateUrl: './allocated-section.component.html',
     styleUrls: ['./allocated-section.component.scss']
 })

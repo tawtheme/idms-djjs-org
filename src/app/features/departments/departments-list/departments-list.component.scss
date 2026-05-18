@@ -1,9 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
-
-// Apply shared listing styles
-@include listing.listing('.departments');
 
 // Sortable column headers
 .sortable {
@@ -26,18 +21,6 @@
     width: 18px;
     height: 18px;
   }
-}
-
-// Name column
-.name {
-  font-weight: 500;
-  color: $color-gray-900;
-}
-
-// Date column
-.date {
-  color: $color-gray-700;
-  font-size: 13px;
 }
 
 // Status badge
@@ -64,10 +47,6 @@
 
 // No data row
 .no-data {
-  text-align: center;
-  padding: 40px 20px !important;
   color: $color-gray-500;
   font-style: italic;
 }
-
-

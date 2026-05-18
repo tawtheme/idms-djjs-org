@@ -1,117 +1,117 @@
-<app-modal [isOpen]="isOpen" [title]="'Add New Program'" [size]="'medium'" [closable]="true" [showHeader]="true"
+<hlm-dialog [isOpen]="isOpen" [title]="'Add New Program'" [size]="'medium'" [closable]="true" [showHeader]="true"
     [showFooter]="true" [footerButtons]="footerButtons" [footerAlign]="'right'" (close)="onClose()"
     (footerAction)="onFooterAction($event)">
 
-    <form class="add-program-form" (ngSubmit)="onSubmit()">
+    <form class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
         <!-- Row 1: Program Name, Program Co-ordinator, Initiative -->
-        <div class="form-grid cols-3">
-            <div class="form-group">
-                <label class="form-label" for="program-name">
-                    Program Name <span class="required">*</span>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="program-name">
+                    Program Name <span class="text-destructive">*</span>
                 </label>
-                <input id="program-name" type="text" class="form-control" [(ngModel)]="name"
+                <input hlmInput id="program-name" type="text" [(ngModel)]="name"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter program name" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="program-coordinator">
-                    Program Co-ordinator <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="program-coordinator">
+                    Program Co-ordinator <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="programCoordinatorOptions"
+                <hlm-select [options]="programCoordinatorOptions"
                     [selectedValues]="programCoordinator ? [programCoordinator] : []" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select Program Co-ordinator"
                     (selectionChange)="onProgramCoordinatorChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="initiative">
-                    Initiative <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="initiative">
+                    Initiative <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []"
+                <hlm-select [options]="initiativeOptions" [selectedValues]="initiative ? [initiative] : []"
                     [searchable]="true" [closeOnSelect]="true" placeholder="Select Initiative"
                     (selectionChange)="onInitiativeChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
 
         <!-- Row 2: Project, Branch, Choose Sewa -->
-        <div class="form-grid cols-3">
-            <div class="form-group">
-                <label class="form-label" for="project">
-                    Project <span class="required">*</span>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="project">
+                    Project <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="projectOptions" [selectedValues]="project ? [project] : []" [searchable]="true"
+                <hlm-select [options]="projectOptions" [selectedValues]="project ? [project] : []" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select Project" (selectionChange)="onProjectChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="branch">
-                    Branch <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="branch">
+                    Branch <span class="text-destructive">*</span>
                 </label>
-                <app-dropdown [options]="branchOptions" [selectedValues]="branch ? [branch] : []" [searchable]="true"
+                <hlm-select [options]="branchOptions" [selectedValues]="branch ? [branch] : []" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select Branch" (selectionChange)="onBranchChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="choose-sewa">
-                    Choose Sewa <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="choose-sewa">
+                    Choose Sewa <span class="text-destructive">*</span>
                 </label>
-                <input id="choose-sewa" type="text" class="form-control" [(ngModel)]="chooseSewa"
+                <input hlmInput id="choose-sewa" type="text" [(ngModel)]="chooseSewa"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter sewa" required>
             </div>
         </div>
 
         <!-- Row 3: Start Date Time, End Date Time, Status -->
-        <div class="form-grid cols-3">
-            <div class="form-group">
-                <label class="form-label" for="start-date-time">
-                    Start Date Time <span class="required">*</span>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="start-date-time">
+                    Start Date Time <span class="text-destructive">*</span>
                 </label>
-                <app-datepicker [value]="startDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
+                <hlm-datepicker [value]="startDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
                     (dateChange)="onStartDateTimeChange($event)">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="end-date-time">
-                    End Date Time <span class="required">*</span>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="end-date-time">
+                    End Date Time <span class="text-destructive">*</span>
                 </label>
-                <app-datepicker [value]="endDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
+                <hlm-datepicker [value]="endDateTime" placeholder="DD/MM/YYYY" format="dd/MM/yyyy"
                     (dateChange)="onEndDateTimeChange($event)">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="status">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="status">
                     Status
                 </label>
-                <app-dropdown [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
+                <hlm-select [options]="statusOptions" [selectedValues]="[status]" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select Status" (selectionChange)="onStatusChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
 
         <!-- Row 4: Repeats, Remarks -->
-        <div class="form-grid cols-3">
-            <div class="form-group">
-                <label class="form-label" for="repeats">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="repeats">
                     Repeats
                 </label>
-                <app-dropdown [options]="repeatsOptions" [selectedValues]="[repeats]" [searchable]="true"
+                <hlm-select [options]="repeatsOptions" [selectedValues]="[repeats]" [searchable]="true"
                     [closeOnSelect]="true" placeholder="Select Repeats" (selectionChange)="onRepeatsChange($event)">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
-            <div class="form-group full-width">
-                <label class="form-label" for="remarks">
+            <div class="flex flex-col gap-1.5 md:col-span-2">
+                <label hlmLabel for="remarks">
                     Remarks
                 </label>
-                <textarea id="remarks" class="form-control" [(ngModel)]="remarks"
+                <textarea hlmInput id="remarks" class="resize-y" [(ngModel)]="remarks"
                     [ngModelOptions]="{ standalone: true }" placeholder="Enter remarks" rows="4"></textarea>
             </div>
         </div>
     </form>
-</app-modal>
+</hlm-dialog>

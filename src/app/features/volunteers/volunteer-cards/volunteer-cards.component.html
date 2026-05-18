@@ -1,9 +1,9 @@
-<div class="volunteer-cards-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Search & Filter Panel -->
     <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
-                <label>Task Branch</label>
-                <app-dropdown
+                <label hlmLabel>Task Branch</label>
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="moreFilters.taskBranch"
                     placeholder="None"
@@ -11,11 +11,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.taskBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Corresponding Branch</label>
-                <app-dropdown
+                <label hlmLabel>Corresponding Branch</label>
+                <hlm-select
                     [options]="correspondingBranchOptions"
                     [selectedValues]="moreFilters.correspondingBranch"
                     placeholder="None"
@@ -23,11 +23,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.correspondingBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Branch Search Type</label>
-                <app-dropdown
+                <label hlmLabel>Branch Search Type</label>
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="moreFilters.branchSearchType"
                     placeholder="Select"
@@ -35,11 +35,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.branchSearchType = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Sewa</label>
-                <app-dropdown
+                <label hlmLabel>Sewa</label>
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="selectedSewa"
                     placeholder="None"
@@ -47,14 +47,14 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedSewa = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Badge No</label>
+                <label hlmLabel>Badge No</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Badge No"
                         [(ngModel)]="moreFilters.badgeNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -67,7 +67,7 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" [disabled]="!hasAnyActiveFilter()" (click)="applyFilter()">Search</button>
+                    <button hlmBtn type="button" [disabled]="!hasAnyActiveFilter()" (click)="applyFilter()">Search</button>
                     <button
                         type="button"
                         class="filter-toggle"
@@ -77,12 +77,12 @@
                         <span>Filter</span>
                         <span *ngIf="advancedFilterCount() > 0" class="filter-count">{{ advancedFilterCount() }}</span>
                     </button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting || (!hasAnyActiveFilter() && selectedCards.size === 0)" (click)="exportReport('web')">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
                 </div>
             </div>
     </div>
 
-    <app-side-panel
+    <hlm-sheet
         *ngIf="showAdvancedFilters"
         [isOpen]="showAdvancedFilters"
         title="More Filters"
@@ -92,8 +92,8 @@
         (close)="showAdvancedFilters = false">
         <div class="filter-panel">
             <div class="filter-panel__field">
-                <label>Gender</label>
-                <app-dropdown
+                <label hlmLabel>Gender</label>
+                <hlm-select
                     [options]="genderOptions"
                     [selectedValues]="selectedGender"
                     placeholder="None"
@@ -101,14 +101,14 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedGender = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Name</label>
+                <label hlmLabel>Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Name"
                         [(ngModel)]="moreFilters.name"
                         [ngModelOptions]="{ standalone: true }"
@@ -119,11 +119,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Relation Name</label>
+                <label hlmLabel>Relation Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Relation Name"
                         [(ngModel)]="moreFilters.relationName"
                         [ngModelOptions]="{ standalone: true }"
@@ -134,11 +134,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Mobile No.</label>
+                <label hlmLabel>Mobile No.</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Mobile No."
                         [(ngModel)]="moreFilters.mobileNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -149,11 +149,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>UID</label>
+                <label hlmLabel>UID</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter UID"
                         [(ngModel)]="moreFilters.uid"
                         [ngModelOptions]="{ standalone: true }"
@@ -164,8 +164,8 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Options</label>
-                <app-dropdown
+                <label hlmLabel>Options</label>
+                <hlm-select
                     [options]="filterOptionsDropdown"
                     [selectedValues]="moreFilters.options"
                     placeholder="Select Options"
@@ -174,43 +174,44 @@
                     [multiSelect]="true"
                     (selectionChange)="moreFilters.options = $event"
                     [closeOnSelect]="false">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Start From</label>
-                <app-datepicker
+                <label hlmLabel>Start From</label>
+                <hlm-datepicker
                     [value]="moreFilters.startFrom"
                     placeholder="Select Start Date"
                     format="dd/MM/yyyy"
                     (dateChange)="moreFilters.startFrom = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div class="filter-panel__field">
-                <label>End To</label>
-                <app-datepicker
+                <label hlmLabel>End To</label>
+                <hlm-datepicker
                     [value]="moreFilters.endTo"
                     placeholder="Select End Date"
                     format="dd/MM/yyyy"
                     [minDate]="moreFilters.startFrom"
                     (dateChange)="moreFilters.endTo = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
         </div>
         <div slot="footer" class="filter-panel__footer">
             <button
+                hlmBtn
+                variant="secondary"
                 type="button"
-                class="btn btn--secondary btn--md"
                 (click)="reloadPage()">
                 Clear all
             </button>
             <button
+                hlmBtn
                 type="button"
-                class="btn btn--primary btn--md"
                 (click)="showAdvancedFilters = false; applyFilter()">
                 Apply
             </button>
         </div>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Active filter chips -->
     <div *ngIf="activeFilterChips().length > 0" class="active-filters">
@@ -229,48 +230,48 @@
     </div>
 
     <!-- Volunteer Cards table -->
-    <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th class="checkbox-column">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground checkbox-column whitespace-nowrap">
                             <input type="checkbox"
                                    [checked]="isAllSelected()"
                                    [indeterminate]="isIndeterminate()"
                                    (change)="toggleSelectAll($event)" />
                         </th>
-                        <th class="sortable" (click)="sortBy('id')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('id')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Id
-                                <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" />
+                                <app-icon [name]="getSortIcon('id')" class="sort-icon" [class.sort-icon--active]="sortField === 'id'" [size]="14" />
                             </span>
                         </th>
-                        <th class="sortable" (click)="sortBy('name')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('name')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Name
-                                <app-icon [name]="getSortIcon('name')" class="sort-icon" [class.sort-icon--active]="sortField === 'name'" />
+                                <app-icon [name]="getSortIcon('name')" class="sort-icon" [class.sort-icon--active]="sortField === 'name'" [size]="14" />
                             </span>
                         </th>
-                        <th>Father Name</th>
-                        <th>Phone</th>
-                        <th>Sewa</th>
-                        <th>Gender</th>
-                        <th>Unallocation Reason</th>
-                        <th>Enter By</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Father Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Phone</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Gender</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Unallocation Reason</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Enter By</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let card of pagedCards; trackBy: trackById" (click)="$event.stopPropagation()">
-                        <td class="checkbox-column" (click)="$event.stopPropagation()">
+                    <tr *ngFor="let card of pagedCards; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative" (click)="$event.stopPropagation()">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top checkbox-column" (click)="$event.stopPropagation()">
                             <input type="checkbox"
                                    [checked]="selectedCards.has(card.id)"
                                    (change)="toggleSelectCard(card.id, $event)" />
                         </td>
-                        <td data-label="Id">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">
                             {{ card.id }}
                         </td>
-                        <td data-label="Name" class="name-with-image">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top name-with-image" data-label="Name">
                             <div class="volunteer-image">
                                 <img [src]="card.image || '/assets/img/placeholder.svg'"
                                      [alt]="card.name"
@@ -280,13 +281,13 @@
                             </div>
                             <span class="volunteer-name">{{ card.name }}</span>
                         </td>
-                        <td data-label="Father Name">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Father Name">
                             {{ card.relationName || card.fatherName || '-' }}
                         </td>
-                        <td data-label="Phone">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Phone">
                             {{ card.phone || '-' }}
                         </td>
-                        <td data-label="Sewa" class="sewa-column">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top sewa-column" data-label="Sewa">
                             <div class="sewa-content" *ngIf="card.sewas && card.sewas.length; else noSewa">
                                 <div class="sewa-entry" *ngFor="let s of card.sewas">
                                     <div class="sewa-name">{{ s.sewaName }}<span *ngIf="s.branchName">({{ s.branchName }})</span></div>
@@ -301,10 +302,10 @@
                             </div>
                             <ng-template #noSewa>-</ng-template>
                         </td>
-                        <td data-label="Gender">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Gender">
                             {{ card.gender || '-' }}
                         </td>
-                        <td data-label="Unallocation Reason" class="unallocation-column">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top unallocation-column" data-label="Unallocation Reason">
                             <div class="unallocation-content" *ngIf="card.unallocations && card.unallocations.length; else noUnallocation">
                                 <div class="unallocation-entry" *ngFor="let u of card.unallocations">
                                     <div class="unallocation-name">{{ u.sewaName }}<span *ngIf="u.branchName">({{ u.branchName }})</span></div>
@@ -321,17 +322,17 @@
                             </div>
                             <ng-template #noUnallocation>-</ng-template>
                         </td>
-                        <td data-label="Enter By">
+                        <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Enter By">
                             {{ card.enterBy || '-' }}
                         </td>
                     </tr>
-                    <tr *ngIf="pagedCards.length === 0">
-                        <td [attr.colspan]="9" class="empty-state-cell">
-                            <app-empty-state
+                    <tr *ngIf="pagedCards.length === 0" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                        <td [attr.colspan]="9" class="px-5 py-10 text-center">
+                            <hlm-empty-state
                                 [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Volunteer Cards Found'"
                                 [description]="hasAnyActiveFilter() ? 'No volunteer cards match your search criteria.' : 'There are no volunteer cards available at the moment.'"
                                 [size]="'small'">
-                            </app-empty-state>
+                            </hlm-empty-state>
                         </td>
                     </tr>
                 </tbody>
@@ -339,14 +340,14 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
     </div>
 
 

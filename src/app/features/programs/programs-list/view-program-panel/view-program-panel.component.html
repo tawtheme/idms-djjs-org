@@ -1,4 +1,4 @@
-<app-modal
+<hlm-dialog
     [isOpen]="isOpen"
     [title]="program?.name || 'Program Details'"
     size="extraLarge"
@@ -9,7 +9,7 @@
     <div *ngIf="error && !isLoading" class="modal-error">
         <app-icon name="error_outline" class="error-icon" />
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadProgramDetails()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadProgramDetails()">Retry</button>
     </div>
 
     <!-- Program Details — single scrollable page -->
@@ -98,4 +98,4 @@
         </ng-container>
     </div>
 
-</app-modal>
+</hlm-dialog>

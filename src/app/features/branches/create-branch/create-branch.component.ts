@@ -2,15 +2,23 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 
 @Component({
   selector: 'app-create-branch',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HlmSelectComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective,
+  ],
   templateUrl: './create-branch.component.html',
-  styleUrls: ['./create-branch.component.scss']
+  host: { class: 'block w-full h-full overflow-y-auto bg-muted/40' }
 })
 export class CreateBranchComponent {
   private router = inject(Router);

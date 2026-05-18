@@ -10,12 +10,13 @@ import { Component, Input, Output, EventEmitter, inject, ViewChild } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
 import { FileUploadComponent, FileUploadConfig } from '../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../shared/components/camera-upload/camera-upload.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { HlmDialogComponent } from '../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective, HlmSwitchComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { isMobileValid, isEmailValid, sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../shared/utils/validators';
@@ -49,15 +50,19 @@ export interface CreateVisitorForm {
   imports: [
     CommonModule,
     FormsModule,
-    DropdownComponent,
-    DatepickerComponent,
+    HlmSelectComponent,
+    HlmDatepickerComponent,
     FileUploadComponent,
     CameraUploadComponent,
-    ModalComponent
+    HlmDialogComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective,
+    HlmSwitchComponent
   ],
   selector: 'app-create-visitor',
   templateUrl: './create-visitor.component.html',
-  styleUrls: ['./create-visitor.component.scss']
+  host: { class: 'block w-full h-full overflow-y-auto bg-muted/40' }
 })
 export class CreateVisitorComponent {
   @ViewChild('visitorForm') visitorForm!: NgForm;

@@ -47,25 +47,25 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Basic Information</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSaving.basic || !isSectionDirty('basic')">
+                            <button type="submit" hlmBtn size="sm" [disabled]="isSaving.basic || !isSectionDirty('basic')">
                                 {{ isSaving.basic ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
                         <div class="form-grid cols-3">
                             <div class="form-field"><label>Unique ID</label>
-                                <input type="text" class="form-control" [value]="user.unique_id || ''" disabled />
+                                <input hlmInput type="text" [value]="user.unique_id || ''" disabled />
                             </div>
                             <div class="form-field"><label>Name</label>
-                                <input type="text" name="name" [(ngModel)]="basicForm.name" class="form-control" />
+                                <input hlmInput type="text" name="name" [(ngModel)]="basicForm.name" />
                             </div>
                             <div class="form-field"><label>Email</label>
-                                <input type="email" name="personal_email" [(ngModel)]="basicForm.personal_email" class="form-control" />
+                                <input hlmInput type="email" name="personal_email" [(ngModel)]="basicForm.personal_email" />
                             </div>
                             <div class="form-field"><label>Personal Email</label>
-                                <input type="email" name="official_email" [(ngModel)]="basicForm.official_email" class="form-control" />
+                                <input hlmInput type="email" name="official_email" [(ngModel)]="basicForm.official_email" />
                             </div>
                             <div class="form-field"><label>Mobile Number</label>
-                                <input type="tel" name="phone" [(ngModel)]="basicForm.phone" class="form-control" />
+                                <input hlmInput type="tel" name="phone" [(ngModel)]="basicForm.phone" />
                             </div>
                             <div class="form-field"><label>Level</label>
                                 <select name="level" [(ngModel)]="basicForm.level" class="form-control">
@@ -77,10 +77,10 @@
                                 <textarea name="remarks" rows="2" [(ngModel)]="basicForm.remarks" class="form-control"></textarea>
                             </div>
                             <div class="form-field"><label>Date</label>
-                                <app-datepicker [value]="toDate(basicForm.start_date)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onStartDateChange($event)"></app-datepicker>
+                                <hlm-datepicker [value]="toDate(basicForm.start_date)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onStartDateChange($event)"></hlm-datepicker>
                             </div>
                             <div class="form-field"><label>Valid Upto</label>
-                                <app-datepicker [value]="toDate(basicForm.valid_upto)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onValidUptoChange($event)"></app-datepicker>
+                                <hlm-datepicker [value]="toDate(basicForm.valid_upto)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onValidUptoChange($event)"></hlm-datepicker>
                             </div>
                         </div>
                         <p class="vv-form__error" *ngIf="saveError">{{ saveError }}</p>
@@ -101,14 +101,14 @@
                                 </div>
                                 <div class="profile-image-meta">
                                     <label>Upload date</label>
-                                    <input type="text" class="form-control" [value]="img.date || '-'" readonly />
+                                    <input hlmInput type="text" [value]="img.date || '-'" readonly />
                                 </div>
-                                <button type="button" class="btn btn--danger btn--sm" (click)="deleteProfileImage(img)">Delete</button>
+                                <button type="button" hlmBtn variant="destructive" size="sm" (click)="deleteProfileImage(img)">Delete</button>
                             </div>
                         </div>
                         <div class="profile-image-actions">
-                            <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageUpload()">Upload Profile Image</button>
-                            <button type="button" class="btn btn--primary btn--md" (click)="triggerProfileImageCapture()">Capture Live Profile Image</button>
+                            <button type="button" hlmBtn (click)="triggerProfileImageUpload()">Upload Profile Image</button>
+                            <button type="button" hlmBtn (click)="triggerProfileImageCapture()">Capture Live Profile Image</button>
                         </div>
                     </div>
                 </section>
@@ -120,33 +120,33 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Permanent Address</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['permanent'] || !isSectionDirty('permanent')">
+                            <button type="submit" hlmBtn size="sm" [disabled]="isSavingSection['permanent'] || !isSectionDirty('permanent')">
                                 {{ isSavingSection['permanent'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
                         <div class="form-grid cols-3">
                             <div class="form-field full-width"><label>Address 1</label>
-                                <input type="text" name="p_address_1" [(ngModel)]="addressForm.address_1" class="form-control" />
+                                <input hlmInput type="text" name="p_address_1" [(ngModel)]="addressForm.address_1" />
                             </div>
                             <div class="form-field full-width"><label>Address 2</label>
-                                <input type="text" name="p_address_2" [(ngModel)]="addressForm.address_2" class="form-control" />
+                                <input hlmInput type="text" name="p_address_2" [(ngModel)]="addressForm.address_2" />
                             </div>
                             <div class="form-field"><label>Country</label>
-                                <app-dropdown [options]="countryOptions" [selectedValues]="addressForm.country ? [addressForm.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect($event[0] || '')"></app-dropdown>
+                                <hlm-select [options]="countryOptions" [selectedValues]="addressForm.country ? [addressForm.country] : []" placeholder="Select Country" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCountrySelect($event[0] || '')"></hlm-select>
                             </div>
                             <div class="form-field"><label>State</label>
-                                <app-dropdown [options]="stateOptions" [selectedValues]="addressForm.state ? [addressForm.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect($event[0] || '')"></app-dropdown>
+                                <hlm-select [options]="stateOptions" [selectedValues]="addressForm.state ? [addressForm.state] : []" placeholder="Select State" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onStateSelect($event[0] || '')"></hlm-select>
                             </div>
                             <div class="form-field"><label>District</label>
-                                <app-dropdown [options]="districtOptions" [selectedValues]="addressForm.district ? [addressForm.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect($event[0] || '')"></app-dropdown>
+                                <hlm-select [options]="districtOptions" [selectedValues]="addressForm.district ? [addressForm.district] : []" placeholder="Select District" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onDistrictSelect($event[0] || '')"></hlm-select>
                             </div>
                             <div class="form-field"><label>City</label>
-                                <app-dropdown [options]="cityOptions" [selectedValues]="addressForm.city ? [addressForm.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect($event[0] || '')"></app-dropdown>
+                                <hlm-select [options]="cityOptions" [selectedValues]="addressForm.city ? [addressForm.city] : []" placeholder="Select City" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="onCitySelect($event[0] || '')"></hlm-select>
                             </div>
                             <div class="form-field"><label>Pincode <span class="required">*</span></label>
-                                <input type="text" name="p_pincode" inputmode="numeric" maxlength="6"
-                                    [class.is-invalid]="permanentPincodeError"
-                                    [(ngModel)]="addressForm.pincode" class="form-control"
+                                <input hlmInput type="text" name="p_pincode" inputmode="numeric" maxlength="6"
+                                    [class.border-destructive]="permanentPincodeError"
+                                    [(ngModel)]="addressForm.pincode"
                                     (ngModelChange)="onPincodeChange($event)" />
                                 <div class="field-error" *ngIf="permanentPincodeError">{{ permanentPincodeError }}</div>
                             </div>
@@ -162,7 +162,7 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Personal Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['personalDetails'] || !isSectionDirty('personalDetails')">
+                            <button type="submit" hlmBtn size="sm" [disabled]="isSavingSection['personalDetails'] || !isSectionDirty('personalDetails')">
                                 {{ isSavingSection['personalDetails'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
@@ -174,10 +174,10 @@
                                 </select>
                             </div>
                             <div class="form-field"><label>Date of birth</label>
-                                <app-datepicker [value]="toDate(personalForm.dob)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+                                <hlm-datepicker [value]="toDate(personalForm.dob)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></hlm-datepicker>
                             </div>
                             <div class="form-field"><label>Age</label>
-                                <input type="text" class="form-control" [value]="computedAge" disabled />
+                                <input hlmInput type="text" [value]="computedAge" disabled />
                             </div>
                             <div class="form-field"><label>Marital status</label>
                                 <select name="marital_status" [(ngModel)]="personalForm.marital_status" class="form-control">
@@ -193,66 +193,66 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Family Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['family'] || !isSectionDirty('family')">
+                            <button type="submit" hlmBtn size="sm" [disabled]="isSavingSection['family'] || !isSectionDirty('family')">
                                 {{ isSavingSection['family'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
                         <div class="form-grid cols-3">
                             <div class="form-field"><label>Father Name</label>
-                                <input type="text" name="father_name" [(ngModel)]="personalForm.father_name" class="form-control" />
+                                <input hlmInput type="text" name="father_name" [(ngModel)]="personalForm.father_name" />
                             </div>
                             <div class="form-field"><label>Father Email</label>
-                                <input type="email" name="father_email" [(ngModel)]="personalForm.father_email" class="form-control" />
+                                <input hlmInput type="email" name="father_email" [(ngModel)]="personalForm.father_email" />
                                 <small class="field-error" *ngIf="fatherEmailError">{{ fatherEmailError }}</small>
                             </div>
                             <div class="form-field"><label>Father Mobile</label>
-                                <input type="tel" name="father_mobile" [(ngModel)]="personalForm.father_mobile" class="form-control" inputmode="numeric" maxlength="10" />
+                                <input hlmInput type="tel" name="father_mobile" [(ngModel)]="personalForm.father_mobile" inputmode="numeric" maxlength="10" />
                             </div>
                             <div class="form-field"><label>Father Occupation</label>
-                                <app-dropdown [options]="professionOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupation = $event"></app-dropdown>
+                                <hlm-select [options]="professionOptions" [selectedValues]="selectedFatherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupation = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Father Occupation Location</label>
-                                <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationLocation = $event"></app-dropdown>
+                                <hlm-select [options]="occupationLocationOptions" [selectedValues]="selectedFatherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationLocation = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Father Occupation Type</label>
-                                <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationType = $event"></app-dropdown>
+                                <hlm-select [options]="occupationTypeOptions" [selectedValues]="selectedFatherOccupationType" placeholder="Select Type" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationType = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Father Occupation Status</label>
-                                <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationStatus = $event"></app-dropdown>
+                                <hlm-select [options]="occupationStatusOptions" [selectedValues]="selectedFatherOccupationStatus" placeholder="Select Status" [closeOnSelect]="true" (selectionChange)="selectedFatherOccupationStatus = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Mother Name</label>
-                                <input type="text" name="mother_name" [(ngModel)]="personalForm.mother_name" class="form-control" />
+                                <input hlmInput type="text" name="mother_name" [(ngModel)]="personalForm.mother_name" />
                             </div>
                             <div class="form-field"><label>Mother Email</label>
-                                <input type="email" name="mother_email" [(ngModel)]="personalForm.mother_email" class="form-control" />
+                                <input hlmInput type="email" name="mother_email" [(ngModel)]="personalForm.mother_email" />
                                 <small class="field-error" *ngIf="motherEmailError">{{ motherEmailError }}</small>
                             </div>
                             <div class="form-field"><label>Mother Mobile</label>
-                                <input type="tel" name="mother_mobile" [(ngModel)]="personalForm.mother_mobile" class="form-control" inputmode="numeric" maxlength="10" />
+                                <input hlmInput type="tel" name="mother_mobile" [(ngModel)]="personalForm.mother_mobile" inputmode="numeric" maxlength="10" />
                             </div>
                             <div class="form-field"><label>Mother Occupation</label>
-                                <app-dropdown [options]="professionOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupation = $event"></app-dropdown>
+                                <hlm-select [options]="professionOptions" [selectedValues]="selectedMotherOccupation" placeholder="Select Occupation" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupation = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Mother Occupation Location</label>
-                                <app-dropdown [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationLocation = $event"></app-dropdown>
+                                <hlm-select [options]="occupationLocationOptions" [selectedValues]="selectedMotherOccupationLocation" placeholder="Select Location" [searchable]="true" [autocomplete]="true" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationLocation = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Mother Occupation Type</label>
-                                <app-dropdown [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationType = $event"></app-dropdown>
+                                <hlm-select [options]="occupationTypeOptions" [selectedValues]="selectedMotherOccupationType" placeholder="Select Type" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationType = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Mother Occupation Status</label>
-                                <app-dropdown [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationStatus = $event"></app-dropdown>
+                                <hlm-select [options]="occupationStatusOptions" [selectedValues]="selectedMotherOccupationStatus" placeholder="Select Status" [closeOnSelect]="true" (selectionChange)="selectedMotherOccupationStatus = $event"></hlm-select>
                             </div>
                             <div class="form-field"><label>Spouse Name</label>
-                                <input type="text" name="spouse_name" [(ngModel)]="personalForm.spouse_name" class="form-control" />
+                                <input hlmInput type="text" name="spouse_name" [(ngModel)]="personalForm.spouse_name" />
                             </div>
                             <div class="form-field"><label>Sibling's (Brother)</label>
-                                <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" [closeOnSelect]="true" (selectionChange)="selectedSiblingsBrother = $event; personalForm.siblings_brother = $event[0] || ''"></app-dropdown>
+                                <hlm-select [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsBrother" placeholder="Select" [closeOnSelect]="true" (selectionChange)="selectedSiblingsBrother = $event; personalForm.siblings_brother = $event[0] || ''"></hlm-select>
                             </div>
                             <div class="form-field"><label>Sibling's (Sister)</label>
-                                <app-dropdown [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" [closeOnSelect]="true" (selectionChange)="selectedSiblingsSister = $event; personalForm.siblings_sister = $event[0] || ''"></app-dropdown>
+                                <hlm-select [options]="siblingsCountOptions" [selectedValues]="selectedSiblingsSister" placeholder="Select" [closeOnSelect]="true" (selectionChange)="selectedSiblingsSister = $event; personalForm.siblings_sister = $event[0] || ''"></hlm-select>
                             </div>
                             <div class="form-field"><label>Earning Members</label>
-                                <input type="number" name="earning_members" [(ngModel)]="personalForm.earning_members" class="form-control" />
+                                <input hlmInput type="number" name="earning_members" [(ngModel)]="personalForm.earning_members" />
                             </div>
                             <div class="form-field full-width"><label>If married, how many family members live at home?</label>
                                 <textarea name="family_members_at_home" rows="3" [(ngModel)]="personalForm.family_members_at_home" class="form-control"></textarea>
@@ -275,13 +275,13 @@
                     <section class="vv-section">
                         <div class="vv-section__head">
                             <h3>Aadhaar Details</h3>
-                            <button type="submit" class="btn btn--primary btn--sm" [disabled]="isSavingSection['aadhaar'] || !isSectionDirty('aadhaar')">
+                            <button type="submit" hlmBtn size="sm" [disabled]="isSavingSection['aadhaar'] || !isSectionDirty('aadhaar')">
                                 {{ isSavingSection['aadhaar'] ? 'Saving…' : 'Save' }}
                             </button>
                         </div>
                         <div class="form-grid cols-3">
                             <div class="form-field"><label>Aadhaar Number <span class="required">*</span></label>
-                                <input type="text" class="form-control" [class.is-invalid]="aadhaarErrors.number"
+                                <input hlmInput type="text" [class.border-destructive]="aadhaarErrors.number"
                                     name="aadhaar_number"
                                     [(ngModel)]="idProofs.aadhaar.number"
                                     (ngModelChange)="aadhaarErrors.number = ''"
@@ -289,20 +289,20 @@
                                 <div class="field-error" *ngIf="aadhaarErrors.number">{{ aadhaarErrors.number }}</div>
                             </div>
                             <div class="form-field"><label>Name <span class="required">*</span></label>
-                                <input type="text" class="form-control" [class.is-invalid]="aadhaarErrors.name"
+                                <input hlmInput type="text" [class.border-destructive]="aadhaarErrors.name"
                                     name="aadhaar_name"
                                     [(ngModel)]="idProofs.aadhaar.name"
                                     (ngModelChange)="aadhaarErrors.name = ''" />
                                 <div class="field-error" *ngIf="aadhaarErrors.name">{{ aadhaarErrors.name }}</div>
                             </div>
                             <div class="form-field"><label>Home Reason</label>
-                                <app-dropdown [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></app-dropdown>
+                                <hlm-select [options]="homeReasonOptions" [selectedValues]="selectedAadhaarHomeReason" placeholder="Select Home Reason" (selectionChange)="onAadhaarHomeReasonChange($event)" [closeOnSelect]="true"></hlm-select>
                             </div>
                             <div class="form-field"><label>Mobile Linked</label>
-                                <input type="tel" class="form-control" name="aadhaar_mobile_linked" [(ngModel)]="idProofs.aadhaar.mobile_linked" inputmode="numeric" maxlength="10" />
+                                <input hlmInput type="tel" name="aadhaar_mobile_linked" [(ngModel)]="idProofs.aadhaar.mobile_linked" inputmode="numeric" maxlength="10" />
                             </div>
                             <div class="form-field"><label>Renewal Date</label>
-                                <app-datepicker [value]="toDate(idProofs.aadhaar.renewal_date)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onAadhaarRenewalDateChange($event)"></app-datepicker>
+                                <hlm-datepicker [value]="toDate(idProofs.aadhaar.renewal_date)" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onAadhaarRenewalDateChange($event)"></hlm-datepicker>
                             </div>
                             <div class="form-field full-width"><label>Remarks</label>
                                 <textarea class="form-control" rows="2" name="aadhaar_remarks" [(ngModel)]="idProofs.aadhaar.remarks"></textarea>
@@ -348,8 +348,8 @@
                                         </div>
                                     </div>
                                     <div class="profile-image-actions">
-                                        <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageUpload()" [disabled]="isSavingSection['aadhaar']">Upload Aadhaar Document</button>
-                                        <button type="button" class="btn btn--primary btn--md" (click)="triggerAadhaarImageCapture()" [disabled]="isSavingSection['aadhaar']">Capture Live Aadhaar Document</button>
+                                        <button type="button" hlmBtn (click)="triggerAadhaarImageUpload()" [disabled]="isSavingSection['aadhaar']">Upload Aadhaar Document</button>
+                                        <button type="button" hlmBtn (click)="triggerAadhaarImageCapture()" [disabled]="isSavingSection['aadhaar']">Capture Live Aadhaar Document</button>
                                     </div>
                                 </div>
                             </div>
@@ -363,7 +363,7 @@
 </div>
 
 <!-- Profile Image Upload Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="imageModalOpen"
     [isOpen]="imageModalOpen"
     [title]="selectedImageType === 'capture' ? 'Capture Live Photo' : 'Upload Profile Image'"
@@ -383,10 +383,10 @@
             (removed)="onCameraImageRemoved()">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>
 
 <!-- Id Proof Upload Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="idProofModalOpen"
     [isOpen]="idProofModalOpen"
     [title]="idProofUploadType === 'capture' ? 'Capture Live Photo' : 'Upload Document'"
@@ -395,7 +395,7 @@
     <div class="modal-dropdown-form">
         <div class="form-field" *ngIf="!idProofUploadType">
             <label>Upload Method</label>
-            <app-dropdown [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true" [openDirection]="'down'"></app-dropdown>
+            <hlm-select [options]="idProofUploadOptions" [selectedValues]="selectedIdProofUploadType" placeholder="Select Method" (selectionChange)="onIdProofUploadTypeChange($event)" [closeOnSelect]="true" [openDirection]="'down'"></hlm-select>
         </div>
     </div>
     <ng-container *ngIf="idProofUploadType === 'upload'">
@@ -410,4 +410,4 @@
             (imageCaptured)="onIdProofImageCaptured($event)">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>

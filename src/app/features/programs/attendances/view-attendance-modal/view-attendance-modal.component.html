@@ -1,4 +1,4 @@
-<app-modal
+<hlm-dialog
     [isOpen]="isOpen"
     [title]="programName || 'Program Attendance'"
     size="extraLarge"
@@ -18,16 +18,16 @@
             </button>
         </div>
         <div class="tabs__right">
-            <button class="btn btn--primary btn--sm" *ngIf="activeTab === 'aggregated' && aggregatedRows.length > 0" (click)="downloadAggregatedCSV()">
+            <button hlmBtn size="sm" *ngIf="activeTab === 'aggregated' && aggregatedRows.length > 0" (click)="downloadAggregatedCSV()">
                 <app-icon name="download" />
                 <span>Download CSV</span>
             </button>
             <ng-container *ngIf="activeTab === 'details'">
-                <button class="btn btn--primary btn--sm" (click)="exportDetailsCSV()">
+                <button hlmBtn size="sm" (click)="exportDetailsCSV()">
                     <app-icon name="download" />
                     <span>Export to CSV</span>
                 </button>
-                <button class="btn btn--outline btn--sm" (click)="printDetails()">
+                <button hlmBtn variant="outline" size="sm" (click)="printDetails()">
                     <app-icon name="print" />
                     <span>Print</span>
                 </button>
@@ -39,7 +39,7 @@
     <div class="tab-panel" *ngIf="activeTab === 'aggregated'">
         <ng-container *ngIf="!isLoadingAggregated">
             <div *ngIf="aggregatedRows.length === 0" class="loading-cell">
-                <app-empty-state title="No Data" description="No aggregated attendance data available." size="small"></app-empty-state>
+                <hlm-empty-state title="No Data" description="No aggregated attendance data available." size="small"></hlm-empty-state>
             </div>
 
             <div class="agg-list" *ngIf="aggregatedRows.length > 0">
@@ -87,16 +87,16 @@
                 <input type="text" class="search-box__input" placeholder="Search volunteers..."
                     [(ngModel)]="filterTerm" [ngModelOptions]="{ standalone: true }" (keyup.enter)="applyFilter()" />
             </div>
-            <app-dropdown [options]="listViewOptions" [selectedValues]="selectedListViewType"
+            <hlm-select [options]="listViewOptions" [selectedValues]="selectedListViewType"
                 placeholder="Select Status" [closeOnSelect]="true"
                 (selectionChange)="selectedListViewType = $event">
-            </app-dropdown>
-            <app-dropdown [options]="sewaTypeOptions" [selectedValues]="selectedSewaType"
+            </hlm-select>
+            <hlm-select [options]="sewaTypeOptions" [selectedValues]="selectedSewaType"
                 placeholder="Select Sewa" [searchable]="true" [multiSelect]="true" [closeOnSelect]="false"
                 [showSelectedItems]="false"
                 (selectionChange)="selectedSewaType = $event">
-            </app-dropdown>
-            <button class="btn btn--primary btn--sm" (click)="applyFilter()">
+            </hlm-select>
+            <button hlmBtn size="sm" (click)="applyFilter()">
                 <app-icon name="search" />
                 <span>Search</span>
             </button>
@@ -114,30 +114,31 @@
             <button type="button" class="selected-filters__clear" (click)="clearSewaFilters()">Clear all</button>
         </div>
 
-        <!-- Table -->
-        <div class="table-container">
-            <table class="table">
-                <thead>
+        <!-- Table + pagination -->
+        <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Sewa</th>
-                        <th>Badge No.</th>
-                        <th *ngIf="!isVmsUser">Donation</th>
-                        <th>Status</th>
-                        <th>CheckIn</th>
-                        <th>Remarks</th>
-                        <th>Mobile</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">ID</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Badge No.</th>
+                        <th *ngIf="!isVmsUser" class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Donation</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Status</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">CheckIn</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Remarks</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Mobile</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoadingDetails">
                         <ng-container *ngFor="let record of volunteerRecords; trackBy: trackById">
-                        <tr class="data-row"
+                        <tr class="data-row border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative"
                         [class.is-expanded]="expandedIds.has(record.id)"
                         (click)="toggleExpand(record.id)">
-                            <td><span class="id-badge">{{ record.id }}</span></td>
-                            <td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top"><span class="id-badge">{{ record.id }}</span></td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <div class="name-with-image">
                                     <div class="volunteer-image">
                                         <img [src]="record.image || '/assets/img/placeholder.svg'" [alt]="record.name"
@@ -148,31 +149,31 @@
                                     <span class="name-text">{{ record.name }}</span>
                                 </div>
                             </td>
-                            <td>{{ record.sewa }}</td>
-                            <td>{{ record.badgeNo }}</td>
-                            <td *ngIf="!isVmsUser">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ record.sewa }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ record.badgeNo }}</td>
+                            <td *ngIf="!isVmsUser" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="record.donation">{{ record.donation }}</span>
                                 <span *ngIf="!record.donation" class="text-muted">-</span>
                             </td>
-                            <td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span class="status-badge" [ngClass]="getStatusClass(record)" *ngIf="hasStatus(record)">{{ getStatusLabel(record) }}</span>
                                 <span *ngIf="!hasStatus(record)" class="text-muted">-</span>
                             </td>
-                            <td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="record.checkIn" class="checkin-time">{{ record.checkIn }}</span>
                                 <span *ngIf="!record.checkIn" class="text-muted">-</span>
                             </td>
-                            <td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="record.remarks">{{ record.remarks }}</span>
                                 <span *ngIf="!record.remarks" class="text-muted">-</span>
                             </td>
-                            <td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="record.mobile">{{ record.mobile }}</span>
                                 <span *ngIf="!record.mobile" class="text-muted">-</span>
                             </td>
                        </tr>
-                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row">
-                            <td [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
+                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
                                 <div class="expanded-info">
                                     <div class="expanded-info__item">
                                         <span class="expanded-info__label">Phone</span>
@@ -190,9 +191,9 @@
                             </td>
                         </tr>
                        </ng-container>
-                        <tr *ngIf="volunteerRecords.length === 0">
-                            <td colspan="8" class="empty-cell">
-                                <app-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></app-empty-state>
+                        <tr *ngIf="volunteerRecords.length === 0" class="border-t border-border bg-card first:border-t-0 relative">
+                            <td colspan="8" class="empty-cell px-5 py-10 text-center">
+                                <hlm-empty-state title="No Data To Show" description="No volunteer attendance records found." size="small"></hlm-empty-state>
                             </td>
                         </tr>
                     </ng-container>
@@ -200,8 +201,9 @@
             </table>
         </div>
 
-        <app-pager [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+        <hlm-pagination [total]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
+        </div>
     </div>
-</app-modal>
+</hlm-dialog>

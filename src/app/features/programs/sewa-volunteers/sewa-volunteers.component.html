@@ -1,45 +1,45 @@
-<div class="sewa-volunteers-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Filter Section -->
     <div class="seaw-volunteers-filter">
         <div class="filter-field">
             <label class="filter-label">Program</label>
-            <app-dropdown
+            <hlm-select
                 [options]="programOptions"
                 [selectedValues]="selectedProgram"
                 placeholder="Programs"
                 (selectionChange)="selectedProgram = $event; onProgramChange()"
                 [closeOnSelect]="true">
-            </app-dropdown>
+            </hlm-select>
         </div>
         <div class="filter-field">
             <label class="filter-label">Sewa</label>
-            <app-dropdown
+            <hlm-select
                 [options]="sewaOptions"
                 [selectedValues]="selectedSewa"
                 placeholder="Sewas"
                 (selectionChange)="selectedSewa = $event; onSewaChange()"
                 [closeOnSelect]="true">
-            </app-dropdown>
+            </hlm-select>
         </div>
         <div class="filter-field">
             <label class="filter-label">Gender</label>
-            <app-dropdown
+            <hlm-select
                 [options]="genderOptions"
                 [selectedValues]="selectedGender"
                 placeholder="Gender"
                 (selectionChange)="selectedGender = $event; onGenderChange()"
                 [closeOnSelect]="true">
-            </app-dropdown>
+            </hlm-select>
         </div>
         <div class="filter-field">
             <label class="filter-label">Filter by Sewa Assignment</label>
-            <app-dropdown
+            <hlm-select
                 [options]="sewaAssignmentOptions"
                 [selectedValues]="selectedSewaAssignment"
                 placeholder="Filter by Sewa Assignment"
                 (selectionChange)="selectedSewaAssignment = $event; onSewaAssignmentChange()"
                 [closeOnSelect]="true">
-            </app-dropdown>
+            </hlm-select>
         </div>
     </div>
 
@@ -61,43 +61,43 @@
                         placeholder="Search..."
                     />
                 </div>
-                <app-dropdown
+                <hlm-select
                     [options]="unallocatedSortOptions"
                     [selectedValues]="selectedUnallocatedSort"
                     placeholder="Sort By"
                     (selectionChange)="onUnallocatedSortChange($event)"
                     [closeOnSelect]="true">
-                </app-dropdown>
-                <button class="btn btn--primary btn--sm" type="button" (click)="allocateVolunteers()">
+                </hlm-select>
+                <button hlmBtn size="sm" type="button" (click)="allocateVolunteers()">
                     Allocate
                 </button>
             </div>
 
             <!-- Error State -->
             <div *ngIf="errorUnallocated" class="unallocated-state">
-                <app-empty-state
+                <hlm-empty-state
                     [title]="'Error Loading Volunteers'"
                     [description]="errorUnallocated"
                     [icon]="'error_outline'"
                     [size]="'small'">
-                </app-empty-state>
+                </hlm-empty-state>
             </div>
 
             <!-- Empty State -->
             <div *ngIf="!errorUnallocated && pagedUnallocated.length === 0" class="unallocated-state">
-                <app-empty-state
+                <hlm-empty-state
                     [title]="unallocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Unallocated Volunteers'"
                     [description]="unallocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no unallocated volunteers available at the moment.'"
                     [size]="'small'">
-                </app-empty-state>
+                </hlm-empty-state>
             </div>
 
             <!-- Table -->
-            <div *ngIf="!errorUnallocated && pagedUnallocated.length > 0" class="table-container">
-                <table class="table">
-                    <thead>
+            <div *ngIf="!errorUnallocated && pagedUnallocated.length > 0" class="overflow-y-auto max-h-full rounded-lg border border-border">
+                <table class="w-full border-collapse text-sm">
+                    <thead class="bg-muted border-b border-border">
                         <tr>
-                            <th class="checkbox-column">
+                            <th class="checkbox-column sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                                 <input
                                     type="checkbox"
                                     [checked]="isAllUnallocatedSelected()"
@@ -105,27 +105,28 @@
                                     (change)="toggleSelectAllUnallocated($event)"
                                     (click)="$event.stopPropagation()">
                             </th>
-                            <th>Image</th>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Assigned Sewa</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Id</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Phone</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Assigned Sewa</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let volunteer of pagedUnallocated; trackBy: trackById"
+                            class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative"
                             [class.selected]="selectedUnallocated.has(volunteer.id)"
                             [class.disabled]="volunteer.hasAssignedSewa"
                             [title]="volunteer.hasAssignedSewa ? 'This user is currently assigned to the (' + (volunteer.assignedSewaName || 'another') + ') Sewa in this program. To assign a new Sewa, please first unassign the user from the current Sewa.' : ''"
                             (click)="!volunteer.hasAssignedSewa && toggleSelectUnallocated(volunteer.id, $event)">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column px-3 py-3 text-sm font-medium text-foreground align-top" (click)="$event.stopPropagation()">
                                 <input
                                     type="checkbox"
                                     [checked]="selectedUnallocated.has(volunteer.id)"
                                     [disabled]="volunteer.hasAssignedSewa"
                                     (change)="toggleSelectUnallocated(volunteer.id, $event)">
                             </td>
-                            <td data-label="Image" class="image-column">
+                            <td data-label="Image" class="image-column px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <div class="volunteer-image">
                                     <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                          [alt]="volunteer.name"
@@ -134,10 +135,10 @@
                                          onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                             </td>
-                            <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
-                            <td data-label="Name" class="name">{{ volunteer.name }}</td>
-                            <td data-label="Phone">{{ volunteer.phone || '-' }}</td>
-                            <td data-label="Assigned Sewa">
+                            <td data-label="Id" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.uniqueId || volunteer.id }}</td>
+                            <td data-label="Name" class="name px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.name }}</td>
+                            <td data-label="Phone" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.phone || '-' }}</td>
+                            <td data-label="Assigned Sewa" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="volunteer.hasAssignedSewa" class="assigned-tag">
                                     {{ volunteer.assignedSewaName || 'Assigned' }}
                                 </span>
@@ -174,36 +175,36 @@
                         placeholder="Search..."
                     />
                 </div>
-                <button class="btn btn--secondary btn--sm" type="button" (click)="unassignVolunteers()">
+                <button hlmBtn variant="secondary" size="sm" type="button" (click)="unassignVolunteers()">
                     Unassign
                 </button>
             </div>
 
             <!-- Error State -->
             <div *ngIf="errorAllocated" class="allocated-state">
-                <app-empty-state
+                <hlm-empty-state
                     [title]="'Error Loading Volunteers'"
                     [description]="errorAllocated"
                     [icon]="'error_outline'"
                     [size]="'small'">
-                </app-empty-state>
+                </hlm-empty-state>
             </div>
 
             <!-- Empty State -->
             <div *ngIf="!errorAllocated && pagedAllocated.length === 0" class="allocated-state">
-                <app-empty-state
+                <hlm-empty-state
                     [title]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No Results Found' : 'No Allocated Volunteers'"
                     [description]="allocatedSearchTerm || selectedProgram.length > 0 && !selectedProgram.includes('None') || selectedSewa.length > 0 || selectedGender.length > 0 && !selectedGender.includes('None') ? 'No volunteers match your search criteria.' : 'There are no allocated volunteers available at the moment.'"
                     [size]="'small'">
-                </app-empty-state>
+                </hlm-empty-state>
             </div>
 
             <!-- Table (only shown when there's data) -->
-            <div *ngIf="!errorAllocated && pagedAllocated.length > 0" class="table-container">
-                <table class="table">
-                    <thead>
+            <div *ngIf="!errorAllocated && pagedAllocated.length > 0" class="overflow-y-auto max-h-full rounded-lg border border-border">
+                <table class="w-full border-collapse text-sm">
+                    <thead class="bg-muted border-b border-border">
                         <tr>
-                            <th class="checkbox-column">
+                            <th class="checkbox-column sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                                 <input
                                     type="checkbox"
                                     [checked]="isAllAllocatedSelected()"
@@ -211,39 +212,39 @@
                                     (change)="toggleSelectAllAllocated($event)"
                                     (click)="$event.stopPropagation()">
                             </th>
-                            <th>Head</th>
-                            <th>Sub Head</th>
-                            <th>Id</th>
-                            <th>Badge No</th>
-                            <th>Name</th>
-                            <th>Image</th>
-                            <th>Sewa</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Head</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sub Head</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Id</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Badge No</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let volunteer of pagedAllocated; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td class="checkbox-column" (click)="$event.stopPropagation()">
+                        <tr *ngFor="let volunteer of pagedAllocated; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative" (click)="$event.stopPropagation()">
+                            <td class="checkbox-column px-3 py-3 text-sm font-medium text-foreground align-top" (click)="$event.stopPropagation()">
                                 <input
                                     type="checkbox"
                                     [checked]="selectedAllocated.has(volunteer.id)"
                                     (change)="toggleSelectAllocated(volunteer.id, $event)">
                             </td>
-                            <td data-label="Head" (click)="$event.stopPropagation()">
+                            <td data-label="Head" class="px-3 py-3 text-sm font-medium text-foreground align-top" (click)="$event.stopPropagation()">
                                 <input type="checkbox"
                                     [checked]="volunteer.headChecked"
                                     [disabled]="volunteer.subHeadChecked"
                                     (change)="toggleHead(volunteer, $event)" />
                             </td>
-                            <td data-label="Sub Head" (click)="$event.stopPropagation()">
+                            <td data-label="Sub Head" class="px-3 py-3 text-sm font-medium text-foreground align-top" (click)="$event.stopPropagation()">
                                 <input type="checkbox"
                                     [checked]="volunteer.subHeadChecked"
                                     [disabled]="volunteer.headChecked"
                                     (change)="toggleSubHead(volunteer, $event)" />
                             </td>
-                            <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
-                            <td data-label="Badge No">{{ volunteer.badgeNo || '-' }}</td>
-                            <td data-label="Name" class="name">{{ volunteer.name }}</td>
-                            <td data-label="Image" class="image-column">
+                            <td data-label="Id" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.uniqueId || volunteer.id }}</td>
+                            <td data-label="Badge No" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.badgeNo || '-' }}</td>
+                            <td data-label="Name" class="name px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.name }}</td>
+                            <td data-label="Image" class="image-column px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <div class="volunteer-image">
                                     <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                          [alt]="volunteer.name"
@@ -252,7 +253,7 @@
                                          onerror="this.src='/assets/img/placeholder.svg'">
                                 </div>
                             </td>
-                            <td data-label="Sewa">{{ volunteer.sewa || '-' }}</td>
+                            <td data-label="Sewa" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.sewa || '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -290,12 +291,12 @@
                 <div class="unassign-form">
                     <div class="form-group">
                         <label>Reason <span class="required">*</span></label>
-                        <app-dropdown
+                        <hlm-select
                             [options]="unassignReasonOptions"
                             [selectedValues]="selectedUnassignReason"
                             placeholder="Select reason"
                             [closeOnSelect]="true"
-                            (selectionChange)="onUnassignReasonChange($event)"></app-dropdown>
+                            (selectionChange)="onUnassignReasonChange($event)"></hlm-select>
                     </div>
                     <div class="form-group">
                         <label>Remarks</label>
@@ -306,8 +307,8 @@
             </div>
 
             <div class="confirmation-dialog__footer">
-                <button type="button" class="btn btn--secondary btn--md" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
-                <button type="button" class="btn btn--danger btn--md" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
+                <button hlmBtn variant="secondary" type="button" (click)="closeUnassignModal()" [disabled]="isUnassigning">Cancel</button>
+                <button hlmBtn variant="destructive" type="button" (click)="confirmUnassign()" [disabled]="isUnassigning">Submit</button>
             </div>
         </div>
     </div>

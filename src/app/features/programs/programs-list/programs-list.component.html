@@ -1,9 +1,9 @@
-<div class="programs-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <ng-container *ngIf="!isLoading">
         <!-- Error state -->
         <div *ngIf="error" class="error-state">
             <p>{{ error }}</p>
-            <button class="btn btn--primary btn--sm" (click)="loadPrograms()">Retry</button>
+            <button hlmBtn size="sm" (click)="loadPrograms()">Retry</button>
         </div>
 
         <!-- Search & Filter Panel -->
@@ -24,7 +24,7 @@
             </div>
             <div class="filter-field">
                 <label class="filter-label">Task Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="Select"
@@ -32,7 +32,7 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event; onTaskBranchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label class="filter-label">Start Date</label>
@@ -75,22 +75,22 @@
             <div class="filter-field filter-field--actions">
                 <label class="filter-label">&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--outline btn--sm" type="button" (click)="applyFilters()">Search</button>
-                    <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">Add New</button>
+                    <button hlmBtn variant="outline" size="sm" type="button" (click)="applyFilters()">Search</button>
+                    <button hlmBtn size="sm" type="button" (click)="openAddModal()">Add New</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Programs Cards -->
-    <div class="listing-wrapper">
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
         <!-- Empty state -->
         <div *ngIf="pagedPrograms.length === 0" class="empty-wrapper">
-            <app-empty-state
+            <hlm-empty-state
                 [title]="searchTerm ? 'No Results Found' : 'No Programs Found'"
                 [description]="searchTerm ? 'No programs match your search criteria.' : 'There are no programs available at the moment.'"
                 [size]="'small'">
-            </app-empty-state>
+            </hlm-empty-state>
         </div>
 
         <!-- Program Cards -->
@@ -100,10 +100,10 @@
                     <div class="card-title-row">
                         <h3 class="card-title">{{ program.name }}</h3>
                         <div class="card-actions">
-                            <app-menu-dropdown
+                            <hlm-menu
                                 [options]="getActionOptions(program)"
                                 (selectionChange)="onAction(program, $event)">
-                            </app-menu-dropdown>
+                            </hlm-menu>
                         </div>
                     </div>
                     <div class="card-meta">
@@ -150,19 +150,19 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
     </div>
     </ng-container>
 
     <!-- Assign Volunteer Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="assignVolunteerModalOpen"
         [isOpen]="assignVolunteerModalOpen"
         [title]="'Assign Volunteer' + (assignVolunteerProgram?.name ? ' — ' + assignVolunteerProgram?.name : '')"
@@ -172,7 +172,7 @@
         <div class="modal-dropdown-form">
             <div class="form-field">
                 <label>Select Sewa</label>
-                <app-dropdown
+                <hlm-select
                     [options]="assignSewaOptions"
                     [selectedValues]="selectedAssignSewas"
                     [placeholder]="isLoadingAssignSewas ? 'Loading sewas…' : 'Type to search sewa…'"
@@ -184,7 +184,7 @@
                     [loading]="isLoadingAssignSewas"
                     (selectionChange)="selectedAssignSewas = $event"
                     [closeOnSelect]="false">
-                </app-dropdown>
+                </hlm-select>
                 <div class="assign-sewa-chips" *ngIf="getSelectedAssignSewaOptions().length">
                     <div class="assign-sewa-chips__list">
                         <span class="assign-sewa-chips__chip" *ngFor="let opt of getSelectedAssignSewaOptions()">
@@ -203,22 +203,22 @@
             
             <div class="form-field">
                 <label>Level</label>
-                <app-dropdown
+                <hlm-select
                     [options]="assignLevelOptions"
                     [selectedValues]="selectedAssignLevel"
                     placeholder="Select level"
                     (selectionChange)="selectedAssignLevel = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="form-field">
-                <label for="assignCode">Code</label>
-                <input type="password" id="assignCode" class="form-control" autocomplete="new-password" [(ngModel)]="assignCode" [ngModelOptions]="{ standalone: true }" placeholder="Enter code">
+                <label hlmLabel for="assignCode">Code</label>
+                <input hlmInput type="password" id="assignCode" autocomplete="new-password" [(ngModel)]="assignCode" [ngModelOptions]="{ standalone: true }" placeholder="Enter code">
             </div>
 
             <div class="assign-volunteer-actions">
-                <button type="button" class="btn btn--secondary btn--md" (click)="closeAssignVolunteerModal()">Close</button>
-                <button type="button" class="btn btn--primary btn--md" [disabled]="isSubmittingAssign || !selectedAssignLevel.length" (click)="onAssignVolunteerFooterAction('submit')">
+                <button hlmBtn variant="secondary" type="button" (click)="closeAssignVolunteerModal()">Close</button>
+                <button hlmBtn type="button" [disabled]="isSubmittingAssign || !selectedAssignLevel.length" (click)="onAssignVolunteerFooterAction('submit')">
                     {{ isSubmittingAssign ? 'Saving…' : 'Save' }}
                 </button>
             </div>
@@ -230,14 +230,14 @@
                     <div class="assign-result-item__main">
                         <div class="assign-result-item__sewa">{{ u.sewa_name }}</div>
                     </div>
-                    <button type="button" class="btn btn--secondary btn--sm" (click)="openAssignVolunteerResultView(u)">View</button>
+                    <button hlmBtn variant="secondary" size="sm" type="button" (click)="openAssignVolunteerResultView(u)">View</button>
                 </div>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Assign Volunteer — view result side panel -->
-    <app-side-panel
+    <hlm-sheet
         *ngIf="assignVolunteerViewPanelOpen"
         [isOpen]="assignVolunteerViewPanelOpen"
         title="View Volunteer"
@@ -254,10 +254,10 @@
             [userIdInput]="assignVolunteerViewUserId"
             (closed)="closeAssignVolunteerResultView()">
         </app-volunteer-view>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Delete Confirmation Dialog -->
-    <app-confirmation-dialog
+    <hlm-alert-dialog
         *ngIf="showDeleteConfirm"
         [isOpen]="showDeleteConfirm"
         title="Delete Program"
@@ -268,5 +268,5 @@
         confirmType="danger"
         (confirm)="onDeleteConfirm()"
         (cancel)="onDeleteCancel()">
-    </app-confirmation-dialog>
+    </hlm-alert-dialog>
 </div>

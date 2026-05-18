@@ -7,11 +7,12 @@ import { of } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective } from '../../../shared/ui';
 
 export interface UnallocatedVolunteer {
   id: number;
@@ -44,10 +45,11 @@ export interface AllocatedVolunteer {
     CommonModule,
     RouterModule,
     FormsModule,
-    DropdownComponent,
-    EmptyStateComponent,
+    HlmSelectComponent,
+    HlmEmptyStateComponent,
     IconComponent,
-    ImagePreviewDirective
+    ImagePreviewDirective,
+    HlmButtonDirective
   ],
   selector: 'app-sewa-volunteers',
   templateUrl: './sewa-volunteers.component.html',

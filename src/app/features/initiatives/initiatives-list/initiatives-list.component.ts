@@ -2,14 +2,15 @@ import { Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { AddInitiativeModalComponent } from './add-initiative-modal/add-initiative-modal.component';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -25,12 +26,14 @@ export interface Initiative {
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    DropdownComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    HlmSelectComponent,
     AddInitiativeModalComponent,
-    IconComponent
+    IconComponent,
+    HlmButtonDirective,
+    HlmInputDirective
   ],
   selector: 'app-initiatives-list',
   templateUrl: './initiatives-list.component.html',

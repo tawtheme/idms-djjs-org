@@ -4,16 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
-import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { HlmSheetComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 export interface VolunteerCard {
   id: number;
@@ -53,13 +54,16 @@ export interface VolunteerCard {
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    DropdownComponent,
-    DatepickerComponent,
-    EmptyStateComponent,
+    HlmPaginationComponent,
+    HlmSelectComponent,
+    HlmDatepickerComponent,
+    HlmEmptyStateComponent,
     IconComponent,
     ImagePreviewDirective,
-    SidePanelComponent
+    HlmSheetComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
   selector: 'app-volunteer-cards',
   templateUrl: './volunteer-cards.component.html',

@@ -1,37 +1,35 @@
-<div class="attendances-container">
-    <div class="attendances-card">
-        <div class="attendances-card__header">
-            <h2 class="attendances-card__title">Attendances</h2>
+<div class="mx-auto max-w-2xl px-4 py-6">
+    <div class="rounded-xl border border-border bg-card p-6">
+        <div class="mb-6">
+            <h2 class="m-0 text-2xl font-bold text-foreground">Attendances</h2>
         </div>
 
-        <div class="attendances-card__body">
-            <div class="attendances-form">
-                <div class="form-group">
-                    <label class="form-label">
-                        Select Program <span class="required">*</span>
-                    </label>
-                    <app-dropdown
-                        [options]="programOptions"
-                        [selectedValues]="selectedProgram"
-                        placeholder="Select Program"
-                        [searchable]="true"
-                        [closeOnSelect]="true"
-                        (selectionChange)="onProgramChange($event)">
-                    </app-dropdown>
-                </div>
+        <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel>
+                    Select Program <span class="text-destructive">*</span>
+                </label>
+                <hlm-select
+                    [options]="programOptions"
+                    [selectedValues]="selectedProgram"
+                    placeholder="Select Program"
+                    [searchable]="true"
+                    [closeOnSelect]="true"
+                    (selectionChange)="onProgramChange($event)">
+                </hlm-select>
+            </div>
 
-                <div class="attendances-actions">
-                    <button class="btn btn--primary btn--sm" type="button"
-                        [disabled]="!selectedProgram.length"
-                        (click)="checkIn()">
-                        Check In
-                    </button>
-                    <button class="btn btn--outline btn--sm" type="button"
-                        [disabled]="!selectedProgram.length"
-                        (click)="checkOut()">
-                        Check Out
-                    </button>
-                </div>
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button hlmBtn size="sm" type="button"
+                    [disabled]="!selectedProgram.length"
+                    (click)="checkIn()">
+                    Check In
+                </button>
+                <button hlmBtn variant="outline" size="sm" type="button"
+                    [disabled]="!selectedProgram.length"
+                    (click)="checkOut()">
+                    Check Out
+                </button>
             </div>
         </div>
     </div>

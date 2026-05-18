@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmSheetComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 
 /**
  * Component for adding new branches
@@ -15,11 +16,12 @@ import { DropdownComponent, DropdownOption } from '../../../../shared/components
   imports: [
     CommonModule,
     FormsModule,
-    SidePanelComponent,
-    DropdownComponent
+    HlmSheetComponent,
+    HlmSelectComponent,
+    HlmInputDirective,
+    HlmLabelDirective,
   ],
-  templateUrl: './add-branch-modal.component.html',
-  styleUrls: ['./add-branch-modal.component.scss']
+  templateUrl: './add-branch-modal.component.html'
 })
 export class AddBranchModalComponent {
   /** Whether the sidepanel is open */
@@ -229,4 +231,3 @@ export class AddBranchModalComponent {
     this.status = 'Active';
   }
 }
-

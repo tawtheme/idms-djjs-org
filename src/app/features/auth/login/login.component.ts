@@ -5,13 +5,13 @@ import { Router, RouterModule } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, IconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, IconComponent, HlmButtonDirective, HlmInputDirective, HlmLabelDirective],
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   email = '';

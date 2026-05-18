@@ -1,89 +1,89 @@
-<div class="projects-container">
-    <div class="projects-header">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
+    <div class="flex items-center justify-between">
     </div>
 
     <!-- Filter Section -->
-    <div class="listing-search">
-        <div class="listing-search-item">
-            <app-dropdown
+    <div class="flex flex-row justify-between gap-6">
+        <div class="flex flex-1 justify-between gap-3">
+            <hlm-select
                 [options]="taskBranchOptions"
                 [selectedValues]="selectedTaskBranch"
                 [searchable]="true"
                 [closeOnSelect]="true"
                 placeholder="Branch"
                 (selectionChange)="onTaskBranchChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
-        <button class="btn btn--primary btn--sm" type="button" (click)="openAddModal()">
+        <button hlmBtn size="sm" type="button" (click)="openAddModal()">
             Add New
         </button>
     </div>
 
     <!-- Projects table -->
-    <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th (click)="sortBy('name')" class="sortable">
+                        <th (click)="sortBy('name')" class="sortable sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                             Name
-                            <app-icon [name]="getSortIcon('name')" class="sort-icon" />
+                            <app-icon [name]="getSortIcon('name')" class="sort-icon" [size]="14" />
                         </th>
-                        <th (click)="sortBy('projectHead')" class="sortable">
+                        <th (click)="sortBy('projectHead')" class="sortable sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                             Project Head
-                            <app-icon [name]="getSortIcon('projectHead')" class="sort-icon" />
+                            <app-icon [name]="getSortIcon('projectHead')" class="sort-icon" [size]="14" />
                         </th>
-                        <th (click)="sortBy('initiativeName')" class="sortable">
+                        <th (click)="sortBy('initiativeName')" class="sortable sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                             Initiative Name
-                            <app-icon [name]="getSortIcon('initiativeName')" class="sort-icon" />
+                            <app-icon [name]="getSortIcon('initiativeName')" class="sort-icon" [size]="14" />
                         </th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th (click)="sortBy('createdAt')" class="sortable">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Description</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Status</th>
+                        <th (click)="sortBy('createdAt')" class="sortable sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                             Created At
-                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" />
+                            <app-icon [name]="getSortIcon('createdAt')" class="sort-icon" [size]="14" />
                         </th>
-                        <th class="action-column">Action</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-xs font-semibold text-muted-foreground text-right whitespace-nowrap">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let project of pagedProjects; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td data-label="Name" class="name">
+                        <tr *ngFor="let project of pagedProjects; trackBy: trackById" (click)="$event.stopPropagation()" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td data-label="Name" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 {{ project.name }}
                             </td>
-                            <td data-label="Project Head">
+                            <td data-label="Project Head" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 {{ project.projectHead }}
                             </td>
-                            <td data-label="Initiative Name">
+                            <td data-label="Initiative Name" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 {{ project.initiativeName }}
                             </td>
-                            <td data-label="Description">
+                            <td data-label="Description" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 {{ project.description }}
                             </td>
-                            <td data-label="Status" class="status">
+                            <td data-label="Status" class="status px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span class="status-badge" [ngClass]="'status-' + (project.status | lowercase)">
                                     {{ project.status }}
                                 </span>
                             </td>
-                            <td data-label="Created At" class="date">
+                            <td data-label="Created At" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 {{ project.createdAt }}
                             </td>
-                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
+                            <td data-label="Action" class="px-3 py-3 text-sm font-medium text-foreground align-top text-right" (click)="$event.stopPropagation()">
+                                <hlm-menu
                                     [options]="getActionOptions(project)"
                                     (selectionChange)="onAction(project, $event)">
-                                </app-menu-dropdown>
+                                </hlm-menu>
                             </td>
                         </tr>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedProjects.length === 0">
-                            <td [attr.colspan]="7" class="empty-state-cell">
-                                <app-empty-state
+                        <tr *ngIf="pagedProjects.length === 0" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td [attr.colspan]="7" class="px-5 py-10 text-center">
+                                <hlm-empty-state
                                     [title]="searchTerm ? 'No Results Found' : 'No Projects Found'"
                                     [description]="searchTerm ? 'No projects match your search criteria.' : 'There are no projects available at the moment.'"
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                     </ng-container>
@@ -92,14 +92,14 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-         </app-pager>
+         </hlm-pagination>
      </div>
 
      <!-- Add New Project Modal - Only render when needed -->

@@ -1,8 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-
-// Apply shared listing styles
-@include listing.listing('.programs');
 
 .assign-result-list {
     display: flex;

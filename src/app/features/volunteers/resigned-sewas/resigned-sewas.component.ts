@@ -4,18 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { OptionsService } from '../../../core/services/options.service';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { HlmDialogComponent } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 export interface ResignedSewa {
   id: number;
@@ -39,14 +40,17 @@ export interface ResignedSewa {
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    DropdownComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    HlmSelectComponent,
     IconComponent,
     ImagePreviewDirective,
-    ModalComponent,
-    DatepickerComponent
+    HlmDialogComponent,
+    HlmDatepickerComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
   selector: 'app-resigned-sewas',
   templateUrl: './resigned-sewas.component.html',

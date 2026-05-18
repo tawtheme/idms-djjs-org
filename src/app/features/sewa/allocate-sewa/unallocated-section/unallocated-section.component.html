@@ -5,10 +5,10 @@
 
     <div class="section-controls">
         <div class="search-control">
-            <input type="text" class="form-control" [(ngModel)]="searchTerm" placeholder="Search..."
+            <input hlmInput type="text" [(ngModel)]="searchTerm" placeholder="Search..."
                 (keyup.enter)="onSearchEnter()">
         </div>
-        <button class="btn btn--primary btn--sm" type="button" (click)="onAllocate()"
+        <button hlmBtn size="sm" type="button" (click)="onAllocate()"
             [disabled]="selectedIds.size === 0">
             Allocate
         </button>
@@ -20,32 +20,33 @@
     </div>
 
     <!-- Table -->
-    <div *ngIf="volunteers.length > 0" class="table-container">
-        <table class="table">
-            <thead>
+    <div *ngIf="volunteers.length > 0" class="overflow-y-auto max-h-full rounded-lg border border-border">
+        <table class="w-full border-collapse text-sm">
+            <thead class="bg-muted border-b border-border">
                 <tr>
-                    <th class="checkbox-column">
+                    <th class="checkbox-column sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                         <input type="checkbox"
                             [checked]="isAllSelected()"
                             [indeterminate]="isIndeterminate()"
                             (change)="toggleSelectAll($event)"
                             (click)="$event.stopPropagation()">
                     </th>
-                    <th>Image</th>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Phone</th>
+                    <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                    <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Id</th>
+                    <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                    <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Phone</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let volunteer of volunteers; trackBy: trackById"
+                    class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative"
                     [class.selected]="selectedIds.has(volunteer.id)"
                     (click)="toggleSelect(volunteer.id, $event)">
-                    <td class="checkbox-column" (click)="$event.stopPropagation()">
+                    <td class="checkbox-column px-3 py-3 text-sm font-medium text-foreground align-top" (click)="$event.stopPropagation()">
                         <input type="checkbox" [checked]="selectedIds.has(volunteer.id)"
                             (change)="toggleSelect(volunteer.id, $event)">
                     </td>
-                    <td data-label="Image" class="image-column">
+                    <td data-label="Image" class="image-column px-3 py-3 text-sm font-medium text-foreground align-top">
                         <div class="volunteer-image">
                             <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                  [alt]="volunteer.name"
@@ -54,9 +55,9 @@
                                  onerror="this.src='/assets/img/placeholder.svg'">
                         </div>
                     </td>
-                    <td data-label="Id">{{ volunteer.uniqueId || volunteer.id }}</td>
-                    <td data-label="Name" class="name">{{ volunteer.name }}</td>
-                    <td data-label="Phone">{{ volunteer.phone || '-' }}</td>
+                    <td data-label="Id" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.uniqueId || volunteer.id }}</td>
+                    <td data-label="Name" class="name px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.name }}</td>
+                    <td data-label="Phone" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ volunteer.phone || '-' }}</td>
                 </tr>
             </tbody>
         </table>

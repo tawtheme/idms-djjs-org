@@ -1,16 +1,16 @@
-<div class="resigned-sewas-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadResignedSewas()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadResignedSewas()">Retry</button>
     </div>
 
     <ng-container *ngIf="!error">
     <!-- Search & Filter Panel -->
     <div class="filters-grid filters-grid--five">
             <div class="filter-field">
-                <label>Task Branch</label>
-                <app-dropdown
+                <label hlmLabel>Task Branch</label>
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="None"
@@ -18,11 +18,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Sewas</label>
-                <app-dropdown
+                <label hlmLabel>Sewas</label>
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="moreFilters.sewa"
                     placeholder="None"
@@ -30,14 +30,14 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>BadgeNo</label>
+                <label hlmLabel>BadgeNo</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.badgeNo"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -47,21 +47,21 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Gender</label>
-                <app-dropdown
+                <label hlmLabel>Gender</label>
+                <hlm-select
                     [options]="genderOptions"
                     [selectedValues]="selectedGender"
                     placeholder="None"
                     (selectionChange)="selectedGender = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Name</label>
+                <label hlmLabel>Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.name"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -71,11 +71,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Relation Name</label>
+                <label hlmLabel>Relation Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.relationName"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -85,11 +85,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Mobile No.</label>
+                <label hlmLabel>Mobile No.</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.mobileNo"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -99,11 +99,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>UID</label>
+                <label hlmLabel>UID</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.uid"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -113,11 +113,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Address</label>
+                <label hlmLabel>Address</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         [(ngModel)]="moreFilters.address"
                         [ngModelOptions]="{ standalone: true }"
                         (input)="onSearchChange()" />
@@ -129,36 +129,36 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport()">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
+                    <button hlmBtn type="button" (click)="applyFilter()">Search</button>
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting" (click)="exportReport()">{{ isExporting ? 'Exporting...' : 'Export' }}</button>
                 </div>
             </div>
     </div>
 
     <!-- Resigned Sewas table -->
-    <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th>Id</th>
-                        <th>User Name</th>
-                        <th>Task Branch</th>
-                        <th>Corr. Br</th>
-                        <th>Sewa</th>
-                        <th>Badge No</th>
-                        <th>Reason</th>
-                        <th>Resgined Date</th>
-                        <th>Enter By</th>
-                        <th class="action-column">Action</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Id</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">User Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Task Branch</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Corr. Br</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Badge No</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Reason</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Resgined Date</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Enter By</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground text-right whitespace-nowrap">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                        <tr *ngFor="let resignedSewa of pagedResignedSewas; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td data-label="Id">
+                        <tr *ngFor="let resignedSewa of pagedResignedSewas; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative" (click)="$event.stopPropagation()">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">
                                 {{ resignedSewa.id }}
                             </td>
-                            <td data-label="User Name" class="name-with-image">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top name-with-image" data-label="User Name">
                                 <div class="resigned-sewa-image">
                                     <img [src]="resignedSewa.image || '/assets/img/placeholder.svg'"
                                          [alt]="resignedSewa.userName"
@@ -168,43 +168,43 @@
                                 </div>
                                 {{ resignedSewa.userName }}
                             </td>
-                            <td data-label="Task Branch">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Task Branch">
                                 {{ resignedSewa.taskBranch }}
                             </td>
-                            <td data-label="Corr. Br">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Corr. Br">
                                 {{ resignedSewa.correspondingBranch }}
                             </td>
-                            <td data-label="Sewa">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa">
                                 {{ resignedSewa.sewa }}
                             </td>
-                            <td data-label="Badge No">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Badge No">
                                 <span class="badge-badge">{{ resignedSewa.badgeNo }}</span>
                             </td>
-                            <td data-label="Reason">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Reason">
                                 {{ resignedSewa.reason }}
                             </td>
-                            <td data-label="Resgined Date" class="date">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top date" data-label="Resgined Date">
                                 {{ resignedSewa.resignedDate }}
                             </td>
-                            <td data-label="Enter By">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Enter By">
                                 {{ resignedSewa.enterBy || '-' }}
                             </td>
-                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top text-right" data-label="Action" (click)="$event.stopPropagation()">
+                                <hlm-menu
                                     *ngIf="getActionOptions(resignedSewa).length > 0"
                                     [options]="getActionOptions(resignedSewa)"
                                     (selectionChange)="onAction(resignedSewa, $event)">
-                                </app-menu-dropdown>
+                                </hlm-menu>
                             </td>
                         </tr>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedResignedSewas.length === 0">
-                            <td [attr.colspan]="10" class="empty-state-cell">
-                                <app-empty-state
+                        <tr *ngIf="pagedResignedSewas.length === 0" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td [attr.colspan]="10" class="px-5 py-10 text-center">
+                                <hlm-empty-state
                                     [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Resigned Sewas Found'"
                                     [description]="hasAnyActiveFilter() ? 'No resigned sewas match your search criteria.' : 'There are no resigned sewas to display at the moment.'"
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                 </tbody>
@@ -212,19 +212,19 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
     </div>
     </ng-container>
 
     <!-- Reinstate User Modal -->
-    <app-modal
+    <hlm-dialog
         [isOpen]="isReinstateModalOpen"
         [title]="'Reinstate User'"
         [size]="'medium'"
@@ -232,17 +232,17 @@
         <div class="reinstate-form">
             <div class="reinstate-grid">
                 <div class="reinstate-field">
-                    <label>Date <span class="required">*</span></label>
-                    <app-datepicker
+                    <label hlmLabel>Date <span class="required">*</span></label>
+                    <hlm-datepicker
                         [value]="reinstateForm.date"
                         placeholder="Select Date"
                         format="dd/MM/yyyy"
                         (dateChange)="reinstateForm.date = $event">
-                    </app-datepicker>
+                    </hlm-datepicker>
                 </div>
                 <div class="reinstate-field">
-                    <label>Sewa <span class="required">*</span></label>
-                    <app-dropdown
+                    <label hlmLabel>Sewa <span class="required">*</span></label>
+                    <hlm-select
                         [options]="sewaOptions"
                         [selectedValues]="reinstateForm.sewa"
                         placeholder="Search and select sewas"
@@ -251,12 +251,12 @@
                         [multiSelect]="false"
                         (selectionChange)="reinstateForm.sewa = $event"
                         [closeOnSelect]="false">
-                    </app-dropdown>
+                    </hlm-select>
                     <small class="hint">You can select multiple sewa.</small>
                 </div>
                 <div class="reinstate-field">
-                    <label>Sewa Mode<span class="required">*</span></label>
-                    <app-dropdown
+                    <label hlmLabel>Sewa Mode<span class="required">*</span></label>
+                    <hlm-select
                         [options]="sewaModeOptions"
                         [selectedValues]="reinstateForm.sewaMode ? [reinstateForm.sewaMode] : []"
                         placeholder="Search and select sewa mode"
@@ -265,14 +265,15 @@
                         [multiSelect]="false"
                         (selectionChange)="reinstateForm.sewaMode = $event[0]"
                         [closeOnSelect]="false">
-                    </app-dropdown>
+                    </hlm-select>
                 </div>
             </div>
 
             <div class="reinstate-field reinstate-field--full">
-                <label>Remarks</label>
+                <label hlmLabel>Remarks</label>
                 <textarea
-                    class="form-control"
+                    hlmInput
+                    class="min-h-[70px] py-2"
                     rows="3"
                     placeholder="Add any context for this reinstatement (optional)"
                     [(ngModel)]="reinstateForm.remarks"
@@ -281,11 +282,11 @@
             </div>
 
             <div class="reinstate-actions">
-                <button class="btn btn--secondary btn--md" type="button" (click)="closeReinstateModal()">Cancel</button>
-                <button class="btn btn--primary btn--md" type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
+                <button hlmBtn variant="secondary" type="button" (click)="closeReinstateModal()">Cancel</button>
+                <button hlmBtn type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
                     {{ isSubmittingReinstate ? 'Reinstating...' : 'Reinstate User' }}
                 </button>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 </div>

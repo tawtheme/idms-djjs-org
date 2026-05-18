@@ -7,11 +7,12 @@ import { of } from 'rxjs';
 
 import { DataService } from '../../../data.service';
 import { applyTableSort } from '../../../shared/utils/table-sort';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 
 interface ProgramReportRow {
     id: string;
@@ -48,11 +49,13 @@ type SortField =
         CommonModule,
         FormsModule,
         RouterModule,
-        DropdownComponent,
-        DatepickerComponent,
-        PagerComponent,
-        EmptyStateComponent,
-        IconComponent
+        HlmSelectComponent,
+        HlmDatepickerComponent,
+        HlmPaginationComponent,
+        HlmEmptyStateComponent,
+        IconComponent,
+        HlmButtonDirective,
+        HlmInputDirective
     ],
     templateUrl: './programs-report.component.html',
     styleUrls: ['./programs-report.component.scss']

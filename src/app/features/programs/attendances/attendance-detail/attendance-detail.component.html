@@ -1,4 +1,4 @@
-<div class="attendance-detail-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Summary Section -->
     <div class="summary-section">
         <div class="summary-section__top">
@@ -34,7 +34,7 @@
                         <span class="summary-stat__label">Total Left</span>
                     </div>
                 </div>
-                <button class="btn btn--primary summary-row__action" type="button" (click)="openAttendanceModal()">
+                <button hlmBtn class="summary-row__action" type="button" (click)="openAttendanceModal()">
                     <app-icon name="visibility" />
                     <span>View Attendance Details</span>
                 </button>
@@ -65,7 +65,7 @@
     <div *ngIf="error && !isLoading" class="error-state">
         <app-icon name="error_outline" class="error-state__icon" />
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadAttendanceData()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadAttendanceData()">Retry</button>
     </div>
 
     <!-- Table Section -->
@@ -94,8 +94,8 @@
                 <span class="table-section__count">{{ totalItems }} records</span>
             </div>
         </div>
-        <div class="table-container">
-            <table class="table">
+        <div class="table-container overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="table w-full border-collapse text-sm">
                 <colgroup *ngIf="attendanceMode === 'checkin'">
                     <col style="width: 7%;">
                     <col style="width: 20%;">
@@ -115,29 +115,29 @@
                     <col style="width: 18%;">
                     <col style="width: 15%;">
                 </colgroup>
-                <thead>
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Badge No</th>
-                        <th>Sewa</th>
-                        <th *ngIf="!isVmsUser">Donation</th>
-                        <th>Status</th>
-                        <th>CheckIn</th>
-                        <th>Remarks</th>
-                        <th *ngIf="attendanceMode === 'checkin'" class="action-th">Action</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">ID</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Name</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Badge No</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa</th>
+                        <th *ngIf="!isVmsUser" class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Donation</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Status</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">CheckIn</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Remarks</th>
+                        <th *ngIf="attendanceMode === 'checkin'" class="action-th sticky top-0 z-10 bg-muted px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
                         <ng-container *ngFor="let record of pagedRecords; trackBy: trackById">
-                        <tr class="data-row"
+                        <tr class="data-row border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative"
                             [class.is-expanded]="expandedIds.has(record.id)"
                             [class.flash-added]="flashAddedIds.has(record.id)"
                             [class.flash-removed]="flashRemovedIds.has(record.id)"
                             (click)="toggleExpand(record.id)">
-                            <td data-label="ID">{{ record.id }}</td>
-                            <td data-label="Name" class="name-cell">
+                            <td data-label="ID" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ record.id }}</td>
+                            <td data-label="Name" class="name-cell px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <div class="volunteer-image">
                                     <img [src]="record.image || '/assets/img/placeholder.svg'"
                                         [alt]="record.name"
@@ -149,9 +149,9 @@
                                     <span class="name-text">{{ record.name }}</span>
                                 </div>
                             </td>
-                            <td data-label="Badge No">{{ record.badgeNo || '-' }}</td>
-                            <td data-label="Sewa">{{ record.sewa }}</td>
-                            <td *ngIf="!isVmsUser" data-label="Donation" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'donation')">
+                            <td data-label="Badge No" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ record.badgeNo || '-' }}</td>
+                            <td data-label="Sewa" class="px-3 py-3 text-sm font-medium text-foreground align-top">{{ record.sewa }}</td>
+                            <td *ngIf="!isVmsUser" data-label="Donation" class="px-3 py-3 text-sm font-medium text-foreground align-top" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'donation')">
                                 <ng-container *ngIf="!isEditing(record.id, 'donation')">
                                     <span *ngIf="record.donation" class="editable-text">{{ record.donation }}</span>
                                     <span *ngIf="!record.donation" class="text-muted editable-text">-</span>
@@ -168,7 +168,7 @@
                                     (blur)="saveEditing(record)"
                                     [disabled]="isSaving" />
                             </td>
-                            <td data-label="Status" [class.editable-cell]="attendanceMode === 'checkin' && !isVmsUser" (dblclick)="attendanceMode === 'checkin' && !isVmsUser && startEditing(record, 'status')">
+                            <td data-label="Status" class="px-3 py-3 text-sm font-medium text-foreground align-top" [class.editable-cell]="attendanceMode === 'checkin' && !isVmsUser" (dblclick)="attendanceMode === 'checkin' && !isVmsUser && startEditing(record, 'status')">
                                 <ng-container *ngIf="!isEditing(record.id, 'status')">
                                     <span class="status-badge editable-text" [ngClass]="getStatusClass(record.status)" *ngIf="record.status !== '' && record.status !== null && record.status !== undefined">
                                         {{ getStatusLabel(record.status) }}
@@ -188,12 +188,12 @@
                                     <option value="0">Leave</option>
                                 </select>
                             </td>
-                            <td data-label="CheckIn">
+                            <td data-label="CheckIn" class="px-3 py-3 text-sm font-medium text-foreground align-top">
                                 <span *ngIf="record.checkIn" class="checkin-time">{{ formatCheckIn(record.checkIn) }}</span>
                                 <span *ngIf="!record.checkIn" class="text-muted">-</span>
                             </td>
                             <!-- Remarks (editable on double-click) -->
-                            <td data-label="Remarks" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'remarks')">
+                            <td data-label="Remarks" class="px-3 py-3 text-sm font-medium text-foreground align-top" [class.editable-cell]="attendanceMode === 'checkin'" (dblclick)="attendanceMode === 'checkin' && startEditing(record, 'remarks')">
                                 <ng-container *ngIf="!isEditing(record.id, 'remarks')">
                                     <span *ngIf="record.remarks" class="editable-text">{{ record.remarks }}</span>
                                     <span *ngIf="!record.remarks" class="text-muted editable-text">-</span>
@@ -208,7 +208,7 @@
                                     [disabled]="isSaving" />
                             </td>
                             <!-- Action -->
-                            <td data-label="Action" class="action-cell" *ngIf="attendanceMode === 'checkin'">
+                            <td data-label="Action" class="action-cell px-3 py-3 text-sm font-medium text-foreground align-top text-right" *ngIf="attendanceMode === 'checkin'">
                                 <div class="action-btns">
                                     <button class="btn-action btn-action--view" (click)="$event.stopPropagation(); viewVolunteer(record)" title="View Details">
                                         <app-icon name="visibility" />
@@ -219,8 +219,8 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row">
-                            <td [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
+                        <tr *ngIf="expandedIds.has(record.id)" class="expanded-row border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" [attr.colspan]="7 + (isVmsUser ? 0 : 1) + (attendanceMode === 'checkin' ? 1 : 0)">
                                 <div class="expanded-info">
                                     <div class="expanded-info__item">
                                         <span class="expanded-info__label">Phone</span>
@@ -239,13 +239,13 @@
                         </tr>
                         </ng-container>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedRecords.length === 0">
-                            <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="empty-state-cell">
-                                <app-empty-state
+                        <tr *ngIf="pagedRecords.length === 0" class="border-t border-border bg-card first:border-t-0 relative">
+                            <td [attr.colspan]="attendanceMode === 'checkin' ? 8 : 7" class="empty-state-cell px-5 py-10 text-center">
+                                <hlm-empty-state
                                     [title]="'No Attendance Records'"
                                     [description]="'Enter a volunteer ID to mark attendance.'"
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                     </ng-container>
@@ -257,7 +257,7 @@
 </div>
 
 <!-- Delete Confirmation -->
-<app-confirmation-dialog
+<hlm-alert-dialog
     *ngIf="showDeleteConfirm"
     [isOpen]="showDeleteConfirm"
     title="Revert Attendance"
@@ -268,10 +268,10 @@
     confirmType="danger"
     (confirm)="onDeleteConfirm()"
     (cancel)="onDeleteCancel()">
-</app-confirmation-dialog>
+</hlm-alert-dialog>
 
 <!-- View Volunteer Detail Modal -->
-<app-modal
+<hlm-dialog
     *ngIf="showViewDetail && viewRecord"
     [isOpen]="showViewDetail"
     title="Volunteer Details"
@@ -321,11 +321,11 @@
             </div>
         </div>
     </div>
-</app-modal>
+</hlm-dialog>
 
 <!-- Fetch User Modal -->
 <div class="fetch-user-modal-wrapper" *ngIf="showFetchUserModal && fetchedUser">
-<app-modal [isOpen]="showFetchUserModal" [title]="fetchUserWarning || 'Volunteer Details'" size="small" (close)="closeFetchUserModal()">
+<hlm-dialog [isOpen]="showFetchUserModal" [title]="fetchUserWarning || 'Volunteer Details'" size="small" (close)="closeFetchUserModal()">
     <div class="fetch-user-modal">
         <ng-container *ngIf="fetchedUser">
             <div class="fetch-user-card">
@@ -382,15 +382,15 @@
             </div>
 
             <div class="fetch-user-actions">
-                <button type="button" class="btn btn--warning" (click)="markLeave()" [disabled]="isSubmitting">{{ leaveMode ? 'Mark Leave' : 'On Leave' }}</button>
-                <button type="button" class="btn btn--success" (click)="markAttendance()" [disabled]="isSubmitting">Mark Attendance</button>
+                <button hlmBtn variant="secondary" type="button" (click)="markLeave()" [disabled]="isSubmitting">{{ leaveMode ? 'Mark Leave' : 'On Leave' }}</button>
+                <button hlmBtn type="button" (click)="markAttendance()" [disabled]="isSubmitting">Mark Attendance</button>
             </div>
             <!--<div class="fetch-user-hint">
                 Press <strong>Enter</strong> to mark attendance · Press <strong>Shift</strong> to mark leave
             </div>-->
         </ng-container>
     </div>
-</app-modal>
+</hlm-dialog>
 </div>
 
 <!-- View Attendance Details Modal -->

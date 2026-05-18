@@ -1,10 +1,10 @@
-<div class="volunteers-container">
+<div class="flex h-full flex-col gap-4 overflow-hidden">
     <!-- Search & Filter Panel -->
     <div class="search-panel">
         <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
-                <label>Task Branch</label>
-                <app-dropdown
+                <label hlmLabel>Task Branch</label>
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="None"
@@ -12,11 +12,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Corresponding Branch</label>
-                <app-dropdown
+                <label hlmLabel>Corresponding Branch</label>
+                <hlm-select
                     [options]="correspondingBranchOptions"
                     [selectedValues]="moreFilters.correspondingBranch"
                     placeholder="None"
@@ -24,11 +24,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.correspondingBranch = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Branch Search Type</label>
-                <app-dropdown
+                <label hlmLabel>Branch Search Type</label>
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="moreFilters.branchSearchType"
                     placeholder="Select Branch Search Type"
@@ -36,11 +36,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.branchSearchType = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Sewa</label>
-                <app-dropdown
+                <label hlmLabel>Sewa</label>
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="moreFilters.sewa"
                     placeholder="None"
@@ -48,14 +48,14 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewa = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
-                <label>Badge No</label>
+                <label hlmLabel>Badge No</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Badge No"
                         [(ngModel)]="filterFields.badgeNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -66,11 +66,11 @@
                 </div>
             </div>
             <div class="filter-field">
-                <label>Name</label>
+                <label hlmLabel>Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Name"
                         [(ngModel)]="filterFields.name"
                         [ngModelOptions]="{ standalone: true }"
@@ -108,7 +108,7 @@
 
     </div>
 
-    <app-side-panel
+    <hlm-sheet
         *ngIf="showAdvancedFilters"
         [isOpen]="showAdvancedFilters"
         title="More Filters"
@@ -118,8 +118,8 @@
         (close)="showAdvancedFilters = false">
         <div class="filter-panel">
             <div class="filter-panel__field">
-                <label>Gender</label>
-                <app-dropdown
+                <label hlmLabel>Gender</label>
+                <hlm-select
                     [options]="genderOptions"
                     [selectedValues]="selectedGender"
                     placeholder="None"
@@ -127,14 +127,14 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedGender = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Relation Name</label>
+                <label hlmLabel>Relation Name</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Relation Name"
                         [(ngModel)]="filterFields.relationName"
                         [ngModelOptions]="{ standalone: true }"
@@ -145,11 +145,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Mobile No.</label>
+                <label hlmLabel>Mobile No.</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter Mobile No."
                         [(ngModel)]="filterFields.mobileNo"
                         [ngModelOptions]="{ standalone: true }"
@@ -160,11 +160,11 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>UID</label>
+                <label hlmLabel>UID</label>
                 <div class="input-wrap">
                     <input
+                        hlmInput
                         type="text"
-                        class="form-control"
                         placeholder="Enter UID"
                         [(ngModel)]="filterFields.uid"
                         [ngModelOptions]="{ standalone: true }"
@@ -175,8 +175,8 @@
                 </div>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Interest</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Interest</label>
+                <hlm-select
                     [options]="sewaInterestOptions"
                     [selectedValues]="moreFilters.sewaInterest"
                     placeholder="None"
@@ -184,11 +184,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaInterest = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Allocated</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Allocated</label>
+                <hlm-select
                     [options]="sewaAllocatedOptions"
                     [selectedValues]="moreFilters.sewaAllocated"
                     placeholder="None"
@@ -196,11 +196,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaAllocated = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Mode</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Mode</label>
+                <hlm-select
                     [options]="sewaModeOptions"
                     [selectedValues]="moreFilters.sewaMode"
                     placeholder="None"
@@ -208,11 +208,11 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaMode = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Sewa Head</label>
-                <app-dropdown
+                <label hlmLabel>Sewa Head</label>
+                <hlm-select
                     [options]="sewaHeadOptions"
                     [selectedValues]="moreFilters.sewaHead"
                     placeholder="None"
@@ -220,12 +220,12 @@
                     [autocomplete]="true"
                     (selectionChange)="moreFilters.sewaHead = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
 
             <div class="filter-panel__field">
-                <label>Sort By</label>
-                <app-dropdown
+                <label hlmLabel>Sort By</label>
+                <hlm-select
                     [options]="sortByOptions"
                     [selectedValues]="sortByField"
                     placeholder="None"
@@ -233,11 +233,11 @@
                     [autocomplete]="true"
                     (selectionChange)="sortByField = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
-                <label>Order</label>
-                <app-dropdown
+                <label hlmLabel>Order</label>
+                <hlm-select
                     [options]="orderByOptions"
                     [selectedValues]="orderByDirection"
                     placeholder="None"
@@ -245,24 +245,25 @@
                     [autocomplete]="true"
                     (selectionChange)="orderByDirection = $event; onSearchChange()"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
         <div slot="footer" class="filter-panel__footer">
             <button
+                hlmBtn
+                variant="secondary"
                 type="button"
-                class="btn btn--secondary btn--md"
                 (click)="reloadPage()">
                 Clear all
             </button>
             <button
+                hlmBtn
                 type="button"
-                class="btn btn--primary btn--md"
                 (click)="showAdvancedFilters = false">
                 Apply
             </button>
         </div>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Active filter chips -->
     <div *ngIf="activeFilterChips().length > 0" class="active-filters">
@@ -283,65 +284,65 @@
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadVolunteers()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadVolunteers()">Retry</button>
     </div>
 
     <!-- Volunteers table -->
-    <div class="listing-wrapper">
-        <div class="table-container">
-            <table class="table">
-                <thead>
+    <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+        <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+            <table class="w-full border-collapse text-sm">
+                <thead class="bg-muted border-b border-border">
                     <tr>
-                        <th class="sortable" (click)="sortBy('id')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('id')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Id
                                 <app-icon
                                     [name]="getSortDirection('id') === 'asc' ? 'arrow_upward' : getSortDirection('id') === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                     class="sort-icon"
-                                    [class.sort-icon--active]="getSortDirection('id')" />
+                                    [class.sort-icon--active]="getSortDirection('id')" [size]="14" />
                             </span>
                         </th>
-                        <th class="sortable" (click)="sortBy('name')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('name')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Name
                                 <app-icon
                                     [name]="getSortDirection('name') === 'asc' ? 'arrow_upward' : getSortDirection('name') === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                     class="sort-icon"
-                                    [class.sort-icon--active]="getSortDirection('name')" />
+                                    [class.sort-icon--active]="getSortDirection('name')" [size]="14" />
                             </span>
                         </th>
-                        <th class="sortable" (click)="sortBy('relationName')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('relationName')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Relation Name
                                 <app-icon
                                     [name]="getSortDirection('relationName') === 'asc' ? 'arrow_upward' : getSortDirection('relationName') === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                     class="sort-icon"
-                                    [class.sort-icon--active]="getSortDirection('relationName')" />
+                                    [class.sort-icon--active]="getSortDirection('relationName')" [size]="14" />
                             </span>
                         </th>
-                        <th>Address</th>
-                        <th>Regular Sewa</th>
-                        <th class="sortable" (click)="sortBy('enterBy')">
-                            <span class="th-content">
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Address</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Regular Sewa</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground sortable whitespace-nowrap" (click)="sortBy('enterBy')">
+                            <span class="th-content inline-flex items-center gap-1">
                                 Enter By
                                 <app-icon
                                     [name]="getSortDirection('enterBy') === 'asc' ? 'arrow_upward' : getSortDirection('enterBy') === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                     class="sort-icon"
-                                    [class.sort-icon--active]="getSortDirection('enterBy')" />
+                                    [class.sort-icon--active]="getSortDirection('enterBy')" [size]="14" />
                             </span>
                         </th>
-                        <th>Sewa Interest</th>
-                        <th>Login Access</th>
-                        <th class="action-column">Action</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Sewa Interest</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Login Access</th>
+                        <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground text-right whitespace-nowrap">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngIf="!isLoading">
-                        <tr *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" (click)="$event.stopPropagation()">
-                            <td data-label="Id">
+                        <tr *ngFor="let volunteer of pagedVolunteers; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative" (click)="$event.stopPropagation()">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">
                                 {{ volunteer.id }}
                             </td>
-                            <td data-label="Name" class="name-with-image">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top name-with-image" data-label="Name">
                                 <div class="volunteer-image">
                                     <img [src]="volunteer.image || '/assets/img/placeholder.svg'"
                                         [alt]="volunteer.name"
@@ -354,10 +355,10 @@
                                     <span class="volunteer-age" *ngIf="volunteer.age">Age: {{ volunteer.age }}</span>
                                 </div>
                             </td>
-                            <td data-label="Relation Name">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Relation Name">
                                 {{ volunteer.relationName }}
                             </td>
-                            <td data-label="Address" class="address-column">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top address-column" data-label="Address">
                                 <div class="address-content">
                                     <div *ngIf="volunteer.address.street">{{ volunteer.address.street }}</div>
                                     <div *ngIf="volunteer.address.cityName">{{ volunteer.address.cityName }}</div>
@@ -368,7 +369,7 @@
                                     <div *ngIf="volunteer.address.mobileNumber">{{ volunteer.address.mobileNumber }}</div>
                                 </div>
                             </td>
-                            <td data-label="Regular Sewa" class="sewa-column">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top sewa-column" data-label="Regular Sewa">
                                 <div class="sewa-content">
                                     <a href="#"
                                        class="sewa-tracking"
@@ -392,10 +393,10 @@
                                     </ng-container>
                                 </div>
                             </td>
-                            <td data-label="Enter By">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Enter By">
                                 {{ volunteer.enterBy || '-' }}
                             </td>
-                            <td data-label="Sewa Interest" (click)="$event.stopPropagation()">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa Interest" (click)="$event.stopPropagation()">
                                 <span class="toggle-switch" (click)="toggleSewaInterest(volunteer, $event)">
                                     <input
                                         type="checkbox"
@@ -404,28 +405,28 @@
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
-                           <td data-label="Login Access" (click)="$event.stopPropagation()">
+                           <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Login Access" (click)="$event.stopPropagation()">
                                  <!-- Clicking this span triggers the toggle logic -->
                                 <span class="toggle-switch" (click)="toggleLoginAccess(volunteer, $event)">
                                     <input
                                         type="checkbox"
                                         tabindex="-1"
-                                        [checked]="volunteer.loginAccess" 
+                                        [checked]="volunteer.loginAccess"
                                         style="pointer-events: none;" /> <!-- Let the span handle the click -->
                                     <span class="toggle-slider"></span>
                                 </span>
                             </td>
-                            <td data-label="Action" class="action-column" (click)="$event.stopPropagation()">
-                                <app-menu-dropdown
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top text-right" data-label="Action" (click)="$event.stopPropagation()">
+                                <hlm-menu
                                     [options]="getActionOptions(volunteer)"
                                     (selectionChange)="onAction(volunteer, $event)">
-                                </app-menu-dropdown>
+                                </hlm-menu>
                             </td>
                         </tr>
                         <!-- Empty state -->
-                        <tr *ngIf="pagedVolunteers.length === 0">
-                            <td [attr.colspan]="8" class="empty-state-cell">
-                                <app-empty-state
+                        <tr *ngIf="pagedVolunteers.length === 0" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td [attr.colspan]="8" class="px-5 py-10 text-center">
+                                <hlm-empty-state
                                     [title]="hasAnyActiveFilter() ? 'No Results Found' : 'No Volunteers Found'"
                                     [description]="hasAnyActiveFilter() ? 'No volunteers match your search criteria.' : 'There are no volunteers available at the moment.'"
                                     [showButton]="hasAnyActiveFilter()"
@@ -433,7 +434,7 @@
                                     [buttonIcon]="'close'"
                                     (buttonClick)="resetFilter()"
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                     </ng-container>
@@ -442,14 +443,14 @@
         </div>
 
         <!-- Pagination -->
-        <app-pager
+        <hlm-pagination
             [total]="totalItems"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
             [pageSizeOptions]="pageSizeOptions"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)">
-        </app-pager>
+        </hlm-pagination>
     </div>
 
     <!-- Sewa Tracking Modal -->
@@ -462,7 +463,7 @@
     </app-sewa-tracking-modal>
 
     <!-- Create Volunteer Side Panel -->
-    <app-side-panel
+    <hlm-sheet
         *ngIf="createVolunteerModalOpen"
         [isOpen]="createVolunteerModalOpen"
         title="Create Volunteer"
@@ -482,10 +483,10 @@
             (volunteerCreated)="onVolunteerCreated()"
             #createVolunteerComponent>
         </app-create-volunteer>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- View Volunteer Side Panel -->
-    <app-side-panel
+    <hlm-sheet
         *ngIf="viewVolunteerPanelOpen"
         [isOpen]="viewVolunteerPanelOpen"
         title="View Volunteer"
@@ -503,10 +504,10 @@
             [userIdInput]="viewingVolunteerId"
             (closed)="closeViewVolunteerPanel()">
         </app-volunteer-view>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Sewa Interest Reason Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="sewaReasonModalOpen"
         [isOpen]="sewaReasonModalOpen"
         title="Why are you not interested in sewa?"
@@ -519,32 +520,33 @@
         ]"
         (close)="closeSewaReasonModal()"
         (footerAction)="$event === 'submit' ? submitSewaReason() : closeSewaReasonModal()">
-        <div class="sewa-reason-form">
-            <div class="form-field">
-                <label>Enter Reason</label>
-                <app-dropdown
+        <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel>Enter Reason</label>
+                <hlm-select
                     [options]="sewaReasonOptions"
                     [selectedValues]="selectedSewaReason"
                     placeholder="None"
                     (selectionChange)="onSewaReasonChange($event)"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
-            <div class="form-field">
-                <label for="sewaRemarks">Remarks</label>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="sewaRemarks">Remarks</label>
                 <textarea
+                    hlmInput
                     id="sewaRemarks"
-                    class="form-control"
+                    class="min-h-[80px] py-2"
                     rows="4"
                     [(ngModel)]="sewaReasonForm.remarks"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="Enter remarks"></textarea>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Convert to Desiring Devotee Confirmation Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="desiringConfirmModalOpen"
         [isOpen]="desiringConfirmModalOpen"
         title="Convert to Desiring Devotee"
@@ -562,10 +564,10 @@
             <strong>{{ desiringConfirmVolunteer?.name }}</strong>
             to a Desiring Devotee?
         </p>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Probation Dates Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="probationModalOpen"
         [isOpen]="probationModalOpen"
         [title]="'Change Volunteer to Desiring Devotee'"
@@ -580,30 +582,30 @@
         (footerAction)="$event === 'submit' ? submitDesiringConversion() : closeProbationModal()">
         <div class="probation-form">
             <div class="form-group">
-                <label class="form-label">Probation Start Date</label>
-                <app-datepicker
+                <label hlmLabel class="form-label">Probation Start Date</label>
+                <hlm-datepicker
                     [value]="probationStartDate"
                     placeholder="Select Start Date"
                     format="dd/MM/yyyy"
                     (dateChange)="probationStartDate = $event; probationError = null">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div class="form-group">
-                <label class="form-label">Probation End Date</label>
-                <app-datepicker
+                <label hlmLabel class="form-label">Probation End Date</label>
+                <hlm-datepicker
                     [value]="probationEndDate"
                     placeholder="Select End Date"
                     format="dd/MM/yyyy"
                     [minDate]="probationStartDate"
                     (dateChange)="probationEndDate = $event; probationError = null">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div *ngIf="probationError" class="form-error">{{ probationError }}</div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Change Role Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="changeRoleModalOpen"
         [isOpen]="changeRoleModalOpen"
         title="Change Role"
@@ -618,8 +620,8 @@
         (footerAction)="$event === 'submit' ? openChangeRoleConfirm() : closeChangeRoleModal()">
         <div class="modal-dropdown-form">
             <div class="form-field">
-                <label>Select Role</label>
-                <app-dropdown
+                <label hlmLabel>Select Role</label>
+                <hlm-select
                     [options]="roleOptions"
                     [selectedValues]="selectedRole"
                     placeholder="Select role"
@@ -628,13 +630,13 @@
                     [showSelectAll]="true"
                     (selectionChange)="selectedRole = $event"
                     [closeOnSelect]="false">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Change Role Confirmation Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="changeRoleConfirmOpen"
         [isOpen]="changeRoleConfirmOpen"
         title="Confirm Change Role"
@@ -652,10 +654,10 @@
             <strong>{{ changeRoleVolunteer?.name }}</strong>
             to <strong>{{ getSelectedRoleLabel() }}</strong>?
         </p>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Change Branch Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="changeBranchModalOpen"
         [isOpen]="changeBranchModalOpen"
         title="Change Branch"
@@ -670,8 +672,8 @@
         (footerAction)="$event === 'submit' ? openChangeBranchConfirm() : closeChangeBranchModal()">
         <div class="modal-dropdown-form">
             <div class="form-field">
-                <label>Select Branch</label>
-                <app-dropdown
+                <label hlmLabel>Select Branch</label>
+                <hlm-select
                     [options]="taskBranchOptions"
                     [selectedValues]="selectedBranch"
                     placeholder="Select branch"
@@ -679,13 +681,13 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Generated Password Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="generatedPasswordModalOpen"
         [isOpen]="generatedPasswordModalOpen"
         [showHeader]="false"
@@ -704,10 +706,10 @@
             <div class="generated-password__title">Your new password is :</div>
             <div class="generated-password__value">{{ generatedPassword }}</div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Change Branch Confirmation Modal -->
-    <app-modal
+    <hlm-dialog
         *ngIf="changeBranchConfirmOpen"
         [isOpen]="changeBranchConfirmOpen"
         title="Confirm Change Branch"
@@ -725,10 +727,10 @@
             <strong>{{ changeBranchVolunteer?.name }}</strong>
             to <strong>{{ getSelectedBranchLabel() }}</strong>?
         </p>
-    </app-modal>
+    </hlm-dialog>
 
     <!-- Reinstate User Modal -->
-    <app-modal
+    <hlm-dialog
         [isOpen]="isReinstateModalOpen"
         [title]="'Reinstate User'"
         [size]="'medium'"
@@ -736,17 +738,17 @@
         <div class="reinstate-form">
             <div class="reinstate-grid">
                 <div class="reinstate-field">
-                    <label>Date <span class="required">*</span></label>
-                    <app-datepicker
+                    <label hlmLabel>Date <span class="required">*</span></label>
+                    <hlm-datepicker
                         [value]="reinstateForm.date"
                         placeholder="Select Date"
                         format="dd/MM/yyyy"
                         (dateChange)="reinstateForm.date = $event">
-                    </app-datepicker>
+                    </hlm-datepicker>
                 </div>
                 <div class="reinstate-field">
-                    <label>Sewa <span class="required">*</span></label>
-                    <app-dropdown
+                    <label hlmLabel>Sewa <span class="required">*</span></label>
+                    <hlm-select
                         [options]="sewaOptions"
                         [selectedValues]="reinstateForm.sewa"
                         placeholder="Search and select sewas"
@@ -755,11 +757,11 @@
                         [multiSelect]="false"
                         (selectionChange)="reinstateForm.sewa = $event"
                         [closeOnSelect]="false">
-                    </app-dropdown>
+                    </hlm-select>
                 </div>
                 <div class="reinstate-field">
-                    <label>Sewa Mode<span class="required">*</span></label>
-                    <app-dropdown
+                    <label hlmLabel>Sewa Mode<span class="required">*</span></label>
+                    <hlm-select
                         [options]="reinstateSewaModeOptions"
                         [selectedValues]="reinstateForm.sewaMode ? [reinstateForm.sewaMode] : []"
                         placeholder="Search and select sewa mode"
@@ -768,14 +770,15 @@
                         [multiSelect]="false"
                         (selectionChange)="reinstateForm.sewaMode = $event[0]"
                         [closeOnSelect]="false">
-                    </app-dropdown>
+                    </hlm-select>
                 </div>
             </div>
 
             <div class="reinstate-field reinstate-field--full">
-                <label>Remarks</label>
+                <label hlmLabel>Remarks</label>
                 <textarea
-                    class="form-control"
+                    hlmInput
+                    class="min-h-[70px] py-2"
                     rows="3"
                     placeholder="Add any context for this reinstatement (optional)"
                     [(ngModel)]="reinstateForm.remarks"
@@ -784,12 +787,12 @@
             </div>
 
             <div class="reinstate-actions">
-                <button class="btn btn--secondary btn--md" type="button" (click)="closeReinstateModal()">Cancel</button>
-                <button class="btn btn--primary btn--md" type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
+                <button hlmBtn variant="secondary" type="button" (click)="closeReinstateModal()">Cancel</button>
+                <button hlmBtn type="button" [disabled]="isSubmittingReinstate" (click)="submitReinstate()">
                     {{ isSubmittingReinstate ? 'Reinstating...' : 'Reinstate User' }}
                 </button>
             </div>
         </div>
-    </app-modal>
+    </hlm-dialog>
 </div>
 

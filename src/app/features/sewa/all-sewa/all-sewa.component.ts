@@ -2,13 +2,13 @@ import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { AddSewaModalComponent } from './add-sewa-modal/add-sewa-modal.component';
-import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmAlertDialogComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { SearchService, SearchState } from '../../../core/services/search.service';
 import { SortService } from '../../../core/services/sort.service';
@@ -19,6 +19,7 @@ import { finalize } from 'rxjs/operators';
 
 import { Sewa } from './sewa.interface';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 
 @Component({
   standalone: true,
@@ -26,13 +27,15 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
     CommonModule,
     RouterModule,
     FormsModule,
-    PagerComponent,
-    EmptyStateComponent,
-    MenuDropdownComponent,
-    DropdownComponent,
+    HlmPaginationComponent,
+    HlmEmptyStateComponent,
+    HlmMenuComponent,
+    HlmSelectComponent,
     AddSewaModalComponent,
-    ConfirmationDialogComponent,
-    IconComponent
+    HlmAlertDialogComponent,
+    IconComponent,
+    HlmButtonDirective,
+    HlmInputDirective
   ],
   selector: 'app-all-sewa',
   templateUrl: './all-sewa.component.html',

@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../../shared/ui';
 import { LocationService } from '../../../../core/services/location.service';
 
 /**
@@ -15,11 +16,13 @@ import { LocationService } from '../../../../core/services/location.service';
   imports: [
     CommonModule,
     FormsModule,
-    ModalComponent,
-    DropdownComponent
+    HlmDialogComponent,
+    HlmSelectComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
-  templateUrl: './add-master-entry-modal.component.html',
-  styleUrls: ['./add-master-entry-modal.component.scss']
+  templateUrl: './add-master-entry-modal.component.html'
 })
 export class AddMasterEntryModalComponent implements OnChanges {
   /** Shared location service for fetching dropdown data (countries, states, cities) */

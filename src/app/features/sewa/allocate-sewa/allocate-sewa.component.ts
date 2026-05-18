@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
 import { DataService } from '../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -11,6 +11,7 @@ import { UnallocatedSectionComponent } from './unallocated-section/unallocated-s
 import { AllocatedSectionComponent } from './allocated-section/allocated-section.component';
 import { OptionsService } from '../../../core/services/options.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 
 export interface UnallocatedVolunteer {
     id: number | string;
@@ -42,10 +43,12 @@ export interface AllocatedVolunteer {
         CommonModule,
         RouterModule,
         FormsModule,
-        DropdownComponent,
+        HlmSelectComponent,
         UnallocatedSectionComponent,
         AllocatedSectionComponent,
-        IconComponent
+        IconComponent,
+        HlmButtonDirective,
+        HlmInputDirective
     ],
     selector: 'app-allocate-sewa',
     templateUrl: './allocate-sewa.component.html',

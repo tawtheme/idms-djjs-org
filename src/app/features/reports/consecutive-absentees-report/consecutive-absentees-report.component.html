@@ -4,7 +4,7 @@
         <div class="filters-grid filters-grid--four">
             <div class="filter-field">
                 <label>Program Holding Branch <span class="required">*</span></label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedProgramHoldingBranch"
                     placeholder="Select Program Holding Branch"
@@ -12,12 +12,12 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedProgramHoldingBranch = $event; programHoldingBranchError = null"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
                 <div *ngIf="programHoldingBranchError" class="field-error">{{ programHoldingBranchError }}</div>
             </div>
             <div class="filter-field">
                 <label>Task Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="Select Task Branch"
@@ -25,11 +25,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Branch Search Type</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="selectedBranchSearchType"
                     placeholder="Select Branch Search Type"
@@ -37,11 +37,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedBranchSearchType = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Sewas</label>
-                <app-dropdown
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="selectedSewa"
                     placeholder="Select Sewa"
@@ -49,11 +49,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedSewa = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Corresponding Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedCorrespondingBranch"
                     placeholder="Select Corresponding Branch"
@@ -61,33 +61,33 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>From Date</label>
-                <app-datepicker
+                <hlm-datepicker
                     [value]="fromDate"
                     placeholder="Select From Date"
                     format="dd/MM/yyyy"
                     (dateChange)="fromDate = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div class="filter-field">
                 <label>To Date</label>
-                <app-datepicker
+                <hlm-datepicker
                     [value]="toDate"
                     placeholder="Select To Date"
                     format="dd/MM/yyyy"
                     (dateChange)="toDate = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div class="filter-field">
                 <label>No. of Consecutive Leaves <span class="required">*</span></label>
-                <div class="input-wrap">
+                <div class="relative">
                     <input
+                        hlmInput
                         type="number"
                         min="0"
-                        class="form-control"
                         placeholder="Enter Number"
                         [(ngModel)]="consecutiveLeaves"
                         [ngModelOptions]="{ standalone: true }"
@@ -102,8 +102,8 @@
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                    <button hlmBtn type="button" (click)="applyFilter()">Search</button>
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
         </div>
@@ -112,83 +112,83 @@
     <!-- Error state -->
     <div *ngIf="error && !isLoading" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadReport()">Retry</button>
     </div>
 
     <ng-container *ngIf="!error">
-            <div class="listing-wrapper">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+                <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+                    <table class="w-full border-collapse text-sm">
+                        <thead class="bg-muted border-b border-border">
                             <tr>
-                                <th class="sortable" (click)="sortBy('id')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('id')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Id
                                         <app-icon
                                             [name]="getSortIcon('id')"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'id'" />
+                                            [class.sort-icon--active]="sortField === 'id'" [size]="14" />
                                     </span>
                                 </th>
-                                <th>Image</th>
-                                <th class="sortable" (click)="sortBy('name')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">Image</th>
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('name')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Name
                                         <app-icon
                                             [name]="getSortIcon('name')"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'name'" />
+                                            [class.sort-icon--active]="sortField === 'name'" [size]="14" />
                                     </span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('email')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('email')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Email
                                         <app-icon
                                             [name]="getSortIcon('email')"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'email'" />
+                                            [class.sort-icon--active]="sortField === 'email'" [size]="14" />
                                     </span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('phone')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('phone')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Phone
                                         <app-icon
                                             [name]="getSortIcon('phone')"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'phone'" />
+                                            [class.sort-icon--active]="sortField === 'phone'" [size]="14" />
                                     </span>
                                 </th>
-                                <th class="sortable" (click)="sortBy('createdAt')">
-                                    <span class="th-content">
+                                <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('createdAt')">
+                                    <span class="th-content inline-flex items-center gap-1">
                                         Created At
                                         <app-icon
                                             [name]="getSortIcon('createdAt')"
                                             class="sort-icon"
-                                            [class.sort-icon--active]="sortField === 'createdAt'" />
+                                            [class.sort-icon--active]="sortField === 'createdAt'" [size]="14" />
                                     </span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let row of rows; trackBy: trackById">
-                                <td data-label="Id">{{ row.id }}</td>
-                                <td data-label="Image" class="name-with-image">
+                            <tr *ngFor="let row of rows; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">{{ row.id }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top name-with-image" data-label="Image">
                                     <div class="volunteer-image">
                                         <img [src]="row.image || '/assets/img/placeholder.svg'" [alt]="row.name" [appImagePreview]="row.image" [previewTitle]="row.name || 'Volunteer Photo'" />
                                     </div>
                                 </td>
-                                <td data-label="Name">{{ row.name }}</td>
-                                <td data-label="Email">{{ row.email }}</td>
-                                <td data-label="Phone">{{ row.phone }}</td>
-                                <td data-label="Created At">{{ row.createdAt }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Name">{{ row.name }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Email">{{ row.email }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Phone">{{ row.phone }}</td>
+                                <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Created At">{{ row.createdAt }}</td>
                             </tr>
                             <tr *ngIf="rows.length === 0" class="empty-row">
-                                <td colspan="6">
-                                    <app-empty-state
+                                <td class="px-5 py-10 text-center" colspan="6">
+                                    <hlm-empty-state
                                         title="No Records"
                                         description="There are no absentees matching the selected filters."
                                         [size]="'small'">
-                                    </app-empty-state>
+                                    </hlm-empty-state>
                                 </td>
                             </tr>
                         </tbody>
@@ -196,14 +196,14 @@
                 </div>
 
                 <!-- Pagination -->
-                <app-pager
+                <hlm-pagination
                     [total]="totalItems"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                     [pageSizeOptions]="pageSizeOptions"
                     (pageChange)="onPageChange($event)"
                     (pageSizeChange)="onPageSizeChange($event)">
-                </app-pager>
+                </hlm-pagination>
             </div>
     </ng-container>
 </div>

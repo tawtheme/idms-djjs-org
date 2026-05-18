@@ -1,8 +1,8 @@
 @use '../reports/report-listing' as r;
 @import '../../../assets/scss/variable';
-@import '../../../assets/scss/table';
 
-// Apply shared listing + filter/search-panel styles
+// Apply shared filter/search-panel styles (table styles no longer needed —
+// table markup uses Tailwind utility classes directly)
 @include r.report-listing('.visitors');
 
 .search-panel .filters-grid.filters-grid--four {
@@ -273,67 +273,6 @@ $card-red-soft: #fef2f2;
                 font-size: 18px;
                 width: 20px;
                 text-align: center;
-            }
-        }
-    }
-}
-
-.listing-search {
-    .export-button-wrapper {
-        position: relative;
-        display: inline-block;
-
-        .export-trigger {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
-
-            app-icon {
-                font-size: 18px;
-            }
-        }
-
-        .export-menu {
-            position: absolute;
-            top: calc(100% + 4px);
-            right: 0;
-            background: $color-white;
-            border: 1px solid $color-gray-200;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 220px;
-            z-index: 1000;
-            overflow: hidden;
-
-            .export-menu-item {
-                width: 100%;
-                padding: 12px 16px;
-                border: none;
-                background: none;
-                text-align: left;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-size: 14px;
-                color: $color-gray-700;
-                transition: background-color 0.2s ease;
-                border-bottom: 1px solid $color-gray-50;
-
-                &:last-child {
-                    border-bottom: none;
-                }
-
-                &:hover {
-                    background: $color-gray-50;
-                }
-
-                app-icon {
-                    font-size: 18px;
-                    width: 20px;
-                    text-align: center;
-                }
             }
         }
     }

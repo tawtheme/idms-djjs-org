@@ -4,22 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, debounceTime, finalize, switchMap, tap } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
 import { SewaTrackingModalComponent } from './sewa-tracking-modal/sewa-tracking-modal.component';
 import { CreateVolunteerComponent } from './create-volunteer/create-volunteer.component';
-import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { HlmSheetComponent } from '../../../shared/ui';
 import { VolunteerViewComponent } from './volunteer-view/volunteer-view.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { HlmDialogComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { HlmDatepickerComponent } from '../../../shared/ui';
 import { HeaderActionsService } from '../../../services/header-actions.service';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 
 export interface Volunteer {
     id: number;
@@ -72,18 +73,21 @@ export interface Volunteer {
         CommonModule,
         RouterModule,
         FormsModule,
-        PagerComponent,
-        EmptyStateComponent,
-        MenuDropdownComponent,
-        DropdownComponent,
+        HlmPaginationComponent,
+        HlmEmptyStateComponent,
+        HlmMenuComponent,
+        HlmSelectComponent,
         SewaTrackingModalComponent,
         CreateVolunteerComponent,
         VolunteerViewComponent,
-        SidePanelComponent,
-        ModalComponent,
+        HlmSheetComponent,
+        HlmDialogComponent,
         IconComponent,
-        DatepickerComponent,
-        ImagePreviewDirective
+        HlmDatepickerComponent,
+        ImagePreviewDirective,
+        HlmButtonDirective,
+        HlmInputDirective,
+        HlmLabelDirective
     ],
     selector: 'app-all-volunteers',
     templateUrl: './all-volunteers.component.html',

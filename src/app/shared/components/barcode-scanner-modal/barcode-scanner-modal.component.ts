@@ -13,13 +13,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { Result } from '@zxing/library';
-import { ModalComponent } from '../modal/modal.component';
+import { HlmDialogComponent } from '../../ui';
 import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-barcode-scanner-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent, IconComponent],
+  imports: [CommonModule, HlmDialogComponent, IconComponent],
   templateUrl: './barcode-scanner-modal.component.html',
   styleUrls: ['./barcode-scanner-modal.component.scss']
 })

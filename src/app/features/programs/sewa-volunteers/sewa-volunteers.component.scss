@@ -1,6 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
 
 .confirmation-dialog {
     &__dialog {
@@ -122,9 +120,6 @@
         margin-top: 4px;
     }
 }
-
-// Apply shared listing styles
-@include listing.listing('.sewa-volunteers');
 
 .seaw-volunteers-filter {
     display: grid;

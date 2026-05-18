@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 import { DataService } from '../../data.service';
-import { DropdownOption } from '../../shared/components/dropdown/dropdown.component';
+import { DropdownOption } from '../../shared/ui';
 
 /**
  * Service for loading location data (countries, states, districts, cities)

@@ -4,7 +4,7 @@
         <div class="filters-grid filters-grid--primary">
             <div class="filter-field">
                 <label>Program Holding Branch <span class="required">*</span></label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedProgramHoldingBranch"
                     placeholder="Select"
@@ -12,12 +12,12 @@
                     [autocomplete]="true"
                     (selectionChange)="onProgramHoldingBranchChange($event)"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
                 <div *ngIf="holdingBranchError" class="field-error">{{ holdingBranchError }}</div>
             </div>
             <div class="filter-field">
                 <label>Task Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedTaskBranch"
                     placeholder="Select"
@@ -25,11 +25,11 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedTaskBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Corresponding Branch</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchOptions"
                     [selectedValues]="selectedCorrespondingBranch"
                     placeholder="Select"
@@ -37,21 +37,21 @@
                     [autocomplete]="true"
                     (selectionChange)="selectedCorrespondingBranch = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Branch Search Type</label>
-                <app-dropdown
+                <hlm-select
                     [options]="branchSearchTypeOptions"
                     [selectedValues]="selectedBranchSearchType"
                     placeholder="Select"
                     (selectionChange)="selectedBranchSearchType = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-field">
                 <label>Programs <span class="required">*</span></label>
-                <app-dropdown
+                <hlm-select
                     [options]="programOptions"
                     [selectedValues]="selectedPrograms"
                     placeholder="Select"
@@ -59,13 +59,13 @@
                     [autocomplete]="true"
                     (selectionChange)="onProgramsChange($event)"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
                 <div *ngIf="programsError" class="field-error">{{ programsError }}</div>
             </div>
             <div class="filter-field filter-field--actions">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
-                    <button class="btn btn--primary btn--md" type="button" (click)="applyFilter()">Search</button>
+                    <button hlmBtn type="button" (click)="applyFilter()">Search</button>
                     <button
                         type="button"
                         class="filter-toggle"
@@ -75,13 +75,13 @@
                         <span>Filter</span>
                         <span *ngIf="activeFilterCount() > 0" class="filter-count">{{ activeFilterCount() }}</span>
                     </button>
-                    <button class="btn btn--outline btn--md" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
+                    <button hlmBtn variant="outline" type="button" [disabled]="isExporting" (click)="exportReport('web')">Export</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <app-side-panel
+    <hlm-sheet
         *ngIf="showAdvancedFilters"
         [isOpen]="showAdvancedFilters"
         title="More Filters"
@@ -92,7 +92,7 @@
         <div class="filter-panel">
             <div class="filter-panel__field">
                 <label>Sewas</label>
-                <app-dropdown
+                <hlm-select
                     [options]="sewaOptions"
                     [selectedValues]="selectedSewas"
                     placeholder="Select Sewas"
@@ -101,53 +101,54 @@
                     [multiSelect]="true"
                     (selectionChange)="selectedSewas = $event"
                     [closeOnSelect]="false">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
                 <label>Attendance Status</label>
-                <app-dropdown
+                <hlm-select
                     [options]="attendanceStatusOptions"
                     [selectedValues]="selectedAttendanceStatus"
                     placeholder="Select Attendance Status"
                     (selectionChange)="selectedAttendanceStatus = $event"
                     [closeOnSelect]="true">
-                </app-dropdown>
+                </hlm-select>
             </div>
             <div class="filter-panel__field">
                 <label>From Date</label>
-                <app-datepicker
+                <hlm-datepicker
                     [value]="fromDate"
                     placeholder="Select From Date"
                     format="dd/MM/yyyy"
                     (dateChange)="fromDate = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
             <div class="filter-panel__field">
                 <label>To Date</label>
-                <app-datepicker
+                <hlm-datepicker
                     [value]="toDate"
                     placeholder="Select To Date"
                     format="dd/MM/yyyy"
                     [minDate]="fromDate"
                     (dateChange)="toDate = $event">
-                </app-datepicker>
+                </hlm-datepicker>
             </div>
         </div>
         <div slot="footer" class="filter-panel__footer">
             <button
+                hlmBtn
+                variant="secondary"
                 type="button"
-                class="btn btn--secondary btn--md"
                 (click)="reloadPage()">
                 Clear all
             </button>
             <button
+                hlmBtn
                 type="button"
-                class="btn btn--primary btn--md"
                 (click)="showAdvancedFilters = false; applyFilter()">
                 Apply
             </button>
         </div>
-    </app-side-panel>
+    </hlm-sheet>
 
     <!-- Active filter chips -->
     <div *ngIf="activeFilterChips().length > 0" class="active-filters">
@@ -166,7 +167,7 @@
     </div>
 
     <!-- Summary Stats -->
-    <div class="stats-row">
+    <div class="stats-row flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         <div class="stat-item stat-item--total">
             <span class="stat-item__label">Total Volunteers</span>
             <strong class="stat-item__value">{{ summary.totalVolunteers }}</strong>
@@ -188,140 +189,140 @@
     <!-- Error state -->
     <div *ngIf="error" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn btn--primary btn--sm" (click)="loadReport()">Retry</button>
+        <button hlmBtn size="sm" (click)="loadReport()">Retry</button>
     </div>
 
     <ng-container *ngIf="!error">
         <!-- Reports Table -->
-        <div class="listing-wrapper">
-            <div class="table-container">
-                <table class="table">
-                    <thead>
+        <div class="flex flex-1 flex-col overflow-hidden min-h-0">
+            <div class="overflow-y-auto max-h-full rounded-lg border border-border">
+                <table class="w-full border-collapse text-sm">
+                    <thead class="bg-muted border-b border-border">
                         <tr>
-                            <th class="sortable" (click)="sortBy('id')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('id')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Id
                                     <app-icon
                                         [name]="sortField === 'id' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'id' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'id'" />
+                                        [class.sort-icon--active]="sortField === 'id'" [size]="14" />
                                 </span>
                             </th>
-                            <th>User Image</th>
-                            <th class="sortable" (click)="sortBy('name')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">User Image</th>
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('name')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Name
                                     <app-icon
                                         [name]="sortField === 'name' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'name' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'name'" />
+                                        [class.sort-icon--active]="sortField === 'name'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('father')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('father')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Father
                                     <app-icon
                                         [name]="sortField === 'father' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'father' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'father'" />
+                                        [class.sort-icon--active]="sortField === 'father'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('mother')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('mother')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Mother
                                     <app-icon
                                         [name]="sortField === 'mother' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'mother' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'mother'" />
+                                        [class.sort-icon--active]="sortField === 'mother'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('spouse')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('spouse')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Spouse
                                     <app-icon
                                         [name]="sortField === 'spouse' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'spouse' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'spouse'" />
+                                        [class.sort-icon--active]="sortField === 'spouse'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('phone')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('phone')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Phone
                                     <app-icon
                                         [name]="sortField === 'phone' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'phone' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'phone'" />
+                                        [class.sort-icon--active]="sortField === 'phone'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('sewa')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('sewa')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Sewa
                                     <app-icon
                                         [name]="sortField === 'sewa' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'sewa' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'sewa'" />
+                                        [class.sort-icon--active]="sortField === 'sewa'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('badgeId')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('badgeId')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Badge Id
                                     <app-icon
                                         [name]="sortField === 'badgeId' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'badgeId' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'badgeId'" />
+                                        [class.sort-icon--active]="sortField === 'badgeId'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('donation')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('donation')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Donation $
                                     <app-icon
                                         [name]="sortField === 'donation' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'donation' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'donation'" />
+                                        [class.sort-icon--active]="sortField === 'donation'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('taskBranch')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('taskBranch')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Task Br
                                     <app-icon
                                         [name]="sortField === 'taskBranch' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'taskBranch' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'taskBranch'" />
+                                        [class.sort-icon--active]="sortField === 'taskBranch'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('correspondingBranch')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('correspondingBranch')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Corr. Br
                                     <app-icon
                                         [name]="sortField === 'correspondingBranch' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'correspondingBranch' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'correspondingBranch'" />
+                                        [class.sort-icon--active]="sortField === 'correspondingBranch'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('status')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('status')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Status
                                     <app-icon
                                         [name]="sortField === 'status' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'status' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'status'" />
+                                        [class.sort-icon--active]="sortField === 'status'" [size]="14" />
                                 </span>
                             </th>
-                            <th class="sortable" (click)="sortBy('checkIn')">
-                                <span class="th-content">
+                            <th class="sticky top-0 z-10 bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:bg-muted/70 whitespace-nowrap" (click)="sortBy('checkIn')">
+                                <span class="th-content inline-flex items-center gap-1">
                                     Check In
                                     <app-icon
                                         [name]="sortField === 'checkIn' && sortDirection === 'asc' ? 'arrow_upward' : sortField === 'checkIn' && sortDirection === 'desc' ? 'arrow_downward' : 'unfold_more'"
                                         class="sort-icon"
-                                        [class.sort-icon--active]="sortField === 'checkIn'" />
+                                        [class.sort-icon--active]="sortField === 'checkIn'" [size]="14" />
                                 </span>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let row of rows; trackBy: trackById">
-                            <td data-label="Id">{{ row.id }}</td>
-                            <td data-label="User Image">
+                        <tr *ngFor="let row of rows; trackBy: trackById" class="border-t border-border bg-card transition-colors hover:bg-muted/50 first:border-t-0 relative">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Id">{{ row.id }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="User Image">
                                 <div class="user-image-cell">
                                     <img *ngIf="row.userImage" [src]="row.userImage" [alt]="row.name" [appImagePreview]="row.userImage" [previewTitle]="row.name || 'Volunteer Photo'" />
                                     <span *ngIf="!row.userImage" class="user-image-placeholder">
@@ -329,28 +330,28 @@
                                     </span>
                                 </div>
                             </td>
-                            <td data-label="Name">{{ row.name }}</td>
-                            <td data-label="Father">{{ row.father }}</td>
-                            <td data-label="Mother">{{ row.mother }}</td>
-                            <td data-label="Spouse">{{ row.spouse }}</td>
-                            <td data-label="Phone">{{ row.phone }}</td>
-                            <td data-label="Sewa">{{ row.sewa }}</td>
-                            <td data-label="Badge Id">{{ row.badgeId }}</td>
-                            <td data-label="Donation $">{{ row.donation }}</td>
-                            <td data-label="Task Br">{{ row.taskBranch }}</td>
-                            <td data-label="Corr. Br">{{ row.correspondingBranch }}</td>
-                            <td data-label="Status">
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Name">{{ row.name }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Father">{{ row.father }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Mother">{{ row.mother }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Spouse">{{ row.spouse }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Phone">{{ row.phone }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Sewa">{{ row.sewa }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Badge Id">{{ row.badgeId }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Donation $">{{ row.donation }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Task Br">{{ row.taskBranch }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Corr. Br">{{ row.correspondingBranch }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Status">
                                 <span *ngIf="row.status" class="badge" [ngClass]="statusBadgeClass(row.status)">{{ row.status }}</span>
                             </td>
-                            <td data-label="Check In">{{ row.checkIn }}</td>
+                            <td class="px-3 py-3 text-sm font-medium text-foreground align-top" data-label="Check In">{{ row.checkIn }}</td>
                         </tr>
                         <tr *ngIf="rows.length === 0" class="empty-row">
-                            <td colspan="14">
-                                <app-empty-state
+                            <td class="px-5 py-10 text-center" colspan="14">
+                                <hlm-empty-state
                                     title="No data available in table"
                                     description="There are no volunteer attendance records matching the selected filters."
                                     [size]="'small'">
-                                </app-empty-state>
+                                </hlm-empty-state>
                             </td>
                         </tr>
                     </tbody>
@@ -358,14 +359,14 @@
             </div>
 
             <!-- Pagination -->
-            <app-pager
+            <hlm-pagination
                 [total]="totalItems"
                 [pageSize]="pageSize"
                 [currentPage]="currentPage"
                 [pageSizeOptions]="pageSizeOptions"
                 (pageChange)="onPageChange($event)"
                 (pageSizeChange)="onPageSizeChange($event)">
-            </app-pager>
+            </hlm-pagination>
         </div>
     </ng-container>
 </div>

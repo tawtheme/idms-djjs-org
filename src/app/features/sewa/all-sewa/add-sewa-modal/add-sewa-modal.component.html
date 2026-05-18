@@ -1,24 +1,24 @@
-<app-modal [isOpen]="isOpen" [title]="title" [size]="'small'" [closable]="true" [showHeader]="true" [showFooter]="true"
+<hlm-dialog [isOpen]="isOpen" [title]="title" [size]="'small'" [closable]="true" [showHeader]="true" [showFooter]="true"
     [footerButtons]="footerButtons" [footerAlign]="'right'" (close)="onClose()" (footerAction)="onFooterAction($event)">
 
-    <form class="add-sewa-form" (ngSubmit)="onSubmit()">
+    <form class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
         <!-- Sewa Name Field -->
-        <div class="form-group">
-            <label class="form-label" for="sewa-name">
-                Sewa Name <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="sewa-name">
+                Sewa Name <span class="text-destructive">*</span>
             </label>
-            <input id="sewa-name" type="text" class="form-control" [(ngModel)]="name"
+            <input hlmInput id="sewa-name" type="text" [(ngModel)]="name"
                 [ngModelOptions]="{ standalone: true }" placeholder="Enter sewa name" required autofocus>
         </div>
 
         <!-- Type Dropdown -->
-        <div class="form-group">
-            <label class="form-label" for="sewa-type">
-                Type <span class="required">*</span>
+        <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="sewa-type">
+                Type <span class="text-destructive">*</span>
             </label>
-            <app-dropdown [options]="typeOptions" [selectedValues]="type ? [type] : []" [closeOnSelect]="true"
+            <hlm-select [options]="typeOptions" [selectedValues]="type ? [type] : []" [closeOnSelect]="true"
                 placeholder="Select Type" (selectionChange)="onTypeChange($event)">
-            </app-dropdown>
+            </hlm-select>
         </div>
     </form>
-</app-modal>
+</hlm-dialog>

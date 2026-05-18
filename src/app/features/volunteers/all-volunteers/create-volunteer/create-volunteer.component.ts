@@ -2,14 +2,15 @@ import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DropdownComponent, DropdownOption } from '../../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../../shared/components/datepicker/datepicker.component';
+import { HlmSelectComponent, DropdownOption } from '../../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../../shared/ui';
 import { FileUploadComponent, FileUploadConfig } from '../../../../shared/components/file-upload/file-upload.component';
 import { CameraUploadComponent } from '../../../../shared/components/camera-upload/camera-upload.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
+import { HlmDialogComponent } from '../../../../shared/ui';
+import { HlmSheetComponent } from '../../../../shared/ui';
 import { VolunteerViewComponent } from '../volunteer-view/volunteer-view.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective, HlmSwitchComponent } from '../../../../shared/ui';
 import { DataService } from '../../../../data.service';
 import { SnackbarService } from '../../../../shared/services/snackbar.service';
 import { sanitizeMobile, mobileError, emailError, blockNonDigitKey } from '../../../../shared/utils/validators';
@@ -36,18 +37,22 @@ export interface CreateVolunteerForm {
     imports: [
         CommonModule,
         FormsModule,
-        DropdownComponent,
-        DatepickerComponent,
+        HlmSelectComponent,
+        HlmDatepickerComponent,
         FileUploadComponent,
         CameraUploadComponent,
-        ModalComponent,
-        SidePanelComponent,
+        HlmDialogComponent,
+        HlmSheetComponent,
         VolunteerViewComponent,
-        IconComponent
+        IconComponent,
+        HlmButtonDirective,
+        HlmInputDirective,
+        HlmLabelDirective,
+        HlmSwitchComponent,
     ],
     selector: 'app-create-volunteer',
     templateUrl: './create-volunteer.component.html',
-    styleUrls: ['./create-volunteer.component.scss']
+    host: { class: 'block w-full h-full overflow-y-auto bg-muted/40' }
 })
 export class CreateVolunteerComponent implements OnInit {
     @Output() volunteerCreated = new EventEmitter<void>();

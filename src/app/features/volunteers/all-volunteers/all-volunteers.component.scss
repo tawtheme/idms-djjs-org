@@ -1,9 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
-
-// Apply shared listing styles
-@include listing.listing('.volunteers');
 
 // Sewa-interest reason modal layout
 .sewa-reason-form {

@@ -1,9 +1,4 @@
-@use '../../../../assets/scss/pages' as listing;
 @import '../../../../assets/scss/variable';
-@import '../../../../assets/scss/table';
-
-// Apply shared listing styles
-@include listing.listing('.branch-applications');
 
 // Search Panel
 .search-panel {

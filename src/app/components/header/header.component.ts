@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, HostList
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
-import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmAlertDialogComponent } from '../../shared/ui';
 import { AuthService } from '../../services/auth.service';
 import { HeaderActionsService } from '../../services/header-actions.service';
 
@@ -21,7 +21,7 @@ interface MenuGroup {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, IconComponent, ConfirmationDialogComponent],
+  imports: [CommonModule, IconComponent, HlmAlertDialogComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

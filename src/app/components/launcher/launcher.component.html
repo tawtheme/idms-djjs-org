@@ -1,13 +1,13 @@
-<div class="launcher">
+<div class="flex h-screen flex-col overflow-hidden bg-muted/40">
     <!-- Top Bar -->
-    <div class="launcher-topbar">
-        <div class="topbar-left">
-            <img src="assets/img/logo.png" alt="Logo" class="topbar-logo" />
-            <span class="topbar-title">IDMS ADMIN PANEL</span>
+    <div class="launcher-topbar flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-background px-5">
+        <div class="flex items-center gap-2.5">
+            <img src="assets/img/logo.png" alt="Logo" class="h-7 w-auto" />
+            <span class="text-base font-bold tracking-wide text-foreground">IDMS ADMIN PANEL</span>
         </div>
-        <div class="topbar-right">
-            <span class="topbar-time">{{ currentTime }}</span>
-            <button class="topbar-logout" (click)="logout()" type="button">
+        <div class="flex items-center gap-4">
+            <span class="text-sm tabular-nums text-muted-foreground">{{ currentTime }}</span>
+            <button class="topbar-logout flex cursor-pointer items-center gap-1.5 rounded-md border border-border bg-muted/40 px-3.5 py-1 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive" (click)="logout()" type="button">
                 <app-icon name="power_settings_new" />
                 <span>Logout</span>
             </button>
@@ -15,32 +15,32 @@
     </div>
 
     <!-- Body -->
-    <div class="launcher-body">
+    <div class="launcher-body flex flex-1 gap-8 overflow-y-auto p-8">
         <!-- Filter Column -->
-        <div class="filter-col">
-            <button class="filter-btn"
-                [class.active]="activeFilter === 'All'"
+        <div class="filter-col flex w-[200px] flex-shrink-0 flex-col gap-1.5 pt-1">
+            <button class="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                [ngClass]="{'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground font-semibold': activeFilter === 'All'}"
                 (click)="activeFilter = 'All'">All</button>
             <button *ngFor="let group of groups"
-                class="filter-btn"
-                [class.active]="activeFilter === group.title"
+                class="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                [ngClass]="{'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground font-semibold': activeFilter === group.title}"
                 (click)="activeFilter = group.title">{{ group.title }}</button>
         </div>
 
         <!-- Grid -->
-        <div class="launcher-grid">
-            <button class="app-btn" *ngFor="let item of filteredItems"
+        <div class="launcher-grid grid flex-1 grid-cols-2 content-start gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <button class="app-btn flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card px-3 pb-5 pt-7 transition-all hover:scale-[1.04] hover:border-border hover:shadow-md active:scale-[0.98]" *ngFor="let item of filteredItems"
                 (click)="onCardClick(item.route)">
-                <div class="app-icon" [style.background]="item.color + '18'" [style.color]="item.color">
+                <div class="flex h-[46px] w-[46px] items-center justify-center rounded-xl text-2xl" [style.background]="item.color + '18'" [style.color]="item.color">
                     <app-icon [name]="item.icon" />
                 </div>
-                <span class="app-label">{{ item.label }}</span>
+                <span class="text-center text-sm font-semibold leading-snug text-foreground">{{ item.label }}</span>
             </button>
         </div>
     </div>
 </div>
 
-<app-confirmation-dialog
+<hlm-alert-dialog
     [isOpen]="showLogoutConfirm"
     title="Confirm Logout"
     message="Are you sure you want to log out?"
@@ -50,4 +50,4 @@
     icon="logout"
     (confirm)="confirmLogout()"
     (cancel)="cancelLogout()">
-</app-confirmation-dialog>
+</hlm-alert-dialog>

@@ -1,33 +1,31 @@
-<div class="page-container" *ngIf="!hideFormActions">
-    <div class="page-header">
-        <h2 class="page-title">Create Visitor</h2>
-        <p class="page-subtitle">Fill in the details below to register a new visitor</p>
+<div class="mx-auto max-w-[900px] px-6 py-8" *ngIf="!hideFormActions">
+    <div class="mb-8">
+        <h2 class="m-0 mb-1 text-2xl font-bold text-foreground">Create Visitor</h2>
+        <p class="m-0 text-sm text-muted-foreground">Fill in the details below to register a new visitor</p>
     </div>
 
-    <form (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form">
+    <form (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="flex flex-col gap-6">
         <!-- Personal Information -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Personal Information</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="name">Name <span class="required">*</span></label>
-                    <input
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Personal Information</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="name">Name <span class="text-destructive">*</span></label>
+                    <input hlmInput
                         type="text"
                         id="name"
-                        class="form-control"
                         [(ngModel)]="form.name"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter name"
                         required>
                 </div>
-                <div class="form-field">
-                    <label for="phone">Phone <span class="required">*</span></label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="phone">Phone <span class="text-destructive">*</span></label>
+                    <input hlmInput
                         type="tel"
                         id="phone"
-                        class="form-control"
                         [(ngModel)]="form.phone"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter phone"
@@ -36,152 +34,144 @@
                         (keypress)="blockNonDigit($event, 'phone')"
                         (input)="onPhoneChange()"
                         required>
-                    <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
+                    <small class="text-xs text-destructive" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
                 </div>
-                <div class="form-field">
-                    <label for="gender">Gender <span class="required">*</span></label>
-                    <app-dropdown
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="gender">Gender <span class="text-destructive">*</span></label>
+                    <hlm-select
                         [options]="genderOptions"
                         [selectedValues]="selectedGender"
                         placeholder="Select Gender"
                         (selectionChange)="onGenderChange($event)"
                         [closeOnSelect]="true">
-                    </app-dropdown>
+                    </hlm-select>
                 </div>
-                <div class="form-field">
-                    <label for="dob">Date of Birth</label>
-                    <app-datepicker
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="dob">Date of Birth</label>
+                    <hlm-datepicker
                         [value]="form.dob"
                         placeholder="Select Date"
                         format="dd/MM/yyyy"
                         (dateChange)="onDobChange($event)">
-                    </app-datepicker>
+                    </hlm-datepicker>
                 </div>
-                <div class="form-field">
-                    <label for="email">Email Address</label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="email">Email Address</label>
+                    <input hlmInput
                         type="email"
                         id="email"
-                        class="form-control"
                         [(ngModel)]="form.email"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter email">
-                    <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+                    <small class="text-xs text-destructive" *ngIf="emailError">{{ emailError }}</small>
                 </div>
-                <div class="form-field">
-                    <label for="aadhaarNumber">Aadhaar Number</label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="aadhaarNumber">Aadhaar Number</label>
+                    <input hlmInput
                         type="text"
                         id="aadhaarNumber"
-                        class="form-control"
                         [(ngModel)]="form.aadhaarNumber"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter aadhaar number"
                         maxlength="12">
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Family Details -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Family Details</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="fatherName">Father Name</label>
-                    <input
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Family Details</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="fatherName">Father Name</label>
+                    <input hlmInput
                         type="text"
                         id="fatherName"
-                        class="form-control"
                         [(ngModel)]="form.fatherName"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter father name">
                 </div>
-                <div class="form-field">
-                    <label for="motherName">Mother Name</label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="motherName">Mother Name</label>
+                    <input hlmInput
                         type="text"
                         id="motherName"
-                        class="form-control"
                         [(ngModel)]="form.motherName"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter mother name">
                 </div>
-                <div class="form-field">
-                    <label for="spouseName">Spouse Name</label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="spouseName">Spouse Name</label>
+                    <input hlmInput
                         type="text"
                         id="spouseName"
-                        class="form-control"
                         [(ngModel)]="form.spouseName"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter spouse name">
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Visit Details -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Visit Details</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field form-field--full">
-                    <label for="purposeOfVisit">Purpose of Visit <span class="required">*</span></label>
-                    <input
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Visit Details</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label hlmLabel for="purposeOfVisit">Purpose of Visit <span class="text-destructive">*</span></label>
+                    <input hlmInput
                         type="text"
                         id="purposeOfVisit"
-                        class="form-control"
                         [(ngModel)]="form.purposeOfVisit"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter purpose"
                         required>
                 </div>
-                <div class="form-field">
-                    <label for="startDate">Start Date <span class="required">*</span></label>
-                    <app-datepicker
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="startDate">Start Date <span class="text-destructive">*</span></label>
+                    <hlm-datepicker
                         [value]="form.startDate"
                         placeholder="Select Date"
                         format="dd/MM/yyyy"
                         (dateChange)="onStartDateChange($event)">
-                    </app-datepicker>
+                    </hlm-datepicker>
                 </div>
-                <div class="form-field">
-                    <label for="validUpto">Valid Upto <span class="required">*</span></label>
-                    <app-datepicker
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="validUpto">Valid Upto <span class="text-destructive">*</span></label>
+                    <hlm-datepicker
                         [value]="form.validUpto"
                         [minDate]="validUptoMin"
                         placeholder="Select Date"
                         format="dd/MM/yyyy"
                         (dateChange)="onValidUptoChange($event)">
-                    </app-datepicker>
+                    </hlm-datepicker>
                 </div>
-                <div class="form-field">
-                    <label for="address">Address</label>
-                    <input
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="address">Address</label>
+                    <input hlmInput
                         type="text"
                         id="address"
-                        class="form-control"
                         [(ngModel)]="form.address"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter address">
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Contact Details -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Contact Details</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="whatsappNumber">Whatsapp Number</label>
-                    <input
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Contact Details</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="whatsappNumber">Whatsapp Number</label>
+                    <input hlmInput
                         type="tel"
                         id="whatsappNumber"
-                        class="form-control"
                         [(ngModel)]="form.whatsappNumber"
                         [ngModelOptions]="{ standalone: true }"
                         placeholder="Enter whatsapp number"
@@ -189,183 +179,175 @@
                         maxlength="10"
                         (keypress)="blockNonDigit($event, 'whatsapp')"
                         (input)="onWhatsappChange()">
-                    <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+                    <small class="text-xs text-destructive" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Profile Image -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">Profile Image</h3>
-            </div>
-            <div class="form-grid">
-                <div class="form-field" *ngIf="!profileImagePreview">
-                    <label>Upload Method</label>
-                    <app-dropdown
+        <section class="rounded-xl border border-border bg-card p-6">
+            <header class="mb-5 border-b border-border/60 pb-3">
+                <h3 class="m-0 text-base font-semibold text-foreground">Profile Image</h3>
+            </header>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="flex flex-col gap-1.5" *ngIf="!profileImagePreview">
+                    <label hlmLabel>Upload Method</label>
+                    <hlm-select
                         [options]="imageOptions"
                         [selectedValues]="selectedImage"
                         placeholder="Select Image"
                         (selectionChange)="onImageChange($event)"
                         [closeOnSelect]="true">
-                    </app-dropdown>
+                    </hlm-select>
                 </div>
-                <div class="form-field form-field--full" *ngIf="selectedImageType && profileImagePreview">
-                    <div class="profile-image-preview">
-                        <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-                        <div class="profile-image-actions">
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">
+                <div class="flex flex-col gap-1.5 md:col-span-2" *ngIf="selectedImageType && profileImagePreview">
+                    <div class="flex items-center gap-4">
+                        <img [src]="profileImagePreview" alt="Profile preview" class="h-20 w-20 rounded-lg border border-border object-cover" />
+                        <div class="flex flex-col gap-2">
+                            <button hlmBtn variant="secondary" size="sm" type="button" (click)="reopenImageModal()" [disabled]="isLoading">
                                 Change
                             </button>
-                            <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">
+                            <button hlmBtn variant="secondary" size="sm" type="button" (click)="onCameraImageRemoved()" [disabled]="isLoading">
                                 Remove
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Possible Duplicate Visitors -->
-        <div class="form-section duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
-            <div class="section-header">
-                <h3 class="section-title">Possible Duplicate Visitors</h3>
-                <p class="section-subtitle">A visitor with similar details already exists. Review the matches below — if you still want to proceed, turn on "Proceed with Possible Duplicate" in the form actions and submit again.</p>
-            </div>
-            <div class="duplicate-list">
-                <div class="duplicate-item" *ngFor="let u of existingUsers">
-                    <div class="duplicate-item__id">#{{ u.unique_id }}</div>
-                    <div class="duplicate-item__main">
-                        <div class="duplicate-item__name">{{ u.name }}</div>
-                        <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+        <section *ngIf="showProceedToggle && existingUsers.length" class="rounded-xl border border-amber-300 bg-amber-50 p-5">
+            <header class="mb-3">
+                <h3 class="m-0 mb-1 text-base font-bold text-amber-800">Possible Duplicate Visitors</h3>
+                <p class="m-0 text-[13px] text-amber-800/85">A visitor with similar details already exists. Review the matches below — if you still want to proceed, turn on "Proceed with Possible Duplicate" in the form actions and submit again.</p>
+            </header>
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+                <div *ngFor="let u of existingUsers" class="flex items-center gap-3 rounded-lg border border-amber-300 bg-card px-3.5 py-2.5">
+                    <div class="whitespace-nowrap font-mono text-[13px] font-bold text-amber-700">#{{ u.unique_id }}</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate text-sm font-semibold text-foreground">{{ u.name }}</div>
+                        <div *ngIf="u.level" class="mt-0.5 text-xs text-muted-foreground">{{ u.level }}</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="button" class="btn btn--secondary" (click)="onReset()" [disabled]="isLoading">Reset</button>
+        <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
+            <button hlmBtn variant="secondary" type="button" (click)="onReset()" [disabled]="isLoading">Reset</button>
 
-            <label class="proceed-toggle" *ngIf="showProceedToggle">
-                <input type="checkbox" class="proceed-toggle__input"
-                       [(ngModel)]="proceedForcefully"
-                       [ngModelOptions]="{ standalone: true }" />
-                <span class="proceed-toggle__slider"></span>
-                <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
+            <label *ngIf="showProceedToggle" class="mr-auto inline-flex cursor-pointer select-none items-center gap-2.5 text-[13px] text-foreground">
+                <hlm-switch [checked]="proceedForcefully" (checkedChange)="proceedForcefully = $event" />
+                <span class="font-medium">Proceed with Possible Duplicate</span>
             </label>
 
-            <button type="submit" class="btn btn--primary" [disabled]="isLoading">
+            <button hlmBtn type="submit" [disabled]="isLoading">
                 {{ isLoading ? 'Submitting...' : 'Create Visitor' }}
             </button>
         </div>
     </form>
 </div>
 
-<!-- Side panel mode (unchanged) -->
-<form *ngIf="hideFormActions" (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="visitor-form visitor-form--panel">
-    <div class="form-field">
-        <label for="name">Name </label>
-        <input type="text" id="name" class="form-control" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
+<!-- Side panel mode -->
+<form *ngIf="hideFormActions" (ngSubmit)="onSubmit()" #visitorForm="ngForm" class="flex flex-col gap-6">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="name">Name </label>
+        <input hlmInput type="text" id="name" [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" placeholder="Enter name" required>
     </div>
-    <div class="form-field">
-        <label for="phone">Phone </label>
-        <input type="tel" id="phone" class="form-control" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter phone" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
-        <small class="field-error" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="phone">Phone </label>
+        <input hlmInput type="tel" id="phone" [(ngModel)]="form.phone" [ngModelOptions]="{ standalone: true }" placeholder="Enter phone" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'phone')" (input)="onPhoneChange()" required>
+        <small class="text-xs text-destructive" *ngIf="phoneInputWarning || phoneError">{{ phoneInputWarning || phoneError }}</small>
     </div>
-    <div class="form-field">
-        <label for="gender">Gender </label>
-        <app-dropdown [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="gender">Gender </label>
+        <hlm-select [options]="genderOptions" [selectedValues]="selectedGender" placeholder="Select Gender" (selectionChange)="onGenderChange($event)" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field">
-        <label for="dob">Date of birth</label>
-        <app-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></app-datepicker>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="dob">Date of birth</label>
+        <hlm-datepicker [value]="form.dob" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onDobChange($event)"></hlm-datepicker>
     </div>
-    <div class="form-field">
-        <label for="fatherName">Father Name</label>
-        <input type="text" id="fatherName" class="form-control" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="fatherName">Father Name</label>
+        <input hlmInput type="text" id="fatherName" [(ngModel)]="form.fatherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter father name">
     </div>
-    <div class="form-field">
-        <label for="motherName">Mother Name</label>
-        <input type="text" id="motherName" class="form-control" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="motherName">Mother Name</label>
+        <input hlmInput type="text" id="motherName" [(ngModel)]="form.motherName" [ngModelOptions]="{ standalone: true }" placeholder="Enter mother name">
     </div>
-    <div class="form-field">
-        <label for="spouseName">Spouse Name</label>
-        <input type="text" id="spouseName" class="form-control" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="spouseName">Spouse Name</label>
+        <input hlmInput type="text" id="spouseName" [(ngModel)]="form.spouseName" [ngModelOptions]="{ standalone: true }" placeholder="Enter spouse name">
     </div>
-    <div class="form-field">
-        <label for="address">Address</label>
-        <input type="text" id="address" class="form-control" [(ngModel)]="form.address" [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="address">Address</label>
+        <input hlmInput type="text" id="address" [(ngModel)]="form.address" [ngModelOptions]="{ standalone: true }" placeholder="Enter address">
     </div>
-    <div class="form-field">
-        <label for="purposeOfVisit">Purpose of Visit </label>
-        <input type="text" id="purposeOfVisit" class="form-control" [(ngModel)]="form.purposeOfVisit" [ngModelOptions]="{ standalone: true }" placeholder="Enter purpose" required>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="purposeOfVisit">Purpose of Visit </label>
+        <input hlmInput type="text" id="purposeOfVisit" [(ngModel)]="form.purposeOfVisit" [ngModelOptions]="{ standalone: true }" placeholder="Enter purpose" required>
     </div>
-    <div class="form-field">
-        <label for="whatsappNumber">Whatsapp Number</label>
-        <input type="tel" id="whatsappNumber" class="form-control" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()">
-        <small class="field-error" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="whatsappNumber">Whatsapp Number</label>
+        <input hlmInput type="tel" id="whatsappNumber" [(ngModel)]="form.whatsappNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter whatsapp number" inputmode="numeric" maxlength="10" (keypress)="blockNonDigit($event, 'whatsapp')" (input)="onWhatsappChange()">
+        <small class="text-xs text-destructive" *ngIf="whatsappInputWarning || whatsappError">{{ whatsappInputWarning || whatsappError }}</small>
     </div>
-    <div class="form-field">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
-        <small class="field-error" *ngIf="emailError">{{ emailError }}</small>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="email">Email Address</label>
+        <input hlmInput type="email" id="email" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email">
+        <small class="text-xs text-destructive" *ngIf="emailError">{{ emailError }}</small>
     </div>
-    <div class="form-field">
-        <label for="aadhaarNumber">Aadhaar Number</label>
-        <input type="text" id="aadhaarNumber" class="form-control" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="aadhaarNumber">Aadhaar Number</label>
+        <input hlmInput type="text" id="aadhaarNumber" [(ngModel)]="form.aadhaarNumber" [ngModelOptions]="{ standalone: true }" placeholder="Enter aadhaar number" maxlength="12">
     </div>
-    <div class="form-field">
-        <label for="startDate">Start Date </label>
-        <app-datepicker [value]="form.startDate" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onStartDateChange($event)"></app-datepicker>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="startDate">Start Date </label>
+        <hlm-datepicker [value]="form.startDate" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onStartDateChange($event)"></hlm-datepicker>
     </div>
-    <div class="form-field">
-        <label for="validUpto">Valid Upto </label>
-        <app-datepicker [value]="form.validUpto" [minDate]="validUptoMin" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onValidUptoChange($event)"></app-datepicker>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel for="validUpto">Valid Upto </label>
+        <hlm-datepicker [value]="form.validUpto" [minDate]="validUptoMin" placeholder="Select Date" format="dd/MM/yyyy" (dateChange)="onValidUptoChange($event)"></hlm-datepicker>
     </div>
-    <div class="form-field">
-        <label>Upload Profile Image</label>
-        <app-dropdown [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></app-dropdown>
+    <div class="flex flex-col gap-1.5">
+        <label hlmLabel>Upload Profile Image</label>
+        <hlm-select [options]="imageOptions" [selectedValues]="selectedImage" placeholder="Select Image" (selectionChange)="onImageChange($event)" [closeOnSelect]="true"></hlm-select>
     </div>
-    <div class="form-field" *ngIf="selectedImageType && profileImagePreview">
-        <div class="profile-image-preview">
-            <img [src]="profileImagePreview" alt="Profile preview" class="profile-thumb" />
-            <div class="profile-image-actions">
-                <button type="button" class="btn btn--secondary btn--sm" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
-                <button type="button" class="btn btn--secondary btn--sm" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
+    <div class="flex flex-col gap-1.5" *ngIf="selectedImageType && profileImagePreview">
+        <div class="flex items-center gap-4">
+            <img [src]="profileImagePreview" alt="Profile preview" class="h-20 w-20 rounded-lg border border-border object-cover" />
+            <div class="flex flex-col gap-2">
+                <button hlmBtn variant="secondary" size="sm" type="button" (click)="reopenImageModal()" [disabled]="isLoading">Change</button>
+                <button hlmBtn variant="secondary" size="sm" type="button" (click)="onCameraImageRemoved()" [disabled]="isLoading">Remove</button>
             </div>
         </div>
     </div>
 
     <!-- Possible Duplicate Visitors (side-panel mode) -->
-    <div class="form-field duplicate-section" *ngIf="showProceedToggle && existingUsers.length">
-        <h3 class="section-title">Possible Duplicate Visitors</h3>
-        <p class="section-subtitle">A visitor with similar details already exists. Review the matches below.</p>
-        <div class="duplicate-list">
-            <div class="duplicate-item" *ngFor="let u of existingUsers">
-                <div class="duplicate-item__id">#{{ u.unique_id }}</div>
-                <div class="duplicate-item__main">
-                    <div class="duplicate-item__name">{{ u.name }}</div>
-                    <div class="duplicate-item__level" *ngIf="u.level">{{ u.level }}</div>
+    <div *ngIf="showProceedToggle && existingUsers.length" class="rounded-xl border border-amber-300 bg-amber-50 p-4">
+        <h3 class="m-0 mb-1 text-base font-bold text-amber-800">Possible Duplicate Visitors</h3>
+        <p class="m-0 mb-3 text-[13px] text-amber-800/85">A visitor with similar details already exists. Review the matches below.</p>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
+            <div *ngFor="let u of existingUsers" class="flex items-center gap-3 rounded-lg border border-amber-300 bg-card px-3.5 py-2.5">
+                <div class="whitespace-nowrap font-mono text-[13px] font-bold text-amber-700">#{{ u.unique_id }}</div>
+                <div class="min-w-0 flex-1">
+                    <div class="truncate text-sm font-semibold text-foreground">{{ u.name }}</div>
+                    <div *ngIf="u.level" class="mt-0.5 text-xs text-muted-foreground">{{ u.level }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- "Proceed with Possible Duplicate" toggle (side-panel mode, only when API flagged duplicates) -->
-    <div class="form-field" *ngIf="showProceedToggle">
-        <label class="proceed-toggle">
-            <input type="checkbox" class="proceed-toggle__input"
-                   [(ngModel)]="proceedForcefully"
-                   [ngModelOptions]="{ standalone: true }" />
-            <span class="proceed-toggle__slider"></span>
-            <span class="proceed-toggle__label">Proceed with Possible Duplicate</span>
-        </label>
+    <!-- "Proceed with Possible Duplicate" toggle (side-panel mode) -->
+    <div *ngIf="showProceedToggle" class="flex items-center gap-2.5">
+        <hlm-switch [checked]="proceedForcefully" (checkedChange)="proceedForcefully = $event" />
+        <span class="text-[13px] font-medium text-foreground">Proceed with Possible Duplicate</span>
     </div>
 </form>
 
 <!-- Profile Image Upload Modal (shared across page and side-panel mode) -->
-<app-modal
+<hlm-dialog
     *ngIf="imageModalOpen"
     [isOpen]="imageModalOpen"
     [title]="selectedImageType === 'capture' ? 'Capture Live Photo' : 'Upload Profile Image'"
@@ -387,4 +369,4 @@
             (removed)="onCameraImageRemoved()">
         </app-camera-upload>
     </ng-container>
-</app-modal>
+</hlm-dialog>

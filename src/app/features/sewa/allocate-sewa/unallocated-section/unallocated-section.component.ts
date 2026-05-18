@@ -7,10 +7,11 @@ import { DataService } from '../../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ImagePreviewDirective } from '../../../../shared/directives/image-preview.directive';
+import { HlmButtonDirective, HlmInputDirective } from '../../../../shared/ui';
 @Component({
     selector: 'app-unallocated-section',
     standalone: true,
-    imports: [CommonModule, FormsModule, ImagePreviewDirective],
+    imports: [CommonModule, FormsModule, ImagePreviewDirective, HlmButtonDirective, HlmInputDirective],
     templateUrl: './unallocated-section.component.html',
     styleUrls: ['./unallocated-section.component.scss']
 })

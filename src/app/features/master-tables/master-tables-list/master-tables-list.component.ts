@@ -2,12 +2,12 @@ import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { PagerComponent } from '../../../shared/components/pager/pager.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MenuDropdownComponent, MenuOption } from '../../../shared/components/menu-dropdown/menu-dropdown.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmPaginationComponent } from '../../../shared/ui';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
+import { HlmMenuComponent, MenuOption } from '../../../shared/ui';
 import { AddMasterEntryModalComponent, MasterEntryFormData } from './add-master-entry-modal/add-master-entry-modal.component';
-import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HlmAlertDialogComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { SearchService, SearchState } from '../../../core/services/search.service';
 import { SortService, SortState } from '../../../core/services/sort.service';
@@ -15,6 +15,7 @@ import { finalize } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { BasePaginatedList } from '../../../shared/pagination/base-paginated-list';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { HlmButtonDirective, HlmInputDirective } from '../../../shared/ui';
 
 type MasterType =
   | 'skills' | 'banks' | 'degrees' | 'professions' | 'languages' | 'dress_codes'
@@ -52,10 +53,11 @@ const ID_FIELD_MAPPINGS: Record<string, string> = {
 @Component({
   standalone: true,
   imports: [
-    CommonModule, FormsModule, PagerComponent,
-    EmptyStateComponent, MenuDropdownComponent,
-    AddMasterEntryModalComponent, ConfirmationDialogComponent,
-    IconComponent
+    CommonModule, FormsModule, HlmPaginationComponent,
+    HlmEmptyStateComponent, HlmMenuComponent,
+    AddMasterEntryModalComponent, HlmAlertDialogComponent,
+    IconComponent,
+    HlmButtonDirective, HlmInputDirective
   ],
   selector: 'app-master-tables-list',
   templateUrl: './master-tables-list.component.html',

@@ -12,6 +12,10 @@ import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowUpDownIcon,
+  ArrowDataTransferVerticalIcon,
+  SortingIcon,
+  SortingUpIcon,
+  SortingDownIcon,
 
   // Actions
   Search01Icon,
@@ -106,7 +110,10 @@ const ICON_MAP: Record<string, IconSvgObject> = {
   'arrow_forward': ArrowRight01Icon,
   'arrow_upward': ArrowUp01Icon,
   'arrow_downward': ArrowDown01Icon,
-  'unfold_more': ArrowUpDownIcon,
+  'unfold_more': ArrowDataTransferVerticalIcon,
+  'sort': ArrowDataTransferVerticalIcon,
+  'sort_asc': SortingUpIcon,
+  'sort_desc': SortingDownIcon,
 
   // Actions
   'search': Search01Icon,

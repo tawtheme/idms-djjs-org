@@ -2,13 +2,14 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
-import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
-import { DatepickerComponent } from '../../../shared/components/datepicker/datepicker.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
+import { HlmSelectComponent, DropdownOption } from '../../../shared/ui';
+import { HlmDatepickerComponent } from '../../../shared/ui';
 import { DataService } from '../../../data.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SnackbarService } from '../../../shared/services/snackbar.service';
+import { HlmButtonDirective, HlmInputDirective, HlmLabelDirective } from '../../../shared/ui';
 @Component({
   selector: 'app-add-program',
   standalone: true,
@@ -16,11 +17,14 @@ import { SnackbarService } from '../../../shared/services/snackbar.service';
     CommonModule,
     FormsModule,
     RouterModule,
-    DropdownComponent,
-    DatepickerComponent
+    HlmSelectComponent,
+    HlmDatepickerComponent,
+    HlmButtonDirective,
+    HlmInputDirective,
+    HlmLabelDirective
   ],
   templateUrl: './add-program.component.html',
-  styleUrls: ['./add-program.component.scss']
+  host: { class: 'block w-full h-full overflow-y-auto bg-muted/40' }
 })
 export class AddProgramComponent implements OnInit {
   private dataService = inject(DataService);

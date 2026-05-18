@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
-import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbItem } from '../../../shared/types/breadcrumb-item';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HlmEmptyStateComponent } from '../../../shared/ui';
 import { ImagePreviewDirective } from '../../../shared/directives/image-preview.directive';
 import { DataService } from '../../../data.service';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HlmButtonDirective } from '../../../shared/ui';
 
 export interface ProgramBasic {
   id: string;
@@ -51,7 +52,7 @@ export interface Donation {
 @Component({
   selector: 'app-program-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, EmptyStateComponent, ImagePreviewDirective],
+  imports: [CommonModule, FormsModule, IconComponent, HlmEmptyStateComponent, ImagePreviewDirective, HlmButtonDirective],
   templateUrl: './program-detail.component.html',
   styleUrls: ['./program-detail.component.scss']
 })

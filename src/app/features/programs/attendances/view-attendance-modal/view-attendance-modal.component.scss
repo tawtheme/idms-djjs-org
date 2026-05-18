@@ -178,42 +178,6 @@
     }
 }
 
-// ── Table ──
-.table-container {
-    border: 1px solid $color-gray-200;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 12px;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-
-    thead th {
-        background: $color-gray-50;
-        color: $color-gray-600;
-        font-weight: 600;
-        font-size: 13px;
-        padding: 10px 14px;
-        text-align: left;
-        border-bottom: 1px solid $color-gray-200;
-        white-space: nowrap;
-    }
-
-    tbody td {
-        padding: 10px 14px;
-        color: $color-gray-700;
-        border-bottom: 1px solid $color-gray-100;
-        vertical-align: middle;
-    }
-
-    tbody tr:last-child td {
-        border-bottom: none;
-    }
-}
-
 // ── Download CSV ──
 .download-csv-btn {
     display: inline-flex;
